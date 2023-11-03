@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration  scan="true" scanPeriod="10 seconds">
+
+    <contextName>logback</contextName>
+
+    <property name="APP_NAME" value="compute-nest-saas-boost" />
+
+    <!-- 格式化输出：%date表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度 %msg：日志消息，%n是换行符-->
+    <property name="LOG_PATTERN" value="%date{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
+
+    <!-- 定义日志存储的路径，不要配置相对路径 -->
+    <property name="FILE_PATH" value="/${HOME}/logs/${APP_NAME}_%d{yyyy-MM-dd}_%i.log" />
+
+    <!-- 控制台输出日志 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 日志级别过滤INFO以下 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <!-- 按照上面配置的LOG_PATTERN来打印日志 -->
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--每天生成一个日志文件，保存30天的日志文件。rollingFile用来切分文件的 -->
+    <appender name="rollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <fileNamePattern>${FILE_PATH}</fileNamePattern>
+
+            <!-- keep 15 days' worth of history -->
+            <maxHistory>30</maxHistory>
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 日志文件的最大大小 -->
+                <maxFileSize>2MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!-- 超出删除老文件 -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- project default level -->
+    <logger name="net.sh.rgface.serive" level="ERROR" />
+
+    <!-- 日志输出级别 -->
+    <root level="INFO">
+        <appender-ref ref="console" />
+        <appender-ref ref="rollingFile" />
+    </root>
+</configuration>
