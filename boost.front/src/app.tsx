@@ -26,7 +26,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 import {redirectLogin, getTicket} from "@/session";
 import {getUserInfo} from "@/services/backend/user";
-
+import logoicon from '../public/logo.svg'
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -152,6 +152,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       );
     },
     ...initialState?.settings,
+    logo: <img src={logoicon}/>,
   };
 };
 
