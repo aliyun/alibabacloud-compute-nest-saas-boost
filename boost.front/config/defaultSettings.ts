@@ -14,10 +14,13 @@
 */
 
 import { ProLayoutProps } from '@ant-design/pro-components';
-
+import React from "react";
+import {WithFalse} from "@ant-design/pro-layout/es/typing";
 /**
  * @name
  */
+
+
 const Settings: ProLayoutProps & {
   pwa?: boolean;
   logo?: string;
@@ -30,9 +33,9 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: '阿里云计算巢',
+  title: 'SaaS Boost',
   pwa: true,
-  logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+  logo: '/logo.png',
   iconfontUrl: '',
   token: {
     // 参见ts声明，demo 见文档，通过token 修改样式
