@@ -13,10 +13,9 @@
 *limitations under the License.
 */
 
-import {Col, Row} from "antd";
+import {Col, Modal, Row} from "antd";
 import ProCard from "@ant-design/pro-card";
 import React, {useContext, useEffect, useState} from "react";
-import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/CreateServiceInstance/PayPeriodFormItem";
 import {getServiceCost, getServiceMetadata} from "@/services/backend/serviceInstance";
 import {
     ParameterGroupsInterface,
@@ -24,9 +23,18 @@ import {
     ParameterTypeInterfaceArray,
     Specification
 } from "@/pages/ServiceInstanceList/components/CreateServiceInstance/ServiceMetadataInterface";
-import {ProForm, ProFormContext, ProFormDigit, ProFormItem, ProFormSelect, ProFormText} from "@ant-design/pro-form";
+import {
+    ProForm,
+    ProFormContext,
+    ProFormDependency,
+    ProFormDigit,
+    ProFormSelect,
+    ProFormText
+} from "@ant-design/pro-form";
 import {validatePassword} from "@/pages/ServiceInstanceList/components/PasswordFormItem";
-import {CustomParameters, defaultSpecification} from "@/specificationConfig";
+import {CustomParameters, defaultSpecification, RegionParameters} from "@/specificationConfig";
+import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/CreateServiceInstance/PayPeriodFormItem";
+import inner from "bizcharts/src/components/Tooltip/inner";
 
 
 export const SpecificationFormItem: React.FC = ({}) => {
@@ -37,14 +45,18 @@ export const SpecificationFormItem: React.FC = ({}) => {
     const [currentPrice, setCurrentPrice] = useState<number | null>(null);
     const [specifications, setSpecifications] = useState<Specification[]>([]);
     const [templateName, setTemplateName] = useState<String | undefined>(undefined);
-    const specificationParameterList:string[] = [];
+    const specificationParameterList: string[] = [];
 
     const handleSpecificationChange = (cardTitle: string | null, months: number) => {
         const value = cardTitle ? {specificationName: cardTitle, payPeriod: months} : null;
-        console.log(value);
         const currentValues = form.formRef?.current.getFieldsValue();
         if (form) {
-            form.formRef?.current?.setFieldsValue({...currentValues, specification: value, templateName: templateName});
+            form.formRef?.current?.setFieldsValue({
+                ...currentValues,
+                SpecificationName: cardTitle,
+                PayPeriod: months,
+                templateName: templateName
+            });
         }
     };
 
@@ -57,6 +69,10 @@ export const SpecificationFormItem: React.FC = ({}) => {
         setSelectedMonths(month);
         handleSpecificationChange(selectedCard, month);
     };
+
+    function isDependencyWithSpecification(parameterName: string) {
+        return specificationParameterList.includes(parameterName);
+    }
 
     function createFormItem(key: string, value: ParameterTypeInterface) {
         const parsedValue = value as ParameterTypeInterface;
@@ -71,23 +87,64 @@ export const SpecificationFormItem: React.FC = ({}) => {
         const rules = [{pattern: patternRegEx, message: label, required: true},];
         const parsedType = parsedValue?.Type != undefined ? parsedValue?.Type.toLowerCase() : "";
         console.log(parsedValue);
+        let dependencyWithSpecification = isDependencyWithSpecification(key);
         if (parsedType === 'boolean') {
             return (
                 <ProFormSelect initialValue={defaultValue} valueEnum={{true: '是', false: '否'}}
                                label={label} key={key} name={key} rules={[{required: true}]}/>
             );
+        } else if (dependencyWithSpecification) {
+            return (
+                <ProFormDependency name={["SpecificationName"]}
+                                   shouldUpdate={(prevValues, curValues) => prevValues.type !== curValues.type}>
+                    {({SpecificationName}) => {
+                        console.log("aab");
+                        console.log(SpecificationName);
+                        const currentSpecificationParameters = specifications.findLast((specification: Specification) => {
+                            return specification.Name == SpecificationName;
+                        })?.Parameters[key];
+
+                        const valueEnum = currentSpecificationParameters?.reduce((obj, value) => {
+                            obj[value] = value;
+                            return obj;
+                        }, {} as { [key: string]: string });
+                        console.log(valueEnum);
+                        if (currentSpecificationParameters !== undefined) {
+                            console.log(currentSpecificationParameters[0]);
+                            return (
+                                <ProFormSelect label={label}
+                                               valueEnum={valueEnum}
+                                               rules={[{required: true}]} fieldProps={{
+                                    onChange: (e) => {
+
+                                    }, value: currentSpecificationParameters[0]
+                                }}>
+                                </ProFormSelect>)
+                        } else {
+                            return (<ProFormText label={label} key={key} name={key} rules={rules}/>);
+                        }
+
+                    }
+                    }
+
+                </ProFormDependency>
+            );
         } else if (parsedType === 'string') {
             const allowedValues = parsedValue.AllowedValues ?? [];
             if (allowedValues.length > 0) {
-                const result = allowedValues.reduce((obj, value) => {
+
+                const valueEnum = allowedValues.reduce((obj, value) => {
                     obj[value] = value;
                     return obj;
                 }, {} as { [key: string]: string });
                 return (
-                    <ProFormSelect initialValue={defaultValue} label={label} key={key} name={key} valueEnum={result}
+                    <ProFormSelect initialValue={defaultValue} label={label} key={key} name={key}
+                                   valueEnum={valueEnum}
                                    rules={[{required: true}]}>
                     </ProFormSelect>
                 );
+
+
             } else {
                 return noEcho ?
                     <ProFormText.Password initialValue={parsedValue.Default} label={label}
@@ -100,13 +157,19 @@ export const SpecificationFormItem: React.FC = ({}) => {
         } else if (parsedType === 'number') {
             const minValue = parsedValue?.MinValue;
             const maxValue = parsedValue?.MaxValue;
-            return (<ProFormDigit initialValue={defaultValue} label={label} key={key} name={key} rules={rules} min={minValue} max={maxValue}/>);
+            return (<ProFormDigit initialValue={defaultValue} label={label} key={key} name={key} rules={rules}
+                                  min={minValue} max={maxValue}/>);
         } else {
             return (<ProFormText initialValue={defaultValue} label={label} key={key} name={key} rules={rules}/>);
         }
     }
 
     useEffect(() => {
+        const elements: JSX.Element[] = [];
+        Object.keys(CustomParameters).forEach(key => {
+            const element = createFormItem(key, CustomParameters[key]);
+            elements.push(element);
+        })
         const fetchData = async () => {
             try {
                 const response = await getServiceMetadata({});
@@ -115,6 +178,13 @@ export const SpecificationFormItem: React.FC = ({}) => {
                     if (response.data.templateName !== undefined) {
                         setTemplateName(response.data.templateName);
                     }
+                    // if (response.data.allowedRegions !== undefined) {
+                    //     RegionParameters[0].AllowedValues = response.data.allowedRegions;
+                    // }
+                    Object.keys(RegionParameters).forEach(key => {
+                        const element = createFormItem(key, RegionParameters[key]);
+                        elements.push(element);
+                    })
                     if (response.data.specifications !== undefined && response.data.specifications.length > 2) {
 
                         let specificationsString = typeof response.data.specifications !== 'object' ? JSON.parse(response.data.specifications) : response.data.specifications;
@@ -127,7 +197,7 @@ export const SpecificationFormItem: React.FC = ({}) => {
                                 Description: spec?.Description,
                             };
                         });
-                        mappedSpecifications[0].OrderList.map((parameterName: string)=>{
+                        mappedSpecifications[0].OrderList.map((parameterName: string) => {
                             specificationParameterList.push(parameterName);
                         })
                         setSpecifications(mappedSpecifications.length > 0 ? mappedSpecifications : defaultSpecification);
@@ -140,11 +210,6 @@ export const SpecificationFormItem: React.FC = ({}) => {
                         console.log(parameterMetadata);
                         const parameterTypeList: ParameterTypeInterfaceArray = parameterMetadata.Parameters;
                         const parameterGroups: ParameterGroupsInterface = parameterMetadata.Metadata;
-                        const elements: JSX.Element[] = [];
-                        Object.keys(CustomParameters).forEach(key => {
-                            const element = createFormItem(key, CustomParameters[key]);
-                            elements.push(element);
-                        })
                         console.log(parameterTypeList);
                         console.log(parameterGroups);
                         if (parameterTypeList) {
@@ -153,7 +218,7 @@ export const SpecificationFormItem: React.FC = ({}) => {
                                 group.forEach(parameterGroup => {
                                     for (const parameterName of parameterGroup.Parameters) {
                                         let parameterTypeListElement = parameterTypeList[parameterName];
-                                        if (parameterTypeListElement !== undefined && !specificationParameterList.includes(parameterName)) {
+                                        if (parameterTypeListElement !== undefined) {
                                             const element = createFormItem(parameterName, parameterTypeListElement);
                                             elements.push(element);
                                         }
@@ -168,10 +233,29 @@ export const SpecificationFormItem: React.FC = ({}) => {
                         }
                         setElements(elements);
                     }
-
                 }
             } catch (error) {
-                console.error('Failed to fetch service metadata:', error);
+                setSpecifications(defaultSpecification);
+                setElements(elements);
+                Modal.error({
+                    title: '获取服务失败',
+                    content: (
+                        <div>
+                            <p>当前套餐和价格均为默认价格。请访问文档修改配置：</p>
+                            <p>
+                                <a
+                                    href="https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/
+                                </a>
+                            </p>
+                        </div>
+                    ),
+                    onOk: () => {
+                    },
+                });
             }
         };
 
@@ -192,7 +276,7 @@ export const SpecificationFormItem: React.FC = ({}) => {
                 }
             } catch (error) {
                 // 处理错误
-                console.error("Failed to fetch service cost:", error);
+                setCurrentPrice(100);
             }
         };
 
@@ -203,8 +287,9 @@ export const SpecificationFormItem: React.FC = ({}) => {
     const numColumns = specifications.length;
     const colSpan = 24 / numColumns;
     return (
+
         <ProForm.Group>
-            <ProFormItem>
+            <ProForm.Item name={"SpecificationName"}>
                 <ProCard title="套餐" bordered headerBordered gutter={16} hoverable>
                     <Row gutter={[16, 16]}>
                         {specifications.map((spec) => (
@@ -226,20 +311,25 @@ export const SpecificationFormItem: React.FC = ({}) => {
                         ))}
                     </Row>
 
+                </ProCard>
+            </ProForm.Item>
+
+            <ProForm.Item>
+                <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
+
+                    <PayPeriodFormItem onChange={handleOptionChange}/>
+
                     <div style={{textAlign: "right", padding: "16px"}}>
                         当前价格: <span
                         style={{color: "red"}}>{currentPrice ? currentPrice.toFixed(2) : "加载中..."}</span>
                     </div>
-                    <div>
-                        <PayPeriodFormItem onChange={handleOptionChange}/>
-                    </div>
-                    <div>
-                        <ProCard type={"inner"} title={"配置参数"} bordered headerBordered hoverable>
-                            {elements}
-                        </ProCard>
-                    </div>
                 </ProCard>
-            </ProFormItem>
+
+                <ProCard type={"inner"} title={"配置参数"} bordered headerBordered hoverable>
+                    {elements}
+                </ProCard>
+            </ProForm.Item>
+
 
         </ProForm.Group>
     )

@@ -25,6 +25,8 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceResponse;
+import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsRequest;
+import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
 import org.example.common.config.AliyunConfig;
@@ -92,4 +94,12 @@ public interface ComputeNestSupplierClient {
      * @return {@link GetServiceResponse}
      */
     GetServiceResponse getService(GetServiceRequest request);
+
+    /**
+     * Get ROS service template parameter constraints.
+     *
+     * @param request
+     * @return {@link GetServiceTemplateParameterConstraintsResponse}
+     */
+    GetServiceTemplateParameterConstraintsResponse getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsRequest request);
 }

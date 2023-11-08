@@ -23,47 +23,31 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody.GetServiceInstanceResponseBodyServiceServiceInfos;
-import com.aliyun.computenestsupplier20210521.models.GetServiceRequest;
-import com.aliyun.computenestsupplier20210521.models.GetServiceResponse;
-import com.aliyun.computenestsupplier20210521.models.GetServiceResponseBody;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest.ListServiceInstancesRequestFilter;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstances;
 import com.aliyun.tea.TeaException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
-import org.example.common.config.SpecificationConfig;
 import org.example.common.constant.ComputeNestConstants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
-import org.example.common.helper.WalletHelper;
 import org.example.common.model.ServiceInstanceModel;
-import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.GetServiceMetadataParam;
 import org.example.common.param.ListServiceInstancesParam;
-import org.example.common.utils.HttpUtil;
-import org.example.common.utils.JsonUtil;
 import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.common.utils.UuidUtil;
-import org.example.common.utils.YamlUtil;
 import org.example.service.ServiceInstanceLifecycleService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,11 +56,7 @@ import java.util.stream.Collectors;
 
 import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD;
 import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD_UNIT;
-import static org.example.common.constant.ComputeNestConstants.PREDEFINED_PARAMETERS;
-import static org.example.common.constant.ComputeNestConstants.TEMPLATE_CONFIGS;
-import static org.example.common.constant.ComputeNestConstants.TEMPLATE_NAME;
 import static org.example.common.constant.ComputeNestConstants.TEMPLATE_NAME_PREFIX;
-import static org.example.common.constant.ComputeNestConstants.TEMPLATE_URL;
 
 
 
@@ -85,12 +65,6 @@ import static org.example.common.constant.ComputeNestConstants.TEMPLATE_URL;
 public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifecycleService {
 
     private final ComputeNestSupplierClient computeNestSupplierClient;
-
-    @Resource
-    private WalletHelper walletHelper;
-
-    @Resource
-    private SpecificationConfig specificationConfig;
 
     @Value("${service.id}")
     private String serviceId;
@@ -204,49 +178,6 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
     @Override
     public ContinueDeployServiceInstanceResponse continueDeployServiceInstance(ContinueDeployServiceInstanceRequest request) {
         return computeNestSupplierClient.continueDeployServiceInstance(request);
-    }
-
-    @Override
-    public BaseResult<Double> getServiceCost(UserInfoModel userInfoModel, GetServiceCostParam param) {
-        return BaseResult.success(walletHelper.getServiceCost(param.getServiceId(), param.getSpecificationName(), param.getPayPeriod(), param.getPayPeriodUnit()));
-    }
-
-    @Cacheable(value = "serviceInstanceModelCache", key = "targetClass + methodName+#getServiceMetadataParam.serviceId")
-    @Override
-    public BaseResult<ServiceMetadataModel> getServiceMetadata(UserInfoModel userInfoModel, GetServiceMetadataParam getServiceMetadataParam) {
-        GetServiceRequest request = new GetServiceRequest();
-        if (StringUtils.isNotEmpty(getServiceMetadataParam.getServiceId())) {
-            request.setServiceId(getServiceMetadataParam.getServiceId());
-        } else {
-            request.setServiceId(serviceId);
-        }
-        request.setFilterAliUid(true);
-        GetServiceResponse serviceResponse = computeNestSupplierClient.getService(request);
-        GetServiceResponseBody responseBody = serviceResponse.getBody();
-        ServiceMetadataModel getServiceMetadataModel = new ServiceMetadataModel();
-        String deployMetadata = responseBody.getDeployMetadata();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode deployMetadataRootNode;
-        try {
-            deployMetadataRootNode = mapper.readTree(deployMetadata);
-            JsonNode templateConfigJsonNode = deployMetadataRootNode.get(TEMPLATE_CONFIGS).get(0);
-            String templateName = templateConfigJsonNode.get(TEMPLATE_NAME).asText();
-            String url = templateConfigJsonNode.get(TEMPLATE_URL).asText();
-            JsonNode specificationsJsonNode = templateConfigJsonNode.get(PREDEFINED_PARAMETERS);
-            String templateConfigData = HttpUtil.doGet(url);
-            if (!JsonUtil.isJson(templateConfigData)) {
-                templateConfigData = YamlUtil.convertYamlToJson(templateConfigData);
-            }
-            JsonNode rosTemplateJsonNode = mapper.readTree(templateConfigData);
-            String parameterMetadata = rosTemplateJsonNode.toString();
-
-            getServiceMetadataModel.setParameterMetadata(parameterMetadata);
-            getServiceMetadataModel.setTemplateName(templateName);
-            getServiceMetadataModel.setSpecifications(specificationsJsonNode.toString());
-        } catch (JsonProcessingException e) {
-            log.error("Parse deployMetadata failed", e);
-        }
-        return BaseResult.success(getServiceMetadataModel);
     }
 
     private GetServiceInstanceResponseBody filterServiceInstanceResponseWithAid(UserInfoModel userInfoModel, GetServiceInstanceResponse response) {

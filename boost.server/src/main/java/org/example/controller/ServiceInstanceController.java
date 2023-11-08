@@ -20,12 +20,9 @@ import io.swagger.annotations.ApiOperation;
 import org.example.common.APIParameterConvert;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.GetServiceMetadataParam;
 import org.example.common.param.ListServiceInstancesParam;
 import org.example.service.ServiceInstanceLifecycleService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,7 +36,7 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/api")
 @Api(value="serviceInstance",tags={"serviceInstance"})
-public class ServiceInstanceLifecycleController {
+public class ServiceInstanceController {
 
     @Resource
     private ServiceInstanceLifecycleService serviceInstanceLifecycleService;
@@ -54,17 +51,5 @@ public class ServiceInstanceLifecycleController {
     @RequestMapping(path = "/getServiceInstance",method = RequestMethod.GET)
     public BaseResult<ServiceInstanceModel> getServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert GetServiceInstanceParam getServiceInstanceParam) {
         return serviceInstanceLifecycleService.getServiceInstance(userInfoModel, getServiceInstanceParam);
-    }
-
-    @ApiOperation(value = "获取服务支付金额", nickname = "getServiceCost")
-    @RequestMapping(path = "/getServiceCost",method = RequestMethod.GET)
-    public BaseResult<Double> getServiceCost(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert GetServiceCostParam getServiceCostParam) {
-        return serviceInstanceLifecycleService.getServiceCost(userInfoModel, getServiceCostParam);
-    }
-
-    @ApiOperation(value = "获取服务元数据数据", nickname = "getServiceMetadata")
-    @RequestMapping(path = "/getServiceMetadata",method = RequestMethod.GET)
-    public BaseResult<ServiceMetadataModel> getServiceMetadata(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert GetServiceMetadataParam getServiceMetadataParam) {
-        return serviceInstanceLifecycleService.getServiceMetadata(userInfoModel, getServiceMetadataParam);
     }
 }

@@ -14,7 +14,7 @@
 */
 
 import React, {useRef, useState} from 'react';
-import {FormInstance, Modal} from 'antd';
+import {Modal} from 'antd';
 import PayFormItem from "@/pages/ServiceInstanceList/components/CreateServiceInstance/PayTypeFormItem";
 import {
     SpecificationFormItem
@@ -27,52 +27,75 @@ interface CreateModalProps {
     setCreateModalVisible: (visible: boolean) => void;
 }
 
-export const FormContext = React.createContext<FormInstance<any> | null>(null);
 const CreateModal: React.FC<CreateModalProps> = ({
                                                      createModalVisible, setCreateModalVisible
                                                  }) => {
     const [submitting, setSubmitting] = useState(false);
     const form = useRef<ProFormInstance>();
-
+    async function getFieldAndCheck(fieldName:string) {
+        const fieldValue = await form?.current?.getFieldValue(fieldName);
+        if (fieldValue === undefined) {
+            Modal.error({
+                title: 'Error',
+                content: fieldName + ' is undefined',
+            });
+            return true;
+        }
+        return false;
+    }
+    let isError:boolean = false;
     const handleCreateSubmit = async () => {
         if (submitting) {
             return;
         }
+        let formValues = undefined;
         try {
             setSubmitting(true);
-            if (!(form !== undefined && form?.current !== null && form?.current?.getFieldFormatValue !== undefined)) {
+            if (!(form !== undefined && form?.current !== null && form?.current?.getFieldFormatValue !== undefined && form?.current?.getFieldFormatValue)) {
                 return;
             }
-            const {specification, type, ...values} = await form?.current?.getFieldFormatValue();
-            console.log(specification);
+            formValues = await form?.current?.getFieldFormatValue();
+            console.log(formValues);
+            const {SpecificationName, PayPeriod, type, ...values} = formValues;
+            const fieldsToCheck = ['SpecificationName', 'PayPeriod'];
+            for (const field of fieldsToCheck) {
+                const wasUndefined = await getFieldAndCheck(field);
+                if (wasUndefined) {
+                    return;
+                }
+            }
             const productComponents = {
-                SpecificationName: specification?.specificationName,
-                PayPeriod: specification?.payPeriod,
+                SpecificationName: SpecificationName,
+                PayPeriod: PayPeriod,
                 PayPeriodUnit: "Month",
                 ...values
                 // RegionId: values.regionId
             };
-            console.log("ttt");
             console.log(productComponents);
             await handleSubmit({
                 productComponents: JSON.stringify(productComponents),
                 type: type,
                 productName: 'SERVICE_INSTANCE',
             });
-            form?.current?.resetFields();
-
-            setCreateModalVisible(false);
         } catch (error) {
             console.log('Error: ', error);
+            form?.current?.setFieldsValue(formValues);
+            isError = true;
+            console.log(form.current?.getFieldsValue);
+            return;
         } finally {
-            form?.current?.resetFields();
             setSubmitting(false);
+            if (!isError) {
+                form?.current?.resetFields();
+                setCreateModalVisible(false);
+            }
             // window.location.reload();
+
         }
     };
 
     const handleSubmit = async (values: API.createOrderParams) => {
-        try {
+
             const response = await createOrder(values);
             if (response.code !== '200') {
                 Modal.error({
@@ -89,9 +112,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
                 document.forms[2].setAttribute('target', '_self') // 加了_blank可能出问题所以我注释了
                 document.forms[2].submit();
             }
-        } catch (error) {
-            console.log('Error: ', error);
-        }
+
     };
 
     return (
@@ -111,9 +132,12 @@ const CreateModal: React.FC<CreateModalProps> = ({
                         display: 'none',
                     },
                 },
-            }}>
-                <SpecificationFormItem/>
-                <PayFormItem/>
+            }
+            } onFinishFailed={()=>{
+            }
+            }>
+                <SpecificationFormItem />
+                <PayFormItem />
             </ProForm>
         </Modal>
     );
