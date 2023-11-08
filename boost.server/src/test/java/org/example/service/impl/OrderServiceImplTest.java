@@ -17,6 +17,7 @@ package org.example.service.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
+import mockit.Injectable;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.PaymentType;
@@ -33,6 +34,7 @@ import org.example.common.param.ListOrdersParam;
 import org.example.common.param.RefundOrderParam;
 import org.example.service.AlipayService;
 import org.example.service.ServiceInstanceLifecycleService;
+import org.example.service.ServiceManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,21 +46,35 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyDouble;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 class OrderServiceImplTest {
+
     @Mock
     AlipayService alipayService;
+
     @Mock
     OrderOtsHelper orderOtsHelper;
+
     @Mock
     WalletHelper walletHelper;
+
     @Mock
     ServiceInstanceLifecycleService serviceInstanceLifecycleService;
+
     @Mock
     Logger log;
+
     @InjectMocks
     OrderServiceImpl orderServiceImpl;
+
+    @Injectable
+    private ServiceManager serviceManager;
 
     @BeforeEach
     void setUp() {
@@ -71,7 +87,7 @@ class OrderServiceImplTest {
         CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
         response.setStatusCode(HttpStatus.OK.value());
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean())).thenReturn(response);
-        when(serviceInstanceLifecycleService.getServiceCost(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
+        when(serviceManager.getServiceCost(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
         CreateOrderParam createOrderParam = new CreateOrderParam();
         createOrderParam.setType(PaymentType.ALIPAY);
         createOrderParam.setProductComponents("{\n" +

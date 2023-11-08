@@ -26,6 +26,8 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceResponse;
+import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsRequest;
+import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
 import com.aliyun.teaopenapi.models.Config;
@@ -113,5 +115,15 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
             throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
         }
 
+    }
+
+    @Override
+    public GetServiceTemplateParameterConstraintsResponse getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsRequest request) {
+        try {
+            return client.getServiceTemplateParameterConstraints(request);
+        } catch (Exception e) {
+            log.error("get service template parameter constraints failed.", e);
+            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
+        }
     }
 }

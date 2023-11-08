@@ -42,6 +42,7 @@ import org.example.common.utils.UuidUtil;
 import org.example.service.AlipayService;
 import org.example.service.OrderService;
 import org.example.service.ServiceInstanceLifecycleService;
+import org.example.service.ServiceManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,10 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private ServiceInstanceLifecycleService serviceInstanceLifecycleService;
 
+    @Resource
+    private ServiceManager serviceManager;
+
+
     @Override
     public BaseResult<String> createOrder(UserInfoModel userInfoModel, CreateOrderParam param) throws AlipayApiException {
         Long userId = Long.parseLong(userInfoModel.getUid());
@@ -86,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
         BeanUtil.populateObject(nestParameters, getServiceCostParam);
         getServiceCostParam.setPayPeriodUnit(PayPeriodUnit.valueOf( String.valueOf(nestParameters.remove(PAY_PERIOD_UNIT))));
         getServiceCostParam.setPayPeriod(payPeriod);
-        Double cost = serviceInstanceLifecycleService.getServiceCost(userInfoModel, getServiceCostParam).getData();
+        Double cost = serviceManager.getServiceCost(userInfoModel, getServiceCostParam).getData();
         CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true);
         if (response == null || !response.getStatusCode().equals(HttpStatus.OK.value())) {
             return BaseResult.fail(ErrorInfo.SERVER_UNAVAILABLE);

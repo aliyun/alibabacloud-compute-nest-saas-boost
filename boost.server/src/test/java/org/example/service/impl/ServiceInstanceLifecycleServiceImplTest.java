@@ -20,51 +20,35 @@ import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceRespon
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody;
-import com.aliyun.computenestsupplier20210521.models.GetServiceRequest;
-import com.aliyun.computenestsupplier20210521.models.GetServiceResponse;
-import com.aliyun.computenestsupplier20210521.models.GetServiceResponseBody;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstances;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstancesService;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
-import org.example.common.config.SpecificationConfig;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
-import org.example.common.helper.WalletHelper;
 import org.example.common.model.ListServiceInstancesModel;
 import org.example.common.model.ServiceInstanceModel;
-import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.GetServiceMetadataParam;
 import org.example.common.param.ListServiceInstancesParam;
-import org.example.common.utils.HttpUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.example.common.constant.ComputeNestConstants.TEMPLATE_CONFIGS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ServiceInstanceLifecycleServiceImplTest {
 
@@ -73,30 +57,6 @@ class ServiceInstanceLifecycleServiceImplTest {
 
     @Injectable
     private ComputeNestSupplierClient computeNestSupplierClient;
-
-    @Injectable
-    private WalletHelper walletHelper;
-
-    @Injectable
-    private SpecificationConfig specificationConfig;
-
-    @Mocked
-    CacheManager cacheManager;
-
-    @Mocked
-    Cache cache;
-
-    @Mocked
-    GetServiceResponse getServiceResponse;
-
-    @Mocked
-    GetServiceResponseBody getServiceResponseBody;
-
-    @Mocked
-    ObjectMapper mapper;
-
-    @Mocked
-    JsonNode deployMetadataRootNode;
 
     private ListServiceInstancesResponseBody createListServiceInstancesResponseBody() {
         ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos serviceInfos = new ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos().setName("serviceInfoName-2");
@@ -197,79 +157,5 @@ class ServiceInstanceLifecycleServiceImplTest {
         UserInfoModel userInfoModel = new UserInfoModel();
         userInfoModel.setAid("100");
         Assertions.assertDoesNotThrow(() -> serviceInstanceLifecycleService.createServiceInstance(userInfoModel, map, true));
-    }
-
-    @Test
-    public void testGetServiceMetadata(@Mocked HttpUtil httpUtil, @Mocked GetServiceRequest getServiceRequest) throws JsonProcessingException {
-        String rosTemplate = "{\n" +
-                "  \"ROSTemplateFormatVersion\": \"2015-09-01\",\n" +
-                "  \"Description\": \"a\",\n" +
-                "  \"Parameters\": {\n" +
-                "    \"ZoneId\": {\n" +
-                "      \"Type\": \"String\",\n" +
-                "      \"AssociationProperty\": \"ALIYUN::ECS::Instance::ZoneId\",\n" +
-                "      \"Label\": {\n" +
-                "        \"en\": \"VSwitch Availability Zone\",\n" +
-                "        \"zh-cn\": \"交换机可用区\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"Resources\": {\n" +
-                "    \"EcsSecurityGroup\": {\n" +
-                "      \"Type\": \"ALIYUN::ECS::SecurityGroup\",\n" +
-                "      \"Properties\": {\n" +
-                "        \"SecurityGroupName\": null\n" +
-                "      }\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"Metadata\": {\n" +
-                "    \"ALIYUN::ROS::Interface\": {\n" +
-                "      \"ParameterGroups\": [\n" +
-                "        {\n" +
-                "          \"Parameters\": [\n" +
-                "            \"ZoneId\"\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"TemplateTags\": [\n" +
-                "        \"Creates one ECS(RabbitMQ) instance - Existing Vpc\"\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
-        new Expectations() {{
-            computeNestSupplierClient.getService(withAny(getServiceRequest));
-            result = getServiceResponse;
-            getServiceResponse.getBody();
-            result = getServiceResponseBody;
-            getServiceResponseBody.getDeployMetadata();
-            result = "deployMetadata";
-            mapper.readTree(anyString);
-            result = deployMetadataRootNode;
-            deployMetadataRootNode.get(anyString);
-            result = deployMetadataRootNode;
-            HttpUtil.doGet("templateUrl");
-            result = rosTemplate;
-            deployMetadataRootNode.get(TEMPLATE_CONFIGS).get(0);
-            result = deployMetadataRootNode;
-            deployMetadataRootNode.get("Name").asText();
-            result = "templateName";
-            deployMetadataRootNode.get("Url").asText();
-            result = "templateUrl";
-            mapper.readTree(rosTemplate);
-            result = deployMetadataRootNode;
-            deployMetadataRootNode.toString();
-            result = "parameterMetadata";
-            deployMetadataRootNode.toString();
-            result = "specifications";
-        }};
-
-        UserInfoModel userInfoModel = new UserInfoModel();
-        userInfoModel.setAid("1111111");
-        GetServiceMetadataParam getServiceMetadataParam = new GetServiceMetadataParam();
-        getServiceMetadataParam.setServiceId("test");
-        BaseResult<ServiceMetadataModel> result = serviceInstanceLifecycleService.getServiceMetadata(userInfoModel, getServiceMetadataParam);
-
-        assertNotNull(result);
     }
 }
