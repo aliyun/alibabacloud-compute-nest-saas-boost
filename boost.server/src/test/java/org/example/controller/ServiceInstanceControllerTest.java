@@ -17,10 +17,9 @@ package org.example.controller;
 
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.model.ServiceModel;
 import org.example.common.model.ServiceInstanceModel;
+import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.GetServiceInstanceParam;
 import org.example.common.param.ListServiceInstancesParam;
 import org.example.service.ServiceInstanceLifecycleService;
@@ -37,11 +36,13 @@ import java.util.List;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
-class ServiceInstanceLifecycleControllerTest {
+class ServiceInstanceControllerTest {
+
     @Mock
     ServiceInstanceLifecycleService serviceInstanceLifecycleService;
+
     @InjectMocks
-    ServiceInstanceLifecycleController serviceInstanceLifecycleController;
+    ServiceInstanceController serviceInstanceController;
 
     @BeforeEach
     void setUp() {
@@ -58,21 +59,16 @@ class ServiceInstanceLifecycleControllerTest {
         List<ServiceInstanceModel> serviceInstanceModels = Arrays.asList(createCreateServiceInstanceModel());
         when(serviceInstanceLifecycleService.listServiceInstances(any(), any())).thenReturn(ListResult.genSuccessListResult(serviceInstanceModels, 1, "message"));
 
-        ListResult<ServiceInstanceModel> serviceInstanceModelListResult = serviceInstanceLifecycleController.listServiceInstances(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListServiceInstancesParam());
+        ListResult<ServiceInstanceModel> serviceInstanceModelListResult = serviceInstanceController.listServiceInstances(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListServiceInstancesParam());
         Assertions.assertEquals(serviceInstanceModelListResult.getCount(), 1);
     }
 
     @Test
     void testGetServiceInstance() {
         when(serviceInstanceLifecycleService.getServiceInstance(any(), any())).thenReturn(new BaseResult<ServiceInstanceModel>("code", "message", createCreateServiceInstanceModel(), "requestId"));
-        BaseResult<ServiceInstanceModel> result = serviceInstanceLifecycleController.getServiceInstance(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceInstanceParam("serviceInstanceId"));
+        BaseResult<ServiceInstanceModel> result = serviceInstanceController.getServiceInstance(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceInstanceParam("serviceInstanceId"));
         Assertions.assertEquals(result.getData().getServiceInstanceId(), "serviceInstanceId");
     }
 
-    @Test
-    void testGetServiceCost() {
-        when(serviceInstanceLifecycleService.getServiceCost(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
-        BaseResult<Double> result = serviceInstanceLifecycleController.getServiceCost(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceCostParam());
-        Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);
-    }
+
 }

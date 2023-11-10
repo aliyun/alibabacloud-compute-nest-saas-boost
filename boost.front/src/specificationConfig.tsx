@@ -18,16 +18,16 @@ import {
 
 export const CustomParameters: ParameterTypeInterfaceArray = {
 
-    InstancePassword: {
-        Type: 'String',
-        NoEcho: true,
-        Label: {
-            en: 'Instance Password',
-            'zh-cn': '实例密码',
-        },
-        Default: '123456aA',
-        AllowedPattern: "[0-9A-Za-z_\\-&:;''<>,=%`~!@#\\(\\)\\$\\^\\*\\+\\|\\{\\}\\[\\]\\.\\?\\/]+$"
-    },
+    // InstancePassword: {
+    //     Type: 'String',
+    //     NoEcho: true,
+    //     Label: {
+    //         en: 'Instance Password',
+    //         'zh-cn': '实例密码',
+    //     },
+    //     Default: '123456aA',
+    //     AllowedPattern: "[0-9A-Za-z_\\-&:;''<>,=%`~!@#\\(\\)\\$\\^\\*\\+\\|\\{\\}\\[\\]\\.\\?\\/]+$"
+    // },
     // VSwitchId: {
     //     Type: 'String',
     //     NoEcho: true,
@@ -38,6 +38,19 @@ export const CustomParameters: ParameterTypeInterfaceArray = {
     //     Default: '123456aA',
     //     AllowedValues: ['123456aA', '123456bB'],
     // },
+};
+
+export const RegionParameters: ParameterTypeInterfaceArray = {
+
+    RegionId: {
+        Type: 'String',
+        Label: {
+            en: 'RegionId',
+            'zh-cn': '部署区域',
+        },
+        Default: 'cn-hangzhou',
+        AllowedValues: ['cn-hangzhou'],
+    }
 };
 
 export const defaultSpecification: Specification[] = [{

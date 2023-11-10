@@ -20,12 +20,9 @@ import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstan
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.GetServiceMetadataParam;
 import org.example.common.param.ListServiceInstancesParam;
 
 import java.util.Map;
@@ -64,20 +61,4 @@ public interface ServiceInstanceLifecycleService {
      * @throws Exception exception
      */
     ContinueDeployServiceInstanceResponse continueDeployServiceInstance(ContinueDeployServiceInstanceRequest request) throws Exception;
-
-    /**
-     * Query the cost of the current service package.
-     * @param param GetServiceCostParam
-     * @param userInfoModel UserInfo
-     * @return {@link BaseResult<Double>}
-     */
-    BaseResult<Double> getServiceCost(UserInfoModel userInfoModel, GetServiceCostParam param);
-
-    /**
-     * Get the compute nest metadata
-     * @param userInfoModel userInfoModel
-     * @param getServiceMetadataParam getServiceMetadataParam
-     * @return {@link BaseResult<ServiceMetadataModel>}
-     */
-    BaseResult<ServiceMetadataModel> getServiceMetadata(UserInfoModel userInfoModel, GetServiceMetadataParam getServiceMetadataParam);
 }

@@ -13,15 +13,24 @@
 *limitations under the License.
 */
 
-import {Button, Col, Input, Modal, Row} from "antd";
-import React, {useEffect, useState} from "react";
+import {Button, Col, Modal, Row} from "antd";
+import React, {ReactNode, useEffect, useRef, useState} from "react";
 import ProCard from "@ant-design/pro-card";
+import {ProFormRadio} from '@ant-design/pro-components';
+import {ProFormDigit, ProFormInstance} from "@ant-design/pro-form";
 
 export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> = ({onChange}) => {
-    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
     const [showCustomModal, setShowCustomModal] = useState(false);
+    const [customButtonText, setCustomButtonText] = useState('自定义');
+    const [customButtonStyle, setCustomButtonStyle] = useState({});
+    const [buttonStyle, setButtonStyle] = useState({});
+    const defaultButtonSize = 7;
+
+    const form = useRef<ProFormInstance>();
+
     const handleCustomModalOpen = () => {
-        setSelectedMonth(null);
+        setSelectedMonth(defaultButtonSize + 1);
         setShowCustomModal(true);
     };
 
@@ -29,61 +38,52 @@ export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> 
         setShowCustomModal(false);
     };
 
-    const handleCustomMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const month = parseInt(e.target.value);
-        if (!isNaN(month)) {
-            if (month == selectedMonth) {
-                setSelectedMonth(null);
-            } else {
-                setSelectedMonth(month);
-            }
-        }
-
-    };
-
     const handleCustomMonthSubmit = () => {
-        if (selectedMonth !== null) {
+        if (selectedMonth !== undefined && selectedMonth !== null) {
+            setCustomButtonText(selectedMonth?.toString());
+            setCustomButtonStyle({borderColor: '#1890ff'});
             onChange(selectedMonth);
-            handleCustomModalClose();
         }
+        handleCustomModalClose();
     };
 
-    useEffect(() => {
-        setSelectedMonth(null);
-    }, []);
-    const handleOptionChange = (month: number) => {
-        if (month == selectedMonth) {
-            setSelectedMonth(null);
-        } else {
-            setSelectedMonth(month);
-        }
-        onChange(month);
-    };
+    // useEffect(() => {
+    //     setSelectedMonth(undefined);
+    // }, []);
 
-    const renderButton = (month: number) => (
-        <Button
-            key={month}
-            onClick={() => handleOptionChange(month)}
-            style={{
-                background: selectedMonth === month ? "#89c1f5" : "#f5f5f5",
-                color: selectedMonth === month ? "#fff" : "#000",
-            }}
-        >
-            {month}
-        </Button>
-    );
+    useEffect(()=>{
+        if (selectedMonth !== undefined) {
+            onChange(selectedMonth);
+        }
+    }, [selectedMonth]);
+
+    const options: Array<string | { label: ReactNode, value: number }> = [];
+    for (let i = 1; i <= defaultButtonSize; i++) {
+        options.push({label: i.toString(), value: i});
+    }
 
     return (
-        <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
+        <ProCard type={"inner"} bordered headerBordered={false} gutter={16} hoverable>
             <Row justify="center" style={{marginTop: '20px'}}>
                 <Col span={24}>
-                    {/*<div style={{textAlign: 'left', marginBottom: '10px'}}><button>按月购买</button></div>*/}
-                    <Button.Group style={{display: 'flex', justifyContent: 'left'}}>
-                        {[...Array(8)].map((_, index) => renderButton(index + 1))}
-                        {<Button onClick={handleCustomModalOpen} style={{background: "#f5f5f5", color: "#000"}}>
-                            自定义
-                        </Button>}
-                    </Button.Group>
+                    <ProFormRadio.Group radioType={"button"} name={"PayPeriod"}
+                                        addonAfter={(
+                                            <Button style={customButtonStyle}
+                                                    onClick={handleCustomModalOpen}
+                                            >
+                                                {customButtonText}
+                                            </Button>
+                                        )} options={options} style={{display: 'flex', justifyContent: 'left'}}
+                                        layout={"vertical"}
+                                        fieldProps={{
+                                            onChange: (e) => {
+                                                setSelectedMonth(e.target.value);
+                                                setCustomButtonStyle({});
+                                                setCustomButtonText("自定义");
+                                                onChange(e.target.value);
+                                            }, style: buttonStyle, value: selectedMonth, name: "PayPeriod",
+                                        }}>
+                    </ProFormRadio.Group>
                 </Col>
             </Row>
             <Modal
@@ -100,13 +100,26 @@ export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> 
                 ]}
                 destroyOnClose
             >
-                <Input
-                    placeholder={selectedMonth === null ? "请输入月份" : selectedMonth.toString()}
-                    value={selectedMonth === null ? "" : selectedMonth.toString()}
-                    onChange={handleCustomMonthChange}
-                    type={'number'}
-                    min={1}
+                <ProFormDigit name={"PayPeriod"}
+                              placeholder={selectedMonth === undefined ? "请输入月份" : selectedMonth.toString()}
+                              min={defaultButtonSize + 1} fieldProps={{
+                    onChange: (e) => {
+                        if (e !== null) {
+                            setSelectedMonth(e);
+                            setButtonStyle({});
+                            setCustomButtonText(e?.toString());
+                            setCustomButtonStyle({borderColor: '#1890ff'})
+                            onChange(e);
+                        } else {
+                            setSelectedMonth(undefined);
+                        }
+                    },
+                    style: customButtonStyle,
+                    defaultValue: defaultButtonSize + 1,
+                    value: selectedMonth,
+                }}
                 />
             </Modal>
-        </ProCard>)
+        </ProCard>
+    )
 }

@@ -51,6 +51,8 @@ public interface ComputeNestConstants {
 
     String PREDEFINED_PARAMETERS = "PredefinedParameters";
 
+    String ALLOWED_REGIONS = "AllowedRegions";
+
     String DEFAULT_SPECIFICATION_NAME = "default specification";
 
     String TEMPLATE_NAME_PREFIX = "templateName";

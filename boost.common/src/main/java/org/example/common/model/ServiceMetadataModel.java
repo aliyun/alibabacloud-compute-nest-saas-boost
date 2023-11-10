@@ -26,4 +26,6 @@ public class ServiceMetadataModel {
     private String specifications;
 
     private String templateName;
+
+    private String allowedRegions;
 }
