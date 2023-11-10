@@ -264,7 +264,7 @@ export const CustomParameters: ParameterTypeInterfaceArray = {
     },
 };
 ```
-更多信息见[ParameterTypeInterfaceArray接口](./../boost.front/src/pages/ServiceInstanceList/components/CreateServiceInstance/ServiceMetadataInterface.tsx)。
+更多信息见[ParameterTypeInterfaceArray接口](../boost.front/src/pages/ServiceInstanceList/components/interface/ServiceMetadataInterface.tsx)。
 <br>
 通过这样的方式即可实现参数的DIY配置。需要注意的是，自己DIY的参数需要与您的计算巢服务模版中的名称和类型一致。
 更详细的信息见计算巢官方文档：[配置套餐](https://help.aliyun.com/zh/compute-nest/create-package-settings-for-a-service)

@@ -14,7 +14,7 @@
 */
 import {
     ParameterTypeInterfaceArray, Specification
-} from "@/pages/ServiceInstanceList/components/CreateServiceInstance/ServiceMetadataInterface";
+} from "@/pages/ServiceInstanceList/components/interface/ServiceMetadataInterface";
 
 export const CustomParameters: ParameterTypeInterfaceArray = {
 
@@ -38,19 +38,6 @@ export const CustomParameters: ParameterTypeInterfaceArray = {
     //     Default: '123456aA',
     //     AllowedValues: ['123456aA', '123456bB'],
     // },
-};
-
-export const RegionParameters: ParameterTypeInterfaceArray = {
-
-    RegionId: {
-        Type: 'String',
-        Label: {
-            en: 'RegionId',
-            'zh-cn': '部署区域',
-        },
-        Default: 'cn-hangzhou',
-        AllowedValues: ['cn-hangzhou'],
-    }
 };
 
 export const defaultSpecification: Specification[] = [{

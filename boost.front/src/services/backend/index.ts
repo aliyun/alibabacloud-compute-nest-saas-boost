@@ -6,11 +6,13 @@ import * as alipay from './alipay';
 import * as cloudMonitor from './cloudMonitor';
 import * as order from './order';
 import * as serviceInstance from './serviceInstance';
+import * as serviceManager from './serviceManager';
 import * as user from './user';
 export default {
   alipay,
   order,
   user,
+  serviceManager,
   serviceInstance,
   cloudMonitor,
 };

@@ -25,9 +25,7 @@ export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> 
     const [customButtonText, setCustomButtonText] = useState('自定义');
     const [customButtonStyle, setCustomButtonStyle] = useState({});
     const [buttonStyle, setButtonStyle] = useState({});
-    const defaultButtonSize = 7;
-
-    const form = useRef<ProFormInstance>();
+    const defaultButtonSize = 12;
 
     const handleCustomModalOpen = () => {
         setSelectedMonth(defaultButtonSize + 1);
@@ -43,13 +41,9 @@ export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> 
             setCustomButtonText(selectedMonth?.toString());
             setCustomButtonStyle({borderColor: '#1890ff'});
             onChange(selectedMonth);
+            handleCustomModalClose();
         }
-        handleCustomModalClose();
     };
-
-    // useEffect(() => {
-    //     setSelectedMonth(undefined);
-    // }, []);
 
     useEffect(()=>{
         if (selectedMonth !== undefined) {
@@ -66,7 +60,7 @@ export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> 
         <ProCard type={"inner"} bordered headerBordered={false} gutter={16} hoverable>
             <Row justify="center" style={{marginTop: '20px'}}>
                 <Col span={24}>
-                    <ProFormRadio.Group radioType={"button"} name={"PayPeriod"}
+                    <ProFormRadio.Group radioType={"button"} name={"PayPeriod"} rules={[{required: true, message: '请选择订购的时间'}]}
                                         addonAfter={(
                                             <Button style={customButtonStyle}
                                                     onClick={handleCustomModalOpen}
@@ -100,7 +94,7 @@ export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> 
                 ]}
                 destroyOnClose
             >
-                <ProFormDigit name={"PayPeriod"}
+                <ProFormDigit name={"PayPeriod"} rules={[{required: true, message: '请输入月份'}]}
                               placeholder={selectedMonth === undefined ? "请输入月份" : selectedMonth.toString()}
                               min={defaultButtonSize + 1} fieldProps={{
                     onChange: (e) => {

@@ -18,7 +18,7 @@ import {PageContainer} from '@ant-design/pro-layout';
 import {Button, message, Modal, Pagination, Typography} from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import {PayTypeEnum} from '@/pages/ServiceInstanceList/components/CreateServiceInstance/PayTypeFormItem';
+import {PayTypeEnum} from '@/pages/ServiceInstanceList/components/form/PayTypeFormItem';
 import moment from "moment";
 import ProCard from "@ant-design/pro-card";
 import {ProTable} from "@ant-design/pro-components";

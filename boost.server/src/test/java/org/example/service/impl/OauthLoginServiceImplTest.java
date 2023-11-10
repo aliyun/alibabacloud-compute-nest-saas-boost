@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class OauthLoginServiceImplTest {
+
     @Tested
     private OauthLoginServiceImpl keycloakLoginService;
 

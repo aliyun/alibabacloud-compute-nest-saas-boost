@@ -42,14 +42,19 @@ import java.util.Map;
 import static org.mockito.Mockito.*;
 
 class AlipayServiceImplTest {
+
     @Mock
     AlipayConfig alipayConfig;
+
     @Mock
     OrderService orderService;
+
     @Mock
     BaseAlipayClient baseAlipayClient;
+
     @Mock
     Logger log;
+
     @InjectMocks
     AlipayServiceImpl alipayServiceImpl;
 

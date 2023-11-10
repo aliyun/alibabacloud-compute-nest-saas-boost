@@ -15,7 +15,7 @@
 
 import {Tag} from 'antd';
 import {ProColumns} from "@ant-design/pro-components";
-import {PayTypeEnum} from "@/pages/ServiceInstanceList/components/CreateServiceInstance/PayTypeFormItem";
+import {PayTypeEnum} from "@/pages/ServiceInstanceList/components/form/PayTypeFormItem";
 
 export const TradeStatusEnum = {
     TRADE_CLOSED: '交易关闭',
