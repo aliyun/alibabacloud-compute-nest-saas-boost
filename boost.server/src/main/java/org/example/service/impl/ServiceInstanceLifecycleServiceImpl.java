@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.example.common.constant.ComputeNestConstants.DEFAULT_REGION_ID;
 import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD;
 import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD_UNIT;
 import static org.example.common.constant.ComputeNestConstants.TEMPLATE_NAME_PREFIX;
@@ -68,9 +69,6 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     @Value("${service.id}")
     private String serviceId;
-
-    @Value("${service.region-id}")
-    private String regionId;
 
     private static final String PREFIX = "saas-boost";
 
@@ -162,7 +160,6 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         request.setServiceId(serviceId);
         request.setClientToken(UuidUtil.generateUuid(PREFIX));
         request.setRegionId(ComputeNestConstants.DEFAULT_REGION_ID);
-        map.put(ComputeNestConstants.REGION_ID, ComputeNestConstants.DEFAULT_REGION_ID);
         map.remove(PAY_PERIOD);
         map.remove(PAY_PERIOD_UNIT);
         Object specificationName = map.remove(ComputeNestConstants.SPECIFICATION_NAME);
@@ -191,7 +188,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     private ListServiceInstancesRequest convertToRequest(ListServiceInstancesParam param) {
         return new ListServiceInstancesRequest().setMaxResults(param.getMaxResults())
-                .setNextToken(param.getNextToken()).setRegionId(regionId)
+                .setNextToken(param.getNextToken()).setRegionId(DEFAULT_REGION_ID)
                 .setShowDeleted(false).setTag(null);
     }
 

@@ -33,7 +33,7 @@ export interface ServiceInstanceTableProps {
     options?: ProTableProps<API.ServiceInstanceModel, API.ServiceInstanceModel>['options'];
 }
 
-export const ServiceInstanceTable: React.FC<ServiceInstanceTableProps> = ({
+export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> = ({
                                                                               serviceInstances,
                                                                               columns,
                                                                               onUpdateUserPassword,

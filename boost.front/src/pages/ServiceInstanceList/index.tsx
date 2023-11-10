@@ -13,14 +13,12 @@
 *limitations under the License.
 */
 
-import type {ActionType,} from '@ant-design/pro-components';
 import {PageContainer,} from '@ant-design/pro-components';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {listServiceInstances} from "@/services/backend/serviceInstance";
-import UpdateUserPasswordForm from "@/pages/ServiceInstanceList/components/UpdateUserPasswordForm";
 import {getListColumns} from "@/pages/ServiceInstance/common";
-import CreateModal from "@/pages/ServiceInstanceList/components/CreateServiceInstance/CreateServiceInstanceForm";
-import {ServiceInstanceTable} from "@/pages/ServiceInstanceList/components/ServiceInstanceTable";
+import CreateModal from "@/pages/ServiceInstanceList/components/form/AlipayForm";
+import {ServiceInstanceTableInterface} from "@/pages/ServiceInstanceList/components/interface/ServiceInstanceTableInterface";
 import {Pagination} from "antd";
 import {handleGoToPage} from "@/nextTokenUtil";
 
@@ -38,7 +36,6 @@ const ServiceInstanceList: React.FC = () => {
         serviceInstanceName?: string;
     }>({});
     const [shouldFetchData, setShouldFetchData] = useState(false);
-    const actionRef = useRef<ActionType>();
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
 
     const fetchData = async (currentPage: number, show: boolean) => {
@@ -68,13 +65,9 @@ const ServiceInstanceList: React.FC = () => {
         fetchData(currentPage, true);
     }, [currentPage, shouldFetchData]);
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
-
     return (
         <PageContainer>
-            <ServiceInstanceTable
+            <ServiceInstanceTableInterface
                 search={true}
                 serviceInstances={serviceInstances}
                 columns={getListColumns()}
@@ -101,22 +94,6 @@ const ServiceInstanceList: React.FC = () => {
             <CreateModal
                 createModalVisible={createModalVisible}
                 setCreateModalVisible={setCreateModalVisible}
-            />
-
-            <UpdateUserPasswordForm
-                onSubmit={async (value) => {
-                    handleUpdateUserPasswordOpen(false);
-                    setCurrentRow(undefined);
-                    if (actionRef.current) {
-                        actionRef.current.reload();
-                    }
-                }}
-                onCancel={() => {
-                    handleUpdateUserPasswordOpen(false);
-                    setCurrentRow(undefined);
-                }}
-                open={updateUserPasswordOpen}
-                values={currentRow || {}}
             />
 
             <Pagination

@@ -15,7 +15,6 @@
 
 package org.example.service;
 
-import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponseBody.GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints;
 import org.example.common.BaseResult;
@@ -24,16 +23,17 @@ import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.GetServiceMetadataParam;
+import org.example.common.param.GetServiceTemplateParameterConstraintsParam;
 
 public interface ServiceManager {
 
     /**
      * Get ROS service template parameter constraints.
      *
-     * @param request
+     * @param getServiceTemplateParameterConstraintsParam
      * @return {@link GetServiceTemplateParameterConstraintsResponse}
      */
-    ListResult<GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsRequest request);
+    ListResult<GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsParam getServiceTemplateParameterConstraintsParam);
 
 
     /**

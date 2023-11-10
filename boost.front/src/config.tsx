@@ -15,7 +15,6 @@
 
 export default {
     redirectUriPrefix: 'https://signin.aliyun.com/oauth2/v1/auth',
-    clientId: '4401663989679032993'
 }
 
 

@@ -26,8 +26,8 @@ const PayFormItem: React.FC = () => {
     const payTypeEntries = Object.entries(PayTypeEnum);
 
     return (
-        <ProCard title={"支付方式"} bordered headerBordered={false} gutter={16} hoverable>
-            <Row justify="center" style={{marginTop: '20px'}}>
+        <ProCard  title={"支付方式"} bordered headerBordered={true} gutter={16} hoverable>
+            <Row justify="center" style={{marginTop: '16px'}}>
                 <Col span={24}>
                     <ProFormSelect
                         name="type"

@@ -14,7 +14,6 @@
  */
 package org.example.controller;
 
-import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponseBody;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,14 +24,17 @@ import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.GetServiceMetadataParam;
+import org.example.common.param.GetServiceTemplateParameterConstraintsParam;
 import org.example.service.ServiceManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -55,8 +57,8 @@ public class ServiceManagerController {
     }
 
     @ApiOperation(value = "获取服务模版参数限制信息", nickname = "getServiceTemplateParameterConstraints")
-    @RequestMapping(path = "/getServiceTemplateParameterConstraints",method = RequestMethod.GET)
-    public ListResult<GetServiceTemplateParameterConstraintsResponseBody.GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsRequest request) {
-        return serviceManager.getServiceTemplateParameterConstraints(request);
+    @RequestMapping(path = "/getServiceTemplateParameterConstraints",method = RequestMethod.POST)
+    public ListResult<GetServiceTemplateParameterConstraintsResponseBody.GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(@RequestBody @Valid GetServiceTemplateParameterConstraintsParam getServiceTemplateParameterConstraintsParam) {
+        return serviceManager.getServiceTemplateParameterConstraints(getServiceTemplateParameterConstraintsParam);
     }
 }

@@ -22,13 +22,6 @@ declare namespace API {
     requestId?: string;
   };
 
-  type BaseResultGetServiceMetadataModel_ = {
-    code?: string;
-    data?: GetServiceMetadataModel;
-    message?: string;
-    requestId?: string;
-  };
-
   type BaseResultMetricDatasModel_ = {
     code?: string;
     data?: MetricDatasModel;
@@ -46,6 +39,13 @@ declare namespace API {
   type BaseResultServiceInstanceModel_ = {
     code?: string;
     data?: ServiceInstanceModel;
+    message?: string;
+    requestId?: string;
+  };
+
+  type BaseResultServiceMetadataModel_ = {
+    code?: string;
+    data?: ServiceMetadataModel;
     message?: string;
     requestId?: string;
   };
@@ -85,6 +85,7 @@ declare namespace API {
     parameters?: Record<string, any>;
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    serviceId?: string;
     specificationName?: string;
   };
 
@@ -92,14 +93,33 @@ declare namespace API {
     serviceInstanceId?: string;
   };
 
-  type GetServiceMetadataModel = {
-    parameterMetadata?: string;
-    specifications?: string;
+  type getServiceMetadataParams = {
+    serviceId?: string;
+  };
+
+  type GetServiceTemplateParameterConstraintsParam = {
+    deployRegionId?: string;
+    parameters?: TemplateParameterParam[];
+    serviceId?: string;
+    serviceVersion?: string;
     templateName?: string;
   };
 
-  type getServiceMetadataParams = {
-    serviceId?: string;
+  type GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints = {
+    allowedValues?: string[];
+    associationParameterNames?: string[];
+    behavior?: string;
+    behaviorReason?: string;
+    originalConstraints?: GetServiceTemplateParameterConstraintsResponseBodyParameterConstraintsOriginalConstraints[];
+    parameterKey?: string;
+    type?: string;
+  };
+
+  type GetServiceTemplateParameterConstraintsResponseBodyParameterConstraintsOriginalConstraints = {
+    allowedValues?: string[];
+    propertyName?: string;
+    resourceName?: string;
+    resourceType?: string;
   };
 
   type listMetricsParams = {
@@ -115,6 +135,15 @@ declare namespace API {
     nextToken?: string;
     reverse?: boolean;
     startTime?: string;
+  };
+
+  type ListResultGetServiceTemplateParameterConstraintsResponseBodyParameterConstraints_ = {
+    code?: string;
+    count?: number;
+    data?: GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
   };
 
   type ListResultMetricMetaDataModel_ = {
@@ -208,11 +237,23 @@ declare namespace API {
     updateTime?: string;
   };
 
+  type ServiceMetadataModel = {
+    allowedRegions?: string;
+    parameterMetadata?: string;
+    specifications?: string;
+    templateName?: string;
+  };
+
   type ServiceModel = {
     description?: string;
     image?: string;
     name?: string;
     serviceId?: string;
+  };
+
+  type TemplateParameterParam = {
+    parameterKey?: string;
+    parameterValue?: string;
   };
 
   type UserInfoModel = {
