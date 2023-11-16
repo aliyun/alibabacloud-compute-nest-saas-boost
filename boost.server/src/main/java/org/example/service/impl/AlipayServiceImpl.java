@@ -31,6 +31,7 @@ import org.example.common.param.GetOrderParam;
 import org.example.common.utils.HttpUtil;
 import org.example.service.AlipayService;
 import org.example.service.OrderService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -85,8 +86,7 @@ public class AlipayServiceImpl implements AlipayService {
 
         AlipayTradeQueryResponse response = baseAlipayClient.queryOutTrade(orderId);
         if (response != null && TradeStatus.TRADE_SUCCESS.name().equals(response.getTradeStatus())) {
-            unverifiedOrder.setOrderId(orderId);
-            unverifiedOrder.setProductComponents(orderFromOts.getProductComponents());
+            BeanUtils.copyProperties(orderFromOts, unverifiedOrder);
             unverifiedOrder.setTradeStatus(TradeStatus.TRADE_SUCCESS);
             UserInfoModel userInfoModel = new UserInfoModel();
             userInfoModel.setAid(String.valueOf(orderFromOts.getAccountId()));

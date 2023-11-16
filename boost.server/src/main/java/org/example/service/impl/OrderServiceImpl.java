@@ -103,10 +103,13 @@ public class OrderServiceImpl implements OrderService {
         getServiceCostParam.setPayPeriodUnit(payPeriodUnit);
         getServiceCostParam.setPayPeriod(payPeriod);
         Double cost = serviceManager.getServiceCost(userInfoModel, getServiceCostParam).getData();
-        CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true);
-        if (response == null || !response.getStatusCode().equals(HttpStatus.OK.value())) {
-            return BaseResult.fail(ErrorInfo.SERVER_UNAVAILABLE);
+        if (StringUtils.isEmpty(serviceInstanceId)) {
+            CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true);
+            if (response == null || !response.getStatusCode().equals(HttpStatus.OK.value())) {
+                return BaseResult.fail(ErrorInfo.SERVER_UNAVAILABLE);
+            }
         }
+
         String webForm = alipayService.createTransaction(cost, param.getProductName().getDisplayName(), orderId);
         if (StringUtils.isNotEmpty(webForm)) {
             OrderDO orderDataObject = createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
