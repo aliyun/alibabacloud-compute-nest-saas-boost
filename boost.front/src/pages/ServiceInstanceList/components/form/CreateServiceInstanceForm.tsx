@@ -266,7 +266,7 @@ export const CreateServiceInstanceForm: React.FC = ({}) => {
                                     }}
                                     onClick={() => handleCardClick(spec.Name)}
                                 >
-                                    <h3>{spec?.Name}</h3>
+                                    <h3 style={{ textAlign: 'center' }}>{spec?.Name}</h3>
                                     <p>{spec?.Description}</p>
                                 </div>
                             </Col>

@@ -27,6 +27,4 @@ public class ListOrdersParam {
     private Integer maxResults;
 
     private String nextToken;
-
-    private Boolean reverse = true;
 }

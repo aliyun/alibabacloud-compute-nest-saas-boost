@@ -35,10 +35,14 @@ public interface OrderOtsConstant {
     /**
      * Range filter on search-index: gmtCreateLong(order creation time).
      */
-    String SEARCH_INDEX_FIELD_NAME_1 = "gmtCreateLong";
+    String GMT_CREATE_LONG = "gmtCreateLong";
+
+    String BILLING_END_DATE_LONG = "billingEndDateLong";
+
+    String SERVICE_INSTANCE_ID = "serviceInstanceId";
 
     /**
      * Match filter on search-index: accountId.
      */
-    String FILTER_NAME_0 = "accountId";
+    String ACCOUNT_ID = "accountId";
 }

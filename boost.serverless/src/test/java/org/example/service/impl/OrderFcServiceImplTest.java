@@ -85,8 +85,8 @@ public class OrderFcServiceImplTest {
         PowerMockito.mockStatic(DateUtil.class);
         PowerMockito.when(DateUtil.getMinutesAgoLocalDateTimeMillis(anyInt())).thenReturn(10L, 20L);
 
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq(null), eq(true))).thenReturn(result1);
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq("token1"), eq(true))).thenReturn(result2);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), eq(null), anyList())).thenReturn(result1);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), eq("token1"), anyList())).thenReturn(result2);
 
         OrderDO orderDO1 = new OrderDO();
         orderDO1.setOrderId("order1");
@@ -114,11 +114,11 @@ public class OrderFcServiceImplTest {
         result2.setData(Collections.emptyList());
         result2.setNextToken(null);
         PowerMockito.mockStatic(DateUtil.class);
-        PowerMockito.when(DateUtil.getCurrentLocalDateTimeMills()).thenReturn(100000L);
-        PowerMockito.when(DateUtil.getOneYearAgoLocalDateTimeMills()).thenReturn(90000L);
+        PowerMockito.when(DateUtil.getCurrentLocalDateTimeMillis()).thenReturn(100000L);
+        PowerMockito.when(DateUtil.getOneYearAgoLocalDateTimeMillis()).thenReturn(90000L);
 
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq(null), eq(true))).thenReturn(result1);
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq("token1"), eq(true))).thenReturn(result2);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), eq(null), anyList())).thenReturn(result1);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), eq("token1"), anyList())).thenReturn(result2);
 
         CountDownLatch latch = mock(CountDownLatch.class);
         whenNew(CountDownLatch.class).withParameterTypes(int.class).withArguments(eq(2)).thenReturn(latch);

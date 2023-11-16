@@ -1,25 +1,29 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.service.impl;
 
+import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
+import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
 import com.alipay.api.AlipayApiException;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.constant.ComputeNestConstants;
 import org.example.common.constant.OrderOtsConstant;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.constant.TradeStatus;
@@ -28,6 +32,7 @@ import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.OrderOtsHelper;
+import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.CreateOrderParam;
@@ -46,11 +51,11 @@ import org.example.service.ServiceManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,6 +81,9 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private ServiceManager serviceManager;
 
+    @Resource
+    private ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
+
 
     @Override
     public BaseResult<String> createOrder(UserInfoModel userInfoModel, CreateOrderParam param) throws AlipayApiException {
@@ -83,13 +91,16 @@ public class OrderServiceImpl implements OrderService {
         Long accountId = Long.parseLong(userInfoModel.getAid());
         String orderId = UuidUtil.generateOrderId(userId, param.getType().getValue());
         Map<String, Object> nestParameters = (Map<String, Object>) JsonUtil.parseObjectCustom(param.getProductComponents(), Map.class);
-        long payPeriod = ((Number) nestParameters.remove(PAY_PERIOD)).longValue();
-        GetServiceCostParam getServiceCostParam = new GetServiceCostParam();
         if (nestParameters == null) {
             return BaseResult.fail("product components can't be null.");
         }
+        Long payPeriod = ((Number) nestParameters.remove(PAY_PERIOD)).longValue();
+        PayPeriodUnit payPeriodUnit = PayPeriodUnit.valueOf(String.valueOf(nestParameters.remove(PAY_PERIOD_UNIT)));
+        Object serviceInstanceIdObj = nestParameters.remove(ComputeNestConstants.SERVICE_INSTANCE_ID);
+        String serviceInstanceId = serviceInstanceIdObj != null ? String.valueOf(serviceInstanceIdObj) : null;
+        GetServiceCostParam getServiceCostParam = new GetServiceCostParam();
         BeanUtil.populateObject(nestParameters, getServiceCostParam);
-        getServiceCostParam.setPayPeriodUnit(PayPeriodUnit.valueOf( String.valueOf(nestParameters.remove(PAY_PERIOD_UNIT))));
+        getServiceCostParam.setPayPeriodUnit(payPeriodUnit);
         getServiceCostParam.setPayPeriod(payPeriod);
         Double cost = serviceManager.getServiceCost(userInfoModel, getServiceCostParam).getData();
         CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true);
@@ -97,13 +108,34 @@ public class OrderServiceImpl implements OrderService {
             return BaseResult.fail(ErrorInfo.SERVER_UNAVAILABLE);
         }
         String webForm = alipayService.createTransaction(cost, param.getProductName().getDisplayName(), orderId);
-        if (!StringUtils.isEmpty(webForm)) {
-            orderOtsHelper.createOrder(createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam));
+        if (StringUtils.isNotEmpty(webForm)) {
+            OrderDO orderDataObject = createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
+            updateBillingDates(serviceInstanceId, payPeriod, payPeriodUnit, orderDataObject);
+            orderOtsHelper.createOrder(orderDataObject);
             log.info("The Alipay web form has been successfully created with the following content{}.", webForm);
             return BaseResult.success(webForm);
         }
         log.warn("The Alipay web form create failed, user id = {}, order id = {}", accountId, orderId);
         return BaseResult.fail("The Alipay web form create failed.");
+    }
+
+    private void updateBillingDates(String serviceInstanceId, long payPeriod, PayPeriodUnit payPeriodUnit, OrderDO orderDataObject) {
+        if (StringUtils.isNotEmpty(serviceInstanceId)) {
+            OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
+            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Collections.singletonList(serviceInstanceIdQueryFilter), null, null, Collections.singletonList(fieldSort));
+            if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
+                Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
+                Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, payPeriod, payPeriodUnit);
+                orderDataObject.setBillingsEndDateLong(currentBillingEndDateTimeLong);
+                orderDataObject.setBillingsStartDateLong(preBillingEndDateLong);
+                return;
+            }
+        }
+        Long billingStartDateMillis = DateUtil.getCurrentLocalDateTimeMillis();
+        Long billingEndDateMillis = walletHelper.getBillingEndDateTimeLong(billingStartDateMillis, payPeriod, payPeriodUnit);
+        orderDataObject.setBillingsEndDateLong(billingEndDateMillis);
+        orderDataObject.setBillingsStartDateLong(billingStartDateMillis);
     }
 
     @Override
@@ -117,20 +149,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ListResult<OrderDTO> listOrders(UserInfoModel userInfoModel, ListOrdersParam param) {
-        OtsFilter matchFilter = OtsFilter.builder().key(OrderOtsConstant.FILTER_NAME_0).values(Collections.singletonList(userInfoModel.getAid())).build();
+        OtsFilter matchFilter = OtsFilter.builder().key(OrderOtsConstant.ACCOUNT_ID).values(Collections.singletonList(userInfoModel.getAid())).build();
         Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());
         Long endTimeMills = DateUtil.parseFromIsO8601DateString(param.getEndTime());
-        OtsFilter rangeFilter = OtsFilter.builder().key(OrderOtsConstant.SEARCH_INDEX_FIELD_NAME_1).values(Arrays.asList(startTimeMills, endTimeMills)).build();
-        return orderOtsHelper.listOrders(Collections.singletonList(matchFilter), Collections.singletonList(rangeFilter), param.getNextToken(), param.getReverse());
+        OtsFilter rangeFilter = OtsFilter.builder().key(OrderOtsConstant.GMT_CREATE_LONG).values(Arrays.asList(startTimeMills, endTimeMills)).build();
+        return orderOtsHelper.listOrders(Collections.singletonList(matchFilter), Collections.singletonList(rangeFilter), param.getNextToken(), null);
     }
 
     @Override
     public void updateOrder(UserInfoModel userInfoModel, OrderDO orderDO) {
         if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtCreate())) {
-            orderDO.setGmtCreate(DateUtil.convertToIso8601Format(orderDO.getGmtCreate()));
+            orderDO.setGmtCreate(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtCreate()));
         }
         if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtPayment())) {
-            orderDO.setGmtPayment(DateUtil.convertToIso8601Format(orderDO.getGmtPayment()));
+            orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
         }
         CreateServiceInstanceResponse serviceInstanceResponse = null;
         try {
@@ -150,22 +182,46 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public BaseResult<Double> refundOrder(UserInfoModel userInfoModel, RefundOrderParam param) {
-        OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.valueOf(userInfoModel.getAid()));
-        String currentIs08601Time = DateUtil.getCurrentIs08601Time();
-        Double totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
-        Double refundAmount = walletHelper.getRefundAmount(totalAmount, currentIs08601Time, order.getGmtPayment(), order.getPayPeriod(), order.getPayPeriodUnit());
-        if (param.getDryRun()) {
-            return BaseResult.success(refundAmount);
-        }
+        Boolean dryRun = param.getDryRun();
         String refundId = UuidUtil.generateRefundId();
-        OrderDO refundOrder = new OrderDO();
-        BeanUtils.copyProperties(order, refundOrder);
-        refundOrder.setRefundId(refundId);
-        refundOrder.setRefundAmount(refundAmount);
-        refundOrder.setRefundDate(currentIs08601Time);
-        refundOrder.setTradeStatus(TradeStatus.REFUNDING);
-        orderOtsHelper.updateOrder(refundOrder);
-        return BaseResult.success(refundAmount);
+        Long currentLocalDateTimeMillis = DateUtil.getCurrentLocalDateTimeMillis();
+        String currentLocalDateTime = DateUtil.parseIs08601DateMillis(currentLocalDateTimeMillis);
+        Double allRefundAmount = 0D;
+        if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
+            OtsFilter accountIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, Long.valueOf(userInfoModel.getAid()));
+            OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.ASC);
+            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(accountIdMatchFilter, serviceInstanceIdMatchFilter), null, null, Collections.singletonList(fieldSort));
+            List<OrderDTO> orderDTOList = orderDtoListResult.getData();
+            if (orderDTOList != null && orderDTOList.size() > 0) {
+                if (serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(orderDTOList, currentLocalDateTimeMillis)) {
+                    OrderDTO expiredOrder = orderDTOList.get(orderDTOList.size() - 1);
+                    Double refundAmount = orderOtsHelper.refundConsumingOrder(expiredOrder, dryRun, refundId, currentLocalDateTime);
+                    return BaseResult.success(refundAmount);
+                }
+                int index = 0;
+                for (; index < orderDTOList.size(); index++) {
+                    OrderDTO orderDTO = orderDTOList.get(index);
+                    if (TradeStatus.TRADE_FINISHED.equals(orderDTO.getTradeStatus())) {
+                        continue;
+                    }
+                    if (orderOtsHelper.isOrderInConsuming(orderDTO, currentLocalDateTimeMillis)) {
+                        break;
+                    }
+                }
+                allRefundAmount += orderOtsHelper.refundConsumingOrder(orderDTOList.get(index++), dryRun, refundId, currentLocalDateTime);
+                for (; index < orderDTOList.size(); index++) {
+                    allRefundAmount += orderOtsHelper.refundUnconsumedOrder(orderDTOList.get(index), dryRun, refundId, currentLocalDateTime);
+                }
+                return BaseResult.success(allRefundAmount);
+            }
+        } else {
+            OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.valueOf(userInfoModel.getAid()));
+            orderOtsHelper.validateOrderCanBeRefunded(order, Long.valueOf(userInfoModel.getAid()));
+            allRefundAmount += orderOtsHelper.refundConsumingOrder(order, dryRun, refundId, currentLocalDateTime);
+            return BaseResult.success(allRefundAmount);
+        }
+        throw new IllegalArgumentException("The order ID and service instance ID cannot be both empty.");
     }
 
     private OrderDO createOrderDataObject(String orderId, CreateOrderParam createOrderParam, Long userId, Double totalAmount, Long accountId, GetServiceCostParam getServiceCostParam) {

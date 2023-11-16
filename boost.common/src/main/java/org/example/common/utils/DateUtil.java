@@ -17,6 +17,7 @@ package org.example.common.utils;
 
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -51,31 +52,31 @@ public class DateUtil {
 
     public static final ZoneId UTC_ZONE_ID = ZoneId.of("UTC");
 
-    public static Long parseFromSimpleDateFormat(String dateString){
+    public static Long parseFromSimpleDateFormat(String simpleDateString){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(SIMPLE_DATETIME_FORMAT);
-        LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
-        return getUtcEpochMills(dateTime);
+        LocalDateTime dateTime = LocalDateTime.parse(simpleDateString, formatter);
+        return getUtcEpochMillis(dateTime);
     }
 
-    public static Long parseFromSimpleDateFormat(String dateString, String timeZone) {
+    public static Long parseFromSimpleDateFormat(String simpleDateString, String timeZone) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(SIMPLE_DATETIME_FORMAT);
-        LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(simpleDateString, formatter);
         ZoneId zoneId = ZoneId.of(timeZone);
         return dateTime.atZone(zoneId).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
     }
 
-    public static Long parseFromIsO8601DateString(String dateString){
-        if (dateString == null || dateString.length() == 0) {
+    public static Long parseFromIsO8601DateString(String is08601DateString){
+        if (is08601DateString == null || is08601DateString.length() == 0) {
             return null;
         }
         DateTimeFormatter formatter = getIsO8601DateFormat(ISO8601_DATE_FORMAT);
-        LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(is08601DateString, formatter);
         return dateTime.atZone(UTC_ZONE_ID).withZoneSameInstant(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
     }
 
-    public static Long getCurrentLocalDateTimeMills(){
+    public static Long getCurrentLocalDateTimeMillis(){
         LocalDateTime currentDate = LocalDateTime.now();
-        return getUtcEpochMills(currentDate);
+        return getUtcEpochMillis(currentDate);
     }
 
     public static String getCurrentIs08601Time() {
@@ -85,11 +86,22 @@ public class DateUtil {
         return formatter.format(utcDateTime);
     }
 
-    public static Long getIsO8601FutureDateMills(String dateString, long days) {
+    public static Long getIsO8601FutureDateMillis(String is08601DateString, long days) {
         DateTimeFormatter formatter = getIsO8601DateFormat(ISO8601_DATE_FORMAT);
-        LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(is08601DateString, formatter);
         LocalDateTime futureDate = dateTime.plusDays(days);
         return futureDate.atZone(UTC_ZONE_ID).withZoneSameInstant(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
+    }
+
+    public static Long getIsO8601FutureDateMillis(long utcTimestamp, long days) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(utcTimestamp), UTC_ZONE_ID);
+        LocalDateTime futureDate = dateTime.plusDays(days);
+        return futureDate.atZone(UTC_ZONE_ID).withZoneSameInstant(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
+    }
+
+    public static String parseIs08601DateMillis(long utcTimestamp) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(utcTimestamp), UTC_ZONE_ID);
+        return dateTime.format(DateTimeFormatter.ofPattern(ISO8601_DATE_FORMAT));
     }
 
     public static String getCurrentTimePlusMinutes(int minutes) {
@@ -97,9 +109,9 @@ public class DateUtil {
         return currentTime.format(DateTimeFormatter.ofPattern(SIMPLE_DATETIME_FORMAT));
     }
 
-    public static Long getOneYearAgoLocalDateTimeMills(){
+    public static Long getOneYearAgoLocalDateTimeMillis(){
         LocalDateTime currentDate = LocalDateTime.now();
-        return getUtcEpochMills(currentDate.minusYears(1));
+        return getUtcEpochMillis(currentDate.minusYears(1));
     }
 
     private static DateTimeFormatter getIsO8601DateFormat(String pattern) {
@@ -112,12 +124,12 @@ public class DateUtil {
         return formatter;
     }
 
-    public static String convertToIso8601Format(String dateString) {
-        if (StringUtils.isEmpty(dateString)) {
+    public static String simpleDateStringConvertToIso8601Format(String simpleDateString) {
+        if (StringUtils.isEmpty(simpleDateString)) {
             return null;
         }
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(SIMPLE_DATETIME_FORMAT);
-        LocalDateTime dateTime = LocalDateTime.parse(dateString, inputFormatter)
+        LocalDateTime dateTime = LocalDateTime.parse(simpleDateString, inputFormatter)
                 .atZone(DEFAULT_ZONE_ID)
                 .toOffsetDateTime()
                 .withOffsetSameInstant(UTC_ZONE_OFFSET)
@@ -141,7 +153,7 @@ public class DateUtil {
         return ISO8601_PATTERN.matcher(datetime).matches();
     }
 
-    public static String getCurrentTimestamp() {
+    public static String getCurrentTimeString() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TIMESTAMP_FORMAT);
         return now.format(formatter);
@@ -149,10 +161,10 @@ public class DateUtil {
 
     public static Long getMinutesAgoLocalDateTimeMillis(int minutes) {
         LocalDateTime currentDate = LocalDateTime.now().minusMinutes(minutes);
-        return getUtcEpochMills(currentDate);
+        return getUtcEpochMillis(currentDate);
     }
 
-    public static Long getUtcEpochMills(LocalDateTime localDateTime) {
+    public static Long getUtcEpochMillis(LocalDateTime localDateTime) {
         return localDateTime.atZone(DEFAULT_ZONE_ID).withZoneSameInstant(UTC_ZONE_OFFSET)
                 .toInstant().toEpochMilli();
     }

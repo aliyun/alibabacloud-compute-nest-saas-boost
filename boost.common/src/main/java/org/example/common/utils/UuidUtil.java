@@ -42,7 +42,7 @@ public class UuidUtil {
     }
 
     public static String generateOrderId(Long userId, String orderType) {
-        String timestamp = DateUtil.getCurrentTimestamp();
+        String timestamp = DateUtil.getCurrentTimeString();
         String userIdStr = String.valueOf(userId);
         userIdStr = userIdStr.substring(userIdStr.length() - 3);
         String randomNum = generateRandomNum(1);

@@ -22,19 +22,26 @@ import com.alicloud.openservices.tablestore.model.PrimaryKeyBuilder;
 import com.alicloud.openservices.tablestore.model.PrimaryKeyValue;
 import com.alicloud.openservices.tablestore.model.filter.SingleColumnValueFilter;
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
+import com.alicloud.openservices.tablestore.model.search.sort.Sort;
 import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.example.common.ListResult;
 import org.example.common.constant.OrderOtsConstant;
+import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.Md5Util;
 import org.example.common.utils.OtsUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -43,6 +50,9 @@ public class OrderOtsHelper {
 
     @Resource
     private BaseOtsHelper baseOtsHelper;
+
+    @Resource
+    private WalletHelper walletHelper;
 
     public void createOrder(OrderDO order) {
         PrimaryKey primaryKey = createPrimaryKey(order.getOrderId());
@@ -68,10 +78,14 @@ public class OrderOtsHelper {
         return Boolean.TRUE;
     }
 
-    public ListResult<OrderDTO> listOrders(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters, String nextToken, Boolean reverse) {
-        FieldSort fieldSort = new FieldSort(OrderOtsConstant.SEARCH_INDEX_FIELD_NAME_1);
-        fieldSort.setOrder(reverse ? SortOrder.DESC : SortOrder.ASC);
-        return baseOtsHelper.listEntities(OrderOtsConstant.TABLE_NAME, OrderOtsConstant.SEARCH_INDEX_NAME, matchFilters, queryFilters, nextToken, fieldSort, OrderDTO.class);
+    public ListResult<OrderDTO> listOrders(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters, String nextToken, List<Sort.Sorter> sorters) {
+        if (sorters == null || sorters.isEmpty()) {
+            sorters = new ArrayList<>();
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.GMT_CREATE_LONG);
+            fieldSort.setOrder(SortOrder.DESC);
+            sorters.add(fieldSort);
+        }
+        return baseOtsHelper.listEntities(OrderOtsConstant.TABLE_NAME, OrderOtsConstant.SEARCH_INDEX_NAME, matchFilters, queryFilters, nextToken, sorters, OrderDTO.class);
     }
 
     public OrderDTO getOrder(String orderId, Long accountId) {
@@ -79,7 +93,7 @@ public class OrderOtsHelper {
         SingleColumnValueFilter singleColumnValueFilter = null;
         if (accountId != null) {
             singleColumnValueFilter =
-                    new SingleColumnValueFilter(OrderOtsConstant.FILTER_NAME_0, SingleColumnValueFilter.CompareOperator.EQUAL, ColumnValue.fromLong(accountId));
+                    new SingleColumnValueFilter(OrderOtsConstant.ACCOUNT_ID, SingleColumnValueFilter.CompareOperator.EQUAL, ColumnValue.fromLong(accountId));
             singleColumnValueFilter.setPassIfMissing(true);
             singleColumnValueFilter.setLatestVersionsOnly(true);
         }
@@ -93,5 +107,58 @@ public class OrderOtsHelper {
         }
         return PrimaryKeyBuilder.createPrimaryKeyBuilder()
                 .addPrimaryKeyColumn(OrderOtsConstant.PRIMARY_KEY_NAME, PrimaryKeyValue.fromString(outTradeNoMd5PrimaryKey)).build();
+    }
+
+    public Boolean validateOrderCanBeRefunded(OrderDTO order, Long accountId) {
+        if (order != null && !StringUtils.isEmpty(order.getOrderId()) && accountId != null) {
+            OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, order.getServiceInstanceId());
+            OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
+            ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter), null, null, Collections.singletonList(fieldSort));
+            List<OrderDTO> orderDtoList = orderDtoListResult.getData();
+            if (order.getOrderId() != null && orderDtoList != null && orderDtoList.size() > 0) {
+                return order.getOrderId().equals(orderDtoList.get(0).getOrderId());
+            }
+        }
+
+        throw new IllegalArgumentException("Only the latest order is eligible for a refund.");
+    }
+
+    public Double refundUnconsumedOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
+        Double totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
+        if (!dryRun) {
+            OrderDO refundOrder = createRefundOrder(order, refundId, totalAmount, currentIs08601Time);
+            updateOrder(refundOrder);
+        }
+        return totalAmount;
+    }
+
+    public Double refundConsumingOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
+        // Process logic for orders that are currently being consumed or consumed.
+        Double totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
+        Double refundAmount = walletHelper.getRefundAmount(totalAmount, currentIs08601Time, order.getGmtPayment(), order.getPayPeriod(), order.getPayPeriodUnit());
+        if (dryRun) {
+            return refundAmount;
+        }
+        OrderDO refundOrder = createRefundOrder(order, refundId, refundAmount, currentIs08601Time);
+        updateOrder(refundOrder);
+        return refundAmount;
+    }
+
+    public Boolean isOrderInConsuming(OrderDTO orderDTO, Long currentLocalDateTimeMillis) {
+        if (orderDTO == null || orderDTO.getBillingsStartDateLong() == null || orderDTO.getBillingsEndDateLong() == null) {
+            return Boolean.TRUE;
+        }
+        return currentLocalDateTimeMillis >= orderDTO.getBillingsStartDateLong() && currentLocalDateTimeMillis < orderDTO.getBillingsEndDateLong();
+    }
+
+    private OrderDO createRefundOrder(OrderDTO order, String refundId, Double refundAmount, String refundDate) {
+        OrderDO refundOrder = new OrderDO();
+        BeanUtils.copyProperties(order, refundOrder);
+        refundOrder.setRefundId(refundId);
+        refundOrder.setRefundAmount(refundAmount);
+        refundOrder.setRefundDate(refundDate);
+        refundOrder.setTradeStatus(TradeStatus.REFUNDING);
+        return refundOrder;
     }
 }

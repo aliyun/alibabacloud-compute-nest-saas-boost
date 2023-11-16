@@ -30,7 +30,6 @@ import com.alicloud.openservices.tablestore.model.search.query.BoolQuery;
 import com.alicloud.openservices.tablestore.model.search.query.MatchQuery;
 import com.alicloud.openservices.tablestore.model.search.query.Query;
 import com.alicloud.openservices.tablestore.model.search.query.RangeQuery;
-import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
 import com.alicloud.openservices.tablestore.model.search.sort.Sort;
 import lombok.Builder;
 import lombok.Data;
@@ -48,6 +47,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -128,14 +128,16 @@ public class BaseOtsHelper {
     }
 
     public <T> ListResult<T> listEntities(String tableName, String searchIndexName, List<OtsFilter> matchFilters,
-                                             List<OtsFilter> queryFilters, String nextToken, FieldSort fieldSort, Class<T> clazz) {
+                                             List<OtsFilter> queryFilters, String nextToken, List<Sort.Sorter> sorters, Class<T> clazz) {
         SearchQuery searchQuery = createSearchQuery(matchFilters, queryFilters);
         SearchRequest searchRequest = new SearchRequest(tableName, searchIndexName, searchQuery);
         if (!StringUtils.isEmpty(nextToken)) {
             byte[] tokenBytes = EncryptionUtil.decode(nextToken);
             searchRequest.getSearchQuery().setToken(tokenBytes);
         } else {
-            searchQuery.setSort(new Sort(Arrays.asList((Sort.Sorter) fieldSort)));
+            if (sorters != null &&!sorters.isEmpty()) {
+                searchQuery.setSort(new Sort(sorters));
+            }
         }
         SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
         columnsToGet.setColumns(ReflectionUtil.getPropertyNames(OrderDTO.class));
@@ -157,5 +159,13 @@ public class BaseOtsHelper {
     public static class OtsFilter {
         String key;
         List<Object> values;
+
+        public static OtsFilter createMatchFilter(String key, Object value) {
+            return OtsFilter.builder().key(key).values(Collections.singletonList(value)).build();
+        }
+
+        public static OtsFilter createRangeFilter(String key, Object fromValue, Object toValue) {
+            return OtsFilter.builder().key(key).values(Arrays.asList(fromValue, toValue)).build();
+        }
     }
 }
