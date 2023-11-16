@@ -164,19 +164,23 @@ public class OrderServiceImpl implements OrderService {
         if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtPayment())) {
             orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
         }
-        CreateServiceInstanceResponse serviceInstanceResponse = null;
-        try {
-            serviceInstanceResponse = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, JsonUtil.parseObjectCustom(orderDO.getProductComponents(), Map.class), false);
-            orderDO.setServiceInstanceId(serviceInstanceResponse.body.serviceInstanceId);
-            orderOtsHelper.updateOrder(orderDO);
-        } catch (Exception e) {
-            if (serviceInstanceResponse != null && !StringUtils.isEmpty(serviceInstanceResponse.body.serviceInstanceId)) {
-                orderDO.setTradeStatus(TradeStatus.REFUNDING);
+        if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
+            CreateServiceInstanceResponse serviceInstanceResponse = null;
+            try {
+                serviceInstanceResponse = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, JsonUtil.parseObjectCustom(orderDO.getProductComponents(), Map.class), false);
+                orderDO.setServiceInstanceId(serviceInstanceResponse.body.serviceInstanceId);
                 orderOtsHelper.updateOrder(orderDO);
-            } else {
-                String refundId = UuidUtil.generateRefundId();
-                alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
+            } catch (Exception e) {
+                if (serviceInstanceResponse != null && !StringUtils.isEmpty(serviceInstanceResponse.body.serviceInstanceId)) {
+                    orderDO.setTradeStatus(TradeStatus.REFUNDING);
+                    orderOtsHelper.updateOrder(orderDO);
+                } else {
+                    String refundId = UuidUtil.generateRefundId();
+                    alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
+                }
             }
+        } else {
+            //todo 更新end time
         }
     }
 
