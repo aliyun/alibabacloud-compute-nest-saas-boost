@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +35,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class OrderProcessor {
 
+    @Resource
     private OrderOtsHelper orderOtsHelper;
 
     public void doWhileLoop(List<OtsFilter> queryFilters, List<OtsFilter> rangeFilters, Consumer<OrderDTO> consumer) {
