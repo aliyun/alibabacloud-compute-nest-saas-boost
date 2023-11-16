@@ -15,16 +15,15 @@
 
 import React, {useEffect, useState} from 'react';
 import {PageContainer} from '@ant-design/pro-layout';
-import {Button, message, Modal, Pagination, Typography} from 'antd';
+import {Button, Pagination} from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import {PayTypeEnum} from '@/pages/ServiceInstanceList/components/form/PayTypeFormItem';
 import moment from "moment";
-import ProCard from "@ant-design/pro-card";
 import {ProTable} from "@ant-design/pro-components";
 import {OrderColumns, TradeStatusEnum} from "@/pages/Order/common";
 import {handleGoToPage} from "@/nextTokenUtil";
-import {listOrders, refundOrder} from "@/services/backend/order";
+import {listOrders} from "@/services/backend/order";
 
 
 export enum ProductNameEnum {
@@ -38,61 +37,31 @@ const OrderQueryPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const pageSize = 10;
-    const [visible, setVisible] = useState(false);
-    const [refundAmount, setRefundAmount] = useState<string>("0.00");
-    const [orderId, setOrderId] = useState<string | null>(null);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [shouldFetchData, setShouldFetchData] = useState(false);
-    const { Paragraph } = Typography;
     const [filterValues, setFilterValues] = useState<{
-        tradeStatus?: string;
+        tradeStatus?: | 'TRADE_CLOSED'
+            | 'TRADE_SUCCESS'
+            | 'WAIT_BUYER_PAY'
+            | 'TRADE_FINISHED'
+            | 'REFUNDED'
+            | 'REFUNDING';
         gmtCreate?: string;
         type?: string;
     }>({});
-
-    const handleConfirmRefund = async (): Promise<void> => {
-        try {
-            if (orderId) {
-                await refundOrder({orderId: orderId, dryRun: false});
-                setOrderId(null);
-                message.success('退款中');
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error(error);
-            message.error('退款失败');
-        }
-        setVisible(false);
-    };
-
-    const handleButtonClick = async (record: any) => {
-        try {
-            const response = await refundOrder(
-                {orderId: record.orderId, dryRun: true} as API.RefundOrderParam
-            );
-            setOrderId(record.orderId);
-            const data = response?.data;
-            if (data !== undefined) {
-                setRefundAmount(data.toFixed(2));
-                setVisible(true);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleModalClose = () => {
-        setVisible(false);
-    };
 
     const fetchData = async (currentPage: number, show: boolean) => {
         const params: API.ListOrdersParam = {
             maxResults: pageSize,
             nextToken: nextTokens[currentPage - 1],
         };
+        if (filterValues.tradeStatus != undefined) {
+            params.tradeStatus = filterValues.tradeStatus;
+        }
         if (filterValues.gmtCreate != null) {
-            let startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-            params.startTime = startTime;
+            params.startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const currentTime = dayjs();
+            params.endTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
         } else {
             const currentTime = dayjs();
             const utcTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
@@ -134,41 +103,6 @@ const OrderQueryPage: React.FC = () => {
             sorter: false,
             search: false,
             // @ts-ignore
-            render: (text?: string, record?: any) => {
-                if (
-                    record.tradeStatus ===
-                    TradeStatusEnum['TRADE_SUCCESS' as keyof typeof TradeStatusEnum]
-                ) {
-                    const refundButton = (
-                        <Button type="primary" onClick={() => handleButtonClick(record)}>
-                            退款
-                        </Button>
-                    );
-
-                    const refundModal = (
-                        <Modal open={visible} onCancel={handleModalClose} footer={null}>
-                                <ProCard title="退款金额">
-                                    <Paragraph>您当前订单可退金额为：<span style={{ color: "red" }}>{refundAmount}</span></Paragraph>
-                                <div style={{marginTop: 16, textAlign: 'right'}}>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
-                                            onClick={handleConfirmRefund}>
-                                        退款
-                                    </Button>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
-                                            onClick={handleModalClose}>取消</Button>
-                                </div>
-                            </ProCard>
-                        </Modal>
-                    );
-                    return (
-                        <>
-                            {refundButton}
-                            {refundModal}
-                        </>
-                    );
-                }
-                return null;
-            },
         },
     ]);
 

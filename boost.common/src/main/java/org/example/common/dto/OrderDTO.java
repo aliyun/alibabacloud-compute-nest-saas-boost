@@ -108,4 +108,8 @@ public class OrderDTO {
      * Account Id. corresponds to the aliyun aid.
      */
     private Long accountId;
+
+    private Long billingStartDateLong;
+
+    private Long billingEndDateLong;
 }

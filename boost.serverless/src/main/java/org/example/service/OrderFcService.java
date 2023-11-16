@@ -25,4 +25,9 @@ public interface OrderFcService {
      * Batch scan table store orders and refunds.
      */
     void refundOrders();
+
+    /**
+     * Batch scan table store consumed orders and close.
+     */
+    void closeFinishedOrders();
 }

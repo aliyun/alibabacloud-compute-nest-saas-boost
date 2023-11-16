@@ -22,9 +22,10 @@ import javax.validation.constraints.NotNull;
 @Data
 public class RefundOrderParam {
 
-    @NotNull
     private String orderId;
 
     @NotNull
     private Boolean dryRun;
+
+    private String serviceInstanceId;
 }

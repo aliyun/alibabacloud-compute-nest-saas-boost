@@ -31,13 +31,13 @@ const PayCallback: React.FC = () => {
         const params = Object.fromEntries(urlParams.entries());
         console.log(params);
         const getOrderParam = {
-            orderId:params.out_trade_no,
+            orderId: params.out_trade_no,
         } as API.getOrderParams;
         const result = await getOrder(getOrderParam) as API.BaseResultOrderDTO_;
-        let success:boolean = verifyTradeStatus(result);
-        if (success){
+        let success: boolean = verifyTradeStatus(result);
+        if (success) {
             handlePaymentSuccess();
-        } else{
+        } else {
             handlePaymentFailure(getOrderParam);
         }
     };
@@ -53,7 +53,7 @@ const PayCallback: React.FC = () => {
                 return;
             } else {
                 const result = await getOrder(params);
-                let success:boolean = verifyTradeStatus(result);
+                let success: boolean = verifyTradeStatus(result);
                 if (success) {
                     clearInterval(interval);
                     handlePaymentSuccess();
@@ -68,30 +68,30 @@ const PayCallback: React.FC = () => {
 
     const handlePaymentSuccess = () => {
         Modal.success({
-            title: '支付成功',
-            content: '服务实例正在部署中',
+            title: 'Success',
+            content: '支付成功',
             onOk: () => {
                 window.location.hash = '#/serviceInstance';
             },
         });
+
     };
 
     const paymentFailureModel = () => {
         setLoading(false);
-
         Modal.error({
-            title: '支付失败',
+            title: 'Failed',
             content: '很抱歉，支付未成功，请稍后再试。',
             onOk: () => {
-                window.location.href = '/welcome';
+                window.location.href = '#/welcome';
             },
         });
     };
 
-    const verifyTradeStatus = (result : API.BaseResultOrderDTO_ ):boolean=>{
-        if (result.data !== undefined){
+    const verifyTradeStatus = (result: API.BaseResultOrderDTO_): boolean => {
+        if (result.data !== undefined) {
             const orderDto = result.data as API.OrderDTO;
-            if (orderDto != undefined && (orderDto.tradeStatus === 'TRADE_SUCCESS' || orderDto.tradeStatus === 'TRADE_FINISHED' )){
+            if (orderDto != undefined && (orderDto.tradeStatus === 'TRADE_SUCCESS' || orderDto.tradeStatus === 'TRADE_FINISHED')) {
                 return true;
             }
         }
