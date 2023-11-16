@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DateUtilTest {
 
@@ -52,7 +53,7 @@ class DateUtilTest {
     void testGetCurrentLocalDateTimeMills() {
         String dateTimeExpected = "2014-12-21T10:15:30Z";
         Long expectedCurrentTimeMills = DateUtil.parseFromIsO8601DateString(dateTimeExpected);
-        Long realCurrentTimeMills = DateUtil.getCurrentLocalDateTimeMills();
+        Long realCurrentTimeMills = DateUtil.getCurrentLocalDateTimeMillis();
         assertThat(realCurrentTimeMills).isEqualTo(expectedCurrentTimeMills);
     }
 
@@ -74,14 +75,14 @@ class DateUtilTest {
     void testGetOneYearAgoLocalDateTimeMills() {
         String dateTimeExpected = "2013-12-21T10:15:30Z";
         Long expectedTimeStamp = DateUtil.parseFromIsO8601DateString(dateTimeExpected);
-        Long oneYearAgoLocalDateTimeMills = DateUtil.getOneYearAgoLocalDateTimeMills();
+        Long oneYearAgoLocalDateTimeMills = DateUtil.getOneYearAgoLocalDateTimeMillis();
         assertThat(expectedTimeStamp).isEqualTo(oneYearAgoLocalDateTimeMills);
     }
 
     @Test
     void testConvertToIso8601Format() {
-        assertThat(DateUtil.convertToIso8601Format("2020-09-09 09:09:09")).isEqualTo("2020-09-09T01:09:09Z");
-        assertThat(DateUtil.convertToIso8601Format("")).isNotEqualTo("2020-09-09T01:09:09Z");
+        assertThat(DateUtil.simpleDateStringConvertToIso8601Format("2020-09-09 09:09:09")).isEqualTo("2020-09-09T01:09:09Z");
+        assertThat(DateUtil.simpleDateStringConvertToIso8601Format("")).isNotEqualTo("2020-09-09T01:09:09Z");
     }
 
     @Test
@@ -115,7 +116,7 @@ class DateUtilTest {
     @Test
     void testGetCurrentTimestamp() {
         String dateTimeExpected = "20141221181530000";
-        String realTimeStamp = DateUtil.getCurrentTimestamp();
+        String realTimeStamp = DateUtil.getCurrentTimeString();
         assertThat(dateTimeExpected).isEqualTo(realTimeStamp);
     }
 
@@ -132,7 +133,25 @@ class DateUtilTest {
     void testGetFutureDateTime() {
         String dateTimeExpected = "2014-12-22T10:15:30Z";
         Long realMinutesAgoTime = DateUtil.parseFromIsO8601DateString(dateTimeExpected);
-        Long minutesAgoLocalDateTimeMillis = DateUtil.getIsO8601FutureDateMills("2014-12-21T10:15:30Z",1);
+        Long minutesAgoLocalDateTimeMillis = DateUtil.getIsO8601FutureDateMillis("2014-12-21T10:15:30Z",1);
         assertThat(minutesAgoLocalDateTimeMillis).isEqualTo(realMinutesAgoTime);
+    }
+
+    @Test
+    void testGetIsO8601FutureDateMills() {
+        String dateString = "2021-01-01T00:00:00Z";
+        long days = 10;
+        Long expectedMills = DateUtil.getIsO8601FutureDateMillis(dateString, days);
+        Long currentMills = DateUtil.parseFromIsO8601DateString(dateString);
+
+        Long realMills = DateUtil.getIsO8601FutureDateMillis(currentMills, days);
+
+        assertEquals(expectedMills, realMills);
+    }
+
+    @Test
+    void testParseIs08601DateString() {
+        Assertions.assertEquals(DateUtil.parseIs08601DateMillis(1609785600000L), "2021-01-04T18:40:00Z");
+        Assertions.assertEquals(DateUtil.getIsO8601FutureDateMillis("2021-01-04T18:40:00Z", 0), 1609785600000L);
     }
 }

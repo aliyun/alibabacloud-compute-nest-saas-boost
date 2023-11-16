@@ -16,17 +16,20 @@
 package org.example.common.param;
 
 import lombok.Data;
+import org.example.common.constant.TradeStatus;
 
 @Data
 public class ListOrdersParam {
+
+    private String serviceInstanceId;
 
     private String startTime;
 
     private String endTime;
 
+    private TradeStatus tradeStatus;
+
     private Integer maxResults;
 
     private String nextToken;
-
-    private Boolean reverse = true;
 }

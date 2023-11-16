@@ -131,10 +131,19 @@ declare namespace API {
 
   type ListOrdersParam = {
     endTime?: string;
+    matchFilters?: OtsFilter[];
     maxResults?: number;
     nextToken?: string;
-    reverse?: boolean;
+    queryFilters?: OtsFilter[];
+    serviceInstanceId?: string;
     startTime?: string;
+    tradeStatus?:
+      | 'TRADE_CLOSED'
+      | 'TRADE_SUCCESS'
+      | 'WAIT_BUYER_PAY'
+      | 'TRADE_FINISHED'
+      | 'REFUNDED'
+      | 'REFUNDING';
   };
 
   type ListResultGetServiceTemplateParameterConstraintsResponseBodyParameterConstraints_ = {
@@ -194,6 +203,8 @@ declare namespace API {
 
   type OrderDTO = {
     accountId?: number;
+    billingEndDateLong?: number;
+    billingStartDateLong?: number;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
@@ -218,9 +229,15 @@ declare namespace API {
     type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD';
   };
 
+  type OtsFilter = {
+    key?: string;
+    values?: Record<string, any>[];
+  };
+
   type RefundOrderParam = {
     dryRun?: boolean;
     orderId?: string;
+    serviceInstanceId?: string;
   };
 
   type ServiceInstanceModel = {

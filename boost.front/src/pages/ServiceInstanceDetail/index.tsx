@@ -14,29 +14,35 @@
 */
 
 import React from 'react';
-import { Tabs } from 'antd';
-import type { TabsProps } from 'antd';
+import type {TabsProps} from 'antd';
+import {Tabs} from 'antd';
 import ServiceInstanceContent from "@/pages/ServiceInstanceContent";
 import ServiceInstanceMonitor from "@/pages/ServiceInstanceMonitor";
-import { useParams } from 'umi';
-
+import {ServiceInstanceOrder} from "@/pages/ServiceInstanceOrder/ServiceInstanceOrder";
+import {useParams} from "react-router";
 
 
 const ServiceInstanceDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
+    const {status} = useParams<{ status: string }>();
     const items: TabsProps['items'] = [
         {
             key: 'description',
             label: `概览`,
             children:
                 <ServiceInstanceContent
-                    serviceInstanceId={id}/>,
+                    serviceInstanceId={id} status={status}/>,
         },
         {
             key: 'monitor',
             label: `监控`,
             children: <ServiceInstanceMonitor  serviceInstanceId={id}/>,
         },
+        {
+            key:'serviceInstanceOrders',
+            label: `订单`,
+            children: <ServiceInstanceOrder serviceInstanceId={id} status={status}/>,
+        }
     ];
     return <Tabs defaultActiveKey="1" items={items}/>
 }

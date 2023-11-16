@@ -15,16 +15,21 @@
 
 package org.example.common.helper;
 
+import mockit.Expectations;
+import mockit.Mocked;
 import org.example.common.config.SpecificationConfig;
 import org.example.common.constant.PayPeriodUnit;
-import org.junit.jupiter.api.Assertions;
+import org.example.common.utils.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 class WalletHelperTest {
 
@@ -33,6 +38,9 @@ class WalletHelperTest {
 
     @InjectMocks
     WalletHelper walletHelper;
+
+    @Mocked
+    private DateUtil dateUtilMock;
 
     @BeforeEach
     void setUp() {
@@ -44,18 +52,60 @@ class WalletHelperTest {
         when(specificationConfig.getPriceBySpecificationName(anyString(), anyString(), any(PayPeriodUnit.class))).thenReturn(Double.valueOf(0));
 
         Double result = walletHelper.getServiceCost("serviceId", "specificationName", Long.valueOf(1), PayPeriodUnit.Month);
-        Assertions.assertEquals(Double.valueOf(0), result);
+        assertEquals(Double.valueOf(0), result);
     }
 
     @Test
     void testGetRefundAmount() {
         Double result = walletHelper.getRefundAmount(100.0d, "2023-08-16T00:00:00Z", "2023-08-01T00:00:00Z", 1L, PayPeriodUnit.Month);
-        Assertions.assertEquals(Double.valueOf(50.0), result);
+        assertEquals(Double.valueOf(50.0), result);
 
         result = walletHelper.getRefundAmount(100.0d, "2023-08-16T12:00:00Z", "2023-08-16T00:00:00Z", 1L, PayPeriodUnit.Day);
-        Assertions.assertEquals(Double.valueOf(50.0), result);
+        assertEquals(Double.valueOf(50.0), result);
 
         result = walletHelper.getRefundAmount(100.0d, "2023-06-30T00:00:00Z", "2023-01-01T00:00:00Z", 1L, PayPeriodUnit.Year);
-        Assertions.assertEquals(Double.valueOf(50.0), result);
+        assertEquals(Double.valueOf(50.0), result);
+    }
+
+    @Test
+    public void testGetBillingEndDateTimeLongNotNull() {
+        Long lastBillingEndDateLong = 123456789L;
+        Long payPeriod = 30L;
+        PayPeriodUnit payPeriodUnit = PayPeriodUnit.Day;
+        Long billingDays = 30L;
+        Long expectedBillingEndDateTimeLong = 123456789L + 2592000000L;
+
+        new Expectations() {{
+            DateUtil.getIsO8601FutureDateMillis(lastBillingEndDateLong, billingDays);
+            result = expectedBillingEndDateTimeLong;
+        }};
+
+        WalletHelper walletHelper = new WalletHelper();
+        Long actualBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(lastBillingEndDateLong, payPeriod, payPeriodUnit);
+
+        assertEquals(expectedBillingEndDateTimeLong, actualBillingEndDateTimeLong);
+    }
+
+    @Test
+    public void testGetBillingEndDateTimeLongNull() {
+        Long lastBillingEndDateLong = null;
+        Long payPeriod = 30L;
+        PayPeriodUnit payPeriodUnit = PayPeriodUnit.Day;
+        Long billingDays = 30L;
+        String currentDate = "2022-01-01";
+        Long expectedBillingEndDateTimeLong = 1640995200000L;
+
+        new Expectations() {{
+            DateUtil.getCurrentIs08601Time();
+            result = currentDate;
+
+            DateUtil.getIsO8601FutureDateMillis(currentDate, billingDays);
+            result = expectedBillingEndDateTimeLong;
+        }};
+
+        WalletHelper walletHelper = new WalletHelper();
+        Long actualBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(lastBillingEndDateLong, payPeriod, payPeriodUnit);
+
+        assertEquals(expectedBillingEndDateTimeLong, actualBillingEndDateTimeLong);
     }
 }

@@ -91,7 +91,7 @@ class BaseOtsHelperTest {
         PrimaryKey primaryKey = PrimaryKeyBuilder.createPrimaryKeyBuilder()
                 .addPrimaryKeyColumn(OrderOtsConstant.PRIMARY_KEY_NAME, PrimaryKeyValue.fromString("orderId")).build();
         SingleColumnValueFilter singleColumnValueFilter =
-                new SingleColumnValueFilter(OrderOtsConstant.FILTER_NAME_0, SingleColumnValueFilter.CompareOperator.EQUAL, ColumnValue.fromLong(1L));
+                new SingleColumnValueFilter(OrderOtsConstant.ACCOUNT_ID, SingleColumnValueFilter.CompareOperator.EQUAL, ColumnValue.fromLong(1L));
         final OrderDTO result = baseOtsHelper.getEntity("order", primaryKey, singleColumnValueFilter, OrderDTO.class);
         Assertions.assertTrue(result.getGmtCreate().equals(expectedResult.getGmtCreate()));
     }
@@ -148,7 +148,7 @@ class BaseOtsHelperTest {
         final List<OtsFilter> matchFilters = createMatchFilters();
         final List<OtsFilter> queryFilters = createQueryFilters();
         final ListResult<OrderDTO> expectedResult = new ListResult<>();
-        FieldSort fieldSort = new FieldSort(OrderOtsConstant.SEARCH_INDEX_FIELD_NAME_1);
+        FieldSort fieldSort = new FieldSort(OrderOtsConstant.GMT_CREATE_LONG);
         fieldSort.setOrder(SortOrder.DESC);
         expectedResult.setData(Arrays.asList());
         expectedResult.setCount(0L);
@@ -156,7 +156,7 @@ class BaseOtsHelperTest {
         expectedResult.setNextToken(nextToken);
         final SearchResponse searchResponse = new SearchResponse(new Response("requestId"));
         when(mockOtsClient.search(any(SearchRequest.class))).thenReturn(searchResponse);
-        ListResult<OrderDTO> result = baseOtsHelper.listEntities("order", "order_index", matchFilters, queryFilters, nextToken, fieldSort, OrderDTO.class);
+        ListResult<OrderDTO> result = baseOtsHelper.listEntities("order", "order_index", matchFilters, queryFilters, null, nextToken, Arrays.asList(fieldSort), OrderDTO.class);
         assertThat(result.getCount()).isEqualTo(0);
     }
 

@@ -148,4 +148,8 @@ public class OrderDO {
      * Specification Name.
      */
     private String specificationName;
+
+    private Long billingStartDateLong;
+
+    private Long billingEndDateLong;
 }
