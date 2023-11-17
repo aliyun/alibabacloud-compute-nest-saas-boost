@@ -34,7 +34,9 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     SPECIFICATION_NOT_EXIST(400, "SpecificationNotExist", "The Specification does not exist."),
 
-    COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value can't be null.");
+    COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value can't be null."),
+
+    CURRENT_ORDER_CANT_BE_DELETED(400, "Current_Order_Cant_Be_Deleted", "The Current Order Cant be deleted.");
 
     private final int statusCode;
 

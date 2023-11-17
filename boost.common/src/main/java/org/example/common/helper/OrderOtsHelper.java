@@ -106,9 +106,10 @@ public class OrderOtsHelper {
     public Boolean validateOrderCanBeRefunded(OrderDTO order, Long accountId) {
         if (order != null && !StringUtils.isEmpty(order.getOrderId()) && accountId != null) {
             OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, order.getServiceInstanceId());
+            OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS.name());
             OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
             FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
-            ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter), null, null, Collections.singletonList(fieldSort));
+            ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, Collections.singletonList(fieldSort));
             List<OrderDTO> orderDtoList = orderDtoListResult.getData();
             if (StringUtils.isNotEmpty(order.getOrderId()) && orderDtoList != null && orderDtoList.size() > 0) {
                 return order.getOrderId().equals(orderDtoList.get(0).getOrderId());

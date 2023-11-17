@@ -31,6 +31,7 @@ import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
+import org.example.common.exception.BizException;
 import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.OrderOtsHelper;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
@@ -116,7 +117,6 @@ public class OrderServiceImpl implements OrderService {
         if (StringUtils.isNotEmpty(webForm)) {
             OrderDO orderDataObject = createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
             orderDataObject.setServiceInstanceId(serviceInstanceId);
-            updateBillingDates(serviceInstanceId, payPeriod, payPeriodUnit, orderDataObject);
             orderOtsHelper.createOrder(orderDataObject);
             log.info("The Alipay web form has been successfully created with the following content{}.", webForm);
             return BaseResult.success(webForm);
@@ -128,8 +128,10 @@ public class OrderServiceImpl implements OrderService {
     private void updateBillingDates(String serviceInstanceId, long payPeriod, PayPeriodUnit payPeriodUnit, OrderDO orderDataObject) {
         if (StringUtils.isNotEmpty(serviceInstanceId)) {
             OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
+            OtsFilter tradeStatusQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS);
+            //todo 应为trade success 或 finished。listorder 暂时不支持，下周调整
             FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
-            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Collections.singletonList(serviceInstanceIdQueryFilter), null, null, Collections.singletonList(fieldSort));
+            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter, tradeStatusQueryFilter), null, null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
                 Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
                 Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, payPeriod, payPeriodUnit);
@@ -192,6 +194,8 @@ public class OrderServiceImpl implements OrderService {
         if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtPayment())) {
             orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
         }
+        updateBillingDates(orderDO.getServiceInstanceId(), orderDO.getPayPeriod(), orderDO.getPayPeriodUnit(), orderDO);
+
         if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
             CreateServiceInstanceResponse serviceInstanceResponse = null;
             try {
@@ -258,6 +262,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 return BaseResult.success(allRefundAmount);
             }
+            throw new BizException(ErrorInfo.CURRENT_ORDER_CANT_BE_DELETED);
         }
         throw new IllegalArgumentException("The order ID and service instance ID cannot be both empty.");
     }

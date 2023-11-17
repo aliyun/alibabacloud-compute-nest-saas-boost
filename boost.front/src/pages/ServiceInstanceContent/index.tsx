@@ -14,12 +14,12 @@
 */
 
 import React, {useEffect, useRef, useState} from 'react';
-import {Badge, Button, Descriptions, Divider, Modal, Space} from 'antd';
+import {Badge, Button, Descriptions, Divider, message, Modal, Space, Typography} from 'antd';
 import {getStatusEnum} from "@/pages/ServiceInstance/common";
 import moment from "moment";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {listOrders} from "@/services/backend/order";
+import {listOrders, refundOrder} from "@/services/backend/order";
 import {getServiceInstance} from "@/services/backend/serviceInstance";
 import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
 import PayFormItem from "@/pages/ServiceInstanceList/components/form/PayTypeFormItem";
@@ -64,6 +64,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     const [currentPrice, setCurrentPrice] = useState<number | null>(null);
     const [selectedMonths, setSelectedMonths] = useState<number>(1);
     const [submitting, setSubmitting] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [refundAmount, setRefundAmount] = useState<string>("0.00");
+    const {Paragraph} = Typography;
 
     const handleOptionChange = (month: number) => {
         setSelectedMonths(month);
@@ -129,6 +132,39 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         };
         fetchServiceCost();
     }, [selectedMonths]);
+
+    const handleConfirmRefund = async (): Promise<void> => {
+        try {
+            if (serviceInstanceId) {
+                await refundOrder({serviceInstanceId: props.serviceInstanceId, dryRun: false});
+                message.success('退款中');
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
+            message.error('退款失败');
+        }
+        setVisible(false);
+    };
+
+    const handleButtonClick = async () => {
+        try {
+            const response = await refundOrder(
+                {serviceInstanceId: serviceInstanceId, dryRun: true} as API.RefundOrderParam
+            );
+            const data = response?.data;
+            if (data !== undefined) {
+                setRefundAmount(data.toFixed(2));
+                setVisible(true);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleModalClose = () => {
+        setVisible(false);
+    };
 
     const handleCreateSubmit = async () => {
         if (submitting) {
@@ -231,8 +267,22 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     }
                     <Descriptions.Item label="释放服务实例">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Button title={"删除服务实例"}>删除服务实例</Button>
+                            <Button title={"删除服务实例"}  onClick={() => handleButtonClick()}>删除服务实例</Button>
                         </div>
+                        <Modal open={visible} onCancel={handleModalClose} footer={null}>
+                            <ProCard title="退款金额">
+                                <Paragraph>您当前服务实例可退金额为：<span
+                                    style={{color: "red"}}>{refundAmount}</span></Paragraph>
+                                <div style={{marginTop: 16, textAlign: 'right'}}>
+                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
+                                            onClick={handleConfirmRefund}>
+                                        退款
+                                    </Button>
+                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
+                                            onClick={handleModalClose}>取消</Button>
+                                </div>
+                            </ProCard>
+                        </Modal>
                     </Descriptions.Item>
 
                 </Descriptions>
