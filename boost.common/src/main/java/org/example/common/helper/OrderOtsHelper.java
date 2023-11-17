@@ -116,7 +116,7 @@ public class OrderOtsHelper {
             FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
             ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter), null, null, Collections.singletonList(fieldSort));
             List<OrderDTO> orderDtoList = orderDtoListResult.getData();
-            if (order.getOrderId() != null && orderDtoList != null && orderDtoList.size() > 0) {
+            if (StringUtils.isNotEmpty(order.getOrderId()) && orderDtoList != null && orderDtoList.size() > 0) {
                 return order.getOrderId().equals(orderDtoList.get(0).getOrderId());
             }
         }

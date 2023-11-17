@@ -81,5 +81,4 @@ public class OrderProcessor {
             }
         } while (!CollectionUtils.isEmpty(orders) || !StringUtils.isEmpty(nextToken));
     }
-
 }

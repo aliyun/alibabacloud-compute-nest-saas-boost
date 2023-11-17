@@ -14,14 +14,16 @@
 */
 
 import React, {useEffect, useState} from 'react';
-import {Badge, Descriptions, Divider, Space} from 'antd';
+import {Badge, Button, Descriptions, Divider, Space} from 'antd';
 import {getStatusEnum} from "@/pages/ServiceInstance/common";
 import {getServiceInstance} from "@/services/backend/serviceInstance";
 import moment from "moment";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import {listOrders} from "@/services/backend/order";
 
 dayjs.extend(utc);
+
 interface ServiceInstanceContentProps {
     serviceInstanceId?: string;
 }
@@ -62,6 +64,10 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             setData(result.data);
             console.log(result);
         })();
+
+        await listOrders({
+            serviceInstanceId: serviceInstanceId,
+        });
     }, [serviceInstanceId]);
 
     if (data !== undefined) {
@@ -85,6 +91,12 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                         {data.createTime}
                     </Descriptions.Item>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
+                    <Descriptions.Item label="服务实例到期时间">
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <div>{data?.serviceInstanceId}</div>
+                            <Button>续费</Button>
+                        </div>
+                    </Descriptions.Item>
                     {
                         Object.keys(outputs).map((key) => {
                             // @ts-ignore

@@ -16,7 +16,6 @@
 package org.example.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.OrderOtsConstant;
@@ -31,12 +30,8 @@ import org.example.service.OrderFcService;
 import org.example.task.RefundOrderTask;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -85,39 +80,6 @@ public class OrderFcServiceImpl implements OrderFcService {
         }
     }
 
-    //    @Override
-    public void closeExpiredOrders1() {
-        OtsFilter filter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.WAIT_BUYER_PAY.name());
-        Long startTime = DateUtil.getMinutesAgoLocalDateTimeMillis(30);
-        Long endTime = DateUtil.getMinutesAgoLocalDateTimeMillis(15);
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
-        String nextToken = null;
-        List<OrderDTO> orders = null;
-        do {
-            ListResult<OrderDTO> result = orderOtsHelper.listOrders(Collections.singletonList(filter), Arrays.asList(rangeFilter), nextToken, null);
-            if (result != null && result.getData() != null && !result.getData().isEmpty()) {
-                orders = result.getData();
-                nextToken = result.getNextToken();
-
-                for (OrderDTO order : orders) {
-                    String orderId = order.getOrderId();
-                    try {
-                        OrderDO orderDO = new OrderDO();
-                        BeanUtils.copyProperties(order, orderDO);
-                        orderDO.setTradeStatus(TradeStatus.TRADE_FINISHED);
-                        orderOtsHelper.updateOrder(orderDO);
-                        log.info("Order close success. order id = {}", orderDO.getOrderId());
-                    } catch (Exception e) {
-                        log.error("Order closed failed. Order id = {}", orderId, e);
-                    }
-                }
-            } else {
-                break;
-            }
-        }
-        while (!CollectionUtils.isEmpty(orders) || !StringUtils.isEmpty(nextToken));
-    }
-
     private void createRefundOrderTask(OrderDTO order, CountDownLatch countDownLatch) {
         log.info("Refunding order, order id = {}.", order.getOrderId());
         RefundOrderTask refundOrderTask = RefundOrderTask.builder().orderId(order.getOrderId())
@@ -137,43 +99,9 @@ public class OrderFcServiceImpl implements OrderFcService {
         OtsFilter filter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.REFUNDING.name());
         Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
         Long startTime = DateUtil.getOneYearAgoLocalDateTimeMillis();
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLING_END_DATE_LONG, startTime, endTime);
+        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
         orderProcessor.doWhileLoopOfThreadTask(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::createRefundOrderTask);
     }
-
-//    @Override
-//    public void refundOrders() {
-//        OtsFilter filter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.REFUNDING.name());
-//        Long endTime = DateUtil.getCurrentLocalDateTimeMills();
-//        Long startTime = DateUtil.getOneYearAgoLocalDateTimeMills();
-//        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.SEARCH_INDEX_FIELD_NAME_2, startTime, endTime);
-//        String nextToken = null;
-//        List<OrderDTO> orders;
-//        do {
-//            ListResult<OrderDTO> result = orderOtsHelper.listOrders(Collections.singletonList(filter), Collections.singletonList(rangeFilter), nextToken, true);
-//            if (result != null && result.getData() != null && !result.getData().isEmpty()) {
-//                orders = new ArrayList<>(result.getData());
-//                nextToken = result.getNextToken();
-//                CountDownLatch latch = new CountDownLatch(orders.size());
-//                for (OrderDTO order : orders) {
-//                    try {
-//                        createRefundOrderTask(order, latch);
-//                    } catch (Exception e) {
-//                        log.error("Refund Order failed. order id = {}", order.getOrderId(), e);
-//                    }
-//                }
-//                orders.clear();
-//                try {
-//                    latch.await(); // 等待所有任务执行完毕
-//                } catch (InterruptedException e) {
-//                    log.error("Interrupted while waiting for refund tasks to complete.", e);
-//                    Thread.currentThread().interrupt();
-//                }
-//            } else {
-//                break;
-//            }
-//        } while (!CollectionUtils.isEmpty(orders) || !StringUtils.isEmpty(nextToken));
-//    }
 
     @Override
     public void closeFinishedOrders() {

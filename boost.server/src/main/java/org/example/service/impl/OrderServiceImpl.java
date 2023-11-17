@@ -16,6 +16,7 @@
 package org.example.service.impl;
 
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
+import com.alicloud.openservices.tablestore.model.search.sort.Sort.Sorter;
 import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
 import com.alipay.api.AlipayApiException;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
@@ -53,6 +54,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -152,11 +154,30 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ListResult<OrderDTO> listOrders(UserInfoModel userInfoModel, ListOrdersParam param) {
-        OtsFilter matchFilter = OtsFilter.builder().key(OrderOtsConstant.ACCOUNT_ID).values(Collections.singletonList(userInfoModel.getAid())).build();
-        Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());
-        Long endTimeMills = DateUtil.parseFromIsO8601DateString(param.getEndTime());
-        OtsFilter rangeFilter = OtsFilter.builder().key(OrderOtsConstant.GMT_CREATE_LONG).values(Arrays.asList(startTimeMills, endTimeMills)).build();
-        return orderOtsHelper.listOrders(Collections.singletonList(matchFilter), Collections.singletonList(rangeFilter), param.getNextToken(), null);
+        List<OtsFilter> matchFilters = new ArrayList<>();
+        List<OtsFilter> rangeFilters = new ArrayList<>();
+        OtsFilter aidMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, userInfoModel.getAid());
+        matchFilters.add(aidMatchFilter);
+        List<Sorter> sorters = null;
+
+        if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
+            OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(ComputeNestConstants.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
+            matchFilters.add(serviceInstanceMatchFilter);
+            sorters = new ArrayList<>();
+            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC));
+        } else {
+            Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());
+            Long endTimeMills = DateUtil.parseFromIsO8601DateString(param.getEndTime());
+            OtsFilter rangeFilter = OtsFilter.builder().key(OrderOtsConstant.GMT_CREATE_LONG).values(Arrays.asList(startTimeMills, endTimeMills)).build();
+            rangeFilters.add(rangeFilter);
+        }
+
+        if (param.getTradeStatus() != null) {
+            OtsFilter tradeStatusMatchFilters = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, param.getTradeStatus());
+            matchFilters.add(tradeStatusMatchFilters);
+        }
+
+        return orderOtsHelper.listOrders(matchFilters, rangeFilters, param.getNextToken(), sorters);
     }
 
     @Override
