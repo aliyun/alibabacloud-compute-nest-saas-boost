@@ -13,14 +13,20 @@
 *limitations under the License.
 */
 
-import React, {useEffect, useState} from 'react';
-import {Badge, Button, Descriptions, Divider, Space} from 'antd';
+import React, {useEffect, useRef, useState} from 'react';
+import {Badge, Button, Descriptions, Divider, Modal, Space} from 'antd';
 import {getStatusEnum} from "@/pages/ServiceInstance/common";
 import moment from "moment";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {listOrders} from "@/services/backend/order";
 import {getServiceInstance} from "@/services/backend/serviceInstance";
+import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
+import PayFormItem from "@/pages/ServiceInstanceList/components/form/PayTypeFormItem";
+import ProCard from "@ant-design/pro-card";
+import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/form/PayPeriodFormItem";
+import {getServiceCost} from "@/services/backend/serviceManager";
+import {handleAlipaySubmit} from "@/pages/ServiceInstanceList/components/form/AlipayForm";
 
 dayjs.extend(utc);
 
@@ -53,7 +59,16 @@ function isIPv4Address(str: string): boolean {
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
     const {serviceInstanceId} = props;
     const [data, setData] = useState<API.ServiceInstanceModel>();
+    const form = useRef<ProFormInstance>();
     const [order, setOrder] = useState<API.OrderDTO | undefined>(undefined);
+    const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+    const [selectedMonths, setSelectedMonths] = useState<number>(1);
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleOptionChange = (month: number) => {
+        setSelectedMonths(month);
+    };
+
     useEffect(() => {
         const params: API.getServiceInstanceParams = {
             serviceInstanceId: serviceInstanceId,
@@ -65,18 +80,86 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             console.log(result);
         })();
 
-        (async() => {
+        (async () => {
             const result = await listOrders({
                 serviceInstanceId: serviceInstanceId,
                 tradeStatus: "TRADE_SUCCESS",
                 maxResults: 1
             });
-            if (result != undefined && result.data!= undefined && result.data.length > 0) {
+            if (result != undefined && result.data != undefined && result.data.length > 0) {
                 setOrder(result.data.at(0));
             }
 
         })();
     }, [serviceInstanceId]);
+
+    useEffect(() => {
+        const fetchServiceCost = async () => {
+            try {
+                if (selectedMonths && order != undefined && order.specificationName != undefined) {
+                    const response = await getServiceCost({
+                        specificationName: order.specificationName,
+                        payPeriod: selectedMonths,
+                        payPeriodUnit: "Month",
+                    } as API.getServiceCostParams);
+                    setCurrentPrice(response.data || null);
+                    return;
+                }
+                setCurrentPrice(null);
+            } catch (error) {
+                Modal.error({
+                    title: '套餐名不匹配',
+                    content: (
+                        <div>
+                            <p>套餐名不匹配，请修改后重新运行流水线：</p>
+                            <p>
+                                <a
+                                    href="https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/
+                                </a>
+                            </p>
+                        </div>
+                    ),
+                });
+                setCurrentPrice(100);
+            }
+        };
+        fetchServiceCost();
+    }, [selectedMonths]);
+
+    const handleCreateSubmit = async () => {
+        if (submitting) {
+            return;
+        }
+        try {
+            setSubmitting(true);
+            if (!(form !== undefined && form?.current !== null && form?.current?.getFieldFormatValue !== undefined && form?.current?.getFieldFormatValue)) {
+                return;
+            }
+            const {PayPeriod, type} = await form?.current?.getFieldFormatValue();
+            if (order != null && order.specificationName && order.serviceInstanceId) {
+                const productComponents = {
+                    SpecificationName: order.specificationName,
+                    PayPeriod: PayPeriod,
+                    PayPeriodUnit: "Month",
+                    ServiceInstanceId: order.serviceInstanceId
+                };
+                console.log(productComponents);
+                await handleAlipaySubmit({
+                    productComponents: JSON.stringify(productComponents),
+                    type: type,
+                    productName: 'SERVICE_INSTANCE',
+                }, 1);
+            }
+        } catch (error) {
+            console.log('Error: ', error);
+        } finally {
+            setSubmitting(false);
+        }
+    }
 
     if (data !== undefined) {
         const {outputs, parameters} = processServiceInstanceData(data);
@@ -101,8 +184,31 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
                     <Descriptions.Item label="服务实例到期时间">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <div>{order?.billingsEndDateLong? dayjs(order?.billingsEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
-                            <Button>续费</Button>
+                            <div>{order?.billingsEndDateLong ? dayjs(order?.billingsEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
+                            <ModalForm
+                                title="续费"
+                                size={'large'}
+                                trigger={<Button type="primary">续费</Button>}
+                                formRef={form}
+                                modalProps={{
+                                    destroyOnClose: true,
+                                }}
+                                onFinish={async (values) => {
+                                    await handleCreateSubmit();
+                                    return true;
+                                }}
+                            >
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
+                                        <PayPeriodFormItem onChange={handleOptionChange}/>
+                                        <div style={{textAlign: "right", padding: "16px"}}>
+                                            当前价格: <span
+                                            style={{color: "red"}}>{currentPrice ? currentPrice.toFixed(2) : "加载中..."}</span>
+                                        </div>
+                                    </ProCard>
+                                    <PayFormItem/>
+                                </div>
+                            </ModalForm>
                         </div>
                     </Descriptions.Item>
                     {

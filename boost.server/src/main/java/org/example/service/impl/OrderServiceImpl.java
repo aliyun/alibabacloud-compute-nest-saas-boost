@@ -115,6 +115,7 @@ public class OrderServiceImpl implements OrderService {
         String webForm = alipayService.createTransaction(cost, param.getProductName().getDisplayName(), orderId);
         if (StringUtils.isNotEmpty(webForm)) {
             OrderDO orderDataObject = createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
+            orderDataObject.setServiceInstanceId(serviceInstanceId);
             updateBillingDates(serviceInstanceId, payPeriod, payPeriodUnit, orderDataObject);
             orderOtsHelper.createOrder(orderDataObject);
             log.info("The Alipay web form has been successfully created with the following content{}.", webForm);
@@ -205,6 +206,7 @@ public class OrderServiceImpl implements OrderService {
             }
         } else {
             //todo 更新end time
+            orderOtsHelper.updateOrder(orderDO);
         }
     }
 

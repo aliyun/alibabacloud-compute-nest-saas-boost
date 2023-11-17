@@ -31,32 +31,33 @@ const PayCallback: React.FC = () => {
         const params = Object.fromEntries(urlParams.entries());
         console.log(params);
         const getOrderParam = {
-            orderId:params.out_trade_no,
+            orderId: params.out_trade_no,
         } as API.getOrderParams;
         const result = await getOrder(getOrderParam) as API.BaseResultOrderDTO_;
-        let success:boolean = verifyTradeStatus(result);
-        if (success){
-            handlePaymentSuccess();
-        } else{
-            handlePaymentFailure(getOrderParam);
+        let success: boolean = verifyTradeStatus(result);
+        let serviceInstanceId : string | undefined = result.data?.serviceInstanceId;
+        if (success) {
+            handlePaymentSuccess(serviceInstanceId);
+        } else {
+            handlePaymentFailure(getOrderParam, serviceInstanceId);
         }
     };
 
-    const handlePaymentFailure = (params: API.getOrderParams) => {
+    const handlePaymentFailure = (params: API.getOrderParams, serviceInstanceId: string | undefined) => {
         let count = 1;
         const maxAttempts = 3;
         const intervalDelay = 5000;
         const interval = setInterval(async () => {
             if (count >= maxAttempts) {
                 clearInterval(interval);
-                paymentFailureModel();
+                paymentFailureModel(serviceInstanceId);
                 return;
             } else {
                 const result = await getOrder(params);
-                let success:boolean = verifyTradeStatus(result);
+                let success: boolean = verifyTradeStatus(result);
                 if (success) {
                     clearInterval(interval);
-                    handlePaymentSuccess();
+                    handlePaymentSuccess(serviceInstanceId);
                     return;
                 } else {
                     count++;
@@ -66,32 +67,49 @@ const PayCallback: React.FC = () => {
         }, intervalDelay);
     };
 
-    const handlePaymentSuccess = () => {
-        Modal.success({
-            title: '支付成功',
-            content: '服务实例正在部署中',
-            onOk: () => {
-                window.location.hash = '#/serviceInstance';
-            },
-        });
+    const handlePaymentSuccess = (serviceInstanceId: string | undefined) => {
+        if (serviceInstanceId) {
+            Modal.success({
+                title: '续费成功',
+            });
+        } else {
+            Modal.success({
+                title: '支付成功',
+                content: '服务实例正在部署中',
+                onOk: () => {
+                    window.location.hash = '#/serviceInstance';
+                },
+            });
+        }
+
     };
 
-    const paymentFailureModel = () => {
+    const paymentFailureModel = (serviceInstanceId: string | undefined) => {
         setLoading(false);
+        if (serviceInstanceId) {
+            Modal.error({
+                title: '续费失败',
+                content: '很抱歉，支付未成功，请稍后再试。',
+                onOk: () => {
+                    window.location.href = '#/serviceInstance';
+                },
+            });
+        } else {
+            Modal.error({
+                title: '支付失败',
+                content: '很抱歉，支付未成功，请稍后再试。',
+                onOk: () => {
+                    window.location.href = '#/welcome';
+                },
+            });
+        }
 
-        Modal.error({
-            title: '支付失败',
-            content: '很抱歉，支付未成功，请稍后再试。',
-            onOk: () => {
-                window.location.href = '/welcome';
-            },
-        });
     };
 
-    const verifyTradeStatus = (result : API.BaseResultOrderDTO_ ):boolean=>{
-        if (result.data !== undefined){
+    const verifyTradeStatus = (result: API.BaseResultOrderDTO_): boolean => {
+        if (result.data !== undefined) {
             const orderDto = result.data as API.OrderDTO;
-            if (orderDto != undefined && (orderDto.tradeStatus === 'TRADE_SUCCESS' || orderDto.tradeStatus === 'TRADE_FINISHED' )){
+            if (orderDto != undefined && (orderDto.tradeStatus === 'TRADE_SUCCESS' || orderDto.tradeStatus === 'TRADE_FINISHED')) {
                 return true;
             }
         }

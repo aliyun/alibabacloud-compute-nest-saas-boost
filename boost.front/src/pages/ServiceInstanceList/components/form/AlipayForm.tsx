@@ -14,13 +14,31 @@
 */
 
 import React, {useRef, useState} from 'react';
-import {Button, Modal} from 'antd';
-import {
-    CreateServiceInstanceForm
-} from "@/pages/ServiceInstanceList/components/form/CreateServiceInstanceForm";
+import {Modal} from 'antd';
+import {CreateServiceInstanceForm} from "@/pages/ServiceInstanceList/components/form/CreateServiceInstanceForm";
 import {createOrder} from "@/services/backend/order";
 import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
 import {CreateModalProps} from "@/pages/ServiceInstanceList/components/interface/CreateServiceInstanceModelInterface";
+
+export const handleAlipaySubmit = async (values: API.createOrderParams, index:number) => {
+
+    const response = await createOrder(values);
+    if (response.code !== '200') {
+        Modal.error({
+            title: 'Error',
+            content: response.message,
+        });
+    }
+    const formString = response.data;
+    if (formString != undefined) {
+        let divForm = document.getElementsByTagName('divform')
+        const div = document.createElement('div');
+        div.innerHTML = formString;
+        document.body.appendChild(div);
+        document.forms[index].setAttribute('target', '_self')
+        document.forms[index].submit();
+    }
+};
 
 const CreateModal: React.FC<CreateModalProps> = ({
                                                      createModalVisible, setCreateModalVisible
@@ -48,11 +66,11 @@ const CreateModal: React.FC<CreateModalProps> = ({
                 // RegionId: values.regionId
             };
             console.log(productComponents);
-            await handleSubmit({
+            await handleAlipaySubmit({
                 productComponents: JSON.stringify(productComponents),
                 type: type,
                 productName: 'SERVICE_INSTANCE',
-            });
+            }, 2);
         } catch (error) {
             console.log('Error: ', error);
             form?.current?.setFieldsValue(formValues);
@@ -65,27 +83,6 @@ const CreateModal: React.FC<CreateModalProps> = ({
                 setCreateModalVisible(false);
             }
         }
-    };
-
-    const handleSubmit = async (values: API.createOrderParams) => {
-
-        const response = await createOrder(values);
-        if (response.code !== '200') {
-            Modal.error({
-                title: 'Error',
-                content: response.message,
-            });
-        }
-        const formString = response.data;
-        if (formString != undefined) {
-            let divForm = document.getElementsByTagName('divform')
-            const div = document.createElement('div');
-            div.innerHTML = formString;
-            document.body.appendChild(div);
-            document.forms[2].setAttribute('target', '_self') // 加了_blank可能出问题所以我注释了
-            document.forms[2].submit();
-        }
-
     };
 
     return (
