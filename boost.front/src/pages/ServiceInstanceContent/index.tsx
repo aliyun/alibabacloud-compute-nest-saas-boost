@@ -65,9 +65,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             console.log(result);
         })();
 
-        await listOrders({
-            serviceInstanceId: serviceInstanceId,
-        });
+        // await listOrders({
+        //     serviceInstanceId: serviceInstanceId,
+        // });
     }, [serviceInstanceId]);
 
     if (data !== undefined) {

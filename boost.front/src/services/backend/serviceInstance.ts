@@ -1,5 +1,5 @@
-/* eslint-disable */
 // @ts-ignore
+/* eslint-disable */
 import { request } from '@umijs/max';
 
 /** 获取指定ID的服务实例详情 GET /api/getServiceInstance */

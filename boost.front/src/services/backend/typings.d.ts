@@ -133,7 +133,6 @@ declare namespace API {
     endTime?: string;
     maxResults?: number;
     nextToken?: string;
-    reverse?: boolean;
     startTime?: string;
   };
 
@@ -194,6 +193,8 @@ declare namespace API {
 
   type OrderDTO = {
     accountId?: number;
+    billingsEndDateLong?: number;
+    billingsStartDateLong?: number;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
@@ -221,6 +222,7 @@ declare namespace API {
   type RefundOrderParam = {
     dryRun?: boolean;
     orderId?: string;
+    serviceInstanceId?: string;
   };
 
   type ServiceInstanceModel = {
