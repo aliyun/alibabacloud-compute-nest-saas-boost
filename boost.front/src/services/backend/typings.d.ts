@@ -131,9 +131,19 @@ declare namespace API {
 
   type ListOrdersParam = {
     endTime?: string;
+    matchFilters?: OtsFilter[];
     maxResults?: number;
     nextToken?: string;
+    queryFilters?: OtsFilter[];
+    serviceInstanceId?: string;
     startTime?: string;
+    tradeStatus?:
+      | 'TRADE_CLOSED'
+      | 'TRADE_SUCCESS'
+      | 'WAIT_BUYER_PAY'
+      | 'TRADE_FINISHED'
+      | 'REFUNDED'
+      | 'REFUNDING';
   };
 
   type ListResultGetServiceTemplateParameterConstraintsResponseBodyParameterConstraints_ = {
@@ -217,6 +227,11 @@ declare namespace API {
       | 'REFUNDED'
       | 'REFUNDING';
     type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD';
+  };
+
+  type OtsFilter = {
+    key?: string;
+    values?: Record<string, any>[];
   };
 
   type RefundOrderParam = {

@@ -161,7 +161,7 @@ public class OrderServiceImpl implements OrderService {
         List<Sorter> sorters = null;
 
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
-            OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(ComputeNestConstants.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
+            OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
             sorters = new ArrayList<>();
             sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC));

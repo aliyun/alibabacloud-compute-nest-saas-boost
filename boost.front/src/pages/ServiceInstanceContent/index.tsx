@@ -16,11 +16,11 @@
 import React, {useEffect, useState} from 'react';
 import {Badge, Button, Descriptions, Divider, Space} from 'antd';
 import {getStatusEnum} from "@/pages/ServiceInstance/common";
-import {getServiceInstance} from "@/services/backend/serviceInstance";
 import moment from "moment";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {listOrders} from "@/services/backend/order";
+import {getServiceInstance} from "@/services/backend/serviceInstance";
 
 dayjs.extend(utc);
 
@@ -53,7 +53,7 @@ function isIPv4Address(str: string): boolean {
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
     const {serviceInstanceId} = props;
     const [data, setData] = useState<API.ServiceInstanceModel>();
-
+    const [order, setOrder] = useState<API.OrderDTO | undefined>(undefined);
     useEffect(() => {
         const params: API.getServiceInstanceParams = {
             serviceInstanceId: serviceInstanceId,
@@ -65,9 +65,17 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             console.log(result);
         })();
 
-        // await listOrders({
-        //     serviceInstanceId: serviceInstanceId,
-        // });
+        (async() => {
+            const result = await listOrders({
+                serviceInstanceId: serviceInstanceId,
+                tradeStatus: "TRADE_SUCCESS",
+                maxResults: 1
+            });
+            if (result != undefined && result.data!= undefined && result.data.length > 0) {
+                setOrder(result.data.at(0));
+            }
+
+        })();
     }, [serviceInstanceId]);
 
     if (data !== undefined) {
@@ -93,7 +101,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
                     <Descriptions.Item label="服务实例到期时间">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <div>{data?.serviceInstanceId}</div>
+                            <div>{order?.billingsEndDateLong? dayjs(order?.billingsEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
                             <Button>续费</Button>
                         </div>
                     </Descriptions.Item>
