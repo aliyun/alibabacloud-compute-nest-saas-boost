@@ -229,6 +229,12 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             }
                         })
                     }
+                    <Descriptions.Item label="释放服务实例">
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Button title={"删除服务实例"}>删除服务实例</Button>
+                        </div>
+                    </Descriptions.Item>
+
                 </Descriptions>
                 <Divider/>
                 <Descriptions bordered={true} title="服务信息" column={2}>

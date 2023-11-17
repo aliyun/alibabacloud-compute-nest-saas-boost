@@ -71,6 +71,9 @@ const PayCallback: React.FC = () => {
         if (serviceInstanceId) {
             Modal.success({
                 title: '续费成功',
+                onOk: () => {
+                    window.location.reload();
+                },
             });
         } else {
             Modal.success({

@@ -159,14 +159,14 @@ public class OrderServiceImpl implements OrderService {
         List<OtsFilter> rangeFilters = new ArrayList<>();
         OtsFilter aidMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, userInfoModel.getAid());
         matchFilters.add(aidMatchFilter);
-        List<Sorter> sorters = null;
+        List<Sorter> sorters = new ArrayList<>();
 
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
             OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
-            sorters = new ArrayList<>();
             sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC));
-        } else {
+        }
+        if (StringUtils.isNotEmpty(param.getStartTime()) && StringUtils.isNotEmpty(param.getEndTime())) {
             Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());
             Long endTimeMills = DateUtil.parseFromIsO8601DateString(param.getEndTime());
             OtsFilter rangeFilter = OtsFilter.builder().key(OrderOtsConstant.GMT_CREATE_LONG).values(Arrays.asList(startTimeMills, endTimeMills)).build();
@@ -177,6 +177,9 @@ public class OrderServiceImpl implements OrderService {
             OtsFilter tradeStatusMatchFilters = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, param.getTradeStatus());
             matchFilters.add(tradeStatusMatchFilters);
         }
+        FieldSort fieldSort = new FieldSort(OrderOtsConstant.GMT_CREATE_LONG);
+        fieldSort.setOrder(SortOrder.DESC);
+        sorters.add(fieldSort);
 
         return orderOtsHelper.listOrders(matchFilters, rangeFilters, param.getNextToken(), sorters);
     }
@@ -247,9 +250,14 @@ public class OrderServiceImpl implements OrderService {
             }
         } else {
             OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.valueOf(userInfoModel.getAid()));
-            orderOtsHelper.validateOrderCanBeRefunded(order, Long.valueOf(userInfoModel.getAid()));
-            allRefundAmount += orderOtsHelper.refundConsumingOrder(order, dryRun, refundId, currentLocalDateTime);
-            return BaseResult.success(allRefundAmount);
+            if (orderOtsHelper.validateOrderCanBeRefunded(order, Long.valueOf(userInfoModel.getAid()))) {
+                if (orderOtsHelper.isOrderInConsuming(order, currentLocalDateTimeMillis)) {
+                    allRefundAmount += orderOtsHelper.refundConsumingOrder(order, dryRun, refundId, currentLocalDateTime);
+                } else {
+                    allRefundAmount += orderOtsHelper.refundUnconsumedOrder(order, dryRun, refundId, currentLocalDateTime);
+                }
+                return BaseResult.success(allRefundAmount);
+            }
         }
         throw new IllegalArgumentException("The order ID and service instance ID cannot be both empty.");
     }

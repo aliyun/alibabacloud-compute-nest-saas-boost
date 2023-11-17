@@ -50,41 +50,6 @@ const OrderQueryPage: React.FC = () => {
         type?: string;
     }>({});
 
-    const handleConfirmRefund = async (): Promise<void> => {
-        try {
-            if (orderId) {
-                await refundOrder({orderId: orderId, dryRun: false});
-                setOrderId(null);
-                message.success('退款中');
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error(error);
-            message.error('退款失败');
-        }
-        setVisible(false);
-    };
-
-    const handleButtonClick = async (record: any) => {
-        try {
-            const response = await refundOrder(
-                {orderId: record.orderId, dryRun: true} as API.RefundOrderParam
-            );
-            setOrderId(record.orderId);
-            const data = response?.data;
-            if (data !== undefined) {
-                setRefundAmount(data.toFixed(2));
-                setVisible(true);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleModalClose = () => {
-        setVisible(false);
-    };
-
     const fetchData = async (currentPage: number, show: boolean) => {
         const params: API.ListOrdersParam = {
             maxResults: pageSize,
@@ -134,41 +99,6 @@ const OrderQueryPage: React.FC = () => {
             sorter: false,
             search: false,
             // @ts-ignore
-            render: (text?: string, record?: any) => {
-                if (
-                    record.tradeStatus ===
-                    TradeStatusEnum['TRADE_SUCCESS' as keyof typeof TradeStatusEnum]
-                ) {
-                    const refundButton = (
-                        <Button type="primary" onClick={() => handleButtonClick(record)}>
-                            退款
-                        </Button>
-                    );
-
-                    const refundModal = (
-                        <Modal open={visible} onCancel={handleModalClose} footer={null}>
-                                <ProCard title="退款金额">
-                                    <Paragraph>您当前订单可退金额为：<span style={{ color: "red" }}>{refundAmount}</span></Paragraph>
-                                <div style={{marginTop: 16, textAlign: 'right'}}>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
-                                            onClick={handleConfirmRefund}>
-                                        退款
-                                    </Button>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
-                                            onClick={handleModalClose}>取消</Button>
-                                </div>
-                            </ProCard>
-                        </Modal>
-                    );
-                    return (
-                        <>
-                            {refundButton}
-                            {refundModal}
-                        </>
-                    );
-                }
-                return null;
-            },
         },
     ]);
 

@@ -14,12 +14,12 @@
 */
 
 import React from 'react';
-import { Tabs } from 'antd';
-import type { TabsProps } from 'antd';
+import type {TabsProps} from 'antd';
+import {Tabs} from 'antd';
 import ServiceInstanceContent from "@/pages/ServiceInstanceContent";
 import ServiceInstanceMonitor from "@/pages/ServiceInstanceMonitor";
-import { useParams } from 'umi';
-
+import {useParams} from 'umi';
+import {ServiceInstanceOrder} from "@/pages/ServiceInstanceOrder/ServiceInstanceOrder";
 
 
 const ServiceInstanceDetail: React.FC = () => {
@@ -37,6 +37,11 @@ const ServiceInstanceDetail: React.FC = () => {
             label: `监控`,
             children: <ServiceInstanceMonitor  serviceInstanceId={id}/>,
         },
+        {
+            key:'serviceInstanceOrders',
+            label: `订单`,
+            children: <ServiceInstanceOrder serviceInstanceId={id}/>,
+        }
     ];
     return <Tabs defaultActiveKey="1" items={items}/>
 }

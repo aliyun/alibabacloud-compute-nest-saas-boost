@@ -79,12 +79,6 @@ public class OrderOtsHelper {
     }
 
     public ListResult<OrderDTO> listOrders(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters, String nextToken, List<Sort.Sorter> sorters) {
-        if (sorters == null || sorters.isEmpty()) {
-            sorters = new ArrayList<>();
-            FieldSort fieldSort = new FieldSort(OrderOtsConstant.GMT_CREATE_LONG);
-            fieldSort.setOrder(SortOrder.DESC);
-            sorters.add(fieldSort);
-        }
         return baseOtsHelper.listEntities(OrderOtsConstant.TABLE_NAME, OrderOtsConstant.SEARCH_INDEX_NAME, matchFilters, queryFilters, nextToken, sorters, OrderDTO.class);
     }
 
