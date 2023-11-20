@@ -14,6 +14,7 @@ import utc from "dayjs/plugin/utc";
 
 interface ServiceInstanceContentProps {
     serviceInstanceId?: string;
+    status?: string;
 }
 dayjs.extend(utc);
 export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (props) => {
@@ -119,7 +120,7 @@ export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (prop
             search: false,
             // @ts-ignore
             render: (text?: string, record?: any, index) => {
-                if (canRefundOrderIndex == index
+                if (canRefundOrderIndex == index && props.status == 'Success'
                 ) {
                     const refundButton = (
                         <Button type="primary" onClick={() => handleButtonClick(record)}>

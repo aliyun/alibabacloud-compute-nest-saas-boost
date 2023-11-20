@@ -32,6 +32,8 @@ dayjs.extend(utc);
 
 interface ServiceInstanceContentProps {
     serviceInstanceId?: string;
+
+    status?: string;
 }
 
 const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
@@ -199,7 +201,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
     if (data !== undefined) {
         const {outputs, parameters} = processServiceInstanceData(data);
-
+        console.log(props.status);
         return (
             <Space direction="vertical" size="large" style={{display: 'flex'}}>
                 <Descriptions bordered={true} title="服务实例" column={2}>
@@ -224,7 +226,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             <ModalForm
                                 title="续费"
                                 size={'large'}
-                                trigger={<Button type="primary">续费</Button>}
+                                trigger={<Button hidden={getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success'}>续费</Button>}
                                 formRef={form}
                                 modalProps={{
                                     destroyOnClose: true,
@@ -267,7 +269,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     }
                     <Descriptions.Item label="释放服务实例">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Button title={"删除服务实例"}  onClick={() => handleButtonClick()}>删除服务实例</Button>
+                            <Button title={"删除服务实例"} onClick={() => handleButtonClick()} hidden={getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success'}>删除服务实例</Button>
                         </div>
                         <Modal open={visible} onCancel={handleModalClose} footer={null}>
                             <ProCard title="退款金额">

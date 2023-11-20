@@ -192,32 +192,32 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void updateOrder(UserInfoModel userInfoModel, OrderDO orderDO) {
-        if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtCreate())) {
-            orderDO.setGmtCreate(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtCreate()));
-        }
-        if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtPayment())) {
-            orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
-        }
-        updateBillingDates(orderDO);
+        CreateServiceInstanceResponse serviceInstanceResponse = null;
+        try {
+            if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtCreate())) {
+                orderDO.setGmtCreate(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtCreate()));
+            }
+            if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtPayment())) {
+                orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
+            }
+            updateBillingDates(orderDO);
 
-        if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
-            CreateServiceInstanceResponse serviceInstanceResponse = null;
-            try {
+            if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
                 serviceInstanceResponse = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, JsonUtil.parseObjectCustom(orderDO.getProductComponents(), Map.class), false);
                 orderDO.setServiceInstanceId(serviceInstanceResponse.body.serviceInstanceId);
                 orderOtsHelper.updateOrder(orderDO);
-            } catch (Exception e) {
-                if (serviceInstanceResponse != null && !StringUtils.isEmpty(serviceInstanceResponse.body.serviceInstanceId)) {
-                    orderDO.setTradeStatus(TradeStatus.REFUNDING);
-                    orderOtsHelper.updateOrder(orderDO);
-                } else {
-                    String refundId = UuidUtil.generateRefundId();
-                    alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
-                }
+            } else {
+                //todo 更新end time
+                orderOtsHelper.updateOrder(orderDO);
             }
-        } else {
-            //todo 更新end time
-            orderOtsHelper.updateOrder(orderDO);
+        } catch (Exception e) {
+            if (serviceInstanceResponse != null && !StringUtils.isEmpty(serviceInstanceResponse.body.serviceInstanceId)) {
+                orderDO.setTradeStatus(TradeStatus.REFUNDING);
+                orderOtsHelper.updateOrder(orderDO);
+            } else {
+                String refundId = UuidUtil.generateRefundId();
+                alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
+            }
         }
     }
 

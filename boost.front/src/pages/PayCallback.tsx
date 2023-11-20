@@ -72,7 +72,7 @@ const PayCallback: React.FC = () => {
             Modal.success({
                 title: '续费成功',
                 onOk: () => {
-                    window.location.reload();
+                    window.location.hash = '#/serviceInstance';
                 },
             });
         } else {
