@@ -125,8 +125,9 @@ public class OrderServiceImpl implements OrderService {
         return BaseResult.fail("The Alipay web form create failed.");
     }
 
-    private void updateBillingDates(String serviceInstanceId, long payPeriod, PayPeriodUnit payPeriodUnit, OrderDO orderDataObject) {
-        if (StringUtils.isNotEmpty(serviceInstanceId)) {
+    private void updateBillingDates(OrderDO orderDataObject) {
+        if (StringUtils.isNotEmpty(orderDataObject.getServiceInstanceId())) {
+            String serviceInstanceId = orderDataObject.getServiceInstanceId();
             OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
             OtsFilter tradeStatusQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS);
             //todo 应为trade success 或 finished。listorder 暂时不支持，下周调整
@@ -134,16 +135,19 @@ public class OrderServiceImpl implements OrderService {
             ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter, tradeStatusQueryFilter), null, null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
                 Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
-                Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, payPeriod, payPeriodUnit);
+                Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
                 orderDataObject.setBillingsEndDateLong(currentBillingEndDateTimeLong);
                 orderDataObject.setBillingsStartDateLong(preBillingEndDateLong);
                 return;
             }
         }
         Long billingStartDateMillis = DateUtil.getCurrentLocalDateTimeMillis();
-        Long billingEndDateMillis = walletHelper.getBillingEndDateTimeLong(billingStartDateMillis, payPeriod, payPeriodUnit);
+        Long billingEndDateMillis = walletHelper.getBillingEndDateTimeLong(billingStartDateMillis, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
         orderDataObject.setBillingsEndDateLong(billingEndDateMillis);
         orderDataObject.setBillingsStartDateLong(billingStartDateMillis);
+        String billingStartDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingsStartDateLong());
+        String billingEndDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingsEndDateLong());
+        log.info("the current order with orderId : {}, the billingStartDate = {}, the billing end date = {}", orderDataObject.getOrderId(), billingStartDate, billingEndDate);
     }
 
     @Override
@@ -194,7 +198,7 @@ public class OrderServiceImpl implements OrderService {
         if (DateUtil.isValidSimpleDateTimeFormat(orderDO.getGmtPayment())) {
             orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
         }
-        updateBillingDates(orderDO.getServiceInstanceId(), orderDO.getPayPeriod(), orderDO.getPayPeriodUnit(), orderDO);
+        updateBillingDates(orderDO);
 
         if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
             CreateServiceInstanceResponse serviceInstanceResponse = null;
@@ -225,11 +229,7 @@ public class OrderServiceImpl implements OrderService {
         String currentLocalDateTime = DateUtil.parseIs08601DateMillis(currentLocalDateTimeMillis);
         Double allRefundAmount = 0D;
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
-            OtsFilter accountIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, Long.valueOf(userInfoModel.getAid()));
-            OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
-            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.ASC);
-            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(accountIdMatchFilter, serviceInstanceIdMatchFilter), null, null, Collections.singletonList(fieldSort));
-            List<OrderDTO> orderDTOList = orderDtoListResult.getData();
+            List<OrderDTO> orderDTOList = orderOtsHelper.listServiceInstanceOrders(param.getServiceInstanceId(), Long.valueOf(userInfoModel.getAid()), false, TradeStatus.TRADE_SUCCESS);
             if (orderDTOList != null && orderDTOList.size() > 0) {
                 if (serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(orderDTOList, currentLocalDateTimeMillis)) {
                     OrderDTO expiredOrder = orderDTOList.get(orderDTOList.size() - 1);

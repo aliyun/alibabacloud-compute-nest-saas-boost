@@ -39,7 +39,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -105,18 +104,22 @@ public class OrderOtsHelper {
 
     public Boolean validateOrderCanBeRefunded(OrderDTO order, Long accountId) {
         if (order != null && !StringUtils.isEmpty(order.getOrderId()) && accountId != null) {
-            OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, order.getServiceInstanceId());
-            OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS.name());
-            OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
-            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
-            ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, Collections.singletonList(fieldSort));
-            List<OrderDTO> orderDtoList = orderDtoListResult.getData();
+            List<OrderDTO> orderDtoList = listServiceInstanceOrders(order.getServiceInstanceId(), accountId, Boolean.TRUE, TradeStatus.TRADE_SUCCESS);
             if (StringUtils.isNotEmpty(order.getOrderId()) && orderDtoList != null && orderDtoList.size() > 0) {
                 return order.getOrderId().equals(orderDtoList.get(0).getOrderId());
             }
         }
 
         throw new IllegalArgumentException("Only the latest order is eligible for a refund.");
+    }
+
+    public List<OrderDTO> listServiceInstanceOrders(String serviceInstanceId, Long accountId, Boolean reverse, TradeStatus tradeStatus) {
+        OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
+        OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, tradeStatus.name());
+        OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
+        FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, reverse ? SortOrder.DESC : SortOrder.ASC);
+        ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, Collections.singletonList(fieldSort));
+        return orderDtoListResult.getData();
     }
 
     public Double refundUnconsumedOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {

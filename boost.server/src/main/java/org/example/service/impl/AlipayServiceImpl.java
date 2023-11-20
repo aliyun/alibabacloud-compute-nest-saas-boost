@@ -1,21 +1,22 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.service.impl;
 
 import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.internal.util.StringUtils;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
@@ -88,7 +89,9 @@ public class AlipayServiceImpl implements AlipayService {
             unverifiedOrder.setOrderId(orderId);
             unverifiedOrder.setProductComponents(orderFromOts.getProductComponents());
             unverifiedOrder.setTradeStatus(TradeStatus.TRADE_SUCCESS);
-            unverifiedOrder.setServiceInstanceId(orderFromOts.getServiceInstanceId());
+            if (StringUtils.isEmpty(unverifiedOrder.getServiceInstanceId())) {
+                unverifiedOrder.setServiceInstanceId(orderFromOts.getServiceInstanceId());
+            }
             UserInfoModel userInfoModel = new UserInfoModel();
             userInfoModel.setAid(String.valueOf(orderFromOts.getAccountId()));
             log.info(unverifiedOrder.getServiceInstanceId());
@@ -110,7 +113,7 @@ public class AlipayServiceImpl implements AlipayService {
     }
 
     private Boolean verifyBusinessData(OrderDO unverifiedOrder, OrderDTO orderFromTableStore) {
-        if (orderFromTableStore.getTotalAmount() == null ) {
+        if (orderFromTableStore.getTotalAmount() == null) {
             return Boolean.FALSE;
         }
         return unverifiedOrder.getSellerId().equals(alipayConfig.getPid())
