@@ -100,8 +100,8 @@ public class RefundOrderTask implements Runnable {
 
 
     private Boolean shouldDeleteServiceInstance(Long currentLocalDateTimeMillis, OrderDTO order) {
-        if (order.getBillingsStartDateLong() != null && order.getBillingsEndDateLong() != null) {
-            return currentLocalDateTimeMillis >= order.getBillingsStartDateLong() && currentLocalDateTimeMillis <= order.getBillingsEndDateLong();
+        if (order.getBillingStartDateLong() != null && order.getBillingEndDateLong() != null) {
+            return currentLocalDateTimeMillis >= order.getBillingStartDateLong() && currentLocalDateTimeMillis <= order.getBillingEndDateLong();
         }
         return Boolean.FALSE;
     }

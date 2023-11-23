@@ -144,10 +144,10 @@ public class OrderOtsHelper {
     }
 
     public Boolean isOrderInConsuming(OrderDTO orderDTO, Long currentLocalDateTimeMillis) {
-        if (orderDTO == null || orderDTO.getBillingsStartDateLong() == null || orderDTO.getBillingsEndDateLong() == null) {
+        if (orderDTO == null || orderDTO.getBillingStartDateLong() == null || orderDTO.getBillingEndDateLong() == null) {
             return Boolean.TRUE;
         }
-        return currentLocalDateTimeMillis >= orderDTO.getBillingsStartDateLong() && currentLocalDateTimeMillis < orderDTO.getBillingsEndDateLong();
+        return currentLocalDateTimeMillis >= orderDTO.getBillingStartDateLong() && currentLocalDateTimeMillis < orderDTO.getBillingEndDateLong();
     }
 
     private OrderDO createRefundOrder(OrderDTO order, String refundId, Double refundAmount, String refundDate) {

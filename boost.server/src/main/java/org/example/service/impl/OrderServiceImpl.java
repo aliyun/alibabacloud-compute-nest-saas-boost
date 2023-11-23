@@ -133,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
             FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
             ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter), null, Collections.singletonList(tradeStatusQueryFilter), null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
-                Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
+                Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingEndDateLong();
                 Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
                 orderDataObject.setBillingEndDateLong(currentBillingEndDateTimeLong);
                 orderDataObject.setBillingStartDateLong(preBillingEndDateLong);

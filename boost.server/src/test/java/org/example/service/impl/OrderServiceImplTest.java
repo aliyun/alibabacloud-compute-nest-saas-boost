@@ -230,11 +230,11 @@ class OrderServiceImplTest {
     private List<OrderDTO> createMockOrderList() {
         List<OrderDTO> orderList = new ArrayList<>();
         OrderDTO firstOrderDto = new OrderDTO();
-        firstOrderDto.setBillingsStartDateLong(0L);
-        firstOrderDto.setBillingsEndDateLong(123L);
+        firstOrderDto.setBillingStartDateLong(0L);
+        firstOrderDto.setBillingEndDateLong(123L);
         OrderDTO latestOrderDto = new OrderDTO();
-        latestOrderDto.setBillingsStartDateLong(123L);
-        latestOrderDto.setBillingsEndDateLong(1234L);
+        latestOrderDto.setBillingStartDateLong(123L);
+        latestOrderDto.setBillingEndDateLong(1234L);
         orderList.add(firstOrderDto);
         orderList.add(latestOrderDto);
         return orderList;

@@ -259,8 +259,8 @@ class OrderOtsHelperTest {
     @Test
     public void isOrderInConsumingReturnsTrue() {
         Long currentLocalDateTimeMillis = 123456789L;
-        when(order.getBillingsStartDateLong()).thenReturn(10000L);
-        when(order.getBillingsEndDateLong()).thenReturn(223456789L);
+        when(order.getBillingStartDateLong()).thenReturn(10000L);
+        when(order.getBillingEndDateLong()).thenReturn(223456789L);
 
         Boolean result = orderOtsHelper.isOrderInConsuming(order, currentLocalDateTimeMillis);
 
@@ -270,15 +270,15 @@ class OrderOtsHelperTest {
     @Test
     public void isOrderInConsumingReturnsFalse() {
         Long currentLocalDateTimeMillis = 123456789L;
-        when(order.getBillingsStartDateLong()).thenReturn(null);
-        when(order.getBillingsEndDateLong()).thenReturn(null);
+        when(order.getBillingStartDateLong()).thenReturn(null);
+        when(order.getBillingEndDateLong()).thenReturn(null);
 
         Boolean result = orderOtsHelper.isOrderInConsuming(order, currentLocalDateTimeMillis);
 
         assertTrue(result);
 
-        when(order.getBillingsStartDateLong()).thenReturn(123456L);
-        when(order.getBillingsEndDateLong()).thenReturn(1234567L);
+        when(order.getBillingStartDateLong()).thenReturn(123456L);
+        when(order.getBillingEndDateLong()).thenReturn(1234567L);
 
         result = orderOtsHelper.isOrderInConsuming(order, currentLocalDateTimeMillis);
 

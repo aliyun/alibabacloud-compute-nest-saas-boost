@@ -26,8 +26,8 @@ public class ServiceInstanceLifeStyleHelper {
     public Boolean checkServiceInstanceExpiration(List<OrderDTO> orderDtoList, Long currentLocalDateTimeMillis) {
         if (orderDtoList != null && !orderDtoList.isEmpty()) {
             OrderDTO orderDTO = orderDtoList.get(orderDtoList.size() - 1);
-            if (orderDTO != null && orderDTO.getBillingsEndDateLong() != null) {
-                return currentLocalDateTimeMillis >= orderDTO.getBillingsEndDateLong();
+            if (orderDTO != null && orderDTO.getBillingEndDateLong() != null) {
+                return currentLocalDateTimeMillis >= orderDTO.getBillingEndDateLong();
             }
         }
         return Boolean.FALSE;
