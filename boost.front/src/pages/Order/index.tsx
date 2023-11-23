@@ -15,16 +15,15 @@
 
 import React, {useEffect, useState} from 'react';
 import {PageContainer} from '@ant-design/pro-layout';
-import {Button, message, Modal, Pagination, Typography} from 'antd';
+import {Button, Pagination, Typography} from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import {PayTypeEnum} from '@/pages/ServiceInstanceList/components/form/PayTypeFormItem';
 import moment from "moment";
-import ProCard from "@ant-design/pro-card";
 import {ProTable} from "@ant-design/pro-components";
 import {OrderColumns, TradeStatusEnum} from "@/pages/Order/common";
 import {handleGoToPage} from "@/nextTokenUtil";
-import {listOrders, refundOrder} from "@/services/backend/order";
+import {listOrders} from "@/services/backend/order";
 
 
 export enum ProductNameEnum {
@@ -38,12 +37,8 @@ const OrderQueryPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const pageSize = 10;
-    const [visible, setVisible] = useState(false);
-    const [refundAmount, setRefundAmount] = useState<string>("0.00");
-    const [orderId, setOrderId] = useState<string | null>(null);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [shouldFetchData, setShouldFetchData] = useState(false);
-    const { Paragraph } = Typography;
     const [filterValues, setFilterValues] = useState<{
         tradeStatus?: string;
         gmtCreate?: string;

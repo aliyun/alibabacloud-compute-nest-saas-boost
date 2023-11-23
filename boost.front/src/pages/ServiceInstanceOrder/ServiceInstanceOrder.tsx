@@ -89,11 +89,13 @@ export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (prop
             nextTokens[currentPage] = result.nextToken;
             for (let index = 0; index < result.data.length; index++) {
                 let item = result.data[index];
+                console.log(item.tradeStatus);
                 if (canRefundOrderIndex == undefined && item.tradeStatus == 'TRADE_SUCCESS') {
                     setCanRefundOrderIndex(index);
                     break;
                 }
             }
+            console.log(canRefundOrderIndex);
             const transformedData = result.data?.map((item: API.OrderDTO, index) => {
                 const localTime = item.gmtCreate ? moment.utc(item.gmtCreate).local().format('YYYY-MM-DD HH:mm:ss') : '';
                 return {
@@ -120,7 +122,7 @@ export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (prop
             search: false,
             // @ts-ignore
             render: (text?: string, record?: any, index) => {
-                if (canRefundOrderIndex == index && props.status == 'Success'
+                if (canRefundOrderIndex == index
                 ) {
                     const refundButton = (
                         <Button type="primary" onClick={() => handleButtonClick(record)}>

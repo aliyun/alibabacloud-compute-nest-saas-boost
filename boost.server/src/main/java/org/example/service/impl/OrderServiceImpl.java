@@ -246,6 +246,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 allRefundAmount += orderOtsHelper.refundConsumingOrder(orderDTOList.get(index++), dryRun, refundId, currentLocalDateTime);
+                log.info("index={}, size={}",index, orderDTOList);
                 for (; index < orderDTOList.size(); index++) {
                     allRefundAmount += orderOtsHelper.refundUnconsumedOrder(orderDTOList.get(index), dryRun, refundId, currentLocalDateTime);
                 }
