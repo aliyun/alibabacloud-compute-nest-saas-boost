@@ -45,7 +45,6 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +98,7 @@ class OrderServiceImplTest {
         List<OrderDTO> orderList = new ArrayList<>();
         orderList.add(new OrderDTO());
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
-        when(orderOtsHelper.listOrders(anyList(), anyList(), anyString(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), anyList(), anyString(), anyList())).thenReturn(orderDtoListResult);
         CreateOrderParam createOrderParam = new CreateOrderParam();
         createOrderParam.setType(PaymentType.ALIPAY);
         createOrderParam.setProductComponents("{\n" +
@@ -122,7 +121,7 @@ class OrderServiceImplTest {
         List<OrderDTO> orderList = new ArrayList<>();
         orderList.add(new OrderDTO());
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listOrders(anyList(), any(), anyList(), any(), anyList())).thenReturn(orderDtoListResult);
 
         CreateOrderParam createOrderParam = new CreateOrderParam();
         createOrderParam.setType(PaymentType.ALIPAY);
@@ -147,7 +146,7 @@ class OrderServiceImplTest {
 
     @Test
     void testListOrders() {
-        when(orderOtsHelper.listOrders(any(), any(), anyString(), anyList())).thenReturn(ListResult.genSuccessListResult(Arrays.asList(new OrderDTO()), 1, "requestId"));
+        when(orderOtsHelper.listOrders(any(), any(),anyList(), anyString(), anyList())).thenReturn(ListResult.genSuccessListResult(Arrays.asList(new OrderDTO()), 1, "requestId"));
         ListOrdersParam listOrdersParam = new ListOrdersParam();
         listOrdersParam.setStartTime("2022-09-08T09:09:09Z");
         listOrdersParam.setEndTime("2022-09-08T09:09:09Z");
@@ -172,7 +171,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listOrders(anyList(), any(), any(), any(), anyList())).thenReturn(orderDtoListResult);
 
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
         refundOrderParam.setServiceInstanceId(null);
@@ -191,7 +190,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listOrders(anyList(), any(), any(), any(), anyList())).thenReturn(orderDtoListResult);
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
         BaseResult<Double> result = orderServiceImpl.refundOrder(createMockUserInfoModel(), refundOrderParam);
@@ -209,7 +208,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listOrders(anyList(), any(), any(), any(), anyList())).thenReturn(orderDtoListResult);
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(false);
         when(orderOtsHelper.isOrderInConsuming(any(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);

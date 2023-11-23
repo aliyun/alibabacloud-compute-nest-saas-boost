@@ -31,6 +31,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +43,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -122,12 +124,13 @@ class OrderOtsHelperTest {
                 .key("key")
                 .values(Arrays.asList("value1", "value2"))
                 .build());
-        final ListResult<Object> expectedResult = new ListResult<>();
+        final List<OtsFilter> termsFilters =  Arrays.asList(OtsFilter.createTermsFilter("abc", Arrays.asList("value1", "value2")));
+        ListResult<Object> expectedResult = new ListResult<>();
         expectedResult.setData(Arrays.asList());
         expectedResult.setCount(0L);
         expectedResult.setNextToken("CAESFQoTChEKDWdtdENyZWF0ZUxvbmcQARgBIlQKCQBI8UqGigEAAApHA0IAAAAxUzM1MzQzMTM0NjQzMjYzMzAzMzYyMzE2MTMzMzkzOTM1MzEzNjM2MzM2NDM2MzAzMDMwNjYzNTM1MzA2NjY0MzM=");
-        when(baseOtsHelper.listEntities(anyString(), anyString(), anyList(), anyList(), anyString(), anyList(), any())).thenReturn(expectedResult);
-        final ListResult<OrderDTO> result = orderOtsHelper.listOrders(matchFilters, queryFilters, "CAESFQoTChEKDWdtdENyZWF0ZUxvbmcQARgBIlQKCQBI8UqGigEAAApHA0IAAAAxUzM1MzQzMTM0NjQzMjYzMzAzMzYyMzE2MTMzMzkzOTM1MzEzNjM2MzM2NDM2MzAzMDMwNjYzNTM1MzA2NjY0MzM=", null);
+        when(baseOtsHelper.listEntities(anyString(), anyString(), anyList(), anyList(), anyList(), anyString(), isNull(), any())).thenReturn(expectedResult);
+        ListResult<OrderDTO> result = orderOtsHelper.listOrders(matchFilters, queryFilters, termsFilters, "CAESFQoTChEKDWdtdENyZWF0ZUxvbmcQARgBIlQKCQBI8UqGigEAAApHA0IAAAAxUzM1MzQzMTM0NjQzMjYzMzAzMzYyMzE2MTMzMzkzOTM1MzEzNjM2MzM2NDM2MzAzMDMwNjYzNTM1MzA2NjY0MzM=", null);
         assertThat(result.getCount()).isEqualTo(0);
     }
 
@@ -142,8 +145,8 @@ class OrderOtsHelperTest {
                 .values(Arrays.asList("value1", "value2"))
                 .build());
         final ListResult<Object> expectedResult = new ListResult<>();
-        when(baseOtsHelper.listEntities(anyString(), anyString(), anyList(), anyList(), anyString(), anyList(), any())).thenReturn(expectedResult);
-        final ListResult<OrderDTO> result = orderOtsHelper.listOrders(matchFilters, queryFilters, "CAESFQoTChEKDWdtdENyZWF0ZUxvbmcQARgBIlQKCQBI8UqGigEAAApHA0IAAAAxUzM1MzQzMTM0NjQzMjYzMzAzMzYyMzE2MTMzMzkzOTM1MzEzNjM2MzM2NDM2MzAzMDMwNjYzNTM1MzA2NjY0MzM",
+        when(baseOtsHelper.listEntities(anyString(), anyString(), anyList(), anyList(), anyList(), anyString(), isNull(), any())).thenReturn(expectedResult);
+        final ListResult<OrderDTO> result = orderOtsHelper.listOrders(matchFilters, queryFilters, Collections.emptyList(), "CAESFQoTChEKDWdtdENyZWF0ZUxvbmcQARgBIlQKCQBI8UqGigEAAApHA0IAAAAxUzM1MzQzMTM0NjQzMjYzMzAzMzYyMzE2MTMzMzkzOTM1MzEzNjM2MzM2NDM2MzAzMDMwNjYzNTM1MzA2NjY0MzM",
                 null);
         Assertions.assertNull(result.getData());
     }
@@ -167,13 +170,13 @@ class OrderOtsHelperTest {
         Long accountId = 100L;
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setOrderId(String.valueOf(1L));
-        when(baseOtsHelper.listEntities(anyString(), anyString(),anyList(), any(), any(), anyList(), any())).thenReturn(ListResult.genSuccessListResult(Arrays.asList(orderDTO), 0));
+        when(baseOtsHelper.listEntities(anyString(), anyString(), anyList(), isNull(), isNull(), any(), anyList(), any())).thenReturn(ListResult.genSuccessListResult(Arrays.asList(orderDTO), 0));
 
         Boolean result = orderOtsHelper.validateOrderCanBeRefunded(order, accountId);
 
         assertTrue(result);
 
-        when(baseOtsHelper.listEntities(anyString(), anyString(),anyList(), any(), any(), anyList(), any())).thenReturn(ListResult.genSuccessListResult(new ArrayList<>(), 0));
+        when(baseOtsHelper.listEntities(anyString(), anyString(), anyList(), isNull(), isNull(), any(), anyList(), any())).thenReturn(ListResult.genSuccessListResult(new ArrayList<>(), 0));
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderOtsHelper.validateOrderCanBeRefunded(order, accountId);

@@ -129,10 +129,9 @@ public class OrderServiceImpl implements OrderService {
         if (StringUtils.isNotEmpty(orderDataObject.getServiceInstanceId())) {
             String serviceInstanceId = orderDataObject.getServiceInstanceId();
             OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
-            OtsFilter tradeStatusQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS);
-            //todo 应为trade success 或 finished。listorder 暂时不支持，下周调整
+            OtsFilter tradeStatusQueryFilter = OtsFilter.createTermsFilter(OrderOtsConstant.TRADE_STATUS, Arrays.asList(TradeStatus.TRADE_SUCCESS, TradeStatus.TRADE_FINISHED));
             FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
-            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter, tradeStatusQueryFilter), null, null, Collections.singletonList(fieldSort));
+            ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter), null, Collections.singletonList(tradeStatusQueryFilter), null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
                 Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
                 Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
@@ -187,7 +186,7 @@ public class OrderServiceImpl implements OrderService {
         fieldSort.setOrder(SortOrder.DESC);
         sorters.add(fieldSort);
 
-        return orderOtsHelper.listOrders(matchFilters, rangeFilters, param.getNextToken(), sorters);
+        return orderOtsHelper.listOrders(matchFilters, rangeFilters, Collections.emptyList(), param.getNextToken(), sorters);
     }
 
     @Override

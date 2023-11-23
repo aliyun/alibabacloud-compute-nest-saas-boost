@@ -22,7 +22,7 @@ import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
-import org.example.task.RefundOrderTask;
+import org.example.process.OrderProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +64,9 @@ public class OrderFcServiceImplTest {
     @InjectMocks
     private OrderFcServiceImpl orderService;
 
+    @Mock
+    private OrderProcessor orderProcessor;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -85,8 +88,8 @@ public class OrderFcServiceImplTest {
         PowerMockito.mockStatic(DateUtil.class);
         PowerMockito.when(DateUtil.getMinutesAgoLocalDateTimeMillis(anyInt())).thenReturn(10L, 20L);
 
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq(null), anyList())).thenReturn(result1);
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq("token1"), anyList())).thenReturn(result2);
+        when(orderOtsHelper.listOrders(anyList(), anyList(),anyList(), eq(null), anyList())).thenReturn(result1);
+        when(orderOtsHelper.listOrders(anyList(), anyList(),anyList(), eq("token1"), anyList())).thenReturn(result2);
 
         OrderDO orderDO1 = new OrderDO();
         orderDO1.setOrderId("order1");
@@ -97,7 +100,7 @@ public class OrderFcServiceImplTest {
 
         orderService.closeExpiredOrders();
 
-        verify(orderOtsHelper, times(2)).updateOrder(any(OrderDO.class));
+        verify(orderProcessor, times(1)).doWhileLoop(anyList(), anyList(), any());
     }
 
     @Test
@@ -117,15 +120,14 @@ public class OrderFcServiceImplTest {
         PowerMockito.when(DateUtil.getCurrentLocalDateTimeMillis()).thenReturn(100000L);
         PowerMockito.when(DateUtil.getOneYearAgoLocalDateTimeMillis()).thenReturn(90000L);
 
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq(null), anyList())).thenReturn(result1);
-        when(orderOtsHelper.listOrders(anyList(), anyList(), eq("token1"), anyList())).thenReturn(result2);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), anyList(), eq(null), anyList())).thenReturn(result1);
+        when(orderOtsHelper.listOrders(anyList(), anyList(), anyList(), eq("token1"), anyList())).thenReturn(result2);
 
         CountDownLatch latch = mock(CountDownLatch.class);
         whenNew(CountDownLatch.class).withParameterTypes(int.class).withArguments(eq(2)).thenReturn(latch);
 
         orderService.refundOrders();
 
-        verify(scheduledThreadPool, times(2)).submit(any(RefundOrderTask.class));
-        verify(latch).await();
+        verify(orderProcessor, times(1)).doWhileLoopOfThreadTask(anyList(), anyList(), any());
     }
 }

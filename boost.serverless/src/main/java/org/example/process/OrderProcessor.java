@@ -53,7 +53,7 @@ public class OrderProcessor {
         List<OrderDTO> orders = null;
 
         do {
-            ListResult<OrderDTO> result = orderOtsHelper.listOrders(queryFilters, rangeFilters, nextToken, null);
+            ListResult<OrderDTO> result = orderOtsHelper.listOrders(queryFilters, rangeFilters, null, nextToken, null);
             if (result != null && result.getData() != null && !result.getData().isEmpty()) {
                 orders = new ArrayList<>(result.getData());
                 nextToken = result.getNextToken();

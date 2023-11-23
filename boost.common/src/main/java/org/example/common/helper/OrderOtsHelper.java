@@ -77,8 +77,8 @@ public class OrderOtsHelper {
         return Boolean.TRUE;
     }
 
-    public ListResult<OrderDTO> listOrders(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters, String nextToken, List<Sort.Sorter> sorters) {
-        return baseOtsHelper.listEntities(OrderOtsConstant.TABLE_NAME, OrderOtsConstant.SEARCH_INDEX_NAME, matchFilters, queryFilters, nextToken, sorters, OrderDTO.class);
+    public ListResult<OrderDTO> listOrders(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters, List<OtsFilter> multiMatchFilters, String nextToken, List<Sort.Sorter> sorters) {
+        return baseOtsHelper.listEntities(OrderOtsConstant.TABLE_NAME, OrderOtsConstant.SEARCH_INDEX_NAME, matchFilters, queryFilters, multiMatchFilters, nextToken, sorters, OrderDTO.class);
     }
 
     public OrderDTO getOrder(String orderId, Long accountId) {
@@ -118,7 +118,7 @@ public class OrderOtsHelper {
         OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, tradeStatus.name());
         OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
         FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, reverse ? SortOrder.DESC : SortOrder.ASC);
-        ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, Collections.singletonList(fieldSort));
+        ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, null, Collections.singletonList(fieldSort));
         return orderDtoListResult.getData();
     }
 

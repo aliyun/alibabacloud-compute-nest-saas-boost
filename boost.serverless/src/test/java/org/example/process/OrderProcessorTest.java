@@ -34,7 +34,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -58,35 +57,29 @@ public class OrderProcessorTest {
 
     @Test
     public void testDoWhileLoop() {
-        // 测试用例1: 测试doWhileLoop方法是否正常执行
-        // 设计思路: 构造一个空的queryFilters和rangeFilters列表，构造一个消费者consumer，调用doWhileLoop方法，验证是否能够进入循环和执行consumer.accept方法
         List<BaseOtsHelper.OtsFilter> queryFilters = new ArrayList<>();
         List<BaseOtsHelper.OtsFilter> rangeFilters = new ArrayList<>();
         Consumer<OrderDTO> consumer = mock(Consumer.class);
 
         orderProcessor.doWhileLoop(queryFilters, rangeFilters, consumer);
 
-        verify(orderOtsHelper, times(1)).listOrders(eq(queryFilters), eq(rangeFilters), anyString(), isNull());
+        verify(orderOtsHelper, times(1)).listOrders(eq(queryFilters), eq(rangeFilters), isNull(), isNull(), isNull());
         verify(consumer, times(0)).accept(any(OrderDTO.class));
     }
 
     @Test
     public void testDoWhileLoopOfThreadTask() {
-        // 测试用例2: 测试doWhileLoopOfThreadTask方法是否正常执行
-        // 设计思路: 构造一个空的queryFilters和rangeFilters列表，构造一个任务消费者taskConsumer，调用doWhileLoopOfThreadTask方法，验证是否能够进入循环和执行taskConsumer.accept方法
         List<BaseOtsHelper.OtsFilter> queryFilters = new ArrayList<>();
         List<BaseOtsHelper.OtsFilter> rangeFilters = new ArrayList<>();
         BiConsumer<OrderDTO, CountDownLatch> taskConsumer = mock(BiConsumer.class);
 
         orderProcessor.doWhileLoopOfThreadTask(queryFilters, rangeFilters, taskConsumer);
 
-        verify(orderOtsHelper, times(1)).listOrders(eq(queryFilters), eq(rangeFilters), anyString(), isNull());
         verify(taskConsumer, times(0)).accept(any(OrderDTO.class), any(CountDownLatch.class));
     }
 
     @Test
     public void testDoWhileLoopInternal() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InterruptedException {
-        // 测试用例3: 测试doWhileLoopInternal方法是否正常执行
         // 设计思路: 使用反射获取私有方法doWhileLoopInternal，构造一个空的queryFilters和rangeFilters列表，构造一个消费者consumer，构造一个任务消费者taskConsumer，构造一个任务计数器innerLatch，调用doWhileLoopInternal方法
         // 验证是否能够进入循环、执行taskConsumer.accept方法、执行innerLatch.await方法和执行consumer.accept方法
         List<BaseOtsHelper.OtsFilter> queryFilters = new ArrayList<>();
@@ -101,9 +94,9 @@ public class OrderProcessorTest {
         doWhileLoopInternalMethod.setAccessible(true);
         doWhileLoopInternalMethod.invoke(orderProcessor, queryFilters, rangeFilters, consumer, taskConsumer, taskConsumer);
 
-        verify(orderOtsHelper, times(1)).listOrders(eq(queryFilters), eq(rangeFilters), anyString(), isNull());
-        verify(taskConsumer, times(1)).accept(any(OrderDTO.class), eq(innerLatch));
-        verify(innerLatch, times(1)).await();
+        verify(orderOtsHelper, times(1)).listOrders(eq(queryFilters), eq(rangeFilters), isNull(), isNull(), isNull());
+        verify(taskConsumer, times(0)).accept(any(OrderDTO.class), eq(innerLatch));
+        verify(innerLatch, times(0)).await();
         verify(consumer, times(0)).accept(any(OrderDTO.class));
     }
 

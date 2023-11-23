@@ -30,6 +30,7 @@ import com.alicloud.openservices.tablestore.model.search.query.BoolQuery;
 import com.alicloud.openservices.tablestore.model.search.query.MatchQuery;
 import com.alicloud.openservices.tablestore.model.search.query.Query;
 import com.alicloud.openservices.tablestore.model.search.query.RangeQuery;
+import com.alicloud.openservices.tablestore.model.search.query.TermsQuery;
 import com.alicloud.openservices.tablestore.model.search.sort.Sort;
 import lombok.Builder;
 import lombok.Data;
@@ -104,7 +105,7 @@ public class BaseOtsHelper {
         return rangeQuery;
     }
 
-    private SearchQuery createSearchQuery(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters) {
+    private SearchQuery createSearchQuery(List<OtsFilter> matchFilters, List<OtsFilter> queryFilters, List<OtsFilter> multiMatchFilters) {
         List<Query> queries = Optional.ofNullable(queryFilters)
                 .map(filters -> filters.stream()
                         .map(this::createRangeQuery)
@@ -119,6 +120,17 @@ public class BaseOtsHelper {
                 queries.add(matchQuery);
             });
         }
+
+        if (multiMatchFilters != null && !multiMatchFilters.isEmpty()) {
+            multiMatchFilters.forEach((filter) -> {
+                TermsQuery termsQuery = new TermsQuery();
+                termsQuery.setFieldName(filter.getKey());
+                for (Object value : filter.values) {
+                    termsQuery.addTerm(OtsUtil.createColumnValue(value));
+                }
+                queries.add(termsQuery);
+            });
+        }
         BoolQuery boolQuery = new BoolQuery();
         boolQuery.setMustQueries(queries);
         searchQuery.setQuery(boolQuery);
@@ -128,8 +140,8 @@ public class BaseOtsHelper {
     }
 
     public <T> ListResult<T> listEntities(String tableName, String searchIndexName, List<OtsFilter> matchFilters,
-                                             List<OtsFilter> queryFilters, String nextToken, List<Sort.Sorter> sorters, Class<T> clazz) {
-        SearchQuery searchQuery = createSearchQuery(matchFilters, queryFilters);
+                                             List<OtsFilter> queryFilters, List<OtsFilter> multiMatchFilter, String nextToken, List<Sort.Sorter> sorters, Class<T> clazz) {
+        SearchQuery searchQuery = createSearchQuery(matchFilters, queryFilters, multiMatchFilter);
         SearchRequest searchRequest = new SearchRequest(tableName, searchIndexName, searchQuery);
         if (!StringUtils.isEmpty(nextToken)) {
             byte[] tokenBytes = EncryptionUtil.decode(nextToken);
@@ -166,6 +178,10 @@ public class BaseOtsHelper {
 
         public static OtsFilter createRangeFilter(String key, Object fromValue, Object toValue) {
             return OtsFilter.builder().key(key).values(Arrays.asList(fromValue, toValue)).build();
+        }
+
+        public static OtsFilter createTermsFilter(String key, List<Object> values) {
+            return OtsFilter.builder().key(key).values(values).build();
         }
     }
 }

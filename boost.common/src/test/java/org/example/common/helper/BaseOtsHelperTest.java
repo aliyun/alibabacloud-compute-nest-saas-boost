@@ -156,7 +156,7 @@ class BaseOtsHelperTest {
         expectedResult.setNextToken(nextToken);
         final SearchResponse searchResponse = new SearchResponse(new Response("requestId"));
         when(mockOtsClient.search(any(SearchRequest.class))).thenReturn(searchResponse);
-        ListResult<OrderDTO> result = baseOtsHelper.listEntities("order", "order_index", matchFilters, queryFilters, nextToken, Arrays.asList(fieldSort), OrderDTO.class);
+        ListResult<OrderDTO> result = baseOtsHelper.listEntities("order", "order_index", matchFilters, queryFilters, null, nextToken, Arrays.asList(fieldSort), OrderDTO.class);
         assertThat(result.getCount()).isEqualTo(0);
     }
 
