@@ -222,7 +222,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
                     <Descriptions.Item label="服务实例到期时间">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <div>{order?.billingsEndDateLong ? dayjs(order?.billingsEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
+                            <div>{order?.billingsEndDateLong ? dayjs(order?.billingEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
                             <ModalForm
                                 title="续费"
                                 size={'large'}

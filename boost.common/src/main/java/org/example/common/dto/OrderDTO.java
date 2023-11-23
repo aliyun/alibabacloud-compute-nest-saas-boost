@@ -109,7 +109,7 @@ public class OrderDTO {
      */
     private Long accountId;
 
-    private Long billingsStartDateLong;
+    private Long billingStartDateLong;
 
-    private Long billingsEndDateLong;
+    private Long billingEndDateLong;
 }
