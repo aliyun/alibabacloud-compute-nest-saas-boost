@@ -130,22 +130,22 @@ public class OrderServiceImpl implements OrderService {
             String serviceInstanceId = orderDataObject.getServiceInstanceId();
             OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
             OtsFilter tradeStatusQueryFilter = OtsFilter.createTermsFilter(OrderOtsConstant.TRADE_STATUS, Arrays.asList(TradeStatus.TRADE_SUCCESS, TradeStatus.TRADE_FINISHED));
-            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLINGS_END_DATE_LONG, SortOrder.DESC);
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
             ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter), null, Collections.singletonList(tradeStatusQueryFilter), null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
                 Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
                 Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
-                orderDataObject.setBillingsEndDateLong(currentBillingEndDateTimeLong);
-                orderDataObject.setBillingsStartDateLong(preBillingEndDateLong);
+                orderDataObject.setBillingEndDateLong(currentBillingEndDateTimeLong);
+                orderDataObject.setBillingStartDateLong(preBillingEndDateLong);
                 return;
             }
         }
         Long billingStartDateMillis = DateUtil.getCurrentLocalDateTimeMillis();
         Long billingEndDateMillis = walletHelper.getBillingEndDateTimeLong(billingStartDateMillis, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
-        orderDataObject.setBillingsEndDateLong(billingEndDateMillis);
-        orderDataObject.setBillingsStartDateLong(billingStartDateMillis);
-        String billingStartDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingsStartDateLong());
-        String billingEndDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingsEndDateLong());
+        orderDataObject.setBillingEndDateLong(billingEndDateMillis);
+        orderDataObject.setBillingStartDateLong(billingStartDateMillis);
+        String billingStartDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingStartDateLong());
+        String billingEndDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingEndDateLong());
         log.info("the current order with orderId : {}, the billingStartDate = {}, the billing end date = {}", orderDataObject.getOrderId(), billingStartDate, billingEndDate);
     }
 
@@ -169,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
             OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
-            sorters.add(new FieldSort(OrderOtsConstant.BILLINGS_END_DATE_LONG, SortOrder.DESC));
+            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC));
         }
         if (StringUtils.isNotEmpty(param.getStartTime()) && StringUtils.isNotEmpty(param.getEndTime())) {
             Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());

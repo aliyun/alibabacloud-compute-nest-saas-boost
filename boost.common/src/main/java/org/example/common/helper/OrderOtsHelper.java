@@ -117,7 +117,7 @@ public class OrderOtsHelper {
         OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
         OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, tradeStatus.name());
         OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
-        FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLINGS_END_DATE_LONG, reverse ? SortOrder.DESC : SortOrder.ASC);
+        FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, reverse ? SortOrder.DESC : SortOrder.ASC);
         ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, null, Collections.singletonList(fieldSort));
         return orderDtoListResult.getData();
     }

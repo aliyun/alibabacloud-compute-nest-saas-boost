@@ -108,7 +108,7 @@ public class OrderFcServiceImpl implements OrderFcService {
         OtsFilter filter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.TRADE_SUCCESS.name());
         Long startTime = 0L;
         Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLINGS_END_DATE_LONG, startTime, endTime);
+        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLING_END_DATE_LONG, startTime, endTime);
         orderProcessor.doWhileLoop(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::closeOrder);
     }
 }
