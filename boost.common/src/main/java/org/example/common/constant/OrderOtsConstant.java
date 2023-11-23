@@ -16,7 +16,6 @@
 package org.example.common.constant;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,7 +41,7 @@ public interface OrderOtsConstant {
      */
     String GMT_CREATE_LONG = "gmtCreateLong";
 
-    String BILLING_END_DATE_LONG = "billingEndDateLong";
+    String BILLINGS_END_DATE_LONG = "billingsEndDateLong";
 
     String SERVICE_INSTANCE_ID = "serviceInstanceId";
 
@@ -65,7 +64,7 @@ public interface OrderOtsConstant {
     Set<String> QUERY_FILTERS_SET =  Collections.unmodifiableSet(new HashSet<String>(){
         {
             add(GMT_CREATE_LONG);
-            add(BILLING_END_DATE_LONG);
+            add(BILLINGS_END_DATE_LONG);
         }
     });
 }

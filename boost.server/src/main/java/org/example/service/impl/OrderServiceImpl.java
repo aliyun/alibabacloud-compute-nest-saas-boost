@@ -130,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
             String serviceInstanceId = orderDataObject.getServiceInstanceId();
             OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
             OtsFilter tradeStatusQueryFilter = OtsFilter.createTermsFilter(OrderOtsConstant.TRADE_STATUS, Arrays.asList(TradeStatus.TRADE_SUCCESS, TradeStatus.TRADE_FINISHED));
-            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLINGS_END_DATE_LONG, SortOrder.DESC);
             ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter), null, Collections.singletonList(tradeStatusQueryFilter), null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
                 Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingsEndDateLong();
@@ -169,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
             OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
-            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC));
+            sorters.add(new FieldSort(OrderOtsConstant.BILLINGS_END_DATE_LONG, SortOrder.DESC));
         }
         if (StringUtils.isNotEmpty(param.getStartTime()) && StringUtils.isNotEmpty(param.getEndTime())) {
             Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());
@@ -238,9 +238,6 @@ public class OrderServiceImpl implements OrderService {
                 int index = 0;
                 for (; index < orderDTOList.size(); index++) {
                     OrderDTO orderDTO = orderDTOList.get(index);
-                    if (TradeStatus.TRADE_FINISHED.equals(orderDTO.getTradeStatus())) {
-                        continue;
-                    }
                     if (orderOtsHelper.isOrderInConsuming(orderDTO, currentLocalDateTimeMillis)) {
                         break;
                     }
