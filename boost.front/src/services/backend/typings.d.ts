@@ -203,8 +203,8 @@ declare namespace API {
 
   type OrderDTO = {
     accountId?: number;
-    billingsEndDateLong?: number;
-    billingsStartDateLong?: number;
+    billingEndDateLong?: number;
+    billingStartDateLong?: number;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;

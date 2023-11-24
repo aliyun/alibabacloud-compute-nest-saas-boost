@@ -201,6 +201,12 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
     if (data !== undefined) {
         const {outputs, parameters} = processServiceInstanceData(data);
+        let renewalVisible = false;
+        if (data.status != undefined) {
+            // @ts-ignore
+            renewalVisible = getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success';
+        }
+
         // @ts-ignore
         return (
             <Space direction="vertical" size="large" style={{display: 'flex'}}>
@@ -222,11 +228,11 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
                     <Descriptions.Item label="服务实例到期时间">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <div>{order?.billingsEndDateLong ? dayjs(order?.billingEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
+                            <div>{order?.billingEndDateLong ? dayjs(order?.billingEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
                             <ModalForm
                                 title="续费"
                                 size={'large'}
-                                trigger={<Button hidden={getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success'}>续费</Button>}
+                                trigger={<Button hidden={renewalVisible}>续费</Button>}
                                 formRef={form}
                                 modalProps={{
                                     destroyOnClose: true,
@@ -270,7 +276,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     <Descriptions.Item label="释放服务实例">
 
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Button title={"删除服务实例"} onClick={() => handleButtonClick()} hidden={getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success'}>删除服务实例</Button>
+                            <Button title={"删除服务实例"} onClick={() => handleButtonClick()} hidden={renewalVisible}>删除服务实例</Button>
                         </div>
                         <Modal open={visible} onCancel={handleModalClose} footer={null}>
                             <ProCard title="退款金额">

@@ -17,16 +17,9 @@ package org.example.common.param;
 
 import lombok.Data;
 import org.example.common.constant.TradeStatus;
-import org.example.common.helper.BaseOtsHelper.OtsFilter;
-
-import java.util.List;
 
 @Data
 public class ListOrdersParam {
-
-    private List<OtsFilter> matchFilters;
-
-    private List<OtsFilter> queryFilters;
 
     private String serviceInstanceId;
 

@@ -31,7 +31,12 @@ export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (prop
     const {Paragraph} = Typography;
 
     const [filterValues, setFilterValues] = useState<{
-        tradeStatus?: string;
+        tradeStatus?: | 'TRADE_CLOSED'
+            | 'TRADE_SUCCESS'
+            | 'WAIT_BUYER_PAY'
+            | 'TRADE_FINISHED'
+            | 'REFUNDED'
+            | 'REFUNDING';
         gmtCreate?: string;
         type?: string;
     }>({});
@@ -79,11 +84,27 @@ export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (prop
     };
 
     const fetchData = async (currentPage: number, show: boolean) => {
-        const result: API.ListResultOrderDTO_ = await listOrders({
+        let param = {
             maxResults: pageSize,
             nextToken: nextTokens[currentPage - 1],
-            serviceInstanceId: props.serviceInstanceId
-        });
+            serviceInstanceId: props.serviceInstanceId,
+        } as API.ListOrdersParam;
+        if (filterValues.tradeStatus != undefined) {
+            param.tradeStatus = filterValues.tradeStatus;
+        }
+
+        if (filterValues.gmtCreate != null) {
+            let startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            param.startTime = startTime;
+        } else {
+            const currentTime = dayjs();
+            const utcTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            param.startTime = currentTime.utc().subtract(1, 'year').format('YYYY-MM-DDTHH:mm:ss[Z]');
+            param.endTime = utcTime;
+        }
+
+        const result: API.ListResultOrderDTO_ = await listOrders(param);
+
         if (result.data !== undefined) {
             setTotal(result.count || 0);
             nextTokens[currentPage] = result.nextToken;

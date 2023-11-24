@@ -40,7 +40,12 @@ const OrderQueryPage: React.FC = () => {
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [shouldFetchData, setShouldFetchData] = useState(false);
     const [filterValues, setFilterValues] = useState<{
-        tradeStatus?: string;
+        tradeStatus?: | 'TRADE_CLOSED'
+            | 'TRADE_SUCCESS'
+            | 'WAIT_BUYER_PAY'
+            | 'TRADE_FINISHED'
+            | 'REFUNDED'
+            | 'REFUNDING';
         gmtCreate?: string;
         type?: string;
     }>({});
@@ -50,6 +55,9 @@ const OrderQueryPage: React.FC = () => {
             maxResults: pageSize,
             nextToken: nextTokens[currentPage - 1],
         };
+        if (filterValues.tradeStatus != undefined) {
+            params.tradeStatus = filterValues.tradeStatus;
+        }
         if (filterValues.gmtCreate != null) {
             let startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
             params.startTime = startTime;
