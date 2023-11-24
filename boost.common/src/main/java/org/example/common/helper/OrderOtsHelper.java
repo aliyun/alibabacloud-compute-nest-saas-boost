@@ -39,6 +39,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -118,9 +119,30 @@ public class OrderOtsHelper {
         OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, tradeStatus.name());
         OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
         FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, reverse ? SortOrder.DESC : SortOrder.ASC);
-        ListResult<OrderDTO> orderDtoListResult = listOrders(Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter), null, null, null, Collections.singletonList(fieldSort));
-        return orderDtoListResult.getData();
+
+        // Initialize the list to collect all orders
+        List<OrderDTO> allOrders = new ArrayList<>();
+        String nextToken = null;
+
+        do {
+            // Fetch the list of orders using the nextToken
+            ListResult<OrderDTO> orderDtoListResult = listOrders(
+                    Arrays.asList(serviceInstanceIdMatchFilter, accountMatchFilter, tradeStatusMatchFilter),
+                    null, null,
+                    nextToken,
+                    Collections.singletonList(fieldSort)
+            );
+
+            if (orderDtoListResult != null && orderDtoListResult.getData() != null) {
+                allOrders.addAll(orderDtoListResult.getData());
+                nextToken = orderDtoListResult.getNextToken();
+            } else {
+                break;
+            }
+        } while (nextToken != null && nextToken.length()>0);
+        return allOrders;
     }
+
 
     public Double refundUnconsumedOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
         Double totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
