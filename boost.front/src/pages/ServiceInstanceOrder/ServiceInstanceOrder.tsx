@@ -94,8 +94,9 @@ export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (prop
         }
 
         if (filterValues.gmtCreate != null) {
-            let startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-            param.startTime = startTime;
+            param.startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const currentTime = dayjs();
+            param.endTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
         } else {
             const currentTime = dayjs();
             const utcTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');

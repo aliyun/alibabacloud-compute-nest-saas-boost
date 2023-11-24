@@ -15,7 +15,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {PageContainer} from '@ant-design/pro-layout';
-import {Button, Pagination, Typography} from 'antd';
+import {Button, Pagination} from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import {PayTypeEnum} from '@/pages/ServiceInstanceList/components/form/PayTypeFormItem';
@@ -59,8 +59,9 @@ const OrderQueryPage: React.FC = () => {
             params.tradeStatus = filterValues.tradeStatus;
         }
         if (filterValues.gmtCreate != null) {
-            let startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-            params.startTime = startTime;
+            params.startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const currentTime = dayjs();
+            params.endTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
         } else {
             const currentTime = dayjs();
             const utcTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
