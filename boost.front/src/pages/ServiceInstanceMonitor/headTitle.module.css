@@ -1,0 +1,13 @@
+.titleStyle {
+  color: black;
+  font-size: 16px;
+}
+
+.container {
+  display: flex;  /* 使用 Flex 布局 */
+}
+
+.table {
+  flex: 1;  /* 平均分配容器的宽度 */
+  margin-right: 20px;  /* 表格之间的间距 */
+}
