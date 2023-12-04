@@ -21,6 +21,7 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
+import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest.ListServiceInstancesRequestFilter;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstances;
@@ -33,8 +34,10 @@ import mockit.Verifications;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
+import org.example.common.constant.CallSource;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
+import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.model.ListServiceInstancesModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
@@ -44,8 +47,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,10 +61,13 @@ class ServiceInstanceLifecycleServiceImplTest {
     private ServiceInstanceLifecycleServiceImpl serviceInstanceLifecycleService;
 
     @Injectable
+    private ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
+
+    @Injectable
     private ComputeNestSupplierClient computeNestSupplierClient;
 
     private ListServiceInstancesResponseBody createListServiceInstancesResponseBody() {
-        ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos serviceInfos = new ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos().setName("serviceInfoName-2");
+        ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos serviceInfos = new ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos().setName("serviceInfoName-2").setShortDescription("description");
         ListServiceInstancesResponseBodyServiceInstancesService service = new ListServiceInstancesResponseBodyServiceInstancesService().setServiceInfos(Arrays.asList(serviceInfos));
         ListServiceInstancesResponseBodyServiceInstances deployedServiceInstance = new ListServiceInstancesResponseBodyServiceInstances().setServiceInstanceId("si-serviceInstanceId-1")
                 .setStatus("deployed").setService(service);
@@ -78,7 +86,14 @@ class ServiceInstanceLifecycleServiceImplTest {
         listServiceInstancesParam.setStatus("deployed");
         listServiceInstancesParam.setServiceInstanceId("si-serviceInstanceId");
         listServiceInstancesParam.setServiceInstanceName("serviceInfoName-2");
+        ListServiceInstancesRequestFilter listServiceInstancesRequestFilter = new ListServiceInstancesRequestFilter();
+        listServiceInstancesRequestFilter.setName("ServiceType");
+        List<String> list = new ArrayList<>();
+        list.add("managed");
+        listServiceInstancesRequestFilter.setValue(list);
         new Expectations() {{
+            serviceInstanceLifeStyleHelper.createFilter(anyString, withAny(new ArrayList<>()));
+            result = listServiceInstancesRequestFilter;
             ListServiceInstancesResponse response = new ListServiceInstancesResponse();
             response.setBody(createListServiceInstancesResponseBody());
             computeNestSupplierClient.listServiceInstances(withAny(new ListServiceInstancesRequest()));
@@ -123,6 +138,7 @@ class ServiceInstanceLifecycleServiceImplTest {
         new Expectations() {{
             GetServiceInstanceResponse response = new GetServiceInstanceResponse();
             response.setBody(new GetServiceInstanceResponseBody().setServiceInstanceId("si-serviceInstanceId")
+                            .setSource(CallSource.Supplier.name())
                     .setUserId(1000000000000000L)
                     .setService(new GetServiceInstanceResponseBody.GetServiceInstanceResponseBodyService()
                             .setServiceInfos(Arrays.asList(new GetServiceInstanceResponseBody.GetServiceInstanceResponseBodyServiceServiceInfos()
@@ -156,6 +172,6 @@ class ServiceInstanceLifecycleServiceImplTest {
         map.put("RegionId", "cn-hangzhou");
         UserInfoModel userInfoModel = new UserInfoModel();
         userInfoModel.setAid("100");
-        Assertions.assertDoesNotThrow(() -> serviceInstanceLifecycleService.createServiceInstance(userInfoModel, map, true));
+        Assertions.assertDoesNotThrow(() -> serviceInstanceLifecycleService.createServiceInstance(userInfoModel, map, true, null));
     }
 }

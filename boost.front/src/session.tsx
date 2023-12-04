@@ -16,7 +16,7 @@
 import {getAuthToken} from "@/services/backend/user";
 
 import clientConfig from "./config";
-import {randomState} from "@/randomState";
+import {randomStateUtil} from "@/util/randomStateUtil";
 import {LOGIN_CONSTANTS} from "@/constants";
 
 function getUrlParameter(parameterName:string) {
@@ -68,8 +68,9 @@ export async function redirectLogin() {
     if (startIndex !== -1) {
       baseUrl = url.substring(0, startIndex);
     }
+  console.log(urlCode);
+
   if ( urlCode !== '') {
-    console.log(urlCode)
     const authToken: API.BaseResultAuthTokenModel_ = await getAuthToken({
       code : urlCode,
       redirectUri : baseUrl,
@@ -85,21 +86,36 @@ export async function redirectLogin() {
     const cookieValue = encodeURIComponent(JSON.stringify(ticket));
     document.cookie = `ticket=${cookieValue}; path=/`;
     const urlParams = new URL(window.location.href).searchParams;
+    console.log(urlParams);
     /** 此方法会跳转到 redirect 参数所在的位置 */
     let redirect = urlParams.get('redirect');
     if (!redirect) {
       window.location.href = baseUrl;
     } else {
-      window.location.href = redirect
+      window.location.href = filterInvalidPaths(url);
     }
   } else {
     const {  redirectUriPrefix, clientId} = clientConfig;
     let href = window.location.href;
+    href = filterInvalidPaths(href);
+    let redirectUrl = new URL(href);
+    redirectUrl.hash = '';
     //生成一个长度在6-9之间的随机数字字符串
-    const state : String = randomState(Math.floor(Math.random() * 4) + 6);
-    let redirectUri = `${redirectUriPrefix}?response_type=code&client_id=${clientId}&redirect_uri=${href}&state=${state}`
-    console.log(redirectUri)
+    const state : String = randomStateUtil(Math.floor(Math.random() * 4) + 6);
+    let redirectUri = `${redirectUriPrefix}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}`
+    if (redirectUriPrefix != "https://signin.aliyun.com/oauth2/v1/auth") {
+      redirectUri = redirectUri + '&scope=openid'
+    }
     window.location.href = redirectUri
   }
   //history.push(loginPath);
 }
+function filterInvalidPaths(url:string){
+  const startIndex = url.indexOf('?');
+  if (startIndex !== -1) {
+    url = url.substring(0, startIndex);
+  }
+  return url;
+}
+
+

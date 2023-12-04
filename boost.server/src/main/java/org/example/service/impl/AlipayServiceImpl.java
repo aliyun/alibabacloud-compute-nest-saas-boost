@@ -96,7 +96,6 @@ public class AlipayServiceImpl implements AlipayService {
             }
             UserInfoModel userInfoModel = new UserInfoModel();
             userInfoModel.setAid(String.valueOf(orderFromOts.getAccountId()));
-            log.info(unverifiedOrder.getServiceInstanceId());
             orderService.updateOrder(userInfoModel, unverifiedOrder);
             return AliPayConstants.VERIFY_SUCCESS_RESULT;
         }

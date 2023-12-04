@@ -14,10 +14,10 @@
 */
 
 import {Button, Col, Modal, Row} from "antd";
-import React, {ReactNode, useEffect, useRef, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import ProCard from "@ant-design/pro-card";
 import {ProFormRadio} from '@ant-design/pro-components';
-import {ProFormDigit, ProFormInstance} from "@ant-design/pro-form";
+import {ProFormDigit} from "@ant-design/pro-form";
 
 export const PayPeriodFormItem: React.FC<{ onChange: (month: number) => void }> = ({onChange}) => {
     const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);

@@ -52,6 +52,8 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
 
     private AlipayClient alipayClient;
 
+    private static final Integer CLOSE_TRANSACTION_TIME = 15;
+
     @Override
     public AlipayTradeQueryResponse queryOutTrade(String outTradeNumber) {
         AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
@@ -81,7 +83,7 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
         request.setBizContent(new JSONObject().fluentPut(OUT_TRADE_NO, outTradeNo)
                 .fluentPut(AliPayConstants.TOTAL_AMOUNT, totalAmount).fluentPut(AliPayConstants.SUBJECT, subject)
                 .fluentPut(AliPayConstants.PRODUCT_CODE_PREFIX, AliPayConstants.PRODUCT_CODE_PC_WEB)
-                .fluentPut(AliPayConstants.TIME_EXPIRE, DateUtil.getCurrentTimePlusMinutes(15)).toString());
+                .fluentPut(AliPayConstants.TIME_EXPIRE, DateUtil.getCurrentTimePlusMinutes(CLOSE_TRANSACTION_TIME)).toString());
         try {
             return Optional.ofNullable(alipayClient.pageExecute(request))
                     .map(AlipayTradePagePayResponse::getBody).orElse(null);

@@ -2,22 +2,20 @@ import React, {useEffect, useState} from "react";
 import moment from "moment";
 import {listOrders, refundOrder} from "@/services/backend/order";
 import {OrderColumns, TradeStatusEnum} from "@/pages/Order/common";
-import {PayTypeEnum} from "@/pages/ServiceInstanceList/components/form/PayTypeFormItem";
-import {ProductNameEnum} from "@/pages/Order";
 import {PageContainer} from "@ant-design/pro-layout";
 import {ProTable} from "@ant-design/pro-components";
 import {Button, message, Modal, Pagination, Typography} from "antd";
-import {handleGoToPage} from "@/nextTokenUtil";
+import {handleGoToPage} from "@/util/nextTokenUtil";
 import ProCard from "@ant-design/pro-card";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
-interface ServiceInstanceContentProps {
-    serviceInstanceId?: string;
-    status?: string;
-}
+import {ServiceInstanceOrderProps} from "@/pages/ServiceInstanceOrder/components/interface";
+import {PayTypeEnum, ProductNameEnum} from "@/constants";
+
+
 dayjs.extend(utc);
-export const ServiceInstanceOrder: React.FC<ServiceInstanceContentProps> = (props) => {
+export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [orders, setOrders] = useState<API.OrderDTO[]>([]);
     const pageSize = 10;
     const [visible, setVisible] = useState(false);

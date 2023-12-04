@@ -18,20 +18,15 @@ import {PageContainer} from '@ant-design/pro-layout';
 import {Button, Pagination} from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import {PayTypeEnum} from '@/pages/ServiceInstanceList/components/form/PayTypeFormItem';
 import moment from "moment";
 import {ProTable} from "@ant-design/pro-components";
 import {OrderColumns, TradeStatusEnum} from "@/pages/Order/common";
-import {handleGoToPage} from "@/nextTokenUtil";
+import {handleGoToPage} from "@/util/nextTokenUtil";
 import {listOrders} from "@/services/backend/order";
+import {PayTypeEnum, ProductNameEnum} from "@/constants";
 
-
-export enum ProductNameEnum {
-    SERVICE_INSTANCE = 'ServiceInstance',
-}
 
 dayjs.extend(utc);
-
 const OrderQueryPage: React.FC = () => {
     const [orders, setOrders] = useState<API.OrderDTO[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);

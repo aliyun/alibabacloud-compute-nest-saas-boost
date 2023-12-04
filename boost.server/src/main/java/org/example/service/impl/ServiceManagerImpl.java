@@ -30,6 +30,7 @@ import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.helper.WalletHelper;
+import org.example.common.model.LicenseMetadataModel;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
@@ -78,7 +79,6 @@ public class ServiceManagerImpl implements ServiceManager {
         } else {
             request.setServiceId(serviceId);
         }
-        request.setFilterAliUid(true);
         GetServiceResponse serviceResponse = computeNestSupplierClient.getService(request);
         GetServiceResponseBody responseBody = serviceResponse.getBody();
         ServiceMetadataModel getServiceMetadataModel = new ServiceMetadataModel();
@@ -86,6 +86,8 @@ public class ServiceManagerImpl implements ServiceManager {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode deployMetadataRootNode;
         try {
+            String licenseMetadata = responseBody.getLicenseMetadata();
+            LicenseMetadataModel licenseMetadataModel = JsonUtil.parseObjectUpperCamelCase(licenseMetadata, LicenseMetadataModel.class);
             deployMetadataRootNode = mapper.readTree(deployMetadata);
             JsonNode templateConfigJsonNode = deployMetadataRootNode.get(TEMPLATE_CONFIGS).get(0);
             String templateName = templateConfigJsonNode.get(TEMPLATE_NAME).asText();
@@ -103,6 +105,10 @@ public class ServiceManagerImpl implements ServiceManager {
             getServiceMetadataModel.setTemplateName(templateName);
             getServiceMetadataModel.setSpecifications(specificationsJsonNode.toString());
             getServiceMetadataModel.setAllowedRegions(allowedRegions.toString());
+            getServiceMetadataModel.setCommodityCode(responseBody.getCommodityCode());
+            if (licenseMetadataModel != null) {
+                getServiceMetadataModel.setRetentionDays(licenseMetadataModel.getRetentionDays());
+            }
         } catch (JsonProcessingException e) {
             log.error("Parse deployMetadata failed", e);
         }

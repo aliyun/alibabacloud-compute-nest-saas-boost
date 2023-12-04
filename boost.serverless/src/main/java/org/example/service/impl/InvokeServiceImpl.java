@@ -22,7 +22,6 @@ import org.example.common.constant.PayloadType;
 import org.example.service.AdapterManagerFcService;
 import org.example.service.InvokeService;
 import org.example.service.OrderFcService;
-import org.example.service.ServiceInstanceFcService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -34,9 +33,6 @@ public class InvokeServiceImpl implements InvokeService {
 
     @Resource
     private OrderFcService orderFcService;
-
-    @Resource
-    private ServiceInstanceFcService serviceInstanceFcService;
 
     @Resource
     private AdapterManagerFcService adapterManagerFcService;
@@ -59,8 +55,6 @@ public class InvokeServiceImpl implements InvokeService {
             case REFUND_ORDERS:
                 orderFcService.refundOrders();
                 break;
-            case DELETE_SERVICE_INSTANCES:
-                serviceInstanceFcService.deleteServiceInstances();
             default:
                 break;
         }

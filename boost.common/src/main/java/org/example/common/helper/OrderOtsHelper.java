@@ -118,7 +118,7 @@ public class OrderOtsHelper {
         OtsFilter serviceInstanceIdMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
         OtsFilter tradeStatusMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, tradeStatus.name());
         OtsFilter accountMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ACCOUNT_ID, accountId);
-        FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, reverse ? SortOrder.DESC : SortOrder.ASC);
+        FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_MILLIS, reverse ? SortOrder.DESC : SortOrder.ASC);
 
         // Initialize the list to collect all orders
         List<OrderDTO> allOrders = new ArrayList<>();
@@ -165,11 +165,20 @@ public class OrderOtsHelper {
         return refundAmount;
     }
 
+    public Double refundPayPostOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
+        if (dryRun) {
+            return null;
+        }
+        OrderDO refundOrder = createRefundOrder(order, refundId, 0.0, currentIs08601Time);
+        updateOrder(refundOrder);
+        return 0.0;
+    }
+
     public Boolean isOrderInConsuming(OrderDTO orderDTO, Long currentLocalDateTimeMillis) {
-        if (orderDTO == null || orderDTO.getBillingStartDateLong() == null || orderDTO.getBillingEndDateLong() == null) {
+        if (orderDTO == null || orderDTO.getBillingStartDateMillis() == null || orderDTO.getBillingEndDateMillis() == null) {
             return Boolean.TRUE;
         }
-        return currentLocalDateTimeMillis >= orderDTO.getBillingStartDateLong() && currentLocalDateTimeMillis < orderDTO.getBillingEndDateLong();
+        return currentLocalDateTimeMillis >= orderDTO.getBillingStartDateMillis() && currentLocalDateTimeMillis < orderDTO.getBillingEndDateMillis();
     }
 
     private OrderDO createRefundOrder(OrderDTO order, String refundId, Double refundAmount, String refundDate) {

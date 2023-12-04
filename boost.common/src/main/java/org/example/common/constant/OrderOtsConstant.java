@@ -41,7 +41,7 @@ public interface OrderOtsConstant {
      */
     String GMT_CREATE_LONG = "gmtCreateLong";
 
-    String BILLING_END_DATE_LONG = "billingEndDateLong";
+    String BILLING_END_DATE_MILLIS = "billingEndDateMillis";
 
     String SERVICE_INSTANCE_ID = "serviceInstanceId";
 
@@ -64,7 +64,7 @@ public interface OrderOtsConstant {
     Set<String> QUERY_FILTERS_SET =  Collections.unmodifiableSet(new HashSet<String>(){
         {
             add(GMT_CREATE_LONG);
-            add(BILLING_END_DATE_LONG);
+            add(BILLING_END_DATE_MILLIS);
         }
     });
 }

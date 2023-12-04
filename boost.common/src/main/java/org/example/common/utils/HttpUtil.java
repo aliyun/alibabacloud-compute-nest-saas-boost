@@ -105,7 +105,7 @@ public class HttpUtil {
                 }
             }
         } catch (IOException e) {
-            log.error("Do post by closeableHttpClient failed, message={}", e.getMessage());
+            log.error("Do post by closeableHttpClient failed, message={}", e.getMessage(), e);
         }
         return null;
     }

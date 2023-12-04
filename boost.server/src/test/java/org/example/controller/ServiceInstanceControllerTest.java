@@ -17,6 +17,7 @@ package org.example.controller;
 
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.constant.CallSource;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
@@ -51,7 +52,7 @@ class ServiceInstanceControllerTest {
 
     ServiceInstanceModel createCreateServiceInstanceModel() {
         return new ServiceInstanceModel("serviceInstanceId", "serviceInstanceName", "createTime", "updateTime", "status", Long.valueOf(1),
-                "serviceName", new ServiceModel("serviceId", "name", "description", "image"), "parameters", "outputs", "resources");
+                "serviceName", new ServiceModel("serviceId", "name", "description", "image"), "parameters", "outputs", "resources", CallSource.Supplier);
     }
 
     @Test

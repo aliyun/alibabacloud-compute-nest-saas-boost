@@ -60,7 +60,7 @@ public class OrderFcServiceImpl implements OrderFcService {
 
     @Override
     public void closeExpiredOrders() {
-        OtsFilter queryFilter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.WAIT_BUYER_PAY.name());
+        OtsFilter queryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.WAIT_BUYER_PAY.name());
         Long startTime = DateUtil.getMinutesAgoLocalDateTimeMillis(30);
         Long endTime = DateUtil.getMinutesAgoLocalDateTimeMillis(15);
         OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
@@ -90,13 +90,14 @@ public class OrderFcServiceImpl implements OrderFcService {
                 .orderOtsHelper(orderOtsHelper)
                 .scheduledThreadPool(scheduledThreadPool)
                 .countDownLatch(countDownLatch)
+                .paymentType(order.getType())
                 .build();
         scheduledThreadPool.submit(refundOrderTask);
     }
 
     @Override
     public void refundOrders() {
-        OtsFilter filter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.REFUNDING.name());
+        OtsFilter filter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.REFUNDING.name());
         Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
         Long startTime = DateUtil.getOneYearAgoLocalDateTimeMillis();
         OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
@@ -105,10 +106,10 @@ public class OrderFcServiceImpl implements OrderFcService {
 
     @Override
     public void closeFinishedOrders() {
-        OtsFilter filter = OtsFilter.createMatchFilter("tradeStatus", TradeStatus.TRADE_SUCCESS.name());
+        OtsFilter filter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS.name());
         Long startTime = 0L;
         Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLING_END_DATE_LONG, startTime, endTime);
+        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLING_END_DATE_MILLIS, startTime, endTime);
         orderProcessor.doWhileLoop(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::closeOrder);
     }
 }

@@ -16,6 +16,7 @@
 package org.example.common.param;
 
 import lombok.Data;
+import org.example.common.constant.PaymentType;
 
 import javax.validation.constraints.NotNull;
 
@@ -28,4 +29,6 @@ public class RefundOrderParam {
     private Boolean dryRun;
 
     private String serviceInstanceId;
+
+    private PaymentType paymentType;
 }

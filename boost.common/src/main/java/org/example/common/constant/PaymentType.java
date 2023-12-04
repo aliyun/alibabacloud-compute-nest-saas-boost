@@ -35,7 +35,12 @@ public enum PaymentType {
     /**
      * credit card
      */
-    CREDIT_CARD("Credit Card", "3");
+    CREDIT_CARD("Credit Card", "3"),
+
+    /**
+     * Pay as you go
+     */
+    PAY_POST("Pay Post", "4");
 
     private final String displayName;
 

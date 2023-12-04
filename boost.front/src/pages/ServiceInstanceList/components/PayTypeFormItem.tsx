@@ -17,10 +17,7 @@ import React from "react";
 import ProCard from "@ant-design/pro-card";
 import {ProFormRadio, ProFormSelect} from "@ant-design/pro-form";
 import {Col, Row} from "antd";
-
-export enum PayTypeEnum {
-    ALIPAY = '支付宝',
-}
+import {PayTypeEnum} from "@/constants";
 
 const PayFormItem: React.FC = () => {
     const payTypeEntries = Object.entries(PayTypeEnum);

@@ -18,12 +18,14 @@ package org.example.service;
 import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceInstanceParam;
 import org.example.common.param.ListServiceInstancesParam;
+import org.example.common.param.UpdateServiceInstanceAttributeParam;
 
 import java.util.Map;
 
@@ -50,9 +52,10 @@ public interface ServiceInstanceLifecycleService {
      * @param userInfoModel user information
      * @param map map
      * @param dryRun Attempt creation
+     * @param endTime service instance deletion time.
      * @return {@link CreateServiceInstanceResponse}
      */
-    CreateServiceInstanceResponse createServiceInstance(UserInfoModel userInfoModel, Map<String, Object> map, boolean dryRun);
+    CreateServiceInstanceResponse createServiceInstance(UserInfoModel userInfoModel, Map<String, Object> map, boolean dryRun, String endTime);
 
     /**
      * Continue to deploy service instances that were not successfully deployed under the current user.
@@ -61,4 +64,12 @@ public interface ServiceInstanceLifecycleService {
      * @throws Exception exception
      */
     ContinueDeployServiceInstanceResponse continueDeployServiceInstance(ContinueDeployServiceInstanceRequest request) throws Exception;
+
+    /**
+     * Update managed service instance attribute.
+     * @param userInfoModel
+     * @param updateServiceInstanceAttributeParam
+     * @return {@link UpdateServiceInstanceAttributeResponse}
+     */
+    UpdateServiceInstanceAttributeResponse updateServiceInstanceAttribute(UserInfoModel userInfoModel, UpdateServiceInstanceAttributeParam updateServiceInstanceAttributeParam);
 }

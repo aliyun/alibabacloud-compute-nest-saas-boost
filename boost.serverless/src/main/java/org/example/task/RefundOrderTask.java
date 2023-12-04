@@ -21,6 +21,7 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
+import org.example.common.constant.PaymentType;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
@@ -53,6 +54,8 @@ public class RefundOrderTask implements Runnable {
 
     private CountDownLatch countDownLatch;
 
+    private PaymentType paymentType;
+
     private static final int MAX_RETRY_TIMES = 3;
 
     @Override
@@ -65,7 +68,7 @@ public class RefundOrderTask implements Runnable {
                 orderDO.setTradeStatus(TradeStatus.REFUNDED);
                 orderDO.setOrderId(orderId);
                 Boolean alipaySuccess = Boolean.TRUE;
-                if (Double.parseDouble(String.format("%.2f", refundAmount)) > 0) {
+                if (paymentType != null && paymentType != PaymentType.PAY_POST && Double.parseDouble(String.format("%.2f", refundAmount)) > 0) {
                     alipaySuccess = baseAlipayClient.refundOrder(orderId, Double.parseDouble(String.format("%.2f", refundAmount)), refundId);
                 }
                 //todo 删除服务实例+更新计算巢endTime
@@ -94,14 +97,18 @@ public class RefundOrderTask implements Runnable {
             }
         }
         if (!success) {
-            log.error("Failed to execute code after multiple retries.");
+            log.error("Failed to execute refund after multiple retries.");
         }
     }
 
 
     private Boolean shouldDeleteServiceInstance(Long currentLocalDateTimeMillis, OrderDTO order) {
-        if (order.getBillingStartDateLong() != null && order.getBillingEndDateLong() != null) {
-            return currentLocalDateTimeMillis >= order.getBillingStartDateLong() && currentLocalDateTimeMillis <= order.getBillingEndDateLong();
+        if (order.getType() == PaymentType.PAY_POST) {
+            return Boolean.TRUE;
+        }
+
+        if (order.getBillingStartDateMillis() != null && order.getBillingEndDateMillis() != null) {
+            return currentLocalDateTimeMillis >= order.getBillingStartDateMillis() && currentLocalDateTimeMillis <= order.getBillingEndDateMillis();
         }
         return Boolean.FALSE;
     }

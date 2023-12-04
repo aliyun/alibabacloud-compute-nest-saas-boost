@@ -41,14 +41,21 @@ public class UuidUtil {
         return generateUuid("alipay-");
     }
 
-    public static String generateOrderId(Long userId, String orderType) {
+    public static String generateOrderId(Long userId, String orderType, String sub) {
         String timestamp = DateUtil.getCurrentTimeString();
-        String userIdStr = String.valueOf(userId);
-        userIdStr = userIdStr.substring(userIdStr.length() - 3);
         String randomNum = generateRandomNum(1);
-        log.info(randomNum);
+        if (userId != null){
+            String userIdStr = String.valueOf(userId);
+            userIdStr = userIdStr.substring(userIdStr.length() - 3);
+            return orderType + timestamp + userIdStr + randomNum;
+
+        } else {
+            String stringWithoutDash = sub.replace("-", "");
+            int maxChars = Math.min(17, stringWithoutDash.length());
+            String resultString = stringWithoutDash.substring(0, maxChars);
+            return orderType + timestamp + resultString + randomNum;
+        }
         // Concatenate to generate an order number: 1 + 17 + 3 + 1.
-        return orderType + timestamp + userIdStr + randomNum;
     }
 
     private static String generateRandomNum(int num) {

@@ -29,6 +29,8 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameter
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
 import org.example.common.config.AliyunConfig;
 
 public interface ComputeNestSupplierClient {
@@ -102,4 +104,12 @@ public interface ComputeNestSupplierClient {
      * @return {@link GetServiceTemplateParameterConstraintsResponse}
      */
     GetServiceTemplateParameterConstraintsResponse getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsRequest request);
+
+    /**
+     * Update service instance attribute. e.g endTime.
+     *
+     * @param request
+     * @return {@link GetServiceTemplateParameterConstraintsResponse}
+     */
+    UpdateServiceInstanceAttributeResponse updateServiceInstanceAttribute(UpdateServiceInstanceAttributeRequest request);
 }

@@ -22,6 +22,7 @@ import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceRespon
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody;
+import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody.GetServiceInstanceResponseBodyService;
 import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponseBody.GetServiceInstanceResponseBodyServiceServiceInfos;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest.ListServiceInstancesRequestFilter;
@@ -30,12 +31,15 @@ import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRespons
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstances;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstancesService;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponseBody.ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
 import com.aliyun.tea.TeaException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
+import org.example.common.constant.CallSource;
 import org.example.common.constant.ComputeNestConstants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
@@ -45,6 +49,7 @@ import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceInstanceParam;
 import org.example.common.param.ListServiceInstancesParam;
+import org.example.common.param.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.common.utils.UuidUtil;
 import org.example.service.ServiceInstanceLifecycleService;
@@ -89,7 +94,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
             throw new BizException(ErrorInfo.VERIFY_FAILED.getStatusCode(), ErrorInfo.VERIFY_FAILED.getCode(), ErrorInfo.VERIFY_FAILED.getMessage());
         }
         ListServiceInstancesRequest request = convertToRequest(listServiceInstancesParam, DEFAULT_REGION_ID);
-        request.setFilter(setFilterForListServiceInstance(listServiceInstancesParam, userInfoModel));
+        request.setFilter(buildFilterForListServiceInstance(listServiceInstancesParam, userInfoModel));
         try {
             ListServiceInstancesResponse response = computeNestSupplierClient.listServiceInstances(request);
             return convertFromListServiceInstancesResponse(response);
@@ -101,7 +106,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         }
     }
 
-    private List<ListServiceInstancesRequestFilter> setFilterForListServiceInstance(ListServiceInstancesParam listServiceInstancesParam, UserInfoModel userInfoModel) {
+    private List<ListServiceInstancesRequestFilter> buildFilterForListServiceInstance(ListServiceInstancesParam listServiceInstancesParam, UserInfoModel userInfoModel) {
         ListServiceInstancesRequestFilter accountIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.USER_ID, Collections.singletonList(userInfoModel.getAid()));
         ListServiceInstancesRequestFilter serviceTypeFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_TYPE_PARAMETER, Collections.singletonList(ComputeNestConstants.MANAGED_SERVICE_TYPE));
         ListServiceInstancesRequestFilter serviceIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_ID, Collections.singletonList(serviceId));
@@ -142,7 +147,10 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
             }
             ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
             BeanUtils.copyProperties(responseBody, serviceInstanceModel);
-//                    convertFromServiceInstanceResponse(responseBody);
+            serviceInstanceModel.setServiceModel(buildServiceModel(responseBody));
+            if (responseBody.getSource() != null) {
+                serviceInstanceModel.setSource(CallSource.valueOf(responseBody.getSource()));
+            }
             return BaseResult.success(serviceInstanceModel);
         } catch (TeaException e) {
             throw new BizException(e.getStatusCode(), e.getCode(), OpenAPIErrorMessageUtil.getErrorMessageFromComputeNestError(e.getMessage()));
@@ -152,12 +160,13 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
     }
 
     @Override
-    public CreateServiceInstanceResponse createServiceInstance(UserInfoModel userInfoModel, Map<String, Object> map, boolean dryRun) {
+    public CreateServiceInstanceResponse createServiceInstance(UserInfoModel userInfoModel, Map<String, Object> map, boolean dryRun, String endTime) {
         CreateServiceInstanceRequest request = new CreateServiceInstanceRequest();
-        request.setUserId(userInfoModel.getAid());
+//        request.setUserId(userInfoModel.getAid());
         request.setServiceId(serviceId);
         request.setClientToken(UuidUtil.generateUuid(PREFIX));
         request.setRegionId(ComputeNestConstants.DEFAULT_REGION_ID);
+        request.setEndTime(endTime);
         map.remove(PAY_PERIOD);
         map.remove(PAY_PERIOD_UNIT);
         Object specificationName = map.remove(ComputeNestConstants.SPECIFICATION_NAME);
@@ -175,6 +184,27 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         return computeNestSupplierClient.continueDeployServiceInstance(request);
     }
 
+    @Override
+    public UpdateServiceInstanceAttributeResponse updateServiceInstanceAttribute(UserInfoModel userInfoModel, UpdateServiceInstanceAttributeParam updateServiceInstanceAttributeParam) {
+        UpdateServiceInstanceAttributeRequest request = new UpdateServiceInstanceAttributeRequest();
+        BeanUtils.copyProperties(updateServiceInstanceAttributeParam, request);
+        return computeNestSupplierClient.updateServiceInstanceAttribute(request);
+    }
+
+    private ServiceModel buildServiceModel(GetServiceInstanceResponseBody responseBody) {
+        ServiceModel serviceModel = new ServiceModel();
+        if (responseBody.getService() != null) {
+            GetServiceInstanceResponseBodyService service = responseBody.getService();
+            serviceModel.setServiceId(service.getServiceId());
+            if (service.getServiceInfos()!= null && !service.getServiceInfos().isEmpty()) {
+                GetServiceInstanceResponseBodyServiceServiceInfos serviceInfo = service.getServiceInfos().get(0);
+                serviceModel.setName(serviceInfo.getName());
+                serviceModel.setImage(serviceInfo.getImage());
+                serviceModel.setDescription(serviceInfo.getShortDescription());
+            }
+        }
+        return serviceModel;
+    }
     private GetServiceInstanceResponseBody filterServiceInstanceResponseWithAid(UserInfoModel userInfoModel, GetServiceInstanceResponse response) {
         GetServiceInstanceResponseBody responseBody = response.getBody();
         if (responseBody.getUserId().toString().equals(userInfoModel.getAid())) {
@@ -200,15 +230,6 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
                     ServiceModel serviceModel = buildServiceForList(instanceResponseBody);
                     serviceInstanceModel.setServiceModel(serviceModel);
                     return serviceInstanceModel;
-//                    new ServiceInstanceModel(instanceResponseBody.getServiceInstanceId(),
-//                            instanceResponseBody.getName(),
-//                            instanceResponseBody.getCreateTime(),
-//                            instanceResponseBody.getUpdateTime(),
-//                            instanceResponseBody.getStatus(),
-//                            instanceResponseBody.getProgress(),
-//                            instanceResponseBody.getService().getServiceInfos().get(0).getName(),
-//                            buildServiceForList(instanceResponseBody),
-//                            instanceResponseBody.getParameters(), null, null);
                 })
                 .collect(Collectors.toList());
         return ListResult.genSuccessListResult(serviceInstanceModelList, responseBody.getTotalCount(), responseBody.getNextToken());
@@ -219,27 +240,5 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos firstServiceInfo = instanceResponseBody.getService().getServiceInfos().get(0);
         return new ServiceModel(service.getServiceId(), firstServiceInfo.getName(),
                 firstServiceInfo.getShortDescription(), firstServiceInfo.getImage());
-    }
-
-    private ServiceInstanceModel convertFromServiceInstanceResponse(GetServiceInstanceResponseBody responseBody) {
-        return new ServiceInstanceModel(responseBody.getServiceInstanceId(),
-                responseBody.getName(),
-                responseBody.getCreateTime(),
-                responseBody.getUpdateTime(),
-                responseBody.getStatus(),
-                responseBody.getProgress(),
-                responseBody.getService().getServiceInfos().get(0).getName(),
-                buildService(responseBody),
-                responseBody.getParameters(),
-                responseBody.getOutputs(),
-                responseBody.getResources());
-    }
-
-    private ServiceModel buildService(GetServiceInstanceResponseBody responseBody) {
-        GetServiceInstanceResponseBodyServiceServiceInfos serviceInfo = responseBody.getService().getServiceInfos().get(0);
-        return new ServiceModel(responseBody.getService().getServiceId(),
-                serviceInfo.getName(),
-                serviceInfo.getShortDescription(),
-                serviceInfo.getImage());
     }
 }
