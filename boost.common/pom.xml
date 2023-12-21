@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>computenestsupplier20210521</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>bcprov-jdk15on</artifactId>

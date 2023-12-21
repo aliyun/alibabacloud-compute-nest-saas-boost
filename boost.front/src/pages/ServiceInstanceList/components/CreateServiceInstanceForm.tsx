@@ -16,22 +16,23 @@
 import {Col, Modal, Row} from "antd";
 import ProCard from "@ant-design/pro-card";
 import React, {useContext, useEffect, useState} from "react";
+
+import {ProForm, ProFormContext, ProFormSelect} from "@ant-design/pro-form";
+import {CustomParameters, defaultSpecification} from "@/pages/PageCustomConfig";
+import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/PayPeriodFormItem";
+import inner from "bizcharts/src/components/Tooltip/inner";
+import {getServiceCost, getServiceMetadata} from "@/services/backend/serviceManager";
+import {createFormItem} from "@/util/FormItemUtil";
+import PayFormItem from "@/pages/ServiceInstanceList/components/PayTypeFormItem";
 import {
     ParameterGroupsInterface,
     ParameterTypeInterfaceArray,
     Specification
-} from "@/pages/ServiceInstanceList/components/interface/ServiceMetadataInterface";
-import {ProForm, ProFormContext, ProFormSelect} from "@ant-design/pro-form";
-import {CustomParameters, defaultSpecification} from "@/specificationConfig";
-import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/form/PayPeriodFormItem";
-import inner from "bizcharts/src/components/Tooltip/inner";
-import {getServiceCost, getServiceMetadata} from "@/services/backend/serviceManager";
-import {createFormItem} from "@/pages/ServiceInstanceList/components/util/FormItemUtil";
-import PayFormItem from "@/pages/ServiceInstanceList/components/form/PayTypeFormItem";
-import {aliyunRegions} from "@/region";
+} from "@/pages/ServiceInstanceList/components/interface";
+import {aliyunRegions} from "@/constants";
 
 
-export const CreateServiceInstanceForm: React.FC = ({}) => {
+export const CreateServiceInstanceForm: React.FC = () => {
     const [selectedCard, setSelectedCard] = useState<string | null>(null);
     const [elements, setElements] = useState<JSX.Element[] | undefined>(undefined);
     const [regionIds, setRegionIds] = useState<{ [key: string]: string } | undefined>(undefined);
@@ -43,6 +44,7 @@ export const CreateServiceInstanceForm: React.FC = ({}) => {
     const [templateName, setTemplateName] = useState<string | undefined>(undefined);
     const [specificationParameterList, setSpecificationParameterList] = useState<string[]>([]);
     const [errorModalVisible, setErrorModalVisible] = useState(false); // 新增状态
+
 
     const handleSpecificationChange = (cardTitle: string | null, months: number) => {
         const currentValues = form.formRef?.current.getFieldsValue();
@@ -57,7 +59,7 @@ export const CreateServiceInstanceForm: React.FC = ({}) => {
         }
     };
 
-    const handleCardClick = (cardTitle: string) => {
+    const handleSpecificationCardClick = (cardTitle: string) => {
         if (cardTitle == selectedCard) {
             form.formRef?.current.setFieldValue("SpecificationName", undefined);
             setSelectedCard(null);
@@ -93,7 +95,7 @@ export const CreateServiceInstanceForm: React.FC = ({}) => {
                     }
                     //Initialize the allowed deployment regions first.
                     let allowedRegionIds: string[];
-                    if (serviceMetadata.allowedRegions !== undefined && serviceMetadata.allowedRegions!== "[]") {
+                    if (serviceMetadata.allowedRegions !== undefined && serviceMetadata.allowedRegions !== "[]") {
                         allowedRegionIds = JSON.parse(serviceMetadata.allowedRegions);
                     } else {
                         allowedRegionIds = aliyunRegions;
@@ -250,54 +252,54 @@ export const CreateServiceInstanceForm: React.FC = ({}) => {
     const numColumns = specifications.length;
     const colSpan = 24 / numColumns;
     return (
-        <ProForm.Item>
-            <ProForm.Item name={"SpecificationName"} rules={[{required: true, message: '请选择套餐'}]}>
-                <ProCard title="套餐" bordered headerBordered gutter={16} hoverable>
-                    <Row gutter={[16, 16]}>
-                        {specifications.map((spec) => (
-                            <Col span={colSpan} key={spec?.Name}>
-                                <div
-                                    style={{
-                                        background: selectedCard === spec.Name ? '#89c1f5' : '#f5f5f5',
-                                        cursor: 'pointer',
-                                        boxShadow: selectedCard === spec.Name ? '0 0 5px #1890ff' : 'none',
-                                        padding: 16,
-                                        minHeight: '200px',
-                                    }}
-                                    onClick={() => handleCardClick(spec.Name)}
-                                >
-                                    <h3 style={{ textAlign: 'center' }}>{spec?.Name}</h3>
-                                    <p>{spec?.Description}</p>
-                                </div>
-                            </Col>
-                        ))}
-                    </Row>
-                </ProCard>
-            </ProForm.Item>
-            <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
+                <ProForm.Item>
+                    <ProForm.Item name={"SpecificationName"} rules={[{required: true, message: '请选择套餐'}]}>
+                        <ProCard title="套餐" bordered headerBordered gutter={16} hoverable>
+                            <Row gutter={[16, 16]}>
+                                {specifications.map((spec) => (
+                                    <Col span={colSpan} key={spec?.Name}>
+                                        <div
+                                            style={{
+                                                background: selectedCard === spec.Name ? '#89c1f5' : '#f5f5f5',
+                                                cursor: 'pointer',
+                                                boxShadow: selectedCard === spec.Name ? '0 0 5px #1890ff' : 'none',
+                                                padding: 16,
+                                                minHeight: '200px',
+                                            }}
+                                            onClick={() => handleSpecificationCardClick(spec.Name)}
+                                        >
+                                            <h3 style={{textAlign: 'center'}}>{spec?.Name}</h3>
+                                            <p>{spec?.Description}</p>
+                                        </div>
+                                    </Col>
+                                ))}
+                            </Row>
+                        </ProCard>
+                    </ProForm.Item>
+                    <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
 
-                <PayPeriodFormItem onChange={handleOptionChange}/>
+                        <PayPeriodFormItem onChange={handleOptionChange}/>
 
-                <div style={{textAlign: "right", padding: "16px"}}>
-                    当前价格: <span
-                    style={{color: "red"}}>{currentPrice ? currentPrice.toFixed(2) : "加载中..."}</span>
-                </div>
-            </ProCard>
-            <ProCard title={"部署地域"} bordered headerBordered hoverable>
-                <ProFormSelect key={"RegionId"} name={"RegionId"}
-                               valueEnum={regionIds}
-                               rules={[{required: true, message: '请选择部署地域'}]} fieldProps={{
-                    onChange: (e) => {
-                        setDeployedRegionId(e);
-                        form.formRef?.current.setFieldValue("ZoneId", undefined);
-                    }
-                }}>
-                </ProFormSelect>
-            </ProCard>
-            <ProCard type={"inner"} title={"配置参数"} bordered headerBordered hoverable>
-                {elements}
-            </ProCard>
-            <PayFormItem/>
-        </ProForm.Item>
+                        <div style={{textAlign: "right", padding: "16px"}}>
+                            当前价格: <span
+                            style={{color: "red"}}>{currentPrice ? currentPrice.toFixed(2) : "加载中..."}</span>
+                        </div>
+                    </ProCard>
+                    <ProCard title={"部署地域"} bordered headerBordered hoverable>
+                        <ProFormSelect key={"RegionId"} name={"RegionId"}
+                                       valueEnum={regionIds}
+                                       rules={[{required: true, message: '请选择部署地域'}]} fieldProps={{
+                            onChange: (e) => {
+                                setDeployedRegionId(e);
+                                form.formRef?.current.setFieldValue("ZoneId", undefined);
+                            }
+                        }}>
+                        </ProFormSelect>
+                    </ProCard>
+                    <ProCard type={"inner"} title={"配置参数"} bordered headerBordered hoverable>
+                        {elements}
+                    </ProCard>
+                    <PayFormItem/>
+                </ProForm.Item>
     )
 }

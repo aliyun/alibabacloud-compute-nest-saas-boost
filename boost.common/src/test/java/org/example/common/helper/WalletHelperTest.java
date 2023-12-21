@@ -81,7 +81,7 @@ class WalletHelperTest {
         }};
 
         WalletHelper walletHelper = new WalletHelper();
-        Long actualBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(lastBillingEndDateLong, payPeriod, payPeriodUnit);
+        Long actualBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeMillis(lastBillingEndDateLong, payPeriod, payPeriodUnit);
 
         assertEquals(expectedBillingEndDateTimeLong, actualBillingEndDateTimeLong);
     }
@@ -104,7 +104,7 @@ class WalletHelperTest {
         }};
 
         WalletHelper walletHelper = new WalletHelper();
-        Long actualBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(lastBillingEndDateLong, payPeriod, payPeriodUnit);
+        Long actualBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeMillis(lastBillingEndDateLong, payPeriod, payPeriodUnit);
 
         assertEquals(expectedBillingEndDateTimeLong, actualBillingEndDateTimeLong);
     }

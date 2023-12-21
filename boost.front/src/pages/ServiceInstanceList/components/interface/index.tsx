@@ -34,15 +34,15 @@ export interface ServiceInstanceTableProps {
 }
 
 export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> = ({
-                                                                              serviceInstances,
-                                                                              columns,
-                                                                              onUpdateUserPassword,
-                                                                              onCreate,
-                                                                              onRefresh,
-                                                                              onSubmit,
-                                                                              options = false,
+                                                                                       serviceInstances,
+                                                                                       columns,
+                                                                                       onUpdateUserPassword,
+                                                                                       onCreate,
+                                                                                       onRefresh,
+                                                                                       onSubmit,
+                                                                                       options = false,
 
-                                                                          }) => {
+                                                                                   }) => {
     return (
         <ProTable<API.ServiceInstanceModel>
             headerTitle=""
@@ -54,17 +54,14 @@ export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> 
                 layout: 'vertical',
                 // filterType: 'light',
                 optionRender: ({searchText, resetText}, {form}) => [
-                    <Button
-                        type="primary"
-                        key="search"
+                    <Button type="primary" key="search"
                         onClick={() => {
                             form?.submit();
                         }}
                     >
                         {searchText}
                     </Button>,
-                    <Button
-                        key="reset"
+                    <Button key="reset"
                         onClick={() => {
                             form?.resetFields();
                             onSubmit({});
@@ -76,18 +73,11 @@ export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> 
             }}
             columns={columns}
             toolBarRender={() => [
-                <Button
-                    type="primary"
-                    onClick={onCreate}
-                    key="create"
-                >
+                <Button type="primary" onClick={onCreate} key="create">
                     创建
                 </Button>,
                 options && (
-                    <Button
-                        key="reload"
-                        onClick={onRefresh}
-                    >
+                    <Button key="reload" onClick={onRefresh}>
                         刷新
                     </Button>
                 ),
@@ -105,3 +95,65 @@ export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> 
         />
     );
 };
+
+export interface CreateModalProps {
+
+    createModalVisible: boolean;
+
+    setCreateModalVisible: (visible: boolean) => void;
+
+    handleCreateSubmit: () => void;
+}
+
+export interface Specification {
+    Name: string;
+    Parameters: { [key: string]: string[] };
+    OrderList: string[];
+    Type: string;
+    Description: string;
+}
+
+
+export interface ParameterTypeInterfaceArray extends Record<string, ParameterTypeInterface> {}
+
+export interface ParameterTypeInterface {
+    Type?: string;
+    NoEcho?: boolean;
+    Label?: {
+        en?: string;
+        'zh-cn'?: string;
+    };
+    AllowedPattern?: string;
+    MaxValue?: number;
+    MinValue?: number;
+    Default?: any;
+    Description?: {
+        'zh-cn': string;
+        en: string;
+    };
+    AssociationProperty?: string;
+    AssociationPropertyMetadata?: {
+        Visible?: {
+            Condition?: {
+                'Fn::Equals': [any, any];
+            };
+        };
+    };
+    AllowedValues?: string[];
+}
+
+export interface ParameterGroupsInterface {
+    "ALIYUN::ROS::Interface"
+        : {
+        TemplateTags: string[];
+        ParameterGroups: {
+            Parameters: string[];
+            Label: {
+                default: {
+                    en: string;
+                    'zh-cn': string;
+                };
+            };
+        }[];
+    };
+}

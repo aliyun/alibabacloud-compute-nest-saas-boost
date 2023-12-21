@@ -30,6 +30,8 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameter
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.config.AliyunConfig;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,6 +49,9 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
     private static final String SERVICE_ENDPOINT = "computenestsupplier.cn-hangzhou.aliyuncs.com";
 
     private Client client;
+
+    @Value("${service.region-id}")
+    private String regionId;
 
     @Override
     public ListServiceInstancesResponse listServiceInstances(ListServiceInstancesRequest request) throws Exception {
@@ -123,6 +129,18 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
             return client.getServiceTemplateParameterConstraints(request);
         } catch (Exception e) {
             log.error("get service template parameter constraints failed.", e);
+            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
+        }
+    }
+
+    @Override
+    public UpdateServiceInstanceAttributeResponse updateServiceInstanceAttribute(UpdateServiceInstanceAttributeRequest request) {
+        RuntimeOptions runtimeOptions = new RuntimeOptions();
+        try {
+            request.setRegionId(regionId);
+            return client.updateServiceInstanceAttributeWithOptions(request, runtimeOptions);
+        } catch (Exception e) {
+            log.error("update service instance attribute failed.", e);
             throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
         }
     }

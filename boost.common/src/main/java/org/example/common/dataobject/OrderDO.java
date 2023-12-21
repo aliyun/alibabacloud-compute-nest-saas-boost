@@ -149,7 +149,7 @@ public class OrderDO {
      */
     private String specificationName;
 
-    private Long billingStartDateLong;
+    private Long billingStartDateMillis;
 
-    private Long billingEndDateLong;
+    private Long billingEndDateMillis;
 }

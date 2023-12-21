@@ -46,6 +46,6 @@ class UuidUtilTest {
 
     @Test
     void testGenerateOrderId() {
-        assertThat(UuidUtil.generateOrderId(1234567890L, "Alipay").length()).isEqualTo(27L);
+        assertThat(UuidUtil.generateOrderId(1234567890L, "Alipay", "abcdefadzxczxczxczxcxzczadasa").length()).isEqualTo(27L);
     }
 }

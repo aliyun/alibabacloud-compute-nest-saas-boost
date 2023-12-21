@@ -22,20 +22,16 @@ import utc from "dayjs/plugin/utc";
 import {listOrders, refundOrder} from "@/services/backend/order";
 import {getServiceInstance} from "@/services/backend/serviceInstance";
 import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
-import PayFormItem from "@/pages/ServiceInstanceList/components/form/PayTypeFormItem";
+import PayFormItem from "@/pages/ServiceInstanceList/components/PayTypeFormItem";
 import ProCard from "@ant-design/pro-card";
-import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/form/PayPeriodFormItem";
+import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/PayPeriodFormItem";
 import {getServiceCost} from "@/services/backend/serviceManager";
-import {handleAlipaySubmit} from "@/pages/ServiceInstanceList/components/form/AlipayForm";
+import {handleAlipaySubmit} from "@/util/aliPayUtil";
+import {isIPv4Address, replaceUrlPlaceholders} from "@/util/urlUtil";
+import {ServiceInstanceContentProps} from "@/pages/ServiceInstanceContent/components/interface";
+import {CallSource, cloudMarketOrderUrl, computeNestUrl} from "@/constants";
 
 dayjs.extend(utc);
-
-interface ServiceInstanceContentProps {
-    serviceInstanceId?: string;
-
-    status?: string;
-}
-
 const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
     let outputs = {};
     let parameters = {};
@@ -53,11 +49,6 @@ const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
     return {outputs, parameters};
 };
 
-function isIPv4Address(str: string): boolean {
-    const pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-    return pattern.test(str);
-}
-
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
     const {serviceInstanceId} = props;
     const [data, setData] = useState<API.ServiceInstanceModel>();
@@ -68,12 +59,17 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     const [submitting, setSubmitting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [refundAmount, setRefundAmount] = useState<string>("0.00");
+    const [source, setSource] = useState<string | undefined>(undefined);
     const {Paragraph} = Typography;
 
     const handleOptionChange = (month: number) => {
         setSelectedMonths(month);
     };
 
+    useEffect(()=>{
+        setSource(data?.source);
+        props.onSourceChange(data?.source);
+    },[data]);
     useEffect(() => {
         const params: API.getServiceInstanceParams = {
             serviceInstanceId: serviceInstanceId,
@@ -135,7 +131,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         fetchServiceCost();
     }, [selectedMonths]);
 
-    const handleConfirmRefund = async (): Promise<void> => {
+    const confirmDeleteServiceInstance = async (): Promise<void> => {
         try {
             if (serviceInstanceId) {
                 await refundOrder({serviceInstanceId: props.serviceInstanceId, dryRun: false});
@@ -149,26 +145,45 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         setVisible(false);
     };
 
-    const handleButtonClick = async () => {
-        try {
-            const response = await refundOrder(
-                {serviceInstanceId: serviceInstanceId, dryRun: true} as API.RefundOrderParam
-            );
-            const data = response?.data;
-            if (data !== undefined) {
-                setRefundAmount(data.toFixed(2));
-                setVisible(true);
+    const handleServiceInstanceDelete = async () => {
+        if (serviceInstanceId == undefined) {
+            return;
+        }
+
+        if (source != undefined && source == CallSource[CallSource.Market]) {
+            let redirectParameters = {
+                ServiceInstanceId: serviceInstanceId,
+                RegionId: "cn-hangzhou"
             }
-        } catch (error) {
-            console.error(error);
+            let redirectUrl = replaceUrlPlaceholders(computeNestUrl, redirectParameters);
+            window.open(redirectUrl, '_blank');
+            window.location.reload();
+        } else {
+            try {
+                const response = await refundOrder(
+                    {serviceInstanceId: serviceInstanceId, dryRun: true} as API.RefundOrderParam
+                );
+                const data = response?.data;
+                if (data !== undefined) {
+                    setRefundAmount(data.toFixed(2));
+                    setVisible(true);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
     };
 
-    const handleModalClose = () => {
+    const closeRefundModel = () => {
         setVisible(false);
     };
 
-    const handleCreateSubmit = async () => {
+    function navigateToCloudMarketplaceOrderDetails(): void {
+        window.open(cloudMarketOrderUrl, '_blank');
+        window.location.reload();
+    }
+
+    const renewalServiceInstance = async () => {
         if (submitting) {
             return;
         }
@@ -201,10 +216,11 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
     if (data !== undefined) {
         const {outputs, parameters} = processServiceInstanceData(data);
-        let renewalVisible = false;
+        console.log(CallSource[CallSource.Market]);
+        let renewalAndDeleteVisible = false;
         if (data.status != undefined) {
             // @ts-ignore
-            renewalVisible = getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success';
+            renewalAndDeleteVisible = getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success';
         }
 
         // @ts-ignore
@@ -226,19 +242,20 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                         {data.createTime}
                     </Descriptions.Item>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
-                    <Descriptions.Item label="服务实例到期时间">
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Descriptions.Item
+                        label="服务实例到期时间">{source == CallSource[CallSource.Market] ? "服务实例按量计费中" :
+                        (<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <div>{order?.billingEndDateLong ? dayjs(order?.billingEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
                             <ModalForm
                                 title="续费"
                                 size={'large'}
-                                trigger={<Button hidden={renewalVisible}>续费</Button>}
+                                trigger={<Button hidden={renewalAndDeleteVisible}>续费</Button>}
                                 formRef={form}
                                 modalProps={{
                                     destroyOnClose: true,
                                 }}
                                 onFinish={async (values) => {
-                                    await handleCreateSubmit();
+                                    await renewalServiceInstance();
                                     return true;
                                 }}
                             >
@@ -253,7 +270,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                     <PayFormItem/>
                                 </div>
                             </ModalForm>
-                        </div>
+                        </div>)}
                     </Descriptions.Item>
                     {
                         Object.keys(outputs).map((key) => {
@@ -276,23 +293,31 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     <Descriptions.Item label="释放服务实例">
 
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Button title={"删除服务实例"} onClick={() => handleButtonClick()} hidden={renewalVisible}>删除服务实例</Button>
+                            <Button title={"删除服务实例"} onClick={() => handleServiceInstanceDelete()}
+                                    hidden={renewalAndDeleteVisible}>删除服务实例</Button>
                         </div>
-                        <Modal open={visible} onCancel={handleModalClose} footer={null}>
+                        <Modal open={visible} onCancel={closeRefundModel} footer={null}>
                             <ProCard title="退款金额">
                                 <Paragraph>您当前服务实例可退金额为：<span
                                     style={{color: "red"}}>{refundAmount}</span></Paragraph>
                                 <div style={{marginTop: 16, textAlign: 'right'}}>
                                     <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
-                                            onClick={handleConfirmRefund}>
+                                            onClick={confirmDeleteServiceInstance}>
                                         退款
                                     </Button>
                                     <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
-                                            onClick={handleModalClose}>取消</Button>
+                                            onClick={closeRefundModel}>取消</Button>
                                 </div>
                             </ProCard>
                         </Modal>
                     </Descriptions.Item>
+                    {source == CallSource[CallSource.Market] && <Descriptions.Item label="云市场订单">
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Button title={"前往云市场"}
+                                    onClick={navigateToCloudMarketplaceOrderDetails}>前往云市场</Button>
+                        </div>
+                    </Descriptions.Item>}
+
 
                 </Descriptions>
                 <Divider/>

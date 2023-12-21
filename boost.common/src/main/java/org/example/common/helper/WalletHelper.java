@@ -42,7 +42,7 @@ public class WalletHelper {
         throw new BizException(ErrorInfo.SPECIFICATION_NOT_EXIST);
     }
 
-    public Long getBillingEndDateTimeLong(Long lastBillingEndDateLong, Long payPeriod, PayPeriodUnit payPeriodUnit) {
+    public Long getBillingEndDateTimeMillis(Long lastBillingEndDateLong, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         Long billingDays = getBillingDays(payPeriodUnit, payPeriod);
         if (lastBillingEndDateLong != null) {
             return DateUtil.getIsO8601FutureDateMillis(lastBillingEndDateLong, billingDays);

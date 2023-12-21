@@ -13,16 +13,10 @@
 *limitations under the License.
 */
 
-package org.example.service.impl;
-
-import org.example.service.ServiceInstanceFcService;
-import org.springframework.stereotype.Service;
-
-@Service
-public class ServiceInstanceFcServiceImpl implements ServiceInstanceFcService {
-
-    @Override
-    public void deleteServiceInstances() {
-
+export function randomStateUtil(length:number): String{
+    var result:String = '';
+    for (let i=0; i<length;i++){
+        result += String(Math.floor(Math.random() * 10));
     }
+    return result;
 }

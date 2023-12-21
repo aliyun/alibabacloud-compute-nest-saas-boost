@@ -15,7 +15,6 @@
 
 package org.example.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -56,6 +55,7 @@ public class OauthLoginServiceImpl implements LoginService {
     public BaseResult<AuthTokenModel> getAuthToken(GetAuthTokenParam getAuthTokenParam) {
         List<NameValuePair> params = createHttpParameters(getAuthTokenParam);
         String response = HttpUtil.doPost(oauthConfig.getAuthServerUrl(), params);
+        log.info(response);
         if (!StringUtils.isEmpty(response)) {
             AuthTokenModel authTokenModel = JsonUtil.parseObjectByJackson(response, AuthTokenModel.class);
             return BaseResult.success(authTokenModel);
@@ -65,7 +65,6 @@ public class OauthLoginServiceImpl implements LoginService {
     }
 
     private List<NameValuePair> createHttpParameters(GetAuthTokenParam getAuthTokenParam) {
-        System.out.println(oauthConfig.getOauthClientId());
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair(Constants.GRANT_TYPE, Constants.GRANT_TYPE_AUTHORIZATION));
         params.add(new BasicNameValuePair(Constants.CODE, getAuthTokenParam.getCode()));
@@ -79,6 +78,9 @@ public class OauthLoginServiceImpl implements LoginService {
             params.add(new BasicNameValuePair(Constants.SESSION_STATE, getAuthTokenParam.getSessionState()));
         }
         params.add(new BasicNameValuePair(Constants.SCOPE, Constants.SCOPE_OPENID));
+        for (NameValuePair param : params){
+            log.info(param.getName() + ":" + param.getValue());
+        }
         return params;
     }
 }

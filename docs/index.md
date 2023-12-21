@@ -274,7 +274,7 @@ nest.service-configs[0].specifications[2].year-price=300.0
 ![image.png](./service-config-6.png)
 <br>
 如果您希望让用户对某些参数重新填写时,比如上图的ECS实例密码，SaaS Boost也提供了DIY功能，可以通过简单的前端配置，即可实现对默认参数的重填。
-配置文件路径为：[specificationConfig.tsx](./../boost.front/src/specificationConfig.tsx)中。示例如下：
+配置文件路径为：[index.tsx](./../boost.front/src/index.tsx)中。示例如下：
 
 ```tsx
 export const CustomParameters: ParameterTypeInterfaceArray = {

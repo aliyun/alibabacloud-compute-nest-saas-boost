@@ -67,7 +67,7 @@ declare namespace API {
   type createOrderParams = {
     productComponents?: string;
     productName?: 'SERVICE_INSTANCE';
-    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD';
+    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
   };
 
   type getAuthTokenParams = {
@@ -131,10 +131,8 @@ declare namespace API {
 
   type ListOrdersParam = {
     endTime?: string;
-    matchFilters?: OtsFilter[];
     maxResults?: number;
     nextToken?: string;
-    queryFilters?: OtsFilter[];
     serviceInstanceId?: string;
     startTime?: string;
     tradeStatus?:
@@ -226,17 +224,13 @@ declare namespace API {
       | 'TRADE_FINISHED'
       | 'REFUNDED'
       | 'REFUNDING';
-    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD';
-  };
-
-  type OtsFilter = {
-    key?: string;
-    values?: Record<string, any>[];
+    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
   };
 
   type RefundOrderParam = {
     dryRun?: boolean;
     orderId?: string;
+    paymentType?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     serviceInstanceId?: string;
   };
 
@@ -250,12 +244,14 @@ declare namespace API {
     serviceInstanceName?: string;
     serviceModel?: ServiceModel;
     serviceName?: string;
+    source?: 'Market' | 'Supplier';
     status?: string;
     updateTime?: string;
   };
 
   type ServiceMetadataModel = {
     allowedRegions?: string;
+    commodityCode?: string;
     parameterMetadata?: string;
     specifications?: string;
     templateName?: string;

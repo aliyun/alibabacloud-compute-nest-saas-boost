@@ -123,6 +123,8 @@ class ServiceManagerImplTest {
             result = getServiceResponseBody;
             getServiceResponseBody.getDeployMetadata();
             result = "deployMetadata";
+            getServiceResponseBody.getLicenseMetadata();
+            result =   "{\"RetentionDays\":1}";
             mapper.readTree(anyString);
             result = deployMetadataRootNode;
             deployMetadataRootNode.get(anyString);
@@ -148,7 +150,7 @@ class ServiceManagerImplTest {
         GetServiceMetadataParam getServiceMetadataParam = new GetServiceMetadataParam();
         getServiceMetadataParam.setServiceId("test");
         BaseResult<ServiceMetadataModel> result = serviceManager.getServiceMetadata(userInfoModel, getServiceMetadataParam);
-
+        Assertions.assertEquals(1, result.getData().getRetentionDays());
         assertNotNull(result);
     }
 

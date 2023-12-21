@@ -28,4 +28,8 @@ public class ServiceMetadataModel {
     private String templateName;
 
     private String allowedRegions;
+
+    private String commodityCode;
+
+    private Integer retentionDays;
 }

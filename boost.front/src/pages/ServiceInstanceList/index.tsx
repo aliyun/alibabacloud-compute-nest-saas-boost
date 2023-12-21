@@ -17,10 +17,10 @@ import {PageContainer,} from '@ant-design/pro-components';
 import React, {useEffect, useState} from 'react';
 import {listServiceInstances} from "@/services/backend/serviceInstance";
 import {getListColumns} from "@/pages/ServiceInstance/common";
-import CreateModal from "@/pages/ServiceInstanceList/components/form/AlipayForm";
-import {ServiceInstanceTableInterface} from "@/pages/ServiceInstanceList/components/interface/ServiceInstanceTableInterface";
+import CreateModal from "@/pages/ServiceInstanceList/components/PayForm";
 import {Pagination} from "antd";
-import {handleGoToPage} from "@/nextTokenUtil";
+import {handleGoToPage} from "@/util/nextTokenUtil";
+import {ServiceInstanceTableInterface} from "@/pages/ServiceInstanceList/components/interface";
 
 const ServiceInstanceList: React.FC = () => {
     const [serviceInstances, setServiceInstances] = useState<API.ServiceInstanceModel[]>([]);
@@ -94,6 +94,7 @@ const ServiceInstanceList: React.FC = () => {
             <CreateModal
                 createModalVisible={createModalVisible}
                 setCreateModalVisible={setCreateModalVisible}
+                handleCreateSubmit={()=>{return;}}
             />
 
             <Pagination

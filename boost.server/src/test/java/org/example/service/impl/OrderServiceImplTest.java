@@ -93,7 +93,7 @@ class OrderServiceImplTest {
         when(alipayService.createTransaction(anyDouble(), anyString(), anyString())).thenReturn("createTransactionResponse");
         CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
         response.setStatusCode(HttpStatus.OK.value());
-        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean())).thenReturn(response);
+        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), any())).thenReturn(response);
         when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
         List<OrderDTO> orderList = new ArrayList<>();
         orderList.add(new OrderDTO());
@@ -116,7 +116,7 @@ class OrderServiceImplTest {
         when(alipayService.createTransaction(anyDouble(), anyString(), anyString())).thenReturn("createTransactionResponse");
         CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
         response.setStatusCode(HttpStatus.OK.value());
-        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean())).thenReturn(response);
+        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), any())).thenReturn(response);
         when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
         List<OrderDTO> orderList = new ArrayList<>();
         orderList.add(new OrderDTO());
@@ -158,7 +158,7 @@ class OrderServiceImplTest {
     void testUpdateOrder() {
         when(alipayService.refundOrder(anyString(), anyDouble(), anyString())).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean())).thenReturn(null);
+        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(null);
 
         orderServiceImpl.updateOrder(new UserInfoModel(), new OrderDO());
     }
@@ -171,8 +171,8 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), any(), anyList())).thenReturn(orderDtoListResult);
-
+        when(orderOtsHelper.listServiceInstanceOrders(anyString(), anyLong(), any(), any())).thenReturn(orderList);
+        when(orderOtsHelper.validateOrderCanBeRefunded(any(), anyLong())).thenReturn(Boolean.TRUE);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
         refundOrderParam.setServiceInstanceId(null);
         BaseResult<Double> result = orderServiceImpl.refundOrder(createMockUserInfoModel(), refundOrderParam);
@@ -190,7 +190,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), any(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listServiceInstanceOrders(anyString(), anyLong(), any(), any())).thenReturn(orderList);
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
         BaseResult<Double> result = orderServiceImpl.refundOrder(createMockUserInfoModel(), refundOrderParam);
@@ -208,7 +208,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
-        when(orderOtsHelper.listOrders(anyList(), any(), any(), any(), anyList())).thenReturn(orderDtoListResult);
+        when(orderOtsHelper.listServiceInstanceOrders(anyString(), anyLong(), any(), any())).thenReturn(orderList);
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(false);
         when(orderOtsHelper.isOrderInConsuming(any(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
@@ -230,11 +230,11 @@ class OrderServiceImplTest {
     private List<OrderDTO> createMockOrderList() {
         List<OrderDTO> orderList = new ArrayList<>();
         OrderDTO firstOrderDto = new OrderDTO();
-        firstOrderDto.setBillingStartDateLong(0L);
-        firstOrderDto.setBillingEndDateLong(123L);
+        firstOrderDto.setBillingStartDateMillis(0L);
+        firstOrderDto.setBillingEndDateMillis(123L);
         OrderDTO latestOrderDto = new OrderDTO();
-        latestOrderDto.setBillingStartDateLong(123L);
-        latestOrderDto.setBillingEndDateLong(1234L);
+        latestOrderDto.setBillingStartDateMillis(123L);
+        latestOrderDto.setBillingEndDateMillis(1234L);
         orderList.add(firstOrderDto);
         orderList.add(latestOrderDto);
         return orderList;

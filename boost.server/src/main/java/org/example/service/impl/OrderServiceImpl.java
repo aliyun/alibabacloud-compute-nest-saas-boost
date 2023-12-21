@@ -36,12 +36,15 @@ import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.OrderOtsHelper;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.helper.WalletHelper;
+import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.CreateOrderParam;
 import org.example.common.param.GetOrderParam;
 import org.example.common.param.GetServiceCostParam;
+import org.example.common.param.GetServiceMetadataParam;
 import org.example.common.param.ListOrdersParam;
 import org.example.common.param.RefundOrderParam;
+import org.example.common.param.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.BeanUtil;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
@@ -87,12 +90,13 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
 
+    private static final Integer DEFAULT_RETENTION_DAYS = 15;
+
 
     @Override
     public BaseResult<String> createOrder(UserInfoModel userInfoModel, CreateOrderParam param) throws AlipayApiException {
-        Long userId = Long.parseLong(userInfoModel.getUid());
-        Long accountId = Long.parseLong(userInfoModel.getAid());
-        String orderId = UuidUtil.generateOrderId(userId, param.getType().getValue());
+        Long accountId = userInfoModel.getAid() == null ? null : Long.parseLong(userInfoModel.getAid());
+        String orderId = UuidUtil.generateOrderId(accountId, param.getType().getValue(), userInfoModel.getSub());
         Map<String, Object> nestParameters = (Map<String, Object>) JsonUtil.parseObjectCustom(param.getProductComponents(), Map.class);
         if (nestParameters == null) {
             return BaseResult.fail("product components can't be null.");
@@ -107,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
         getServiceCostParam.setPayPeriod(payPeriod);
         Double cost = serviceManager.getServiceCost(userInfoModel, getServiceCostParam).getData();
         if (StringUtils.isEmpty(serviceInstanceId)) {
-            CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true);
+            CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true, null);
             if (response == null || !response.getStatusCode().equals(HttpStatus.OK.value())) {
                 return BaseResult.fail(ErrorInfo.SERVER_UNAVAILABLE);
             }
@@ -115,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
 
         String webForm = alipayService.createTransaction(cost, param.getProductName().getDisplayName(), orderId);
         if (StringUtils.isNotEmpty(webForm)) {
-            OrderDO orderDataObject = createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
+            OrderDO orderDataObject = createPrePayOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
             orderDataObject.setServiceInstanceId(serviceInstanceId);
             orderOtsHelper.createOrder(orderDataObject);
             log.info("The Alipay web form has been successfully created with the following content{}.", webForm);
@@ -130,22 +134,22 @@ public class OrderServiceImpl implements OrderService {
             String serviceInstanceId = orderDataObject.getServiceInstanceId();
             OtsFilter serviceInstanceIdQueryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
             OtsFilter tradeStatusQueryFilter = OtsFilter.createTermsFilter(OrderOtsConstant.TRADE_STATUS, Arrays.asList(TradeStatus.TRADE_SUCCESS, TradeStatus.TRADE_FINISHED));
-            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC);
+            FieldSort fieldSort = new FieldSort(OrderOtsConstant.BILLING_END_DATE_MILLIS, SortOrder.DESC);
             ListResult<OrderDTO> orderDtoListResult = orderOtsHelper.listOrders(Arrays.asList(serviceInstanceIdQueryFilter), null, Collections.singletonList(tradeStatusQueryFilter), null, Collections.singletonList(fieldSort));
             if (orderDtoListResult != null && orderDtoListResult.getData() != null && orderDtoListResult.getData().size() > 0) {
-                Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingEndDateLong();
-                Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeLong(preBillingEndDateLong, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
-                orderDataObject.setBillingEndDateLong(currentBillingEndDateTimeLong);
-                orderDataObject.setBillingStartDateLong(preBillingEndDateLong);
+                Long preBillingEndDateLong = orderDtoListResult.getData().get(0).getBillingEndDateMillis();
+                Long currentBillingEndDateTimeLong = walletHelper.getBillingEndDateTimeMillis(preBillingEndDateLong, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
+                orderDataObject.setBillingEndDateMillis(currentBillingEndDateTimeLong);
+                orderDataObject.setBillingStartDateMillis(preBillingEndDateLong);
                 return;
             }
         }
         Long billingStartDateMillis = DateUtil.getCurrentLocalDateTimeMillis();
-        Long billingEndDateMillis = walletHelper.getBillingEndDateTimeLong(billingStartDateMillis, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
-        orderDataObject.setBillingEndDateLong(billingEndDateMillis);
-        orderDataObject.setBillingStartDateLong(billingStartDateMillis);
-        String billingStartDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingStartDateLong());
-        String billingEndDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingEndDateLong());
+        Long billingEndDateMillis = walletHelper.getBillingEndDateTimeMillis(billingStartDateMillis, orderDataObject.getPayPeriod(), orderDataObject.getPayPeriodUnit());
+        orderDataObject.setBillingEndDateMillis(billingEndDateMillis);
+        orderDataObject.setBillingStartDateMillis(billingStartDateMillis);
+        String billingStartDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingStartDateMillis());
+        String billingEndDate = DateUtil.parseIs08601DateMillis(orderDataObject.getBillingEndDateMillis());
         log.info("the current order with orderId : {}, the billingStartDate = {}, the billing end date = {}", orderDataObject.getOrderId(), billingStartDate, billingEndDate);
     }
 
@@ -169,7 +173,7 @@ public class OrderServiceImpl implements OrderService {
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
             OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
-            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_LONG, SortOrder.DESC));
+            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_MILLIS, SortOrder.DESC));
         }
         if (StringUtils.isNotEmpty(param.getStartTime()) && StringUtils.isNotEmpty(param.getEndTime())) {
             Long startTimeMills = DateUtil.parseFromIsO8601DateString(param.getStartTime());
@@ -200,16 +204,25 @@ public class OrderServiceImpl implements OrderService {
                 orderDO.setGmtPayment(DateUtil.simpleDateStringConvertToIso8601Format(orderDO.getGmtPayment()));
             }
             updateBillingDates(orderDO);
-
+            BaseResult<ServiceMetadataModel> serviceMetadata = serviceManager.getServiceMetadata(userInfoModel, new GetServiceMetadataParam());
+            Integer retentionDays = Optional.ofNullable(serviceMetadata.getData())
+                    .map(ServiceMetadataModel::getRetentionDays)
+                    .orElse(DEFAULT_RETENTION_DAYS);
+            Long endTimeMillis = DateUtil.getIsO8601FutureDateMillis(orderDO.getBillingEndDateMillis(), retentionDays);
+            String endTime = DateUtil.parseIs08601DateMillis(endTimeMillis);
             if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
-                serviceInstanceResponse = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, JsonUtil.parseObjectCustom(orderDO.getProductComponents(), Map.class), false);
+                serviceInstanceResponse = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, JsonUtil.parseObjectCustom(orderDO.getProductComponents(), Map.class), false, endTime);
                 orderDO.setServiceInstanceId(serviceInstanceResponse.body.serviceInstanceId);
                 orderOtsHelper.updateOrder(orderDO);
             } else {
-                //todo 更新end time
+                UpdateServiceInstanceAttributeParam updateServiceInstanceAttributeParam = new UpdateServiceInstanceAttributeParam();
+                updateServiceInstanceAttributeParam.setServiceInstanceId(orderDO.getServiceInstanceId());
+                updateServiceInstanceAttributeParam.setEndTime(endTime);
+                serviceInstanceLifecycleService.updateServiceInstanceAttribute(userInfoModel, updateServiceInstanceAttributeParam);
                 orderOtsHelper.updateOrder(orderDO);
             }
         } catch (Exception e) {
+            log.error("updateOrder error, orderDO = {}", orderDO, e);
             if (serviceInstanceResponse != null && !StringUtils.isEmpty(serviceInstanceResponse.body.serviceInstanceId)) {
                 orderDO.setTradeStatus(TradeStatus.REFUNDING);
                 orderOtsHelper.updateOrder(orderDO);
@@ -264,7 +277,7 @@ public class OrderServiceImpl implements OrderService {
         throw new IllegalArgumentException("The order ID and service instance ID cannot be both empty.");
     }
 
-    private OrderDO createOrderDataObject(String orderId, CreateOrderParam createOrderParam, Long userId, Double totalAmount, Long accountId, GetServiceCostParam getServiceCostParam) {
+    private OrderDO createPrePayOrderDataObject(String orderId, CreateOrderParam createOrderParam, Long userId, Double totalAmount, Long accountId, GetServiceCostParam getServiceCostParam) {
         OrderDO orderDO = new OrderDO();
         orderDO.setUserId(userId);
         orderDO.setTotalAmount(totalAmount);

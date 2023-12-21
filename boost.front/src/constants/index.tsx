@@ -1,3 +1,34 @@
+/*
+*Copyright (c) Alibaba Group;
+*Licensed under the Apache License, Version 2.0 (the "License");
+*you may not use this file except in compliance with the License.
+*You may obtain a copy of the License at
+
+*   http://www.apache.org/licenses/LICENSE-2.0
+
+*Unless required by applicable law or agreed to in writing, software
+*distributed under the License is distributed on an "AS IS" BASIS,
+*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*See the License for the specific language governing permissions and
+*limitations under the License.
+*/
+
+export const LOGIN_CONSTANTS = {
+    CODE : "code",
+    STATE : "state",
+    SESSION_STATE : "session_state"
+}
+
+export const USER_PARAMETERS = "UserParameters";
+
+export enum PayTypeEnum {
+    ALIPAY = '支付宝',
+}
+
+export enum ProductNameEnum {
+    SERVICE_INSTANCE = 'ServiceInstance',
+}
+
 export const aliyunRegions: string[] = [
     "cn-hangzhou", // 华东 1（杭州）
     "cn-shanghai", // 华东 2（上海）
@@ -33,3 +64,14 @@ export const aliyunRegions: string[] = [
     "us-east-1", // 美国东部 1（弗吉尼亚）
     "us-west-1", // 美国西部 1（硅谷）
 ];
+
+export const computeNestUrl = "https://computenest.console.aliyun.com/service/instance/detail/${RegionId}/${ServiceInstanceId}"
+
+export const cloudMarketOrderUrl ="https://msp.aliyun.com/msp/order/list/";
+
+export const cloudMarketPurchaseUrl ="https://market.aliyun.com/products/57252001/${MarketProductCode}.html";
+
+export enum CallSource {
+    Market = 2,
+    Supplier = 3
+}

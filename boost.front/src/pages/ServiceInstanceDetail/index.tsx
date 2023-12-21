@@ -13,37 +13,56 @@
 *limitations under the License.
 */
 
-import React from 'react';
-import type {TabsProps} from 'antd';
+import React, {useEffect, useState} from 'react';
 import {Tabs} from 'antd';
 import ServiceInstanceContent from "@/pages/ServiceInstanceContent";
 import ServiceInstanceMonitor from "@/pages/ServiceInstanceMonitor";
-import {ServiceInstanceOrder} from "@/pages/ServiceInstanceOrder/ServiceInstanceOrder";
+import {Index} from "@/pages/ServiceInstanceOrder";
 import {useParams} from "react-router";
+import {CallSource} from "@/constants";
 
+interface TabItem {
+    key: string;
+    label: string;
+    children: JSX.Element;
+}
 
 const ServiceInstanceDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
     const {status} = useParams<{ status: string }>();
-    const items: TabsProps['items'] = [
-        {
+    // 假设这是父组件的状态和 setState 函数
+    const [source, setSource] = useState<string | undefined>(undefined);
+
+    // 回调函数，用于从子组件获取 source 数据
+
+    const [items, setItems] = useState<TabItem[]>([]);
+
+    useEffect(() => {
+        let newItems = [{
             key: 'description',
             label: `概览`,
-            children:
-                <ServiceInstanceContent
-                    serviceInstanceId={id} status={status}/>,
+            children: <ServiceInstanceContent serviceInstanceId={id} status={status} onSourceChange={setSource}/>,
         },
-        {
-            key: 'monitor',
-            label: `监控`,
-            children: <ServiceInstanceMonitor  serviceInstanceId={id}/>,
-        },
-        {
-            key:'serviceInstanceOrders',
-            label: `订单`,
-            children: <ServiceInstanceOrder serviceInstanceId={id} status={status}/>,
-        }
-    ];
+            {
+                key: 'monitor',
+                label: `监控`,
+                children: <ServiceInstanceMonitor serviceInstanceId={id}/>,
+            }];
+        const setOrdersTab = async () => {
+            console.log(source);
+            // 如果 source 等于 'Market'，则添加订单标签
+            if (source != undefined && source != CallSource[CallSource.Market]) {
+                newItems.push({
+                    key: 'serviceInstanceOrders',
+                    label: `订单`,
+                    children: <Index serviceInstanceId={id} status={status}/>,
+                });
+            }
+            setItems(newItems);
+        };
+        setOrdersTab();
+    }, [source]);
+
     return <Tabs defaultActiveKey="1" items={items}/>
 }
 

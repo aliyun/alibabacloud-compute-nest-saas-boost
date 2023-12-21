@@ -14,7 +14,7 @@
 */
 
 export default {
-    redirectUriPrefix: 'https://signin.aliyun.com/oauth2/v1/auth',
+
 }
 
 

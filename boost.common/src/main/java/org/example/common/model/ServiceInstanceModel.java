@@ -19,6 +19,7 @@ package org.example.common.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.common.constant.CallSource;
 
 @Data
 @NoArgsConstructor
@@ -46,4 +47,6 @@ public class ServiceInstanceModel {
     private String outputs;
 
     private String resources;
+
+    private CallSource source;
 }
