@@ -17,7 +17,7 @@ import React from "react";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {Button} from "antd";
 import {ProTableProps} from "@ant-design/pro-table/lib";
-
+import styles from "./serviceInstanceList.less"
 export interface ServiceInstanceTableProps {
     serviceInstances: API.ServiceInstanceModel[];
     search: true;
@@ -53,24 +53,14 @@ export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> 
                 defaultCollapsed: false,
                 layout: 'vertical',
                 // filterType: 'light',
-                optionRender: ({searchText, resetText}, {form}) => [
-                    <Button type="primary" key="search"
-                        onClick={() => {
-                            form?.submit();
-                        }}
-                    >
-                        {searchText}
-                    </Button>,
-                    <Button key="reset"
-                        onClick={() => {
-                            form?.resetFields();
-                            onSubmit({});
-                        }}
-                    >
-                        {resetText}
-                    </Button>,
-                ],
+                optionRender: (searchConfig, formProps, dom) => [
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', marginRight: '+220px' }}>
+                        <div>{dom[0]}</div> {/* 查询按钮 */}
+                        <div>{dom[1]}</div> {/* 重置按钮 */}
+                    </div>
+                ]
             }}
+
             columns={columns}
             toolBarRender={() => [
                 <Button type="primary" onClick={onCreate} key="create">
