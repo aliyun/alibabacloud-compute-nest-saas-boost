@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ include "saas-boost.serviceAccountName" . }}
+  name: {{ include "saas-boost.fullname" . }}
+  labels:
+    {{- include "saas-boost.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "saas-boost.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      namespace: {{ include "saas-boost.serviceAccountName" . }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "saas-boost.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "saas-boost.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}       
+          env:
+            - name: ecs-role-name
+              value: {{ .Values.env.ramRoleName }}
+            - name: alipay-return-url
+              value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/#/payCallBack"
+            - name: alipay-notify-url
+              value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/alipay/verifyTradeCallback"
+            - name: TZ
+              value: "Asia/Shanghai"
+            - name: service-id
+              value: {{ .Values.env.serviceId }}
+            - name: deploy-type
+              value: k8s
+            - name: stack-name
+              value: {{ .Values.env.stackName }}
+            - name: ots-instance-name
+              value: {{ .Values.env.otsInstanceName }}
+            - name: service.region-id
+              value: {{ .Values.env.service.regionId }}
+            - name: oauth.public-key.url
+              value: {{ .Values.env.oauth.publicKey.url }}
+            - name: oauth.auth-code.url
+              value: {{ .Values.env.oauth.authCode.url }}
+            - name: oauth.auth-server.url
+              value: {{ .Values.env.oauth.authServer.url }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

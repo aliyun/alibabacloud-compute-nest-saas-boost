@@ -71,7 +71,6 @@ public class RefundOrderTask implements Runnable {
                 if (paymentType != null && paymentType != PaymentType.PAY_POST && Double.parseDouble(String.format("%.2f", refundAmount)) > 0) {
                     alipaySuccess = baseAlipayClient.refundOrder(orderId, Double.parseDouble(String.format("%.2f", refundAmount)), refundId);
                 }
-                //todo 删除服务实例+更新计算巢endTime
                 OrderDTO order = orderOtsHelper.getOrder(orderId, null);
                 Long currentLocalDateTimeMillis = DateUtil.getCurrentLocalDateTimeMillis();
                 if (shouldDeleteServiceInstance(currentLocalDateTimeMillis, order)) {

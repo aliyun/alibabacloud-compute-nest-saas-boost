@@ -76,7 +76,7 @@ class OrderControllerTest {
 
     @Test
     void testRefundOrder() {
-        when(orderService.refundOrder(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
+        when(orderService.refundOrders(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
 
         BaseResult<Double> result = orderController.refundOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new RefundOrderParam());
         Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);

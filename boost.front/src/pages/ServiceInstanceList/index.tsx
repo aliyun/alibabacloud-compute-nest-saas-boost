@@ -16,8 +16,8 @@
 import {PageContainer,} from '@ant-design/pro-components';
 import React, {useEffect, useState} from 'react';
 import {listServiceInstances} from "@/services/backend/serviceInstance";
-import {getListColumns} from "@/pages/ServiceInstance/common";
-import CreateModal from "@/pages/ServiceInstanceList/components/PayForm";
+import {getListColumns} from "@/pages/ServiceInstanceList/common";
+import CreateModal from "@/pages/Service/component/PayForm";
 import {Pagination} from "antd";
 import {handleGoToPage} from "@/util/nextTokenUtil";
 import {ServiceInstanceTableInterface} from "@/pages/ServiceInstanceList/components/interface";
@@ -27,9 +27,7 @@ const ServiceInstanceList: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const pageSize = 10;
-    const [updateUserPasswordOpen, handleUpdateUserPasswordOpen] = useState<boolean>(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);
-    const [currentRow, setCurrentRow] = useState<API.ServiceInstanceModel>();
     const [filterValues, setFilterValues] = useState<{
         status?: string;
         serviceInstanceId?: string;
@@ -71,10 +69,6 @@ const ServiceInstanceList: React.FC = () => {
                 search={true}
                 serviceInstances={serviceInstances}
                 columns={getListColumns()}
-                onUpdateUserPassword={(record: API.ServiceInstanceModel) => {
-                    handleUpdateUserPasswordOpen(true);
-                    setCurrentRow(record);
-                }}
                 onCreate={() => {setCreateModalVisible(true);
                 }}
                 onRefresh={() => setShouldFetchData(true)}

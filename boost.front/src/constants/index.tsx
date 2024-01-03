@@ -29,7 +29,7 @@ export enum ProductNameEnum {
     SERVICE_INSTANCE = 'ServiceInstance',
 }
 
-export const aliyunRegions: string[] = [
+export const ALIYUN_REGIONS: string[] = [
     "cn-hangzhou", // 华东 1（杭州）
     "cn-shanghai", // 华东 2（上海）
     "cn-qingdao", // 华北 1（青岛）
@@ -65,13 +65,15 @@ export const aliyunRegions: string[] = [
     "us-west-1", // 美国西部 1（硅谷）
 ];
 
-export const computeNestUrl = "https://computenest.console.aliyun.com/service/instance/detail/${RegionId}/${ServiceInstanceId}"
+export const COMPUTE_NEST_URL = "https://computenest.console.aliyun.com/service/instance/detail/${RegionId}/${ServiceInstanceId}"
 
-export const cloudMarketOrderUrl ="https://msp.aliyun.com/msp/order/list/";
+export const CLOUD_MARKET_ORDER_URL ="https://msp.aliyun.com/msp/order/list/";
 
-export const cloudMarketPurchaseUrl ="https://market.aliyun.com/products/57252001/${MarketProductCode}.html";
+export const CLOUD_MARKET_PURCHASE_URL ="https://market.aliyun.com/products/57252001/${MarketProductCode}.html";
 
 export enum CallSource {
     Market = 2,
     Supplier = 3
 }
+
+export const TIME_FORMAT = "YYYY-MM-DDTHH:mm:ss[Z]";

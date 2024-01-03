@@ -28,6 +28,28 @@ export const TradeStatusEnum = {
 
 export const OrderColumns: ProColumns<API.OrderDTO>[] = [
     {
+      title: '订单号',
+      dataIndex: 'orderId',
+      key: 'orderId',
+      sorter: false, //@ts-ignore
+      search: true,
+    },
+    {
+        title: '产品名称',
+        dataIndex: 'productName',
+        key: 'productName',
+        sorter: false,
+        search: false,
+    }
+    ,
+    {
+        title: '套餐名称',
+        dataIndex: 'specificationName',
+        key: 'specificationName',
+        sorter: false,
+        search: false,
+    },
+    {
         title: '交易状态',
         dataIndex: 'tradeStatus',
         key: 'tradeStatus',
@@ -62,17 +84,10 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         },
     },
     {
-        title: '创建时间',
-        tip: '查询您选择的时间到当前时间内的所有订单',
-        dataIndex: 'gmtCreate',
-        key: 'gmtCreate',
-        valueType:'dateTime',
-    },
-    {
-        title: '产品名称',
-        dataIndex: 'productName',
-        key: 'productName',
-        sorter: false,
+        title: '支付类型',
+        dataIndex: 'type',
+        key: 'type',
+        valueEnum: PayTypeEnum,
         search: false,
     },
     {
@@ -83,21 +98,22 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         search: false,
     },
     {
-        title: '服务配置',
-        key: 'productComponents',
-        render: (_: any, record: any) => {
-            const instancePassword = record.productComponents?.InstancePassword || '';
-            const maskedPassword = instancePassword.replace(/.*/, '******');
-            return <span
-                style={{display: 'inline-block', minWidth: '200px'}}>InstancePassword: {maskedPassword}</span>;
-        },
-        sorter: false,
-        search: false,
+        title: '创建时间',
+        tip: '查询您选择的时间到当前时间内的所有订单',
+        dataIndex: 'gmtCreate',
+        key: 'gmtCreate',
+        valueType: 'dateTime',
     },
-    {
-        title: '支付类型',
-        dataIndex: 'type',
-        key: 'type',
-        valueEnum: PayTypeEnum,
-    },
+    // {
+    //     title: '服务配置',
+    //     key: 'productComponents',
+    //     render: (_: any, record: any) => {
+    //         const instancePassword = record.productComponents?.InstancePassword || '';
+    //         const maskedPassword = instancePassword.replace(/.*/, '******');
+    //         return <span
+    //             style={{display: 'inline-block', minWidth: '200px'}}>InstancePassword: {maskedPassword}</span>;
+    //     },
+    //     sorter: false,
+    //     search: false,
+    // },
 ];

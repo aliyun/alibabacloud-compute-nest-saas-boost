@@ -1,5 +1,5 @@
 import { useIntl } from '@umijs/max';
-import { Button, message, notification } from 'antd';
+import {Button, message, Modal, notification} from 'antd';
 import defaultSettings from '../config/defaultSettings';
 
 const { pwa } = defaultSettings;
@@ -89,3 +89,28 @@ if (pwa) {
 
   clearCache();
 }
+
+export const showErrorModal = (title: string, message: string, onClose?: () => void): void => {
+  let content = (
+      <div>
+        <p>{message}</p>
+        <p>
+          <a
+              href="https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+            https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/
+          </a>
+        </p>
+      </div>
+  );
+
+  Modal.error({
+    title: title,
+    content: content,
+    onOk: onClose || (() => {}),
+  });
+};
+
+export const DEFAULT_PAY_PERIOD_UNIT = 'Month';

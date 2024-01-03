@@ -15,21 +15,22 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {Badge, Button, Descriptions, Divider, message, Modal, Space, Typography} from 'antd';
-import {getStatusEnum} from "@/pages/ServiceInstance/common";
+import {getStatusEnum} from "@/pages/ServiceInstanceList/common";
 import moment from "moment";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {listOrders, refundOrder} from "@/services/backend/order";
 import {getServiceInstance} from "@/services/backend/serviceInstance";
-import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
-import PayFormItem from "@/pages/ServiceInstanceList/components/PayTypeFormItem";
+import {ModalForm, ProFormDigit, ProFormInstance} from "@ant-design/pro-form";
+import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 import ProCard from "@ant-design/pro-card";
-import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/PayPeriodFormItem";
 import {getServiceCost} from "@/services/backend/serviceManager";
 import {handleAlipaySubmit} from "@/util/aliPayUtil";
 import {isIPv4Address, replaceUrlPlaceholders} from "@/util/urlUtil";
 import {ServiceInstanceContentProps} from "@/pages/ServiceInstanceContent/components/interface";
-import {CallSource, cloudMarketOrderUrl, computeNestUrl} from "@/constants";
+import {CallSource, CLOUD_MARKET_ORDER_URL, COMPUTE_NEST_URL} from "@/constants";
+import styles from "@/pages/Service/component/css/service.module.css";
+import {DEFAULT_PAY_PERIOD_UNIT, showErrorModal} from "@/global";
 
 dayjs.extend(utc);
 const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
@@ -61,15 +62,12 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     const [refundAmount, setRefundAmount] = useState<string>("0.00");
     const [source, setSource] = useState<string | undefined>(undefined);
     const {Paragraph} = Typography;
-
-    const handleOptionChange = (month: number) => {
-        setSelectedMonths(month);
-    };
+    const computeNestDefaultRegion = "cn-hangzhou";
 
     useEffect(()=>{
         setSource(data?.source);
-        props.onSourceChange(data?.source);
     },[data]);
+
     useEffect(() => {
         const params: API.getServiceInstanceParams = {
             serviceInstanceId: serviceInstanceId,
@@ -84,7 +82,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         (async () => {
             const result = await listOrders({
                 serviceInstanceId: serviceInstanceId,
-                tradeStatus: "TRADE_SUCCESS",
+                tradeStatus: ["TRADE_SUCCESS"],
                 maxResults: 1
             });
             if (result != undefined && result.data != undefined && result.data.length > 0) {
@@ -101,30 +99,14 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     const response = await getServiceCost({
                         specificationName: order.specificationName,
                         payPeriod: selectedMonths,
-                        payPeriodUnit: "Month",
+                        payPeriodUnit: DEFAULT_PAY_PERIOD_UNIT,
                     } as API.getServiceCostParams);
                     setCurrentPrice(response.data || null);
                     return;
                 }
                 setCurrentPrice(null);
             } catch (error) {
-                Modal.error({
-                    title: '套餐名不匹配',
-                    content: (
-                        <div>
-                            <p>套餐名不匹配，请修改后重新运行流水线：</p>
-                            <p>
-                                <a
-                                    href="https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/
-                                </a>
-                            </p>
-                        </div>
-                    ),
-                });
+                showErrorModal('套餐名不匹配', '套餐名不匹配，请修改后重新运行流水线：');
                 setCurrentPrice(100);
             }
         };
@@ -153,9 +135,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         if (source != undefined && source == CallSource[CallSource.Market]) {
             let redirectParameters = {
                 ServiceInstanceId: serviceInstanceId,
-                RegionId: "cn-hangzhou"
+                RegionId: computeNestDefaultRegion
             }
-            let redirectUrl = replaceUrlPlaceholders(computeNestUrl, redirectParameters);
+            let redirectUrl = replaceUrlPlaceholders(COMPUTE_NEST_URL, redirectParameters);
             window.open(redirectUrl, '_blank');
             window.location.reload();
         } else {
@@ -179,7 +161,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     };
 
     function navigateToCloudMarketplaceOrderDetails(): void {
-        window.open(cloudMarketOrderUrl, '_blank');
+        window.open(CLOUD_MARKET_ORDER_URL, '_blank');
         window.location.reload();
     }
 
@@ -197,7 +179,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                 const productComponents = {
                     SpecificationName: order.specificationName,
                     PayPeriod: PayPeriod,
-                    PayPeriodUnit: "Month",
+                    PayPeriodUnit: DEFAULT_PAY_PERIOD_UNIT,
                     ServiceInstanceId: order.serviceInstanceId
                 };
                 console.log(productComponents);
@@ -214,7 +196,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         }
     }
 
+
     if (data !== undefined) {
+
         const {outputs, parameters} = processServiceInstanceData(data);
         console.log(CallSource[CallSource.Market]);
         let renewalAndDeleteVisible = false;
@@ -222,12 +206,82 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             // @ts-ignore
             renewalAndDeleteVisible = getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success';
         }
+        const title = (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>服务实例</span>
+                <Space>
+                    <div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Button title={"删除服务实例"} onClick={() => handleServiceInstanceDelete()}
+                                hidden={renewalAndDeleteVisible} danger={true}>删除服务实例</Button>
+                    </div>
+                    <Modal open={visible} onCancel={closeRefundModel} footer={null}>
+                        <ProCard title="退款金额">
+                            <Paragraph>您当前服务实例可退金额为：<span
+                                style={{color: "red"}}>{refundAmount}</span></Paragraph>
+                            <div style={{marginTop: 16, textAlign: 'right'}}>
+                                <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
+                                        onClick={confirmDeleteServiceInstance}>
+                                    退款
+                                </Button>
+                                <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
+                                        onClick={closeRefundModel}>取消</Button>
+                            </div>
+                        </ProCard>
+                    </Modal>
+                    </div>
+                    {source != CallSource[CallSource.Market] && <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <ModalForm
+                        title="续费"
+                        size={'large'}
+                        trigger={<Button hidden={renewalAndDeleteVisible}>续费</Button>}
+                        formRef={form}
+                        modalProps={{
+                            destroyOnClose: true,
+                        }}
+                        onFinish={async (values) => {
+                            await renewalServiceInstance();
+                            return true;
+                        }}
+                    >
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                                {/*<PayPeriodFormItem onChange={handleOptionChange}/>*/}
+                                <ProFormDigit
+                                    label="包月时间"
+                                    name="PayPeriod"
+                                    key={"PayPeriod"}
+                                    min={1}
+                                    initialValue={1}
+                                    fieldProps={{precision: 0, defaultValue: 1, onChange: (value) => {
+                                            if(value){
+                                                setSelectedMonths(value);
+                                            }}}}
+                                    required={true}
 
+                                />
+                                <div className={styles.currentPrice}>
+                                    当前价格:
+                                    <span className={styles.priceValue}>
+                                        {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : " 加载中..."}
+                                    </span>
+                                </div>
+                            <Divider className={styles.msrectangleshape}/>
+                            <div className={styles.specificationTitle}>{"支付方式"}</div>
+
+                            <PayTypeFormItem/>
+                        </div>
+                    </ModalForm>
+                </div>}
+
+                </Space>
+            </div>
+        );
         // @ts-ignore
         return (
             <Space direction="vertical" size="large" style={{display: 'flex'}}>
-                <Descriptions bordered={true} title="服务实例" column={2}>
-                    <Descriptions.Item label="服务实例Id">{data?.serviceInstanceId} </Descriptions.Item>
+                <Descriptions bordered={true} title={title} column={2}>
+
+                    <Descriptions.Item label="服务实例ID">{data?.serviceInstanceId} </Descriptions.Item>
                     <Descriptions.Item label="服务实例名">{data?.serviceInstanceName}</Descriptions.Item>
                     <Descriptions.Item label="状态">
                         {
@@ -243,34 +297,10 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     </Descriptions.Item>
                     <Descriptions.Item label="更新时间">{data.updateTime}</Descriptions.Item>
                     <Descriptions.Item
-                        label="服务实例到期时间">{source == CallSource[CallSource.Market] ? "服务实例按量计费中" :
-                        (<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <div>{order?.billingEndDateLong ? dayjs(order?.billingEndDateLong).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
-                            <ModalForm
-                                title="续费"
-                                size={'large'}
-                                trigger={<Button hidden={renewalAndDeleteVisible}>续费</Button>}
-                                formRef={form}
-                                modalProps={{
-                                    destroyOnClose: true,
-                                }}
-                                onFinish={async (values) => {
-                                    await renewalServiceInstance();
-                                    return true;
-                                }}
-                            >
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
-                                    <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
-                                        <PayPeriodFormItem onChange={handleOptionChange}/>
-                                        <div style={{textAlign: "right", padding: "16px"}}>
-                                            当前价格: <span
-                                            style={{color: "red"}}>{currentPrice ? currentPrice.toFixed(2) : "加载中..."}</span>
-                                        </div>
-                                    </ProCard>
-                                    <PayFormItem/>
-                                </div>
-                            </ModalForm>
-                        </div>)}
+                        label="到期时间">{source == CallSource[CallSource.Market] ? "按量计费中" :
+                        (
+                            <div>{order?.billingEndDateMillis ? dayjs(order?.billingEndDateMillis).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
+                        )}
                     </Descriptions.Item>
                     {
                         Object.keys(outputs).map((key) => {
@@ -290,27 +320,6 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             }
                         })
                     }
-                    <Descriptions.Item label="释放服务实例">
-
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Button title={"删除服务实例"} onClick={() => handleServiceInstanceDelete()}
-                                    hidden={renewalAndDeleteVisible}>删除服务实例</Button>
-                        </div>
-                        <Modal open={visible} onCancel={closeRefundModel} footer={null}>
-                            <ProCard title="退款金额">
-                                <Paragraph>您当前服务实例可退金额为：<span
-                                    style={{color: "red"}}>{refundAmount}</span></Paragraph>
-                                <div style={{marginTop: 16, textAlign: 'right'}}>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
-                                            onClick={confirmDeleteServiceInstance}>
-                                        退款
-                                    </Button>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
-                                            onClick={closeRefundModel}>取消</Button>
-                                </div>
-                            </ProCard>
-                        </Modal>
-                    </Descriptions.Item>
                     {source == CallSource[CallSource.Market] && <Descriptions.Item label="云市场订单">
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <Button title={"前往云市场"}
@@ -322,7 +331,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                 </Descriptions>
                 <Divider/>
                 <Descriptions bordered={true} title="服务信息" column={2}>
-                    <Descriptions.Item label="服务id">{data?.serviceModel?.serviceId}</Descriptions.Item>
+                    <Descriptions.Item label="服务ID">{data?.serviceModel?.serviceId}</Descriptions.Item>
                     <Descriptions.Item label="服务名">{data?.serviceModel?.name} </Descriptions.Item>
                     <Descriptions.Item label="描述">{data?.serviceModel?.description} </Descriptions.Item>
                 </Descriptions>

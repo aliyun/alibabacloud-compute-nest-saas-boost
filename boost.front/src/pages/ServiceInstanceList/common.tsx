@@ -87,8 +87,15 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
         dataIndex: 'serviceInstanceId',
         render: (dom, entity) => {
             return (
-                <Link to={`/serviceInstance/${entity.serviceInstanceId}`}> {dom} </Link>
-            );
+                <Link
+                    to={{
+                        pathname: `/serviceInstance/${entity.serviceInstanceId}`,
+                        search: `source=${entity.source}`,
+                    }}
+                >
+                    {dom}
+                </Link>
+            )
         },
     },
     {
@@ -105,9 +112,28 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
     },
     {
         title: <FormattedMessage id="pages.instanceSearchTable.serviceName" defaultMessage="服务名"/>,
-        dataIndex: 'serviceName',
         search: false,
+        render: (text, record) => {
+            return record.serviceModel ? record.serviceModel.name : '';
+        }
     },
+    {
+        title: <FormattedMessage id="pages.instanceSearchTable.order" defaultMessage="订单号"/>,
+        search: false,
+        dataIndex: 'orderId',
+        render: (text, record) => {
+            return (
+                <Link
+                to={{
+                    pathname: `/serviceInstance/${record.serviceInstanceId}/`,
+                    search: `tab=serviceInstanceOrders&orderId=${record.orderId}`,
+                }}
+            >
+                {text}
+            </Link>);
+        }
+    }
+    ,
     {
         title: (
             <FormattedMessage

@@ -6,16 +6,19 @@ import {PageContainer} from "@ant-design/pro-layout";
 import {ProTable} from "@ant-design/pro-components";
 import {Button, message, Modal, Pagination, Typography} from "antd";
 import {handleGoToPage} from "@/util/nextTokenUtil";
-import ProCard from "@ant-design/pro-card";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
 import {ServiceInstanceOrderProps} from "@/pages/ServiceInstanceOrder/components/interface";
-import {PayTypeEnum, ProductNameEnum} from "@/constants";
-
+import {PayTypeEnum, ProductNameEnum, TIME_FORMAT} from "@/constants";
+import {getHashSearchParams} from "@/util/urlUtil";
+import styles from "./components/css/order.module.css"
+import {ExclamationCircleOutlined} from "@ant-design/icons";
 
 dayjs.extend(utc);
 export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
+    const searchParams = getHashSearchParams();
+    const initialOrderId = searchParams.get('orderId') || undefined;
     const [orders, setOrders] = useState<API.OrderDTO[]>([]);
     const pageSize = 10;
     const [visible, setVisible] = useState(false);
@@ -27,7 +30,6 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [orderId, setOrderId] = useState<string | null>(null);
     const [canRefundOrderIndex, setCanRefundOrderIndex] = useState<number | undefined>(undefined);
     const {Paragraph} = Typography;
-
     const [filterValues, setFilterValues] = useState<{
         tradeStatus?: | 'TRADE_CLOSED'
             | 'TRADE_SUCCESS'
@@ -36,8 +38,8 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             | 'REFUNDED'
             | 'REFUNDING';
         gmtCreate?: string;
-        type?: string;
-    }>({});
+        orderId?: string;
+    }>({orderId: initialOrderId});
 
     useEffect(() => {
         fetchData(currentPage, true);
@@ -85,20 +87,27 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         let param = {
             maxResults: pageSize,
             nextToken: nextTokens[currentPage - 1],
-            serviceInstanceId: props.serviceInstanceId,
         } as API.ListOrdersParam;
-        if (filterValues.tradeStatus != undefined) {
-            param.tradeStatus = filterValues.tradeStatus;
+        if (props.serviceInstanceId) {
+            param.serviceInstanceId = props.serviceInstanceId;
         }
 
+        if (filterValues.tradeStatus != undefined) {
+            param.tradeStatus = [filterValues.tradeStatus];
+        }
+        console.log(filterValues);
+        if (filterValues.orderId != null) {
+            param.orderId = filterValues.orderId;
+            console.log(filterValues);
+        }
         if (filterValues.gmtCreate != null) {
-            param.startTime = moment(filterValues.gmtCreate).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            param.startTime = moment(filterValues.gmtCreate).utc().format(TIME_FORMAT);
             const currentTime = dayjs();
-            param.endTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+            param.endTime = currentTime.utc().format(TIME_FORMAT);
         } else {
             const currentTime = dayjs();
-            const utcTime = currentTime.utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-            param.startTime = currentTime.utc().subtract(1, 'year').format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const utcTime = currentTime.utc().format(TIME_FORMAT);
+            param.startTime = currentTime.utc().subtract(1, 'year').format(TIME_FORMAT);
             param.endTime = utcTime;
         }
 
@@ -134,9 +143,9 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
 
         }
     };
-    const columns = OrderColumns.concat([
+    const columns = props.serviceInstanceId ? OrderColumns.concat([
         {
-            title: '',
+            title: '操作',
             key: 'action',
             sorter: false,
             search: false,
@@ -145,25 +154,26 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 if (canRefundOrderIndex == index
                 ) {
                     const refundButton = (
-                        <Button type="primary" onClick={() => handleButtonClick(record)}>
+                        <div className={styles.refundButton} onClick={() => handleButtonClick(record)}>
                             退款
-                        </Button>
+                        </div>
                     );
 
                     const refundModal = (
-                        <Modal open={visible} onCancel={handleModalClose} footer={null}>
-                            <ProCard title="退款金额">
-                                <Paragraph>您当前订单可退金额为：<span
-                                    style={{color: "red"}}>{refundAmount}</span></Paragraph>
-                                <div style={{marginTop: 16, textAlign: 'right'}}>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
-                                            onClick={handleConfirmRefund}>
-                                        退款
-                                    </Button>
-                                    <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
-                                            onClick={handleModalClose}>取消</Button>
-                                </div>
-                            </ProCard>
+                        <Modal title={<div>
+                            <ExclamationCircleOutlined style={{color: '#faad14', marginRight: 8}}/>
+                            确定要进行退款吗？
+                        </div>} open={visible} onCancel={handleModalClose} footer={null}>
+                            <Paragraph style={{marginLeft: '24px'}}>您当前订单可退金额为：<span
+                                style={{color: "red"}}>¥ {refundAmount}</span></Paragraph>
+                            <div style={{marginTop: 16, textAlign: 'right'}}>
+
+                                <Button onClick={handleModalClose}>取消</Button>
+                                <Button type="primary"
+                                        onClick={handleConfirmRefund}>
+                                    确认退款
+                                </Button>
+                            </div>
                         </Modal>
                     );
                     return (
@@ -176,7 +186,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 return null;
             },
         },
-    ]);
+    ]) : OrderColumns;
     return (
         <PageContainer title={props.serviceInstanceId}>
             <ProTable
@@ -184,6 +194,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                     setFilterValues(values);
                     setShouldFetchData(true);
                 }}
+                headerTitle={'服务实例订单列表'}
                 options={{
                     search: false,
                     density: false,
@@ -197,25 +208,14 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 search={{
                     labelWidth: 'auto',
                     defaultCollapsed: false,
-                    layout: 'vertical',
-                    optionRender: ({searchText, resetText}, {form}) => [
-                        <Button
-                            type="primary"
-                            key="search"
-                            onClick={() => {
-                                form?.submit();
-                            }}
-                        >
-                            {searchText}
-                        </Button>,
-                        <Button
-                            key="reset"
-                            onClick={() => {
-                                form?.resetFields();
-                            }}
-                        >
-                            {resetText}
-                        </Button>,
+                    layout: 'horizontal',
+                    span: 6,
+                    optionRender: (searchConfig, formProps, dom) => [
+                        <div style={{display: 'flex', gap: '8px', marginBottom: '24px', marginRight: '+220px'}}>
+                            <div>{dom[0]}</div>
+                            <div>{dom[1]}</div>
+                            {/* 重置按钮 */}
+                        </div>
                     ],
                 }}
                 columns={columns} dataSource={orders} rowKey="key" pagination={false}/>

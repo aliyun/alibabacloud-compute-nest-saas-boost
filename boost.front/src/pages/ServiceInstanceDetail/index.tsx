@@ -18,8 +18,9 @@ import {Tabs} from 'antd';
 import ServiceInstanceContent from "@/pages/ServiceInstanceContent";
 import ServiceInstanceMonitor from "@/pages/ServiceInstanceMonitor";
 import {Index} from "@/pages/ServiceInstanceOrder";
-import {useParams} from "react-router";
+import {useNavigate, useParams} from 'react-router-dom';
 import {CallSource} from "@/constants";
+import {getHashSearchParams} from "@/util/urlUtil";
 
 interface TabItem {
     key: string;
@@ -28,42 +29,57 @@ interface TabItem {
 }
 
 const ServiceInstanceDetail: React.FC = () => {
-    const {id} = useParams<{ id: string }>();
-    const {status} = useParams<{ status: string }>();
-    // 假设这是父组件的状态和 setState 函数
-    const [source, setSource] = useState<string | undefined>(undefined);
-
-    // 回调函数，用于从子组件获取 source 数据
-
+    const navigate = useNavigate();
+    const { id, status } = useParams<{ id: string; status: string }>();
+    const searchParams = getHashSearchParams();
+    console.log(searchParams);
+    const initialTabKey = searchParams.get('tab') || 'description'; // 如果 URL 没有 'tab' 参数，则默认为 'description'
+    const[source, setSource] = useState<string | null>();
+    console.log(initialTabKey);
+    const [activeTabKey, setActiveTabKey] = useState<string>(initialTabKey);
     const [items, setItems] = useState<TabItem[]>([]);
+    useEffect(()=>{
+        let source : string | null = searchParams.get('source')!=null?searchParams.get('source'):"Supplier";
+        setSource(source);
+    }, [])
+    useEffect(() => {
+        // 当 source 状态更新时，根据条件动态添加订单 Tab
+        if (source !== undefined) {
+            const newItems = [
+                {
+                    key: 'description',
+                    label: '概览',
+                    children: <ServiceInstanceContent serviceInstanceId={id} status={status} />,
+                },
+                {
+                    key: 'monitor',
+                    label: '监控',
+                    children: <ServiceInstanceMonitor serviceInstanceId={id} />,
+                },
+                // 根据 source 条件动态添加订单 Tab
+                ...(source !== CallSource[CallSource.Market]) ? [{
+                    key: 'serviceInstanceOrders',
+                    label: '订单',
+                    children: <Index serviceInstanceId={id} status={status} />,
+                }] : [],
+            ];
+            setItems(newItems);
+        }
+    }, [source, id, status]);
 
     useEffect(() => {
-        let newItems = [{
-            key: 'description',
-            label: `概览`,
-            children: <ServiceInstanceContent serviceInstanceId={id} status={status} onSourceChange={setSource}/>,
-        },
-            {
-                key: 'monitor',
-                label: `监控`,
-                children: <ServiceInstanceMonitor serviceInstanceId={id}/>,
-            }];
-        const setOrdersTab = async () => {
-            console.log(source);
-            // 如果 source 等于 'Market'，则添加订单标签
-            if (source != undefined && source != CallSource[CallSource.Market]) {
-                newItems.push({
-                    key: 'serviceInstanceOrders',
-                    label: `订单`,
-                    children: <Index serviceInstanceId={id} status={status}/>,
-                });
-            }
-            setItems(newItems);
-        };
-        setOrdersTab();
-    }, [source]);
+        const tab = searchParams.get('tab');
+        if (tab && items.some(item => item.key === tab)) {
+            setActiveTabKey(tab);
+        }
+    }, [items, searchParams]);
 
-    return <Tabs defaultActiveKey="1" items={items}/>
-}
+    const onTabChange = (key: string) => {
+        setActiveTabKey(key); // 更新活动 Tab Key 状态
+        navigate(`/serviceInstance/${id}?tab=${key}`);
+    };
+
+    return <Tabs activeKey={activeTabKey} items={items} onChange={onTabChange} />;
+};
 
 export default ServiceInstanceDetail;

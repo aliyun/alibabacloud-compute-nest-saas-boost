@@ -14,12 +14,12 @@
 */
 
 import React, {useState, useEffect} from 'react';
-import ChartItem from "@/pages/ServiceInstanceMonitor/components/chartItem";
 import {listMetricMetaDatas, listMetrics} from "@/services/backend/cloudMonitor";
 import TimeItem from "@/pages/ServiceInstanceMonitor/components/timeItem";
 import dayjs, {Dayjs} from "dayjs";
 import {RangePickerProps} from "antd/es/date-picker";
 import {Space} from 'antd';
+import ChartItem from "@/pages/ServiceInstanceMonitor/components/chartItem";
 
 interface ServiceInstanceMonitorProps {
     serviceInstanceId?: string;

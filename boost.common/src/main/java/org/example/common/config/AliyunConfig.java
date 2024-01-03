@@ -51,13 +51,21 @@ public class AliyunConfig {
     @Value("${ecs-role-name:null}")
     private String roleName;
 
+    @Value("${boost.module}")
+    private String module;
+
+    private static final String BOOST_SERVERLESS_MODULE = "serverless";
+
     @PostConstruct
     public void init() throws CredentialException {
         if (DeployType.ECS.getDeployType().equals(deployType)) {
-            Config config = new Config();
-            config.type = ECS_CONFIG_TYPE;
-            config.roleName = roleName;
-            this.client = new Client(config);
+            if (!BOOST_SERVERLESS_MODULE.equals(module)) {
+                Config config = new Config();
+                config.type = ECS_CONFIG_TYPE;
+                config.roleName = roleName;
+                this.client = new Client(config);
+            }
+
         } else {
             Config credConf = new Config();
             credConf.type = OIDC_CONFIG_TYPE;

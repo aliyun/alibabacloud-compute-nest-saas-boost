@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-import styles from "@/pages/ServiceInstanceMonitor/headTitle.module.css";
+import styles from "@/pages/ServiceInstanceMonitor/components/css/monitor.module.css";
 import React from "react";
 import ChartData from "@/pages/ServiceInstanceMonitor/components/chartLine";
 

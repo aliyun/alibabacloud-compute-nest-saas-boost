@@ -13,7 +13,8 @@
 *limitations under the License.
 */
 
-import {ParameterTypeInterfaceArray, Specification} from "@/pages/ServiceInstanceList/components/interface";
+
+import {ParameterTypeInterfaceArray, Specification} from "@/pages/Service/component/interface";
 
 export const CustomParameters: ParameterTypeInterfaceArray = {
 

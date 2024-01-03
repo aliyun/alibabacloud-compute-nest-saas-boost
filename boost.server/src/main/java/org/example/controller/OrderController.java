@@ -73,6 +73,6 @@ public class OrderController {
     @RequestMapping(value = "/refundOrder", method = RequestMethod.POST)
     public BaseResult<Double> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                            @RequestBody RefundOrderParam param) {
-        return orderService.refundOrder(userInfoModel, param);
+        return orderService.refundOrders(userInfoModel, param);
     }
 }

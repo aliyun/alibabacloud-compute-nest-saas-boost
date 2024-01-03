@@ -13,11 +13,10 @@
 *limitations under the License.
 */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {DatePicker, Space} from 'antd';
-import type {DatePickerProps, RangePickerProps} from 'antd/es/date-picker';
-import dayjs, {Dayjs} from "dayjs";
-import {index} from "@umijs/utils/compiled/cheerio/lib/api/traversing";
+import type {RangePickerProps} from 'antd/es/date-picker';
+import {Dayjs} from "dayjs";
 
 const {RangePicker} = DatePicker;
 
@@ -30,10 +29,6 @@ interface TimeItemProps {
         dateString: [string, string] | string,
     ) => void;
 }
-
-const onOk = (value: RangePickerProps['value']) => {
-    console.log('onOk: ', value);
-};
 
 const TimeItem: React.FC<TimeItemProps> = (props) => {
 

@@ -145,15 +145,17 @@ declare namespace API {
     endTime?: string;
     maxResults?: number;
     nextToken?: string;
+    orderId?: string;
     serviceInstanceId?: string;
     startTime?: string;
-    tradeStatus?:
+    tradeStatus?: (
       | 'TRADE_CLOSED'
       | 'TRADE_SUCCESS'
       | 'WAIT_BUYER_PAY'
       | 'TRADE_FINISHED'
       | 'REFUNDED'
-      | 'REFUNDING';
+      | 'REFUNDING'
+    )[];
   };
 
   type ListResultGetServiceTemplateParameterConstraintsResponseBodyParameterConstraints_ = {
@@ -225,6 +227,7 @@ declare namespace API {
     receiptAmount?: number;
     refundAmount?: number;
     refundDate?: string;
+    refundDetail?: string;
     refundId?: string;
     serviceInstanceId?: string;
     specificationName?: string;
@@ -248,6 +251,7 @@ declare namespace API {
 
   type ServiceInstanceModel = {
     createTime?: string;
+    orderId?: string;
     outputs?: string;
     parameters?: string;
     progress?: number;

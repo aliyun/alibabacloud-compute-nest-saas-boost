@@ -1,0 +1,16 @@
+.refundButton {
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #1677ff;
+  line-height: 22px;
+}
+
+.refundMessage {
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.88);
+  text-align: justify;
+  line-height: 22px;
+}

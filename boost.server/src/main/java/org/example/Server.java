@@ -22,8 +22,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableCaching
-@EnableScheduling
 @SpringBootApplication
+@EnableScheduling
 public class Server {
     public static void main(String[] args) {
         SpringApplication.run(Server.class, args);

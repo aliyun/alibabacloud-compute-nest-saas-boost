@@ -36,7 +36,7 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value can't be null."),
 
-    CURRENT_ORDER_CANT_BE_DELETED(400, "Current_Order_Cant_Be_Deleted", "The Current Order Cant be deleted.");
+    CURRENT_ORDER_CANT_BE_REFUNDED(400, "Current_Order_Cant_Be_Refunded", "The Current Order Cant be refunded.");
 
     private final int statusCode;
 
