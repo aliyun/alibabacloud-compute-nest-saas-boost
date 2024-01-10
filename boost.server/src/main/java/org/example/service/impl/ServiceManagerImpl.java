@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
+import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.helper.WalletHelper;
 import org.example.common.model.LicenseMetadataModel;
 import org.example.common.model.ServiceMetadataModel;
@@ -89,6 +90,9 @@ public class ServiceManagerImpl implements ServiceManager {
             String licenseMetadata = responseBody.getLicenseMetadata();
             LicenseMetadataModel licenseMetadataModel = JsonUtil.parseObjectUpperCamelCase(licenseMetadata, LicenseMetadataModel.class);
             deployMetadataRootNode = mapper.readTree(deployMetadata);
+            if (deployMetadataRootNode == null || deployMetadataRootNode.get(TEMPLATE_CONFIGS) == null) {
+                return BaseResult.fail(ErrorInfo.SPECIFICATION_NOT_EXIST);
+            }
             JsonNode templateConfigJsonNode = deployMetadataRootNode.get(TEMPLATE_CONFIGS).get(0);
             String templateName = templateConfigJsonNode.get(TEMPLATE_NAME).asText();
             String url = templateConfigJsonNode.get(TEMPLATE_URL).asText();

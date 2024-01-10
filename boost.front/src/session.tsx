@@ -13,9 +13,7 @@
 *limitations under the License.
 */
 
-import {getAuthToken} from "@/services/backend/user";
-
-import clientConfig from "./config";
+import {getAuthConfiguration, getAuthToken} from "@/services/backend/user";
 import {randomStateUtil} from "@/util/randomStateUtil";
 import {LOGIN_CONSTANTS} from "@/constants";
 
@@ -95,7 +93,10 @@ export async function redirectLogin() {
       window.location.href = filterInvalidPaths(url);
     }
   } else {
-    const {  redirectUriPrefix, clientId} = clientConfig;
+    // const {  redirectUriPrefix, clientId} = clientConfig;
+    const authConfiguration : API.BaseResultAuthConfigurationModel_ = await getAuthConfiguration()
+    let redirectUriPrefix = authConfiguration.data?.authUrl;
+    let clientId = authConfiguration.data?.clientId;
     let href = window.location.href;
     href = filterInvalidPaths(href);
     let redirectUrl = new URL(href);

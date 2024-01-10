@@ -32,7 +32,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Service
@@ -59,12 +61,14 @@ public class OrderFcServiceImpl implements OrderFcService {
     }
 
     @Override
-    public void closeExpiredOrders() {
-        OtsFilter queryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.WAIT_BUYER_PAY.name());
-        Long startTime = DateUtil.getMinutesAgoLocalDateTimeMillis(30);
-        Long endTime = DateUtil.getMinutesAgoLocalDateTimeMillis(15);
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
-        orderProcessor.doWhileLoop(Collections.singletonList(queryFilter), Collections.singletonList(rangeFilter), this::closeOrder);
+    public Future<?> closeExpiredOrders() {
+        return CompletableFuture.runAsync(() -> {
+            OtsFilter queryFilter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.WAIT_BUYER_PAY.name());
+            Long startTime = DateUtil.getMinutesAgoLocalDateTimeMillis(30);
+            Long endTime = DateUtil.getMinutesAgoLocalDateTimeMillis(15);
+            OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
+            orderProcessor.doWhileLoop(Collections.singletonList(queryFilter), Collections.singletonList(rangeFilter), this::closeOrder);
+        }, scheduledThreadPool);
     }
 
     private void closeOrder(OrderDTO order) {
@@ -96,21 +100,25 @@ public class OrderFcServiceImpl implements OrderFcService {
     }
 
     @Override
-    public void refundOrders() {
-        OtsFilter filter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.REFUNDING.name());
-        Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
-        Long startTime = DateUtil.getOneYearAgoLocalDateTimeMillis();
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
-        orderProcessor.doWhileLoopOfThreadTask(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::createRefundOrderTask);
+    public Future<?> refundOrders() {
+        return CompletableFuture.runAsync(() -> {
+            OtsFilter filter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.REFUNDING.name());
+            Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
+            Long startTime = DateUtil.getOneYearAgoLocalDateTimeMillis();
+            OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.GMT_CREATE_LONG, startTime, endTime);
+            orderProcessor.doWhileLoopOfThreadTask(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::createRefundOrderTask);
+        }, scheduledThreadPool);
     }
 
     @Override
-    public void closeFinishedOrders() {
-        OtsFilter filter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS.name());
-        Long startTime = 0L;
-        Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
-        OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLING_END_DATE_MILLIS, startTime, endTime);
-        orderProcessor.doWhileLoop(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::closeOrder);
+    public Future<?> closeFinishedOrders() {
+        return CompletableFuture.runAsync(() -> {
+            OtsFilter filter = OtsFilter.createMatchFilter(OrderOtsConstant.TRADE_STATUS, TradeStatus.TRADE_SUCCESS.name());
+            Long startTime = 0L;
+            Long endTime = DateUtil.getCurrentLocalDateTimeMillis();
+            OtsFilter rangeFilter = OtsFilter.createRangeFilter(OrderOtsConstant.BILLING_END_DATE_MILLIS, startTime, endTime);
+            orderProcessor.doWhileLoop(Collections.singletonList(filter), Collections.singletonList(rangeFilter), this::closeOrder);
+        }, scheduledThreadPool);
     }
 }
 

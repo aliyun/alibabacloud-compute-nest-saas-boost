@@ -79,4 +79,12 @@ public interface OtsClient {
      * @throws Exception Common exception
      */
     void createClient(String accessKeyId, String accessKeySecret, String securityToken);
+
+    /**
+     * Create ots client by ak;
+     * @param accessKeyId accessKeyId
+     * @param accessKeySecret accessKeySecret
+     * @throws Exception Common exception
+     */
+    void createClient(String accessKeyId, String accessKeySecret) throws Exception;
 }

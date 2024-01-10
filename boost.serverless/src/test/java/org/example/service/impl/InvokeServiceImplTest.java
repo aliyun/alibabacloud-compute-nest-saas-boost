@@ -15,7 +15,7 @@
 
 package org.example.service.impl;
 
-import org.example.service.AdapterManagerFcService;
+import org.example.common.adapter.AdapterManager;
 import org.example.service.OrderFcService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ class InvokeServiceImplTest {
     private OrderFcService orderFcService;
 
     @Mock
-    private AdapterManagerFcService adapterManagerFcService;
+    private AdapterManager adapterManagerFcService;
 
     @InjectMocks
     private InvokeServiceImpl invokeServiceImpl;

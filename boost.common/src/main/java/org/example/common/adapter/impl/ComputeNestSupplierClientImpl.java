@@ -112,6 +112,13 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
     }
 
     @Override
+    public void createClient(String accessKeyId, String accessKeySecret) throws Exception {
+        Config config = new Config().setAccessKeyId(accessKeyId).setAccessKeySecret(accessKeySecret);
+        config.endpoint = SERVICE_ENDPOINT;
+        this.client = new Client(config);
+    }
+
+    @Override
     public GetServiceResponse getService(GetServiceRequest request) {
         RuntimeOptions runtimeOptions = new RuntimeOptions();
         try {

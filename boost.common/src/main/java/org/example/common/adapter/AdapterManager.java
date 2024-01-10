@@ -13,11 +13,14 @@
 *limitations under the License.
 */
 
-package org.example.service;
+package org.example.common.adapter;
+
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Map;
 
-public interface AdapterManagerFcService {
+public interface AdapterManager extends ApplicationRunner {
 
     /**
      * Creating and injecting the required client for the serverless during method runtime.
@@ -25,4 +28,11 @@ public interface AdapterManagerFcService {
      * @throws Exception create exception.
      */
     void clientInjection(Map<String, String> header) throws Exception;
+
+    /**
+     * Client ak injection.
+     * @throws Exception update exception.
+     */
+    @Scheduled(fixedDelay = 3000000)
+    void updateClient() throws Exception;
 }

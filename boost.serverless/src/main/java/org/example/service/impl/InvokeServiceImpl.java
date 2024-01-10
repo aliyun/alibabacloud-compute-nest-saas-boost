@@ -18,8 +18,8 @@ package org.example.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.adapter.AdapterManager;
 import org.example.common.constant.PayloadType;
-import org.example.service.AdapterManagerFcService;
 import org.example.service.InvokeService;
 import org.example.service.OrderFcService;
 import org.springframework.stereotype.Service;
@@ -35,17 +35,21 @@ public class InvokeServiceImpl implements InvokeService {
     private OrderFcService orderFcService;
 
     @Resource
-    private AdapterManagerFcService adapterManagerFcService;
+    private AdapterManager adapterManager;
 
     @Override
     public String invoke(Map<String, String> header, String payload) throws Exception {
-        adapterManagerFcService.clientInjection(header);
+        adapterManager.clientInjection(header);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> map = null;
         try {
             map = objectMapper.readValue(payload, Map.class);
         } catch (JsonProcessingException e) {
             log.error("transform error.", e);
+        }
+        if (map == null) {
+            log.error("payload is null.");
+            return "error";
         }
         PayloadType parsedPayload = PayloadType.valueOf(String.valueOf(map.get("payload")));
         switch (parsedPayload) {
@@ -54,6 +58,9 @@ public class InvokeServiceImpl implements InvokeService {
                 break;
             case REFUND_ORDERS:
                 orderFcService.refundOrders();
+                break;
+            case CLOSE_FINISHED_ORDERS:
+                orderFcService.closeFinishedOrders();
                 break;
             default:
                 break;

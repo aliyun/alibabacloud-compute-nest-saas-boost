@@ -16,10 +16,12 @@
 package org.example.service;
 
 import org.example.common.BaseResult;
+import org.example.common.model.AuthConfigurationModel;
 import org.example.common.model.AuthTokenModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import springfox.documentation.annotations.ApiIgnore;
 
 public interface LoginService {
 
@@ -36,4 +38,11 @@ public interface LoginService {
      * @return {@link BaseResult<AuthTokenModel>} idToken and refreshToken
      */
     BaseResult<AuthTokenModel> getAuthToken(GetAuthTokenParam getAuthTokenParam);
+
+    /**
+     * Get OAuth configuration
+     * @param userInfoModel idToken
+     * @return {@link BaseResult<AuthConfigurationModel>} client_id, auth url
+     */
+    BaseResult<AuthConfigurationModel> getAuthConfiguration(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel);
 }

@@ -90,6 +90,9 @@ public interface ComputeNestSupplierClient {
      */
     void createClient(String accessKeyId, String accessKeySecret, String securityToken) throws Exception;
 
+
+    void createClient(String accessKeyId, String accessKeySecret) throws Exception;
+
     /**
      * Get compute nest service info
      * @param request request
@@ -100,7 +103,7 @@ public interface ComputeNestSupplierClient {
     /**
      * Get ROS service template parameter constraints.
      *
-     * @param request
+     * @param request request
      * @return {@link GetServiceTemplateParameterConstraintsResponse}
      */
     GetServiceTemplateParameterConstraintsResponse getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsRequest request);
@@ -108,7 +111,7 @@ public interface ComputeNestSupplierClient {
     /**
      * Update service instance attribute. e.g endTime.
      *
-     * @param request
+     * @param request request
      * @return {@link GetServiceTemplateParameterConstraintsResponse}
      */
     UpdateServiceInstanceAttributeResponse updateServiceInstanceAttribute(UpdateServiceInstanceAttributeRequest request);

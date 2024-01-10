@@ -51,6 +51,14 @@ public interface OosClient {
      * @throws Exception Common exception
      */
     void createClient(String accessKeyId, String accessKeySecret, String securityToken) throws Exception;
+
+    /**
+     * Create oos client by ak;
+     * @param accessKeyId accessKeyId
+     * @param accessKeySecret accessKeySecret
+     * @throws Exception Common exception
+     */
+    void createClient(String accessKeyId, String accessKeySecret) throws Exception;
 }
 
 

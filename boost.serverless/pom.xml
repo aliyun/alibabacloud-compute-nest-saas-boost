@@ -82,6 +82,21 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>2.3.0</version>
+                <configuration>
+                    <to>
+                        <image>boost-serverless11:1.0.0-snapshot</image>
+                    </to>
+                    <container>
+                        <ports>
+                            <port>9000</port>
+                        </ports>
+                    </container>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
