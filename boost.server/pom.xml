@@ -82,7 +82,7 @@
                 <version>2.3.0</version>
                 <configuration>
                     <to>
-                        <image>boost-server19:1.0.0-snapshot</image>
+                        <image>server:1.0.0</image>
                     </to>
                     <container>
                         <ports>

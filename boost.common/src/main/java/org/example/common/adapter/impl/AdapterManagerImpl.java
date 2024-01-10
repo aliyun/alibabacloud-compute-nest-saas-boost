@@ -111,8 +111,6 @@ public class AdapterManagerImpl implements AdapterManager {
     @Scheduled(fixedDelay = 3000000)
     @Override
     public void updateClient() throws Exception {
-        if (DeployType.ECS.getDeployType().equals(deployType)) {
-            clientInjection(null);
-        }
+        clientInjection(null);
     }
 }
