@@ -34,7 +34,6 @@ public class CloudMonitorClientImpl implements CloudMonitorClient {
 
     private Client cloudMonitorClient;
 
-
     @Override
     public DescribeMetricListResponse getMetricList(DescribeMetricListRequest request) throws Exception {
         RuntimeOptions runtime = new RuntimeOptions();
@@ -44,6 +43,13 @@ public class CloudMonitorClientImpl implements CloudMonitorClient {
     @Override
     public void createClient(AliyunConfig aliyunConfig) throws Exception {
         Config config = new Config().setCredential(aliyunConfig.getClient());
+        config.endpoint = SERVICE_ENDPOINT;
+        this.cloudMonitorClient = new Client(config);
+    }
+
+    @Override
+    public void createClient(String accessKeyId, String accessKeySecret) throws Exception {
+        Config config = new Config().setAccessKeyId(accessKeyId).setAccessKeySecret(accessKeySecret);
         config.endpoint = SERVICE_ENDPOINT;
         this.cloudMonitorClient = new Client(config);
     }

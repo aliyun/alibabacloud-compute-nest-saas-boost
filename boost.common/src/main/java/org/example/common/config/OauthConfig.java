@@ -28,7 +28,11 @@ public class OauthConfig {
 
     @Getter
     @Value("${oauth.auth-server.url}")
-    private String authServerUrl;
+    private String tokenUrl;
+
+    @Getter
+    @Value("${oauth.auth-code.url}")
+    private String authUrl;
 
     @Value("${stack-name}")
     private String stackName;

@@ -109,4 +109,11 @@ public class OosClientImpl implements OosClient {
         this.client = new Client(new Config().setAccessKeyId(accessKeyId)
                 .setAccessKeySecret(accessKeySecret).setSecurityToken(securityToken).setEndpoint(String.format("oos.%s.aliyuncs.com", regionId)));
     }
+
+    @Override
+    public void createClient(String accessKeyId, String accessKeySecret) throws Exception {
+        Config config = new Config().setAccessKeyId(accessKeyId).setAccessKeySecret(accessKeySecret);
+        config.endpoint = String.format("oos.%s.aliyuncs.com", regionId);
+        this.client = new Client(config);
+    }
 }

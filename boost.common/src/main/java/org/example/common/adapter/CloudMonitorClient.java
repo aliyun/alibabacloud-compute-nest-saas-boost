@@ -37,7 +37,15 @@ public interface CloudMonitorClient {
     void createClient(AliyunConfig aliyunConfig) throws Exception;
 
     /**
-     * Create cloud monitor client by fc header;
+     * Create cloud monitor client by ak
+     * @param accessKeyId accessKeyId
+     * @param accessKeySecret accessKeySecret
+     * @throws Exception Common exception
+     */
+    void createClient(String accessKeyId, String accessKeySecret) throws Exception;
+
+    /**
+     * Create cloud monitor client by fc header
      * @param accessKeyId accessKeyId
      * @param accessKeySecret accessKeySecret
      * @param securityToken securityToken

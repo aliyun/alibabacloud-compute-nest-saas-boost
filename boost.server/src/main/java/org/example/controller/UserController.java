@@ -20,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.example.common.APIParameterConvert;
 import org.example.common.BaseResult;
+import org.example.common.model.AuthConfigurationModel;
 import org.example.common.model.AuthTokenModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
@@ -55,4 +56,10 @@ public class UserController {
         return loginService.getUserInfo(userInfoModel);
     }
 
+    @ApiOperation(value = "获取认证配置", nickname = "getAuthConfiguration")
+    @RequestMapping(value = "/getAuthConfiguration", method = RequestMethod.GET)
+    @ResponseBody
+    public BaseResult<AuthConfigurationModel> getAuthConfiguration(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel) {
+        return loginService.getAuthConfiguration(userInfoModel);
+    }
 }

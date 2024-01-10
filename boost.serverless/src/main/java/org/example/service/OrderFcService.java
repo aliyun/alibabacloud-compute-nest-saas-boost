@@ -15,19 +15,24 @@
 
 package org.example.service;
 
+import java.util.concurrent.Future;
+
 public interface OrderFcService {
     /**
      * Batch scan table store orders and close timeout orders.
+     * @return {@link Future}
      */
-    void closeExpiredOrders();
+    Future<?> closeExpiredOrders();
 
     /**
      * Batch scan table store orders and refunds.
+     * @return {@link Future}
      */
-    void refundOrders();
+    Future<?> refundOrders();
 
     /**
      * Batch scan table store consumed orders and close.
+     * @return {@link Future}
      */
-    void closeFinishedOrders();
+    Future<?> closeFinishedOrders();
 }

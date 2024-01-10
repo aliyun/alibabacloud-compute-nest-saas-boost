@@ -1,4 +1,9 @@
 declare namespace API {
+  type AuthConfigurationModel = {
+    authUrl?: string;
+    clientId?: string;
+  };
+
   type AuthTokenModel = {
     /** expires_in */
     expires_in?: string;
@@ -6,6 +11,13 @@ declare namespace API {
     id_token?: string;
     /** refresh_token */
     refresh_token?: string;
+  };
+
+  type BaseResultAuthConfigurationModel_ = {
+    code?: string;
+    data?: AuthConfigurationModel;
+    message?: string;
+    requestId?: string;
   };
 
   type BaseResultAuthTokenModel_ = {
@@ -201,8 +213,8 @@ declare namespace API {
 
   type OrderDTO = {
     accountId?: number;
-    billingEndDateLong?: number;
-    billingStartDateLong?: number;
+    billingEndDateMillis?: number;
+    billingStartDateMillis?: number;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
@@ -253,6 +265,7 @@ declare namespace API {
     allowedRegions?: string;
     commodityCode?: string;
     parameterMetadata?: string;
+    retentionDays?: number;
     specifications?: string;
     templateName?: string;
   };

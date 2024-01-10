@@ -30,6 +30,7 @@ import com.alicloud.openservices.tablestore.model.UpdateRowRequest;
 import com.alicloud.openservices.tablestore.model.UpdateRowResponse;
 import com.alicloud.openservices.tablestore.model.search.SearchRequest;
 import com.alicloud.openservices.tablestore.model.search.SearchResponse;
+import com.aliyun.teaopenapi.models.Config;
 import org.example.common.adapter.OtsClient;
 import org.example.common.config.AliyunConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +81,13 @@ public class OtsClientImpl implements OtsClient {
     @Override
     public void createClient(String accessKeyId, String accessKeySecret, String securityToken) {
         this.syncClient = new SyncClient(getEntpoint(), accessKeyId, accessKeySecret, instanceName, securityToken);
+    }
+
+    @Override
+    public void createClient(String accessKeyId, String accessKeySecret) throws Exception {
+        Config config = new Config().setAccessKeyId(accessKeyId).setAccessKeySecret(accessKeySecret);
+        config.endpoint = String.format("oos.%s.aliyuncs.com", regionId);
+        this.syncClient = new SyncClient(getEntpoint(), accessKeyId, accessKeySecret, instanceName);
     }
 
     private String getEntpoint() {

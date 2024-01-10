@@ -30,7 +30,9 @@ public enum PayloadType {
     /**
      * Deletion of expired service instances.
      */
-    DELETE_SERVICE_INSTANCES("DeleteServiceInstances");
+    DELETE_SERVICE_INSTANCES("DeleteServiceInstances"),
+
+    CLOSE_FINISHED_ORDERS("CloseFinishedOrders");
 
     private final String type;
 

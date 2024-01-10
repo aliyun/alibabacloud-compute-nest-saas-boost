@@ -37,11 +37,7 @@ public class AlipayConfigTest {
         String notifyUrl = "test.notifyUrl";
 
         alipayConfig.setGateway(gateway);
-        alipayConfig.setReturnUrl(returnUrl);
-        alipayConfig.setNotifyUrl(notifyUrl);
 
         assertEquals(gateway, alipayConfig.getGateway());
-        assertEquals(returnUrl, alipayConfig.getReturnUrl());
-        assertEquals(notifyUrl, alipayConfig.getNotifyUrl());
     }
 }

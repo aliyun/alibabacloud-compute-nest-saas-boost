@@ -21,7 +21,6 @@ import org.example.common.handler.TokenAuthenticationInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -49,7 +48,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**");
         registry.addInterceptor(tokenAuthenticationInterceptor)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/getAuthToken");
+                .excludePathPatterns("/api/getAuthToken").excludePathPatterns("/api/getAuthConfiguration");
     }
 
     @Override
