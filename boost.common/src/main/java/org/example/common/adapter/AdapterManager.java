@@ -33,6 +33,6 @@ public interface AdapterManager extends ApplicationRunner {
      * Client ak injection.
      * @throws Exception update exception.
      */
-    @Scheduled(fixedDelay = 3000000)
+    @Scheduled(cron = "0 */30 * * * *",fixedDelay = 300000)
     void updateClient() throws Exception;
 }

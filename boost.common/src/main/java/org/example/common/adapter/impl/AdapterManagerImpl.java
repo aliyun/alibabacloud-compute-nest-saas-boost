@@ -82,9 +82,7 @@ public class AdapterManagerImpl implements AdapterManager {
             oosSecretParamConfig.init();
             otsClient.createClient(aliyunConfig);
             computeNestSupplierClient.createClient(aliyunConfig);
-            if (DeployType.K8S.getDeployType().equals(deployType)) {
-                cloudMonitorClient.createClient(aliyunConfig);
-            }
+            cloudMonitorClient.createClient(aliyunConfig);
         } else {
             String accessKeyId = header.get(Constants.FC_ACCESS_KEY_ID);
             String accessKeySecret = header.get(Constants.FC_ACCESS_KEY_SECRET);
@@ -108,9 +106,14 @@ public class AdapterManagerImpl implements AdapterManager {
         clientInjection(null);
     }
 
-    @Scheduled(fixedDelay = 3000000)
+    @Scheduled(fixedRate = 30 * 60 * 1000, initialDelay = 3000000)
     @Override
     public void updateClient() throws Exception {
+        if (DeployType.ECS.getDeployType().equals(deployType) && BOOST_SERVERLESS_MODULE.equals(module)) {
+            log.info("Skip client injection for ECS Serverless.");
+            return;
+        }
+        aliyunConfig.init();
         clientInjection(null);
     }
 }
