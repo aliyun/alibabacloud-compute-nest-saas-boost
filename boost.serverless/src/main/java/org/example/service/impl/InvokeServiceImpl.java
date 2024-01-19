@@ -37,6 +37,8 @@ public class InvokeServiceImpl implements InvokeService {
     @Resource
     private AdapterManager adapterManager;
 
+    private static final String PAYLOAD_TYPE = "payload";
+
     @Override
     public String invoke(Map<String, String> header, String payload) throws Exception {
         adapterManager.clientInjection(header);
@@ -51,7 +53,7 @@ public class InvokeServiceImpl implements InvokeService {
             log.error("payload is null.");
             return "error";
         }
-        PayloadType parsedPayload = PayloadType.valueOf(String.valueOf(map.get("payload")));
+        PayloadType parsedPayload = PayloadType.valueOf(String.valueOf(map.get(PAYLOAD_TYPE)));
         switch (parsedPayload) {
             case CLOSE_EXPIRED_ORDERS:
                 orderFcService.closeExpiredOrders();

@@ -18,6 +18,8 @@ package org.example.common.param;
 import lombok.Data;
 import org.example.common.constant.TradeStatus;
 
+import java.util.List;
+
 @Data
 public class ListOrdersParam {
 
@@ -27,9 +29,11 @@ public class ListOrdersParam {
 
     private String endTime;
 
-    private TradeStatus tradeStatus;
+    private List<TradeStatus> tradeStatus;
 
     private Integer maxResults;
 
     private String nextToken;
+
+    private String orderId;
 }

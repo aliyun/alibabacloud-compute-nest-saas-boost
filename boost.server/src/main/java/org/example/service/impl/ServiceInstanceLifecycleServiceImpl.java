@@ -41,6 +41,7 @@ import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.CallSource;
 import org.example.common.constant.ComputeNestConstants;
+import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
@@ -48,20 +49,24 @@ import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceInstanceParam;
+import org.example.common.param.ListOrdersParam;
 import org.example.common.param.ListServiceInstancesParam;
 import org.example.common.param.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.common.utils.UuidUtil;
+import org.example.service.OrderService;
 import org.example.service.ServiceInstanceLifecycleService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.example.common.constant.ComputeNestConstants.DEFAULT_REGION_ID;
@@ -81,6 +86,9 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
     @Value("${service.id}")
     private String serviceId;
 
+    @Resource
+    private OrderService orderService;
+
     private static final String PREFIX = "saas-boost";
 
     public ServiceInstanceLifecycleServiceImpl(ComputeNestSupplierClient computeNestSupplierClient, ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper) {
@@ -97,7 +105,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         request.setFilter(buildFilterForListServiceInstance(listServiceInstancesParam, userInfoModel));
         try {
             ListServiceInstancesResponse response = computeNestSupplierClient.listServiceInstances(request);
-            return convertFromListServiceInstancesResponse(response);
+            return convertFromListServiceInstancesResponse(userInfoModel, response);
         } catch (TeaException e) {
             throw new BizException(e.getStatusCode(), e.getCode(), OpenAPIErrorMessageUtil.getErrorMessageFromComputeNestError(e.getMessage()));
         } catch (Exception e) {
@@ -220,13 +228,27 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
                 .setShowDeleted(false).setTag(null);
     }
 
-    private ListResult<ServiceInstanceModel> convertFromListServiceInstancesResponse(ListServiceInstancesResponse response) {
+    private ListResult<ServiceInstanceModel> convertFromListServiceInstancesResponse(UserInfoModel userInfoModel, ListServiceInstancesResponse response) {
         ListServiceInstancesResponseBody responseBody = response.getBody();
         List<ListServiceInstancesResponseBodyServiceInstances> listInstances = responseBody.getServiceInstances();
         List<ServiceInstanceModel> serviceInstanceModelList = listInstances.stream()
                 .map(instanceResponseBody -> {
                     ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
                     BeanUtils.copyProperties(instanceResponseBody, serviceInstanceModel);
+                    if (instanceResponseBody.getSource() != null) {
+                        serviceInstanceModel.setSource(CallSource.valueOf(instanceResponseBody.getSource()));
+                    }
+                    ListOrdersParam listOrdersParam = new ListOrdersParam();
+                    listOrdersParam.setServiceInstanceId(instanceResponseBody.getServiceInstanceId());
+                    ListResult<OrderDTO> orderResult = orderService.listOrders(userInfoModel, listOrdersParam);
+                    listOrdersParam.setMaxResults(1);
+                    String latestOrderId = Optional.ofNullable(orderResult)
+                            .map(ListResult::getData)
+                            .filter(data -> !data.isEmpty())
+                            .map(data -> data.get(0))
+                            .map(OrderDTO::getOrderId)
+                            .orElse(null);
+                    serviceInstanceModel.setOrderId(latestOrderId);
                     ServiceModel serviceModel = buildServiceForList(instanceResponseBody);
                     serviceInstanceModel.setServiceModel(serviceModel);
                     return serviceInstanceModel;

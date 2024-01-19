@@ -49,4 +49,6 @@ public class ServiceInstanceModel {
     private String resources;
 
     private CallSource source;
+
+    private String orderId;
 }

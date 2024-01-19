@@ -1,12 +1,9 @@
-import {
-    ParameterTypeInterface,
-    Specification
-} from "@/pages/ServiceInstanceList/components/interface/ServiceMetadataInterface";
 import {ProFormDependency, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import {getServiceTemplateParameterConstraints} from "@/services/backend/serviceManager";
 import React, {useContext} from "react";
 import {RuleObject} from "antd/lib/form";
-
+import {ParameterTypeInterface, Specification} from "@/pages/Service/component/interface";
+import styles from "../global.less"
 
 export function createFormItem(key: string, value: ParameterTypeInterface, templateName: string | undefined, specifications: Specification[], specificationParameterList: string[], form: ReturnType<typeof useContext>,
 ) {
@@ -169,6 +166,7 @@ function createStringFormItem(defaultValue: any, label: string | undefined, key:
                 name={key}
                 valueEnum={valueEnum}
                 rules={[{required: true}]}
+                className={styles.inputConfig}
             />
         );
     }

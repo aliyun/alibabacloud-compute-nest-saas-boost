@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "saas-boost.fullname" . }}
+  namespace: {{ include "saas-boost.fullname" . }}
+spec:
+  rules:
+    - host: {{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: {{ include "saas-boost.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }} 
+            pathType: ImplementationSpecific

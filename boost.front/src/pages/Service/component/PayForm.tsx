@@ -14,7 +14,7 @@
 */
 
 import React, {useEffect, useRef, useState} from 'react';
-import {CreateServiceInstanceForm} from "@/pages/ServiceInstanceList/components/CreateServiceInstanceForm";
+import {CreateServiceInstanceForm} from "@/pages/Service/component/CreateServiceInstanceForm";
 import {ModalForm, ProForm, ProFormInstance, ProFormRadio, ProFormSelect} from "@ant-design/pro-form";
 import {handleAlipaySubmit} from "@/util/aliPayUtil";
 import {Col, Row, Tabs} from "antd";
@@ -22,8 +22,8 @@ import ProCard from "@ant-design/pro-card";
 import {useModel} from "@@/exports";
 import {getServiceMetadata} from "@/services/backend/serviceManager";
 import {replaceUrlPlaceholders} from "@/util/urlUtil";
-import {CreateModalProps} from "@/pages/ServiceInstanceList/components/interface";
-import {cloudMarketPurchaseUrl} from "@/constants";
+import {CLOUD_MARKET_PURCHASE_URL} from "@/constants";
+import {CreateModalProps} from "@/pages/Service/component/interface";
 
 const CreateModal: React.FC<CreateModalProps> = ({
                                                      createModalVisible, setCreateModalVisible
@@ -50,11 +50,13 @@ const CreateModal: React.FC<CreateModalProps> = ({
                 return;
             }
             const {SpecificationName, PayPeriod, type, ...values} = await form?.current?.getFieldFormatValue();
+            console.log(values);
+            console.log(SpecificationName);
             if (payType == 'PAY_POST') {
                 if (marketProductCode == undefined) {
                     return;
                 }
-                let redirectUrl = replaceUrlPlaceholders(cloudMarketPurchaseUrl, {MarketProductCode: marketProductCode});
+                let redirectUrl = replaceUrlPlaceholders(CLOUD_MARKET_PURCHASE_URL, {MarketProductCode: marketProductCode});
                 window.open(redirectUrl, '_blank');
                 window.location.reload();
             } else {
@@ -70,7 +72,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
                     productComponents: JSON.stringify(productComponents),
                     type: type,
                     productName: 'SERVICE_INSTANCE',
-                }, 3);
+                }, 2);
             }
         } catch (error) {
             console.log('Error: ', error);
@@ -113,8 +115,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
 
     return (
         <ModalForm
-            title="创建服务实例"
-            size={'large'}
+            title="购买服务"
             open={createModalVisible}
             modalProps={{
                 destroyOnClose: true,
@@ -122,11 +123,11 @@ const CreateModal: React.FC<CreateModalProps> = ({
             }}
             submitter={false}
         >
-            <Tabs>
-                <TabPane tab={"包年包月"} key={1}>
+            <Tabs >
+                <TabPane tab={"包年包月"} key={1} >
 
                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <ProForm formRef={form} onFinish={async (values) => {
+                        <ProForm formRef={form} size={"middle"} onFinish={async (values) => {
                             await handleCreateServiceInstanceSubmit("");
                             return true;
                         }} submitter={submitButtonLoc}>
@@ -141,7 +142,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
                         <ProForm onFinish={async (values) => {
                             await handleCreateServiceInstanceSubmit("PAY_POST");
                             return true;
-                        }} submitter={submitButtonLoc}>
+                        }} submitter={submitButtonLoc} style={{width: "596px"}}>
                             <ProCard title={"支付方式"} bordered headerBordered={true} gutter={16} hoverable>
                                 <Row justify="center" style={{marginTop: '16px'}}>
                                     <Col span={24}>

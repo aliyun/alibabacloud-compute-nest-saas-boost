@@ -109,7 +109,18 @@ public class OrderDTO {
      */
     private Long accountId;
 
+    /**
+     * billing start date millis.
+     */
     private Long billingStartDateMillis;
 
+    /**
+     * billing end date millis.
+     */
     private Long billingEndDateMillis;
+
+    /**
+     * refund detail.
+     */
+    private String refundDetail;
 }

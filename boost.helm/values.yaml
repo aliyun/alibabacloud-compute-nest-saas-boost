@@ -1,0 +1,121 @@
+# Default values for saas-boost.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+env:
+  ramRoleName: "SaaSBoostEcsRole-a9a41909-4a6b-491f-8fa6-667890dce3bd"
+  regionId: "cn-wulanchabu"
+  clusterId: "c91050083eb9e4362b1bcd0be3bd743c5"
+  serviceId: "service-3a4a1d77808c491f89ef"
+  stackName: saas-boost-pj91
+  otsInstanceName: saasboostpj91
+  service:
+    regionId: "cn-hangzhou"
+  oauth:
+    publicKey:
+      url: https://oauth.aliyun.com/v1/keys
+    authCode:
+      url: https://signin.aliyun.com/oauth2/v1/auth
+    authServer:
+      url: https://oauth.aliyun.com/v1/token
+replicaCount: 1
+
+image:
+  repository: registry.cn-hangzhou.aliyuncs.com/application-management/servera:1.0.0
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.0.0.snapshot"
+cronImage:
+  repository: registry.cn-hangzhou.aliyuncs.com/compute-nest-saas-boost/serverless
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.0.0.snapshot"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: 
+    pod-identity.alibabacloud.com/role-name: "SaaSBoostEcsRole-a9a41909-4a6b-491f-8fa6-667890dce3bd"
+
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: 
+    k8s.aliyun.com/eci-ram-role-name: "SaaSBoostEcsRole-a9a41909-4a6b-491f-8fa6-667890dce3bd"
+
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 9999
+
+cronjob:
+  port: 9000
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -13,24 +13,22 @@
 *limitations under the License.
 */
 
-import {Col, Modal, Row} from "antd";
+import {Divider, List, Modal, Radio} from "antd";
 import ProCard from "@ant-design/pro-card";
 import React, {useContext, useEffect, useState} from "react";
-
-import {ProForm, ProFormContext, ProFormSelect} from "@ant-design/pro-form";
+import {ProForm, ProFormContext, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import {CustomParameters, defaultSpecification} from "@/pages/PageCustomConfig";
-import {PayPeriodFormItem} from "@/pages/ServiceInstanceList/components/PayPeriodFormItem";
-import inner from "bizcharts/src/components/Tooltip/inner";
 import {getServiceCost, getServiceMetadata} from "@/services/backend/serviceManager";
 import {createFormItem} from "@/util/FormItemUtil";
-import PayFormItem from "@/pages/ServiceInstanceList/components/PayTypeFormItem";
+import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 import {
     ParameterGroupsInterface,
     ParameterTypeInterfaceArray,
     Specification
-} from "@/pages/ServiceInstanceList/components/interface";
-import {aliyunRegions} from "@/constants";
-
+} from "@/pages/Service/component/interface";
+import {ALIYUN_REGIONS} from "@/constants";
+import styles from "./css/service.module.css";
+import {DEFAULT_PAY_PERIOD_UNIT, showErrorModal} from "@/global";
 
 export const CreateServiceInstanceForm: React.FC = () => {
     const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -45,38 +43,13 @@ export const CreateServiceInstanceForm: React.FC = () => {
     const [specificationParameterList, setSpecificationParameterList] = useState<string[]>([]);
     const [errorModalVisible, setErrorModalVisible] = useState(false); // 新增状态
 
-
-    const handleSpecificationChange = (cardTitle: string | null, months: number) => {
-        const currentValues = form.formRef?.current.getFieldsValue();
-        console.log(currentValues);
-        if (form) {
-            form.formRef?.current?.setFieldsValue({
-                ...currentValues,
-                SpecificationName: cardTitle,
-                PayPeriod: months,
-                templateName: templateName
-            });
-        }
-    };
-
     const handleSpecificationCardClick = (cardTitle: string) => {
-        if (cardTitle == selectedCard) {
-            form.formRef?.current.setFieldValue("SpecificationName", undefined);
-            setSelectedCard(null);
-            handleSpecificationChange(null, selectedMonths);
-        } else {
-            setSelectedCard(cardTitle);
-            handleSpecificationChange(cardTitle, selectedMonths);
-        }
+        form.formRef?.current.setFieldValue("SpecificationName", cardTitle);
+        setSelectedCard(cardTitle);
         console.log(specificationParameterList);
         specificationParameterList.forEach((item) => {
             form.formRef?.current.setFieldValue(item, undefined);
         });
-    };
-
-    const handleOptionChange = (month: number) => {
-        setSelectedMonths(month);
-        handleSpecificationChange(selectedCard, month);
     };
 
     useEffect(() => {
@@ -92,13 +65,14 @@ export const CreateServiceInstanceForm: React.FC = () => {
                 if (serviceMetadata !== undefined) {
                     if (serviceMetadata.templateName !== undefined) {
                         setTemplateName(serviceMetadata.templateName);
+                        form.formRef?.current.setFieldValue("templateName", templateName);
                     }
                     //Initialize the allowed deployment regions first.
                     let allowedRegionIds: string[];
                     if (serviceMetadata.allowedRegions !== undefined && serviceMetadata.allowedRegions !== "[]") {
                         allowedRegionIds = JSON.parse(serviceMetadata.allowedRegions);
                     } else {
-                        allowedRegionIds = aliyunRegions;
+                        allowedRegionIds = ALIYUN_REGIONS;
                     }
                     setDeployedRegionId(allowedRegionIds.at(0));
                     const valueEnum = allowedRegionIds.reduce((obj, value) => {
@@ -182,27 +156,8 @@ export const CreateServiceInstanceForm: React.FC = () => {
                 setSpecifications(defaultSpecification);
                 setElements(elements);
                 setErrorModalVisible(true);
-                if (!errorModalVisible) { // 检查是否已经弹出过错误框
-                    Modal.error({
-                        title: '获取服务失败',
-                        content: (
-                            <div>
-                                <p>当前套餐和价格均为默认价格。请访问文档修改配置：</p>
-                                <p>
-                                    <a
-                                        href="https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/
-                                    </a>
-                                </p>
-                            </div>
-                        ),
-                        onOk: () => {
-                            setErrorModalVisible(false);
-                        },
-                    });
+                if (!errorModalVisible) {
+                    showErrorModal('获取服务失败', '当前套餐和价格均为默认价格。请访问文档修改配置：');
                 }
             }
         };
@@ -217,30 +172,14 @@ export const CreateServiceInstanceForm: React.FC = () => {
                     const response = await getServiceCost({
                         specificationName: selectedCard,
                         payPeriod: selectedMonths,
-                        payPeriodUnit: "Month",
+                        payPeriodUnit: DEFAULT_PAY_PERIOD_UNIT,
                     } as API.getServiceCostParams);
                     setCurrentPrice(response.data || null);
                     return;
                 }
                 setCurrentPrice(null);
             } catch (error) {
-                Modal.error({
-                    title: '套餐名不匹配',
-                    content: (
-                        <div>
-                            <p>套餐名不匹配，请修改后重新运行流水线：</p>
-                            <p>
-                                <a
-                                    href="https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    https://aliyun.github.io/alibabacloud-compute-nest-saas-boost/
-                                </a>
-                            </p>
-                        </div>
-                    ),
-                });
+                showErrorModal('套餐名不匹配', '套餐名不匹配，请修改后重新运行流水线：');
                 setCurrentPrice(100);
             }
         };
@@ -248,58 +187,66 @@ export const CreateServiceInstanceForm: React.FC = () => {
         fetchServiceCost();
     }, [selectedCard, selectedMonths]);
 
-
-    const numColumns = specifications.length;
-    const colSpan = 24 / numColumns;
     return (
-                <ProForm.Item>
-                    <ProForm.Item name={"SpecificationName"} rules={[{required: true, message: '请选择套餐'}]}>
-                        <ProCard title="套餐" bordered headerBordered gutter={16} hoverable>
-                            <Row gutter={[16, 16]}>
-                                {specifications.map((spec) => (
-                                    <Col span={colSpan} key={spec?.Name}>
-                                        <div
-                                            style={{
-                                                background: selectedCard === spec.Name ? '#89c1f5' : '#f5f5f5',
-                                                cursor: 'pointer',
-                                                boxShadow: selectedCard === spec.Name ? '0 0 5px #1890ff' : 'none',
-                                                padding: 16,
-                                                minHeight: '200px',
-                                            }}
-                                            onClick={() => handleSpecificationCardClick(spec.Name)}
-                                        >
-                                            <h3 style={{textAlign: 'center'}}>{spec?.Name}</h3>
-                                            <p>{spec?.Description}</p>
-                                        </div>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </ProCard>
-                    </ProForm.Item>
-                    <ProCard title="按月购买" bordered headerBordered={false} gutter={16} hoverable>
+        <ProForm.Item>
+            <ProForm.Item name="SpecificationName" key="SpecificationName">
+                <div className={styles.specificationTitle}>{"选择套餐"}</div>
+                <Radio.Group>
+                    <List
+                        className={styles.list}
+                        itemLayout="horizontal"
+                        dataSource={specifications}
+                        renderItem={(item) => (
+                            <ProCard bordered={true} hoverable className={styles.card} onClick={() => handleSpecificationCardClick(item.Name)}>
 
-                        <PayPeriodFormItem onChange={handleOptionChange}/>
+                                <Radio value={item.Name} className={styles.myRadio}>
+                                    <div>
+                                        <div className={styles.listItemMetaTitle}>{item.Name}</div>
+                                    </div>
 
-                        <div style={{textAlign: "right", padding: "16px"}}>
-                            当前价格: <span
-                            style={{color: "red"}}>{currentPrice ? currentPrice.toFixed(2) : "加载中..."}</span>
-                        </div>
-                    </ProCard>
-                    <ProCard title={"部署地域"} bordered headerBordered hoverable>
-                        <ProFormSelect key={"RegionId"} name={"RegionId"}
-                                       valueEnum={regionIds}
-                                       rules={[{required: true, message: '请选择部署地域'}]} fieldProps={{
-                            onChange: (e) => {
-                                setDeployedRegionId(e);
-                                form.formRef?.current.setFieldValue("ZoneId", undefined);
-                            }
-                        }}>
-                        </ProFormSelect>
-                    </ProCard>
-                    <ProCard type={"inner"} title={"配置参数"} bordered headerBordered hoverable>
-                        {elements}
-                    </ProCard>
-                    <PayFormItem/>
-                </ProForm.Item>
+                                </Radio>
+                                <div className={styles.listItemMetaDescription}>{item.Description}</div>
+                            </ProCard>
+                        )}
+                    />
+                </Radio.Group>
+            </ProForm.Item>
+            <Divider className={styles.msrectangleshape}/>
+            <div className={styles.specificationTitle}>{"配置参数"}</div>
+            <ProFormDigit
+                label="包月时间"
+                name="PayPeriod"
+                key={"PayPeriod"}
+                min={1}
+                initialValue={1}
+                fieldProps={{precision: 0, defaultValue: 1, onChange: (value) => {
+                    if(value){
+                        setSelectedMonths(value);
+                    }}}}
+                required={true}
+
+            />
+            <ProFormSelect key={"RegionId"} name={"RegionId"} label={"部署地域"}
+                           className={styles.inputConfig}
+                           valueEnum={regionIds}
+                           rules={[{required: true, message: '请选择部署地域'}]} fieldProps={{
+                onChange: (e) => {
+                    setDeployedRegionId(e);
+                    form.formRef?.current.setFieldValue("ZoneId", undefined);
+                }
+            }}>
+            </ProFormSelect>
+            {elements}
+            <div className={styles.currentPrice}>
+                当前价格:
+                <span className={styles.priceValue}>
+                    {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : " 加载中..."}
+                </span>
+            </div>
+            <Divider className={styles.msrectangleshape}/>
+            <div className={styles.specificationTitle}>{"支付方式"}</div>
+            <PayTypeFormItem/>
+            <ProFormText name="templateName" key="templateName" initialValue={templateName} fieldProps={{defaultValue: templateName, value: templateName}} hidden={true}></ProFormText>
+        </ProForm.Item>
     )
 }

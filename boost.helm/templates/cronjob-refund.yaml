@@ -1,0 +1,47 @@
+# templates/cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: {{ include "saas-boost.serviceAccountName" . }}
+  name: {{ include "saas-boost.fullname" . }}-refund-orders
+  labels:
+    {{- include "saas-boost.labels" . | nindent 4 }}
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          namespace: {{ include "saas-boost.serviceAccountName" . }}
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          serviceAccountName: {{ include "saas-boost.serviceAccountName" . }}
+          containers:
+            - name: serverless
+              image: "{{ .Values.cronImage.repository }}"
+              env:
+              - name: cronjob-type
+                value: REFUND_ORDERS
+              - name: TZ
+                value: "Asia/Shanghai"
+              - name: deploy-type
+                value: k8s
+              - name: service-id
+                value: {{ .Values.env.serviceId }}
+              - name: stack-name
+                value: {{ .Values.env.stackName }}
+              - name: ots-instance-name
+                value: {{ .Values.env.otsInstanceName }}
+              - name: service.region-id
+                value: {{ .Values.env.service.regionId }}
+              - name: oauth.public-key.url
+                value: {{ .Values.env.oauth.publicKey.url }}
+              - name: oauth.auth-code.url
+                value: {{ .Values.env.oauth.authCode.url }}
+              - name: oauth.auth-server.url
+                value: {{ .Values.env.oauth.authServer.url }}                    
+          restartPolicy: OnFailure

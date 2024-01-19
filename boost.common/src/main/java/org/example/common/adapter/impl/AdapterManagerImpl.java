@@ -69,7 +69,7 @@ public class AdapterManagerImpl implements AdapterManager {
     @Value("${deploy.type}")
     private String deployType;
 
-    @Value("${boost.module")
+    @Value("${boost.module}")
     private String module;
 
     private static final String BOOST_SERVERLESS_MODULE = "serverless";
@@ -94,7 +94,6 @@ public class AdapterManagerImpl implements AdapterManager {
         }
         baseAlipayClient.createClient(alipayConfig);
         log.info("Client injection success");
-
     }
 
     @Override

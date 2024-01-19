@@ -1,0 +1,46 @@
+.docPageName {
+  height: 28px;
+  width: 80px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #1f1f1f;
+  line-height: 28px;
+  margin-bottom: 20px;
+}
+
+.proCard {
+  height: 72px;
+  width: 1136px;
+  background-color: #fff;
+  margin-bottom: 10px;
+}
+
+.additionalProCard {
+  height: 112px;
+  width: 1136px;
+  background-color: #fff;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.dividerLine {
+  margin-left: 60px;
+  width: 1px;
+}
+
+.hrefDividerLine {
+  margin-left: 160px;
+  margin-right: 60px;
+  width: 1px;
+  height: auto;
+}
+
+.introduction {
+  text-align: left;
+  margin-left: 60px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #1677ff;
+}

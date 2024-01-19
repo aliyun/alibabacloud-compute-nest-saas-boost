@@ -13,6 +13,8 @@
 *limitations under the License.
 */
 
+import StripSpmRedirect from "@/pages/StripSpmRedirect";
+
 /**
  * @name umi 的路由配置
  * @description 只支持 path,component,routes,redirect,wrappers,name,icon 的配置
@@ -26,12 +28,14 @@
  * @doc https://umijs.org/docs/guides/routes
  */
 export default [
+
     {
-        path: '/welcome',
-        name: 'welcome',
-        icon: 'smile',
-        component: './Welcome',
-    },
+        path: '/service',
+        component: './Service',
+        icon: 'AppstoreAddOutlined',
+        name: '精选服务'
+    }
+    ,
     {
         name: 'list.table-list',
         icon: 'table',
@@ -44,7 +48,7 @@ export default [
     },
     {
         path: '/',
-        redirect: '/welcome',
+        component: "./StripSpmRedirect",
     },
     {
         path: '*',
@@ -60,5 +64,17 @@ export default [
     , {
         path: '/payCallBack',
         component: './PayCallback'
+    },
+    {
+        path: '/message',
+        component: './Message',
+        icon: 'MessageOutlined',
+        name: '消息'
+    },
+    {
+        path: '/doc',
+        component: './Doc',
+        icon: 'DatabaseOutlined',
+        name: '文档'
     }
 ];

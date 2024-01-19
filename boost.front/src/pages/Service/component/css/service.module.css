@@ -1,0 +1,182 @@
+
+.myRadio {
+  margin-left: -8px;
+  display: flex;
+  align-items: center;
+  margin-top: -4px;
+}
+
+.listItemMetaTitle {
+  font-family: PingFangSC, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.88);
+  height: 24px;
+  width: 42px;
+  line-height: 24px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+.listItemMetaDescription {
+  padding-left: 16px; /* 根据实际缩进调整 */
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.55);
+  line-height: 22px;
+  height: 44px;
+  width: 700px;
+}
+
+.card {
+  height: 108px;
+  width: 752px;
+  background-color: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.modelForm {
+  width: 592px !important;
+}
+
+.specificationTitle {
+  margin-bottom: 16px; /* 标题与描述之间的距离 */
+  height: 24px;
+  width: 64px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #1f1f1f;
+  line-height: 24px;
+}
+
+.msrectangleshape {
+  height: 24px;
+  background-color: #fff;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 8px; /* 例如，增加20px的底部外边距 */
+}
+
+/* MyComponent.module.css */
+.currentPrice {
+  height: 24px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 24px;
+}
+
+.priceValue {
+  height: 28px;
+  width: 72px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: #f5222d;
+  line-height: 28px;
+}
+
+.list {
+  width: 592px;
+}
+
+.inputConfig {
+  height: 32px;
+  width: 592px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.group {
+  height: 1032px;
+  width: 640px;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.supplierProCard {
+  height: 164px;
+  background-color: #fff;
+  margin-bottom: 20px;
+}
+
+.imageTitleGap {
+  margin-left: 16px;
+}
+
+.supplierTitle {
+  height: 24px;
+  width: 255px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #1f1f1f;
+  line-height: 24px;
+}
+
+.supplierDetails {
+  height: 20px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #8c8c8c;
+  letter-spacing: 0;
+  line-height: 20px;
+  margin-right: 24px;
+}
+
+.supplierImage {
+  height: 56px;
+  width: 56px;
+  background-color: #fff;
+}
+
+.supplierDescription {
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #595959;
+  line-height: 22px;
+}
+
+.serviceHeader {
+  height: 28px;
+  width: 80px;
+  font-family: PingFangSC, sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #1f1f1f;
+  line-height: 28px;
+  margin-bottom: 20px;
+}
+
+.serviceName {
+  left: 525px;
+  width: 333px;
+  height: 36px;
+  top: 566px;
+  opacity: 1;
+  font-size: 22px;
+}
+
+.serviceDescription {
+  font-family: PingFangSC, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #666;
+  letter-spacing: 0;
+  line-height: 24px;
+}
+
+.globalOutlined {
+  margin-right: 4px;
+}
+
+.mailOutlined {
+  margin-right: 4px;
+}

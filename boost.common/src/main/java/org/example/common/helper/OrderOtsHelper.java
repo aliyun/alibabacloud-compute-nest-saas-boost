@@ -165,15 +165,6 @@ public class OrderOtsHelper {
         return refundAmount;
     }
 
-    public Double refundPayPostOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
-        if (dryRun) {
-            return null;
-        }
-        OrderDO refundOrder = createRefundOrder(order, refundId, 0.0, currentIs08601Time);
-        updateOrder(refundOrder);
-        return 0.0;
-    }
-
     public Boolean isOrderInConsuming(OrderDTO orderDTO, Long currentLocalDateTimeMillis) {
         if (orderDTO == null || orderDTO.getBillingStartDateMillis() == null || orderDTO.getBillingEndDateMillis() == null) {
             return Boolean.TRUE;
