@@ -58,6 +58,7 @@ public class AliyunConfig {
 
     @PostConstruct
     public void init() throws CredentialException {
+        log.info("deployType: {}", deployType);
         if (DeployType.ECS.getDeployType().equals(deployType)) {
             if (!BOOST_SERVERLESS_MODULE.equals(module)) {
                 Config config = new Config();
