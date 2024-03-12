@@ -13,7 +13,7 @@
  *limitations under the License.
  */
 
-package org.example.service.impl;
+package org.example.service.base.impl;
 
 import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceRequest;
 import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceResponse;
@@ -54,8 +54,8 @@ import org.example.common.param.si.ListServiceInstancesParam;
 import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.common.utils.UuidUtil;
-import org.example.service.OrderService;
-import org.example.service.ServiceInstanceLifecycleService;
+import org.example.service.order.OrderService;
+import org.example.service.base.ServiceInstanceLifecycleService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

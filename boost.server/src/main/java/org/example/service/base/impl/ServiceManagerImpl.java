@@ -12,7 +12,7 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.service.impl;
+package org.example.service.base.impl;
 
 import com.aliyun.computenestsupplier20210521.models.GetServiceRequest;
 import com.aliyun.computenestsupplier20210521.models.GetServiceResponse;
@@ -40,7 +40,7 @@ import org.example.common.param.service.GetServiceTemplateParameterConstraintsPa
 import org.example.common.utils.HttpUtil;
 import org.example.common.utils.JsonUtil;
 import org.example.common.utils.YamlUtil;
-import org.example.service.ServiceManager;
+import org.example.service.base.ServiceManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;

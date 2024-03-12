@@ -15,7 +15,7 @@
 
 package org.example.controller;
 
-import org.example.service.AlipayService;
+import org.example.service.base.AlipayService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

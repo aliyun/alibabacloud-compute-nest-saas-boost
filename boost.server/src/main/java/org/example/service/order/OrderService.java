@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-package org.example.service;
+package org.example.service.order;
 
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
@@ -30,9 +30,6 @@ import org.example.common.param.order.RefundOrderParam;
 public interface OrderService {
 
     BaseResult<OrderDTO> createOrder(CreateOrderParam param);
-
-    BaseResult<CommoditySpecificationDTO> getCommodityPrice(GetCommodityPriceParam param);
-
 
     /**
      * Get a row of order from table store:order.

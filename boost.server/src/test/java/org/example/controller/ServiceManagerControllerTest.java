@@ -19,14 +19,11 @@ import mockit.Injectable;
 import org.example.common.BaseResult;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
-import org.example.service.ServiceInstanceLifecycleService;
-import org.example.service.ServiceManager;
+import org.example.service.base.ServiceManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 

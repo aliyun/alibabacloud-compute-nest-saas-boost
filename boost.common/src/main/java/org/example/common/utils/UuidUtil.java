@@ -1,17 +1,17 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.common.utils;
 
@@ -25,12 +25,17 @@ public class UuidUtil {
 
     private static final int DEFAULT_RANDOM_STR_LEN = 20;
 
+    private static final String NEST_REFUND_ID_PREFIX = "nest-refund";
+
+    private static final String ALIPAY_OUT_TRADE_NO_PREFIX = "alipay-";
+
     public static String generateUuid(String prefix, int randomStrLen) {
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         return prefix + uuid.substring(0, randomStrLen);
     }
-    public static String generateRefundId(){
-        return generateUuid("nest-refund");
+
+    public static String generateRefundId() {
+        return generateUuid(NEST_REFUND_ID_PREFIX);
     }
 
     public static String generateUuid(String prefix) {
@@ -38,13 +43,21 @@ public class UuidUtil {
     }
 
     public static String generateAliPayOutTradeNo() {
-        return generateUuid("alipay-");
+        return generateUuid(ALIPAY_OUT_TRADE_NO_PREFIX);
+    }
+
+    public static String generateCommodityCode() {
+        return generateUuid("", 8);
+    }
+
+    public static String generateOrderId(Long userId, String orderType) {
+        return generateOrderId(userId, orderType, null);
     }
 
     public static String generateOrderId(Long userId, String orderType, String sub) {
         String timestamp = DateUtil.getCurrentTimeString();
         String randomNum = generateRandomNum(1);
-        if (userId != null){
+        if (userId != null) {
             String userIdStr = String.valueOf(userId);
             userIdStr = userIdStr.substring(userIdStr.length() - 3);
             return orderType + timestamp + userIdStr + randomNum;

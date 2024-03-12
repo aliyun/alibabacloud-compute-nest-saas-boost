@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class CommoditySpecification implements Serializable {
+public class CommoditySpecificationDO implements Serializable {
 
     private static final long serialVersionUID = 187088115785196749L;
 

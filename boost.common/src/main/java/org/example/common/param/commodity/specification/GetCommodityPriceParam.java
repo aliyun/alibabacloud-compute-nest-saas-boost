@@ -24,7 +24,7 @@ public class GetCommodityPriceParam extends SpiBaseParam {
     /**
      * 支付周期
      */
-    private Integer payPeriod;
+    private Long payPeriod;
 
     /**
      * 支付周期单位

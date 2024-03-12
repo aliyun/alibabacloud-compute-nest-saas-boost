@@ -40,6 +40,7 @@ import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
 import org.example.common.utils.HttpUtil;
+import org.example.service.base.impl.ServiceManagerImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.Cache;

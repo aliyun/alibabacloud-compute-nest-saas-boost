@@ -19,8 +19,10 @@ package org.example.common.helper;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.config.SpecificationConfig;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
+import org.example.common.model.CommodityPriceModel;
 import org.example.common.utils.DateUtil;
 import org.springframework.stereotype.Component;
 
@@ -34,10 +36,25 @@ public class WalletHelper {
     @Resource
     private SpecificationConfig specificationConfig;
 
+    @Resource
+    private CommoditySpecificationOtsHelper commoditySpecificationOtsHelper;
+
     public Double getServiceCost(String serviceId, String specificationName, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         Double unitPrice = specificationConfig.getPriceBySpecificationName(serviceId, specificationName, payPeriodUnit);
         if (unitPrice != null) {
             return Double.parseDouble(String.format("%.2f", payPeriod * unitPrice));
+        }
+        throw new BizException(ErrorInfo.SPECIFICATION_NOT_EXIST);
+    }
+
+    public CommodityPriceModel getCommodityCost(String commodityCode, String specificationName, Long payPeriod) {
+        CommoditySpecificationDTO commoditySpecification = commoditySpecificationOtsHelper.getCommoditySpecification(commodityCode, specificationName);
+        CommodityPriceModel commodityPriceModel = new CommodityPriceModel();
+        Double unitPrice = commoditySpecification.getUnitPrice();
+        if (unitPrice != null) {
+            commodityPriceModel.setUnitPrice(unitPrice);
+            commodityPriceModel.setTotalAmount(Double.parseDouble(String.format("%.2f", payPeriod * unitPrice)));
+            return commodityPriceModel;
         }
         throw new BizException(ErrorInfo.SPECIFICATION_NOT_EXIST);
     }

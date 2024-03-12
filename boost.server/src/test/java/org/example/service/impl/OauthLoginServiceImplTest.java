@@ -27,6 +27,7 @@ import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
 import org.example.common.utils.HttpUtil;
 import org.example.common.utils.JsonUtil;
+import org.example.service.base.impl.OauthLoginServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

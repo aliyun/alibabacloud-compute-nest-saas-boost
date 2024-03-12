@@ -17,6 +17,7 @@ package org.example.common.dto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class CommoditySpecificationDTO {
@@ -32,14 +33,10 @@ public class CommoditySpecificationDTO {
     private String specificationName;
 
     /**
-     * Unit for pricing calculation.
-     */
-    private String payPeriodUnit;
-
-    /**
      * Allowed payment durations for the specification.
      */
-    private List<Integer> payPeriods;
+    private Map<String, List<String>> allowedPaymentDurations;
+
 
     /**
      * Price per unit for the specification.

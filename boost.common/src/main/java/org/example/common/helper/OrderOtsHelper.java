@@ -33,7 +33,7 @@ import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.utils.DateUtil;
-import org.example.common.utils.Md5Util;
+import org.example.common.utils.EncryptionUtil;
 import org.example.common.utils.OtsUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -95,7 +95,7 @@ public class OrderOtsHelper {
     }
 
     private PrimaryKey createPrimaryKey(String outTradeNo) {
-        String outTradeNoMd5PrimaryKey = Md5Util.md5(outTradeNo);
+        String outTradeNoMd5PrimaryKey = EncryptionUtil.getMd5HexString(outTradeNo);
         if (StringUtils.isEmpty(outTradeNoMd5PrimaryKey)) {
             return null;
         }

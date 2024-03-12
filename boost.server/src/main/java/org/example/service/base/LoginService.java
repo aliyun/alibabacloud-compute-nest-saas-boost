@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-package org.example.service;
+package org.example.service.base;
 
 import org.example.common.BaseResult;
 import org.example.common.model.AuthConfigurationModel;

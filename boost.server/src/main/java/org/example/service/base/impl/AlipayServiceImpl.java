@@ -13,7 +13,7 @@
  *limitations under the License.
  */
 
-package org.example.service.impl;
+package org.example.service.base.impl;
 
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.internal.util.StringUtils;
@@ -30,8 +30,8 @@ import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.utils.HttpUtil;
-import org.example.service.AlipayService;
-import org.example.service.OrderService;
+import org.example.service.base.AlipayService;
+import org.example.service.order.OrderService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 

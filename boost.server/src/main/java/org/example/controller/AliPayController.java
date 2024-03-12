@@ -15,9 +15,10 @@
 
 package org.example.controller;
 
-import io.swagger.annotations.ApiOperation;
-import org.example.service.AlipayService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.example.common.constant.PayChannel;
+import org.example.service.payment.PaymentServiceManger;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,17 +27,17 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/alipay")
-@Api(value="alipay",tags={"alipay"})
+@RequestMapping("/pay")
+@Api(value="pay",tags={"pay"})
 public class AliPayController {
 
     @Resource
-    private AlipayService alipayService;
+    private PaymentServiceManger paymentServiceManger;
 
     @ApiOperation(value = "支付宝异步回调校验接口", nickname = "verifyTradeCallback")
     @PostMapping("/verifyTradeCallback")
     public String verifyTradeCallback(HttpServletRequest request) {
-        return alipayService.verifyTradeCallback(request);
+        return paymentServiceManger.verifyTradeCallback(request, PayChannel.ALIPAY);
     }
 
 }

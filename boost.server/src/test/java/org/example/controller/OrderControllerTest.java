@@ -15,16 +15,14 @@
 
 package org.example.controller;
 
-import com.alipay.api.AlipayApiException;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
-import org.example.service.OrderService;
+import org.example.service.order.OrderService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,13 +48,6 @@ class OrderControllerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test
-    void testCreateOrder() throws AlipayApiException {
-        when(orderService.createOrder(any(), any())).thenReturn(new BaseResult<String>("code", "message", "data", "requestId"));
-
-        BaseResult<String> result = orderController.createOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new CreateOrderParam());
-        Assertions.assertEquals(new BaseResult<String>("code", "message", "data", "requestId"), result);
-    }
 
     @Test
     void testGetOrder() {

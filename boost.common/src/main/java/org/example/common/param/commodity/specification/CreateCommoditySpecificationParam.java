@@ -14,6 +14,7 @@
  */
 package org.example.common.param.commodity.specification;
 
+import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class CreateCommoditySpecificationParam extends CommoditySpecificationPar
     /**
      * Unit for pricing calculation.
      */
-    private String payPeriodUnit;
+    private PayPeriodUnit payPeriodUnit;
 
     /**
      * Allowed payment durations for the specification.

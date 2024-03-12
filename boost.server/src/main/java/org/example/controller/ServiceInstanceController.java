@@ -24,7 +24,7 @@ import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
-import org.example.service.ServiceInstanceLifecycleService;
+import org.example.service.base.ServiceInstanceLifecycleService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

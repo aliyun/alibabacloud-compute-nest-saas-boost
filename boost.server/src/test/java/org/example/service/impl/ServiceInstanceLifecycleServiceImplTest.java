@@ -43,6 +43,7 @@ import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.service.base.impl.ServiceInstanceLifecycleServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

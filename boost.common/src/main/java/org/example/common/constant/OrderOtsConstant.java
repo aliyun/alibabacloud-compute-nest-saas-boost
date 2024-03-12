@@ -34,7 +34,7 @@ public interface OrderOtsConstant {
     /**
      * OTS search-index name: order_index.
      */
-    String SEARCH_INDEX_NAME = "order_index";
+    String SEARCH_INDEX_NAME = "orderIndex";
 
     /**
      * Range filter on search-index: gmtCreateLong(order creation time).

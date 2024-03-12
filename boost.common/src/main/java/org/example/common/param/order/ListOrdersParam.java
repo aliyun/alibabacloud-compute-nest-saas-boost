@@ -31,9 +31,9 @@ public class ListOrdersParam {
 
     private List<TradeStatus> tradeStatus;
 
+    private String orderId;
+
     private Integer maxResults;
 
     private String nextToken;
-
-    private String orderId;
 }

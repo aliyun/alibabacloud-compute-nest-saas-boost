@@ -16,6 +16,7 @@
 package org.example.common.param.order;
 
 import lombok.Data;
+import org.example.common.constant.ChargeType;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.SpiBaseParam;
@@ -28,13 +29,13 @@ public class CreateOrderParam extends SpiBaseParam {
     /**
      * 计费类型
      */
-    private String chargeType;
+    private ChargeType chargeType;
 
     /**
      * 支付周期
      */
     @NotNull
-    private Integer payPeriod;
+    private Long payPeriod;
 
     /**
      * 支付周期单位
@@ -55,4 +56,9 @@ public class CreateOrderParam extends SpiBaseParam {
      * 套餐名称
      */
     private String specificationName;
+
+    /**
+     * 账号id
+     */
+    private String userId;
 }

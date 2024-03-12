@@ -16,9 +16,11 @@
 package org.example.common.helper;
 
 import com.alicloud.openservices.tablestore.model.Column;
+import com.alicloud.openservices.tablestore.model.DeleteRowRequest;
 import com.alicloud.openservices.tablestore.model.GetRowResponse;
 import com.alicloud.openservices.tablestore.model.PrimaryKey;
 import com.alicloud.openservices.tablestore.model.Row;
+import com.alicloud.openservices.tablestore.model.RowDeleteChange;
 import com.alicloud.openservices.tablestore.model.RowPutChange;
 import com.alicloud.openservices.tablestore.model.RowUpdateChange;
 import com.alicloud.openservices.tablestore.model.SingleRowQueryCriteria;
@@ -89,6 +91,13 @@ public class BaseOtsHelper {
         RowUpdateChange rowUpdateChange = new RowUpdateChange(tableName, primaryKey);
         rowUpdateChange.put(columns);
         otsClient.updateRow(rowUpdateChange);
+        return Boolean.TRUE;
+    }
+
+    public Boolean deleteEntity(String tableName, PrimaryKey primaryKey) {
+        RowDeleteChange rowDeleteChange = new RowDeleteChange(tableName, primaryKey);
+        DeleteRowRequest deleteRowRequest = new DeleteRowRequest(rowDeleteChange);
+        otsClient.deletRow(deleteRowRequest);
         return Boolean.TRUE;
     }
 

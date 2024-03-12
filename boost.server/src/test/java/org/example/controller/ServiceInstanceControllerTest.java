@@ -23,7 +23,7 @@ import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
-import org.example.service.ServiceInstanceLifecycleService;
+import org.example.service.base.ServiceInstanceLifecycleService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

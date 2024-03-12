@@ -168,5 +168,5 @@ public class OrderDO implements Serializable {
      */
     private String refundDetail;
 
-
+    private String paymentForm;
 }

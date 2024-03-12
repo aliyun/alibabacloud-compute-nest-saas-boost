@@ -15,26 +15,30 @@
 package org.example.controller;
 
 import io.swagger.annotations.ApiOperation;
+import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dto.CommodityDTO;
-import org.example.common.dto.CommoditySpecificationDTO;
-import org.example.common.param.commodity.specification.CreateCommoditySpecificationParam;
+import org.example.common.model.CommodityPriceModel;
+import org.example.common.model.UserInfoModel;
 import org.example.common.param.commodity.CommodityBaseParam;
-import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 import org.example.common.param.commodity.CreateCommodityParam;
+import org.example.common.param.commodity.GetCommodityParam;
+import org.example.common.param.commodity.ListAllCommoditiesParam;
 import org.example.common.param.commodity.UpdateCommodityParam;
-import org.example.service.CommodityService;
+import org.example.common.param.commodity.specification.GetCommodityPriceParam;
+import org.example.service.commodity.CommodityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-@RequestMapping("/api/commodity")
+@RequestMapping("/api")
 public class CommodityController {
+
     private final CommodityService commodityService;
 
     @Autowired
@@ -42,53 +46,48 @@ public class CommodityController {
         this.commodityService = commodityService;
     }
 
+    @AdminAPI
     @ApiOperation(value = "创建商品", nickname = "createCommodity")
     @RequestMapping(path = "/createCommodity", method = RequestMethod.POST)
-    public BaseResult<CommodityDTO> createCommodity(CreateCommodityParam param) {
-        return commodityService.createCommodity(param);
+    public BaseResult<CommodityDTO> createCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                    CreateCommodityParam param) {
+        return commodityService.createCommodity(userInfoModel, param);
     }
 
-    @ApiOperation(value = "创建商品规格", nickname = "createCommoditySpecification")
-    @RequestMapping(path = "/createCommoditySpecification", method = RequestMethod.POST)
-    public BaseResult<CommoditySpecificationDTO> createCommoditySpecification(CreateCommoditySpecificationParam param) {
-        return commodityService.createCommoditySpecification(param);
-    }
-
-    @ApiOperation(value = "获取所有商品", nickname = "listAllCommodities")
-    @RequestMapping(path = "/listAllCommodities", method = RequestMethod.POST)
-    public ListResult<CommodityDTO> listAllCommodities(CommodityBaseParam commodityBaseParam) {
-        return commodityService.listAllCommodities(commodityBaseParam);
-    }
-
-    @ApiOperation(value = "获取所有商品规格", nickname = "listAllSpecifications")
-    @RequestMapping(path = "/listAllSpecifications", method = RequestMethod.POST)
-    public ListResult<CommoditySpecificationDTO> listAllSpecifications(CommodityBaseParam commodityBaseParam) {
-        return commodityService.listAllSpecifications(commodityBaseParam);
-    }
-
+    @AdminAPI
     @ApiOperation(value = "更新商品信息", nickname = "updateCommodity")
     @RequestMapping(path = "/updateCommodity}", method = RequestMethod.PUT)
-    public BaseResult<CommodityDTO> updateCommodity(UpdateCommodityParam param) {
-        return commodityService.updateCommodity(param);
+    public BaseResult<CommodityDTO> updateCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                    UpdateCommodityParam param) {
+        return commodityService.updateCommodity(userInfoModel, param);
     }
 
+    @AdminAPI
     @ApiOperation(value = "删除商品", nickname = "deleteCommodity")
     @RequestMapping(path = "/deleteCommodity", method = RequestMethod.DELETE)
-    public BaseResult<Void> deleteCommodity(CommodityBaseParam commodityBaseParam) {
-        commodityService.deleteCommodity(commodityBaseParam);
+    public BaseResult<Void> deleteCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                            CommodityBaseParam commodityBaseParam) {
+        commodityService.deleteCommodity(userInfoModel, commodityBaseParam);
         return BaseResult.success();
     }
 
-    @ApiOperation(value = "更新商品规格信息", nickname = "updateCommoditySpecification")
-    @RequestMapping(path = "/updateCommoditySpecification", method = RequestMethod.PUT)
-    public BaseResult<CommoditySpecificationDTO> updateCommoditySpecification(
-            @PathVariable String specificationName, @RequestBody CommoditySpecificationDTO specificationDTO) {
-        return commodityService.updateCommoditySpecification(specificationName, specificationDTO);
+    @AdminAPI
+    @ApiOperation(value = "获取所有商品", nickname = "listAllCommodities")
+    @RequestMapping(path = "/listAllCommodities", method = RequestMethod.POST)
+    public ListResult<CommodityDTO> listAllCommodities(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                       ListAllCommoditiesParam param) {
+        return commodityService.listAllCommodities(userInfoModel, param);
     }
 
-    @ApiOperation(value = "删除商品规格", nickname = "deleteCommoditySpecification")
-    @RequestMapping(path = "/deleteCommoditySpecification", method = RequestMethod.DELETE)
-    public BaseResult<Void> deleteCommoditySpecification(CommoditySpecificationParam param) {
-        return commodityService.deleteCommoditySpecification(param);
+    @ApiOperation(value = "获取商品价格", nickname = "getCommodityPrice")
+    @RequestMapping(path = "/spi/getCommodityPrice", method = RequestMethod.POST)
+    public BaseResult<CommodityPriceModel> getCommodityPrice(GetCommodityPriceParam param) {
+        return commodityService.getCommodityPrice(param);
+    }
+
+    @ApiOperation(value = "获取商品信息", nickname = "getCommodity")
+    @RequestMapping(path = "/spi/getCommodity", method = RequestMethod.POST)
+    public BaseResult<CommodityDTO> getCommodity(GetCommodityParam param) {
+        return commodityService.getCommodity(param);
     }
 }

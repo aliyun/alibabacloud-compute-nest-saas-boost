@@ -13,7 +13,7 @@
  *limitations under the License.
  */
 
-package org.example.service.impl;
+package org.example.service.order.impl;
 
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
 import com.alicloud.openservices.tablestore.model.search.sort.Sort.Sorter;
@@ -34,25 +34,27 @@ import org.example.common.exception.BizException;
 import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.OrderOtsHelper;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
+import org.example.common.helper.SpiTokenHelper;
 import org.example.common.helper.WalletHelper;
+import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.RefundDetailModel;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
+import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.GetOrderParam;
-import org.example.common.param.GetServiceCostParam;
-import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
+import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
 import org.example.common.utils.UuidUtil;
-import org.example.service.AlipayService;
-import org.example.service.OrderService;
-import org.example.service.ServiceInstanceLifecycleService;
-import org.example.service.ServiceManager;
+import org.example.service.base.AlipayService;
+import org.example.service.base.ServiceInstanceLifecycleService;
+import org.example.service.base.ServiceManager;
+import org.example.service.order.OrderService;
+import org.example.service.payment.PaymentServiceManger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -88,17 +90,30 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
 
+    @Resource
+    private SpiTokenHelper spiTokenHelper;
+
+    @Resource
+    private PaymentServiceManger paymentServiceManger;
+
     private static final Integer DEFAULT_RETENTION_DAYS = 3;
 
 
     @Override
     public BaseResult<OrderDTO> createOrder(CreateOrderParam param) {
-        return null;
-    }
+        if (!spiTokenHelper.checkSpiToken(param, param.getToken())) {
+            return BaseResult.fail(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED);
+        }
+        CommodityPriceModel commodityCost = walletHelper.getCommodityCost(param.getCommodityCode(), param.getSpecificationName(), param.getPayPeriod());
+        Long userId = Long.parseLong(param.getUserId());
+        String orderId = UuidUtil.generateOrderId(userId, param.getPayChannel().getValue());
 
-    @Override
-    public BaseResult<CommoditySpecificationDTO> getCommodityPrice(GetCommodityPriceParam param) {
-        return null;
+        String transaction = paymentServiceManger.createTransaction(commodityCost.getTotalAmount(), param.getSpecificationName(), orderId, param.getPayChannel());
+        OrderDO orderDataObject = createOrderDataObject(orderId, param, userId, commodityCost.getTotalAmount(), userId, transaction);
+        orderOtsHelper.createOrder(orderDataObject);
+        OrderDTO orderDTO = new OrderDTO();
+        BeanUtils.copyProperties(orderDataObject, orderDTO);
+        return BaseResult.success(orderDTO);
     }
 
     @Override
@@ -325,15 +340,15 @@ public class OrderServiceImpl implements OrderService {
         return String.format(RefundReason.SERVICE_INSTANCE_DELETION_REFUND.getDefaultMessage(), serviceInstanceId, orderId);
     }
 
-    private OrderDO createOrderDataObject(String orderId, CreateOrderParam createOrderParam, Long userId, Double totalAmount, Long accountId, GetServiceCostParam getServiceCostParam) {
+    private OrderDO createOrderDataObject(String orderId, CreateOrderParam createOrderParam, Long userId, Double totalAmount, Long accountId, String paymentForm) {
         OrderDO orderDO = new OrderDO();
+        BeanUtils.copyProperties(createOrderParam, orderDO);
         orderDO.setUserId(userId);
         orderDO.setTotalAmount(totalAmount);
         orderDO.setOrderId(orderId);
         orderDO.setAccountId(accountId);
         orderDO.setTradeStatus(TradeStatus.WAIT_BUYER_PAY);
-        BeanUtils.copyProperties(createOrderParam, orderDO);
-        BeanUtils.copyProperties(getServiceCostParam, orderDO);
+        orderDO.setPaymentForm(paymentForm);
         return orderDO;
     }
 }

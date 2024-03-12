@@ -13,7 +13,7 @@
  *limitations under the License.
  */
 
-package org.example.service;
+package org.example.service.base;
 
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponseBody.GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints;

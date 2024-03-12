@@ -25,7 +25,7 @@ import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
-import org.example.service.ServiceManager;
+import org.example.service.base.ServiceManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

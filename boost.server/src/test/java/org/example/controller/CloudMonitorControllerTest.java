@@ -21,7 +21,7 @@ import org.example.common.model.MetricDatasModel;
 import org.example.common.model.MetricMetaDataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.ListMetricsParam;
-import org.example.service.CloudMonitorService;
+import org.example.service.base.CloudMonitorService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

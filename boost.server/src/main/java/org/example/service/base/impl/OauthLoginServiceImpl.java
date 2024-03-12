@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-package org.example.service.impl;
+package org.example.service.base.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +30,7 @@ import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
 import org.example.common.utils.HttpUtil;
 import org.example.common.utils.JsonUtil;
-import org.example.service.LoginService;
+import org.example.service.base.LoginService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 

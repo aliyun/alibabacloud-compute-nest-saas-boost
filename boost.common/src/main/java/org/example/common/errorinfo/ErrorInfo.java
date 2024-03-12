@@ -36,7 +36,14 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value can't be null."),
 
-    CURRENT_ORDER_CANT_BE_REFUNDED(400, "Current_Order_Cant_Be_Refunded", "The Current Order Cant be refunded.");
+    CURRENT_ORDER_CANT_BE_REFUNDED(400, "Current_Order_Cant_Be_Refunded", "The Current Order Cant be refunded."),
+
+    SIGNATURE_PARSED_FAILED(400, "SignatureParsedFailed", "AliPay Signature Parsed Failed"),
+
+    USER_NOT_ADMIN(400, "UserNotAdmin",  "Access denied. The current user is not an administrator."),
+
+    SPI_TOKEN_VALIDATION_FAILED(403, "SpiTokenValidationFailed", "SPI Token Validation Failed")
+    ;
 
     private final int statusCode;
 

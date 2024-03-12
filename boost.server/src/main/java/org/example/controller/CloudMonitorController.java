@@ -23,7 +23,7 @@ import org.example.common.model.MetricDatasModel;
 import org.example.common.model.MetricMetaDataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.ListMetricsParam;
-import org.example.service.CloudMonitorService;
+import org.example.service.base.CloudMonitorService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-package org.example.service;
+package org.example.service.base;
 
 import com.alipay.api.AlipayApiException;
 

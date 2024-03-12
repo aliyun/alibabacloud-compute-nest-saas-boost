@@ -16,6 +16,8 @@
 package org.example.common.adapter.impl;
 
 import com.alicloud.openservices.tablestore.SyncClient;
+import com.alicloud.openservices.tablestore.model.DeleteRowRequest;
+import com.alicloud.openservices.tablestore.model.DeleteRowResponse;
 import com.alicloud.openservices.tablestore.model.GetRangeRequest;
 import com.alicloud.openservices.tablestore.model.GetRangeResponse;
 import com.alicloud.openservices.tablestore.model.GetRowRequest;
@@ -65,6 +67,11 @@ public class OtsClientImpl implements OtsClient {
     @Override
     public GetRowResponse getRow(SingleRowQueryCriteria singleRowQueryCriteria) {
         return syncClient.getRow(new GetRowRequest(singleRowQueryCriteria));
+    }
+
+    @Override
+    public DeleteRowResponse deletRow(DeleteRowRequest deleteRowRequest) {
+        return syncClient.deleteRow(deleteRowRequest);
     }
 
     @Override

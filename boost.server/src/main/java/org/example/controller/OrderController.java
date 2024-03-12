@@ -16,7 +16,9 @@
 package org.example.controller;
 
 import com.alipay.api.AlipayApiException;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dto.OrderDTO;
@@ -25,9 +27,7 @@ import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
-import org.example.service.OrderService;
-import io.swagger.annotations.Api;
-import lombok.extern.slf4j.Slf4j;
+import org.example.service.order.OrderService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,7 +49,7 @@ public class OrderController {
     private OrderService orderService;
 
     @ApiOperation(value = "创建订单", nickname = "createOrder")
-    @RequestMapping(path = "/createOrder", method = RequestMethod.POST)
+    @RequestMapping(path = "/spi/createOrder", method = RequestMethod.POST)
     public BaseResult<OrderDTO> createOrder(@Valid @ModelAttribute CreateOrderParam param) throws AlipayApiException {
         return orderService.createOrder(param);
     }
