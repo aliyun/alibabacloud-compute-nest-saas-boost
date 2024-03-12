@@ -30,16 +30,26 @@ interface TabItem {
 
 const ServiceInstanceDetail: React.FC = () => {
     const navigate = useNavigate();
-    const { id, status } = useParams<{ id: string; status: string }>();
+    let {id,} = useParams<{ id: string; status: string }>();
     const searchParams = getHashSearchParams();
     console.log(searchParams);
     const initialTabKey = searchParams.get('tab') || 'description'; // 如果 URL 没有 'tab' 参数，则默认为 'description'
-    const[source, setSource] = useState<string | null>();
+    const [source, setSource] = useState<string | null>();
+    const [status, setStatus] = useState<string | undefined>();
+    const [serviceType, setServiceType] = useState<string | undefined>();
     console.log(initialTabKey);
     const [activeTabKey, setActiveTabKey] = useState<string>(initialTabKey);
     const [items, setItems] = useState<TabItem[]>([]);
-    useEffect(()=>{
-        let source : string | null = searchParams.get('source')!=null?searchParams.get('source'):"Supplier";
+    useEffect(() => {
+        let source: string | null = searchParams.get('source') != null ? searchParams.get('source') : "Supplier";
+        let status = searchParams.get('status') != null ? searchParams.get('status') : "";
+        if (status !== null) {
+            setStatus(status);
+        }
+        let serviceType = searchParams.get('serviceType') != null ? searchParams.get('serviceType') : "";
+        if (serviceType !== null) {
+            setServiceType(serviceType);
+        }
         setSource(source);
     }, [])
     useEffect(() => {
@@ -49,18 +59,18 @@ const ServiceInstanceDetail: React.FC = () => {
                 {
                     key: 'description',
                     label: '概览',
-                    children: <ServiceInstanceContent serviceInstanceId={id} status={status} />,
+                    children: <ServiceInstanceContent serviceInstanceId={id} status={status} serviceType={serviceType}/>,
                 },
-                {
+                ...(status == 'Deployed') ? [{
                     key: 'monitor',
                     label: '监控',
-                    children: <ServiceInstanceMonitor serviceInstanceId={id} />,
-                },
+                    children: <ServiceInstanceMonitor serviceInstanceId={id}/>,
+                }] : [],
                 // 根据 source 条件动态添加订单 Tab
                 ...(source !== CallSource[CallSource.Market]) ? [{
                     key: 'serviceInstanceOrders',
                     label: '订单',
-                    children: <Index serviceInstanceId={id} status={status} />,
+                    children: <Index serviceInstanceId={id} status={status} serviceType={serviceType}/>,
                 }] : [],
             ];
             setItems(newItems);
@@ -79,7 +89,7 @@ const ServiceInstanceDetail: React.FC = () => {
         navigate(`/serviceInstance/${id}?tab=${key}`);
     };
 
-    return <Tabs activeKey={activeTabKey} items={items} onChange={onTabChange} />;
+    return <Tabs activeKey={activeTabKey} items={items} onChange={onTabChange}/>;
 };
 
 export default ServiceInstanceDetail;

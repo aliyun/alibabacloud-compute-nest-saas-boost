@@ -15,16 +15,14 @@
 
 package org.example.controller;
 
-import com.alipay.api.AlipayApiException;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.CreateOrderParam;
-import org.example.common.param.GetOrderParam;
-import org.example.common.param.ListOrdersParam;
-import org.example.common.param.RefundOrderParam;
-import org.example.service.OrderService;
+import org.example.common.param.order.GetOrderParam;
+import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.order.RefundOrderParam;
+import org.example.service.order.OrderService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,19 +48,12 @@ class OrderControllerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test
-    void testCreateOrder() throws AlipayApiException {
-        when(orderService.createOrder(any(), any())).thenReturn(new BaseResult<String>("code", "message", "data", "requestId"));
-
-        BaseResult<String> result = orderController.createOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new CreateOrderParam());
-        Assertions.assertEquals(new BaseResult<String>("code", "message", "data", "requestId"), result);
-    }
 
     @Test
     void testGetOrder() {
         when(orderService.getOrder(any(), any())).thenReturn(new BaseResult<OrderDTO>("code", "message", new OrderDTO(), "requestId"));
 
-        BaseResult<OrderDTO> result = orderController.getOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetOrderParam("orderId"));
+        BaseResult<OrderDTO> result = orderController.getOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetOrderParam("orderId"));
         Assertions.assertEquals(new BaseResult<OrderDTO>("code", "message", new OrderDTO(), "requestId"), result);
     }
 
@@ -70,7 +61,7 @@ class OrderControllerTest {
     void testListOrders() {
         when(orderService.listOrders(any(), any())).thenReturn(ListResult.genSuccessListResult(Arrays.asList(new OrderDTO()), 1));
 
-        ListResult<OrderDTO> result = orderController.listOrders(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListOrdersParam());
+        ListResult<OrderDTO> result = orderController.listOrders(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new ListOrdersParam());
         Assertions.assertTrue(result.getCount() != 0);
     }
 
@@ -78,7 +69,7 @@ class OrderControllerTest {
     void testRefundOrder() {
         when(orderService.refundOrders(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
 
-        BaseResult<Double> result = orderController.refundOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new RefundOrderParam());
+        BaseResult<Double> result = orderController.refundOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new RefundOrderParam());
         Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);
     }
 }

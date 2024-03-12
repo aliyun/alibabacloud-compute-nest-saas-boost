@@ -15,6 +15,9 @@
 
 package org.example.common.handler;
 
+import com.nimbusds.jwt.SignedJWT;
+import lombok.extern.slf4j.Slf4j;
+import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
@@ -22,9 +25,7 @@ import org.example.common.helper.TokenParseHelper;
 import org.example.common.model.JwtAuthenticationTokenModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.utils.JsonUtil;
-import com.nimbusds.jwt.SignedJWT;
-import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,9 @@ import static org.example.common.constant.Constants.STANDARD_CONTENT_TYPE;
 @Component
 public class TokenAuthenticationInterceptor implements HandlerInterceptor {
 
+    @Value("${service.admin.aid}")
+    private String adminAid;
+
     @Resource
     public TokenParseHelper tokenParseHelper;
 
@@ -52,16 +56,26 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+
         try {
+            AdminAPI adminOnly = handlerMethod.getMethodAnnotation(AdminAPI.class);
+
             String token = request.getHeader(Constants.AUTHORIZATION);
             String singleToken = tokenParseHelper.parseBearerTokenToToken(token);
             SignedJWT signedJwt = tokenParseHelper.token2Jwt(singleToken);
 
             if (!(tokenParseHelper.verifySign(signedJwt))) {
-                return setResponse(response);
+                return setResponse(response, ErrorInfo.SIGNATURE_PARSED_FAILED);
             }
 
             UserInfoModel userInfoModel = tokenParseHelper.getUserInfoFromIdToken(singleToken);
+            boolean adminUser = isAdminUser(userInfoModel);
+            userInfoModel.setAdmin(adminUser);
+            if (adminOnly != null && !adminUser) {
+                setResponse(response, ErrorInfo.USER_NOT_ADMIN);
+            }
+
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
             JwtAuthenticationTokenModel authentication = new JwtAuthenticationTokenModel(singleToken, userInfoModel, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -69,15 +83,19 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
             return true;
         } catch (Exception e) {
             log.error("Token verification failed.", e);
-            return setResponse(response);
+            return setResponse(response, ErrorInfo.VERIFY_FAILED);
         }
     }
 
-    private boolean setResponse(HttpServletResponse response) {
+    private boolean isAdminUser(UserInfoModel userInfoModel) {
+        return adminAid.equals(userInfoModel.getAid());
+    }
+
+    private boolean setResponse(HttpServletResponse response, ErrorInfo errorInfo) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(STANDARD_CONTENT_TYPE);
         try {
-            response.getWriter().write(JsonUtil.toJsonString(new BaseResult<>(ErrorInfo.VERIFY_FAILED.getCode(), ErrorInfo.VERIFY_FAILED.getMessage(), null)));
+            response.getWriter().write(JsonUtil.toJsonString(new BaseResult<>(errorInfo.getCode(), errorInfo.getMessage(), null)));
         } catch (IOException ex) {
             log.error("Token verification failed, Response definition failed.", ex);
         }

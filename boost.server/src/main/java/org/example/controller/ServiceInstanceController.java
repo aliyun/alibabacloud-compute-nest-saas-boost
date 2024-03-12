@@ -22,10 +22,11 @@ import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.ListServiceInstancesParam;
-import org.example.service.ServiceInstanceLifecycleService;
+import org.example.common.param.si.GetServiceInstanceParam;
+import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.service.base.ServiceInstanceLifecycleService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,14 +43,16 @@ public class ServiceInstanceController {
     private ServiceInstanceLifecycleService serviceInstanceLifecycleService;
 
     @ApiOperation(value = "获取该用户下的全部服务实例列表", nickname = "listServiceInstances")
-    @RequestMapping(path = "/listServiceInstances",method = RequestMethod.GET)
-    public ListResult<ServiceInstanceModel> listServiceInstances(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert ListServiceInstancesParam listServiceInstancesParam) {
+    @RequestMapping(path = "/listServiceInstances",method = RequestMethod.POST)
+    public ListResult<ServiceInstanceModel> listServiceInstances(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                                 @RequestBody ListServiceInstancesParam listServiceInstancesParam) {
         return serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
     }
 
     @ApiOperation(value = "获取指定ID的服务实例详情", nickname = "getServiceInstance")
     @RequestMapping(path = "/getServiceInstance",method = RequestMethod.GET)
-    public BaseResult<ServiceInstanceModel> getServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert GetServiceInstanceParam getServiceInstanceParam) {
+    public BaseResult<ServiceInstanceModel> getServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                               @APIParameterConvert GetServiceInstanceParam getServiceInstanceParam) {
         return serviceInstanceLifecycleService.getServiceInstance(userInfoModel, getServiceInstanceParam);
     }
 }

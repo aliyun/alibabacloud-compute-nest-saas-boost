@@ -15,12 +15,16 @@
 
 package org.example.common.helper;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.config.SpecificationConfig;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.dto.CommodityDTO;
+import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
+import org.example.common.helper.ots.CommodityOtsHelper;
+import org.example.common.helper.ots.CommoditySpecificationOtsHelper;
+import org.example.common.model.CommodityPriceModel;
 import org.example.common.utils.DateUtil;
 import org.springframework.stereotype.Component;
 
@@ -34,10 +38,41 @@ public class WalletHelper {
     @Resource
     private SpecificationConfig specificationConfig;
 
+    @Resource
+    private CommoditySpecificationOtsHelper commoditySpecificationOtsHelper;
+
+    @Resource
+    private CommodityOtsHelper commodityOtsHelper;
+
+    private static final String DECIMAL_FORMAT = "%.2f";
+
     public Double getServiceCost(String serviceId, String specificationName, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         Double unitPrice = specificationConfig.getPriceBySpecificationName(serviceId, specificationName, payPeriodUnit);
         if (unitPrice != null) {
-            return Double.parseDouble(String.format("%.2f", payPeriod * unitPrice));
+            return Double.parseDouble(String.format(DECIMAL_FORMAT, payPeriod * unitPrice));
+        }
+        throw new BizException(ErrorInfo.SPECIFICATION_NOT_EXIST);
+    }
+
+    public CommodityPriceModel getCommodityCost(String commodityCode, String specificationName, Long payPeriod) {
+        Double unitPrice;
+        CommodityPriceModel commodityPriceModel = new CommodityPriceModel();
+        CommodityDTO commodity = commodityOtsHelper.getCommodity(commodityCode);
+        commodityPriceModel.setCommodityCode(commodityCode);
+        commodityPriceModel.setServiceId(commodity.getServiceId());
+        commodityPriceModel.setCommodityName(commodity.getCommodityName());
+        if (StringUtils.isEmpty(specificationName)) {
+            unitPrice = commodity.getUnitPrice();
+        } else {
+            commodityPriceModel.setSpecificationName(specificationName);
+            CommoditySpecificationDTO commoditySpecification = commoditySpecificationOtsHelper.getCommoditySpecification(commodityCode, specificationName);
+            unitPrice = commoditySpecification.getUnitPrice();
+        }
+
+        if (unitPrice != null ) {
+            commodityPriceModel.setUnitPrice(unitPrice);
+            commodityPriceModel.setTotalAmount(Double.parseDouble(String.format(DECIMAL_FORMAT, payPeriod * unitPrice)));
+            return commodityPriceModel;
         }
         throw new BizException(ErrorInfo.SPECIFICATION_NOT_EXIST);
     }
@@ -60,7 +95,7 @@ public class WalletHelper {
         Long paymentMillis = parseFromIsO8601DateString(paymentDate);
         Long endMillis = DateUtil.getIsO8601FutureDateMillis(paymentDate, getBillingDays(payPeriodUnit, payPeriod));
         Double refundRatio = Double.valueOf(endMillis - refundMillis) / Double.valueOf(endMillis - paymentMillis);
-        Double refundAmount = Double.parseDouble(String.format("%.2f", totalAmount * refundRatio));
+        Double refundAmount = Double.parseDouble(String.format(DECIMAL_FORMAT, totalAmount * refundRatio));
         return refundAmount > 0 ? refundAmount : 0;
     }
 

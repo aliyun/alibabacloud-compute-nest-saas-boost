@@ -77,8 +77,20 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+
   return {
     actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+    menuDataRender: (menuData) => {
+      // 根据用户角色过滤菜单项
+      if (initialState?.currentUser?.admin) {
+        // 如果用户是 admin，则返回完整菜单
+        return menuData;
+      } else {
+        console.log('not admin');
+        // 如果不是 admin，过滤掉 'list.commodity-list' 菜单项
+        return menuData.filter((item) => item.name !== 'list.commodity-list');
+      }
+    },
     avatarProps: {
         // @ts-ignore
       src: initialState?.currentUser?.avatar,

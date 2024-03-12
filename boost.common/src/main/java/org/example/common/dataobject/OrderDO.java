@@ -16,13 +16,16 @@
 package org.example.common.dataobject;
 
 import lombok.Data;
+import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
-import org.example.common.constant.PaymentType;
-import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 
+import java.io.Serializable;
+
 @Data
-public class OrderDO {
+public class OrderDO implements Serializable {
+
+    private static final long serialVersionUID = -6487622390063929077L;
 
     /**
      * Primary key : Id.
@@ -80,9 +83,14 @@ public class OrderDO {
     private Double receiptAmount;
 
     /**
-     * Service name of the purchase, corresponding to Alipay subject.
+     * Commodity Name.
      */
-    private ProductName productName;
+    private String commodityName;
+
+    /**
+     * Commodity Code.
+     */
+    private String commodityCode;
 
     /**
      * Total Amount.
@@ -112,7 +120,7 @@ public class OrderDO {
     /**
      * Payment type.
      */
-    private PaymentType type;
+    private PayChannel payChannel;
 
     /**
      * Refund ID, can only be created once.
@@ -163,4 +171,14 @@ public class OrderDO {
      * refund detail.
      */
     private String refundDetail;
+
+    /**
+     * payment form.
+     */
+    private String paymentForm;
+
+    /**
+     * service id.
+     */
+    private String serviceId;
 }

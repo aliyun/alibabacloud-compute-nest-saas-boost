@@ -24,7 +24,9 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class ReflectionUtil {
@@ -84,5 +86,25 @@ public class ReflectionUtil {
             }
             return null;
         }
+    }
+
+    public static Map<String, Object> getAllFields(Object obj) {
+        Map<String, Object> fieldsMap = new HashMap<>();
+        if (obj == null) {
+            return fieldsMap;
+        }
+        Class<?> clazz = obj.getClass();
+        while (clazz != null) {
+            for (Field field : clazz.getDeclaredFields()) {
+                field.setAccessible(true);
+                try {
+                    fieldsMap.put(field.getName(), field.get(obj));
+                } catch (IllegalAccessException e) {
+                    log.error("Error accessing field: " + field.getName(), e);
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return fieldsMap;
     }
 }

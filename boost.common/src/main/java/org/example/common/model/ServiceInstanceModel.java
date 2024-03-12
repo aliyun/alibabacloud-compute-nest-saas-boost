@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.common.constant.CallSource;
+import org.example.common.constant.ServiceType;
 
 @Data
 @NoArgsConstructor
@@ -51,4 +52,6 @@ public class ServiceInstanceModel {
     private CallSource source;
 
     private String orderId;
+
+    private ServiceType serviceType;
 }

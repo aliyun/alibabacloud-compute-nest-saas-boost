@@ -18,12 +18,13 @@ package org.example.controller;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.CallSource;
+import org.example.common.constant.ServiceType;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.ListServiceInstancesParam;
-import org.example.service.ServiceInstanceLifecycleService;
+import org.example.common.param.si.GetServiceInstanceParam;
+import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.service.base.ServiceInstanceLifecycleService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ class ServiceInstanceControllerTest {
 
     ServiceInstanceModel createCreateServiceInstanceModel() {
         return new ServiceInstanceModel("serviceInstanceId", "serviceInstanceName", "createTime", "updateTime", "status", Long.valueOf(1),
-                "serviceName", new ServiceModel("serviceId", "name", "description", "image"), "parameters", "outputs", "resources", CallSource.Supplier, "123");
+                "serviceName", new ServiceModel("serviceId", "name", "description", "image"), "parameters", "outputs", "resources", CallSource.Supplier, "123", ServiceType.managed);
     }
 
     @Test
@@ -60,14 +61,14 @@ class ServiceInstanceControllerTest {
         List<ServiceInstanceModel> serviceInstanceModels = Arrays.asList(createCreateServiceInstanceModel());
         when(serviceInstanceLifecycleService.listServiceInstances(any(), any())).thenReturn(ListResult.genSuccessListResult(serviceInstanceModels, 1, "message"));
 
-        ListResult<ServiceInstanceModel> serviceInstanceModelListResult = serviceInstanceController.listServiceInstances(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListServiceInstancesParam());
+        ListResult<ServiceInstanceModel> serviceInstanceModelListResult = serviceInstanceController.listServiceInstances(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new ListServiceInstancesParam());
         Assertions.assertEquals(serviceInstanceModelListResult.getCount(), 1);
     }
 
     @Test
     void testGetServiceInstance() {
         when(serviceInstanceLifecycleService.getServiceInstance(any(), any())).thenReturn(new BaseResult<ServiceInstanceModel>("code", "message", createCreateServiceInstanceModel(), "requestId"));
-        BaseResult<ServiceInstanceModel> result = serviceInstanceController.getServiceInstance(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceInstanceParam("serviceInstanceId"));
+        BaseResult<ServiceInstanceModel> result = serviceInstanceController.getServiceInstance(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetServiceInstanceParam("serviceInstanceId"));
         Assertions.assertEquals(result.getData().getServiceInstanceId(), "serviceInstanceId");
     }
 

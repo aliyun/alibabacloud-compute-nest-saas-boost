@@ -2,7 +2,7 @@ import moment from "moment/moment";
 import dayjs from "dayjs";
 import {listOrders} from "@/services/backend/order";
 import {TradeStatusEnum} from "@/pages/Order/common";
-import {PayTypeEnum, ProductNameEnum} from "@/constants";
+import {PayChannelEnum, ProductNameEnum} from "@/constants";
 import utc from "dayjs/plugin/utc";
 
 dayjs.extend(utc);
@@ -46,7 +46,7 @@ export const fetchData = async (currentPage: number, show: boolean, pageSize:num
                 gmtCreate: localTime,
                 tradeStatus: TradeStatusEnum[item.tradeStatus as keyof typeof TradeStatusEnum],
                 productName: ProductNameEnum[item.productName as keyof typeof ProductNameEnum],
-                type: PayTypeEnum[item.type as keyof typeof PayTypeEnum],
+                type: PayChannelEnum[item.type as keyof typeof PayChannelEnum],
             };
         }) || [];
         return [result.count || 0, transformedData ? transformedData : [], nextTokens];

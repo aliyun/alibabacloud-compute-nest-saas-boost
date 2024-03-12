@@ -15,11 +15,10 @@
 
 package org.example.common.dto;
 
-import org.example.common.constant.PayPeriodUnit;
-import org.example.common.constant.PaymentType;
-import org.example.common.constant.ProductName;
-import org.example.common.constant.TradeStatus;
 import lombok.Data;
+import org.example.common.constant.PayChannel;
+import org.example.common.constant.PayPeriodUnit;
+import org.example.common.constant.TradeStatus;
 
 @Data
 public class OrderDTO {
@@ -40,9 +39,14 @@ public class OrderDTO {
     private String gmtCreate;
 
     /**
-     * Desc:subject
+     * alipay : subject
      */
-    private ProductName productName;
+    private String commodityName;
+
+    /**
+     * commodity code
+     */
+    private String commodityCode;
 
     /**
      * Desc:nest service configs
@@ -57,7 +61,7 @@ public class OrderDTO {
     /**
      * Payment type.
      */
-    private PaymentType type;
+    private PayChannel payChannel;
 
     /**
      * Refund ID, can only be created once.
@@ -123,4 +127,10 @@ public class OrderDTO {
      * refund detail.
      */
     private String refundDetail;
+
+
+    /**
+     * payment form.
+     */
+    private String paymentForm;
 }

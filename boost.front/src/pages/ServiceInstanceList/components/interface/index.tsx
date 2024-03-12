@@ -15,7 +15,7 @@
 
 import React from "react";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
-import {ProTableProps} from "@ant-design/pro-table/lib";
+import {ActionType, ProTableProps} from "@ant-design/pro-table/lib";
 
 export interface ServiceInstanceTableProps {
     serviceInstances: API.ServiceInstanceModel[];
@@ -29,6 +29,16 @@ export interface ServiceInstanceTableProps {
         serviceInstanceName?: string;
     }) => void;
     options?: ProTableProps<API.ServiceInstanceModel, API.ServiceInstanceModel>['options'];
+    actionRef: React.MutableRefObject<ActionType | undefined>;
+    request: (params: {
+        pageSize: number;
+        current: number;
+        [key: string]: any;
+    }, sorter: any, filters: any) => Promise<{
+        data: any[];
+        success: boolean;
+        total: number;
+    }>
 }
 
 export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> = ({
@@ -38,13 +48,16 @@ export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> 
                                                                                        onRefresh,
                                                                                        onSubmit,
                                                                                        options = false,
+                                                                                       actionRef
 
-                                                                                   }) => {
+
+}) => {
     return (
         <ProTable<API.ServiceInstanceModel>
             headerTitle="实例列表"
             rowKey="key"
             dataSource={serviceInstances}
+            actionRef={actionRef}
             search={{
                 labelWidth: 'auto',
                 defaultCollapsed: false,

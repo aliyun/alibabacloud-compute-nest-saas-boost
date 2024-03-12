@@ -12,9 +12,10 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
+
 package org.example.common.model;
 
-import org.example.common.constant.PaymentType;
+import org.example.common.constant.PayChannel;
 
 public class PayOrderModel {
 
@@ -41,5 +42,5 @@ public class PayOrderModel {
     /**
      * Payment type
      */
-    private PaymentType paymentType;
+    private PayChannel payChannel;
 }
