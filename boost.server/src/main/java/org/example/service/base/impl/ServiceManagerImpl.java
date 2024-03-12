@@ -65,7 +65,7 @@ public class ServiceManagerImpl implements ServiceManager {
     @Resource
     private ComputeNestSupplierClient computeNestSupplierClient;
 
-    @Value("${service.id}")
+    @Value("${service.id:abc}")
     private String serviceId;
 
     @Resource

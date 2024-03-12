@@ -83,7 +83,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     private final ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
 
-    @Value("${service.id}")
+    @Value("${service.id:abc}")
     private String serviceId;
 
     @Resource
