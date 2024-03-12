@@ -21,7 +21,7 @@ import com.alicloud.openservices.tablestore.model.PrimaryKeyColumn;
 import com.alicloud.openservices.tablestore.model.Row;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.constant.PayPeriodUnit;
-import org.example.common.constant.PaymentType;
+import org.example.common.constant.PayChannel;
 import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 import org.example.common.errorinfo.ErrorInfo;
@@ -54,7 +54,7 @@ public class OtsUtil {
         CLASS_TO_FUNCTION_CONVERTERS.put(boolean.class, Boolean::parseBoolean);
         CLASS_TO_FUNCTION_CONVERTERS.put(Float.class, Float::parseFloat);
         CLASS_TO_FUNCTION_CONVERTERS.put(float.class, Float::parseFloat);
-        CLASS_TO_FUNCTION_CONVERTERS.put(PaymentType.class, PaymentType::valueOf);
+        CLASS_TO_FUNCTION_CONVERTERS.put(PayChannel.class, PayChannel::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(TradeStatus.class, TradeStatus::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(ProductName.class, ProductName::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(PayPeriodUnit.class, PayPeriodUnit::valueOf);
@@ -67,7 +67,7 @@ public class OtsUtil {
         COLUMN_VALUE_CONVERTERS.put(Float.class, fieldValue -> ColumnValue.fromDouble((Float) fieldValue));
         COLUMN_VALUE_CONVERTERS.put(Double.class, fieldValue -> ColumnValue.fromDouble((Double) fieldValue));
         COLUMN_VALUE_CONVERTERS.put(Boolean.class, fieldValue -> ColumnValue.fromBoolean((Boolean) fieldValue));
-        COLUMN_VALUE_CONVERTERS.put(PaymentType.class, fieldValue -> ColumnValue.fromString(((PaymentType)fieldValue).name()));
+        COLUMN_VALUE_CONVERTERS.put(PayChannel.class, fieldValue -> ColumnValue.fromString(((PayChannel)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(TradeStatus.class, fieldValue -> ColumnValue.fromString(((TradeStatus)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(ProductName.class, fieldValue -> ColumnValue.fromString(((ProductName)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(PayPeriodUnit.class, fieldValue -> ColumnValue.fromString(((PayPeriodUnit)fieldValue).name()));

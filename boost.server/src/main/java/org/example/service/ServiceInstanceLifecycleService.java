@@ -23,9 +23,9 @@ import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceInstanceParam;
-import org.example.common.param.ListServiceInstancesParam;
-import org.example.common.param.UpdateServiceInstanceAttributeParam;
+import org.example.common.param.si.GetServiceInstanceParam;
+import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 
 import java.util.Map;
 

@@ -12,34 +12,31 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.commodity.specification;
 
-import org.example.common.constant.PayChannel;
+import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 
-public class PayOrderModel {
+import java.util.List;
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
+public class CreateCommoditySpecificationParam extends CommoditySpecificationParam {
 
     /**
-     * Product name
+     * Unit for pricing calculation.
      */
-    private String subject;
+    private String payPeriodUnit;
 
     /**
-     * Product description summary
+     * Allowed payment durations for the specification.
      */
-    private String body;
+    private List<Integer> payPeriods;
 
     /**
-     * Product out trade number
+     * Price per unit for the specification.
      */
-    private String outTradeNo;
+    private Double unitPrice;
 
     /**
-     * Payment type
+     * Currency unit for the specification.
      */
-    private PayChannel payChannel;
+    private String currency;
 }

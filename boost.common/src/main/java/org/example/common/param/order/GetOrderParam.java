@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-package org.example.common.param;
+package org.example.common.param.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

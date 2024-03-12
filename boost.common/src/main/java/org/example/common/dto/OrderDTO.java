@@ -16,7 +16,7 @@
 package org.example.common.dto;
 
 import org.example.common.constant.PayPeriodUnit;
-import org.example.common.constant.PaymentType;
+import org.example.common.constant.PayChannel;
 import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 import lombok.Data;
@@ -57,7 +57,7 @@ public class OrderDTO {
     /**
      * Payment type.
      */
-    private PaymentType type;
+    private PayChannel type;
 
     /**
      * Refund ID, can only be created once.

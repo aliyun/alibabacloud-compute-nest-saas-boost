@@ -13,16 +13,12 @@
 *limitations under the License.
 */
 
-package org.example.common.param;
+package org.example.common.param.service;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class GetServiceInstanceParam {
+public class GetServiceMetadataParam {
 
-    private String serviceInstanceId;
+    private String serviceId;
 }

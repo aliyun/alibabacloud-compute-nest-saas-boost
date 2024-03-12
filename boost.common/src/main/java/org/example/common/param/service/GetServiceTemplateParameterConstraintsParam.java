@@ -12,34 +12,41 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.service;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
+import org.example.common.param.TemplateParameterParam;
 
-public class PayOrderModel {
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
-
-    /**
-     * Product name
-     */
-    private String subject;
+@Data
+public class GetServiceTemplateParameterConstraintsParam {
 
     /**
-     * Product description summary
+     * Template name
      */
-    private String body;
+    @NotBlank
+    private String templateName;
 
     /**
-     * Product out trade number
+     * Deploy region
      */
-    private String outTradeNo;
+    @NotBlank
+    private String deployRegionId;
 
     /**
-     * Payment type
+     * Template parameter
      */
-    private PayChannel payChannel;
+    private List<TemplateParameterParam> parameters;
+
+    /**
+     * Nest service id
+     */
+    private String serviceId;
+
+    /**
+     * Nest service version
+     */
+    private String serviceVersion;
 }

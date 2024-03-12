@@ -13,22 +13,16 @@
 *limitations under the License.
 */
 
-package org.example.common.param;
+package org.example.common.param.si;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.example.common.constant.PaymentType;
-
-import javax.validation.constraints.NotNull;
+import lombok.NoArgsConstructor;
 
 @Data
-public class RefundOrderParam {
-
-    private String orderId;
-
-    @NotNull
-    private Boolean dryRun;
+@AllArgsConstructor
+@NoArgsConstructor
+public class GetServiceInstanceParam {
 
     private String serviceInstanceId;
-
-    private PaymentType paymentType;
 }

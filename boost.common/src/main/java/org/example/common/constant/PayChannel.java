@@ -15,7 +15,7 @@
 
 package org.example.common.constant;
 
-public enum PaymentType {
+public enum PayChannel {
 
     /**
      * Alipay
@@ -46,12 +46,12 @@ public enum PaymentType {
 
     private final String value;
 
-    PaymentType(String displayName, String value) {
+    PayChannel(String displayName, String value) {
         this.displayName = displayName;
         this.value = value;
     }
 
-    PaymentType(String displayName) {
+    PayChannel(String displayName) {
         this.displayName = displayName;
         this.value = "0";
     }

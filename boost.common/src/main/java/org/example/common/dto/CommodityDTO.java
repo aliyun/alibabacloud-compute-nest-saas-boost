@@ -12,15 +12,30 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param;
+package org.example.common.dto;
 
 import lombok.Data;
 
 @Data
-public class UpdateServiceInstanceAttributeParam {
-    private String serviceInstanceId;
+public class CommodityDTO {
 
-    private String endTime;
+    /**
+     * Unique code of the commodity.
+     */
+    private String commodityCode;
 
+    /**
+     * Name of the commodity.
+     */
+    private String commodityName;
 
+    /**
+     * Type of charge for the commodity.
+     */
+    private String chargeType;
+
+    /**
+     * The service ID associated with the commodity.
+     */
+    private String serviceId;
 }

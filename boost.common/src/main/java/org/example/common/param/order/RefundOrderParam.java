@@ -13,27 +13,22 @@
 *limitations under the License.
 */
 
-package org.example.common.param;
+package org.example.common.param.order;
 
 import lombok.Data;
-import org.example.common.constant.TradeStatus;
+import org.example.common.constant.PayChannel;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
 @Data
-public class ListOrdersParam {
+public class RefundOrderParam {
+
+    private String orderId;
+
+    @NotNull
+    private Boolean dryRun;
 
     private String serviceInstanceId;
 
-    private String startTime;
-
-    private String endTime;
-
-    private List<TradeStatus> tradeStatus;
-
-    private Integer maxResults;
-
-    private String nextToken;
-
-    private String orderId;
+    private PayChannel payChannel;
 }

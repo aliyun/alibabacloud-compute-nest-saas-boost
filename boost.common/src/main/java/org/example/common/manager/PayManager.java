@@ -14,15 +14,15 @@
  */
 package org.example.common.manager;
 
-import org.example.common.constant.PaymentType;
+import org.example.common.constant.PayChannel;
 
 import javax.servlet.http.HttpServletRequest;
 
 public interface PayManager {
 
-    String verifyTradeCallback(HttpServletRequest request, PaymentType paymentType);
+    String verifyTradeCallback(HttpServletRequest request, PayChannel payChannel);
 
-    String createTransaction(Double totalAmount, String subject, String outTradeNo, PaymentType paymentType);
+    String createTransaction(Double totalAmount, String subject, String outTradeNo, PayChannel payChannel);
 
-    Boolean refundOrder(String orderId, Double refundAmount, String refundId, PaymentType paymentType);
+    Boolean refundOrder(String orderId, Double refundAmount, String refundId, PayChannel payChannel);
 }

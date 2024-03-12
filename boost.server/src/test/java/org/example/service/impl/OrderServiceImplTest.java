@@ -19,7 +19,7 @@ import com.alipay.api.AlipayApiException;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.constant.PaymentType;
+import org.example.common.constant.PayChannel;
 import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
@@ -29,12 +29,12 @@ import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.CreateOrderParam;
-import org.example.common.param.GetOrderParam;
+import org.example.common.param.order.CreateOrderParam;
+import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.GetServiceCostParam;
-import org.example.common.param.GetServiceMetadataParam;
-import org.example.common.param.ListOrdersParam;
-import org.example.common.param.RefundOrderParam;
+import org.example.common.param.service.GetServiceMetadataParam;
+import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.order.RefundOrderParam;
 import org.example.service.AlipayService;
 import org.example.service.ServiceInstanceLifecycleService;
 import org.example.service.ServiceManager;
@@ -106,7 +106,7 @@ class OrderServiceImplTest {
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
         when(orderOtsHelper.listOrders(anyList(), anyList(), anyList(), anyString(), anyList())).thenReturn(orderDtoListResult);
         CreateOrderParam createOrderParam = new CreateOrderParam();
-        createOrderParam.setType(PaymentType.ALIPAY);
+        createOrderParam.setType(PayChannel.ALIPAY);
         createOrderParam.setProductComponents("{\n" +
                 "  \"RegionId\":\"cn-hangzhou\",\n" +
                 "  \"SpecificationName\":\"低配版(Entry Level Package)\",\n" +
@@ -130,7 +130,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.listOrders(anyList(), any(), anyList(), any(), anyList())).thenReturn(orderDtoListResult);
 
         CreateOrderParam createOrderParam = new CreateOrderParam();
-        createOrderParam.setType(PaymentType.ALIPAY);
+        createOrderParam.setType(PayChannel.ALIPAY);
         createOrderParam.setProductComponents("{\n" +
                 "  \"RegionId\":\"cn-hangzhou\",\n" +
                 "  \"SpecificationName\":\"低配版(Entry Level Package)\",\n" +

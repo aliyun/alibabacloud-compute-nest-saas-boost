@@ -12,34 +12,22 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.commodity;
 
-import org.example.common.constant.PayChannel;
-
-public class PayOrderModel {
+public class CreateCommodityParam {
 
     /**
-     * Product total amount
+     * Name of the commodity.
      */
-    private Double totalAmount;
+    private String commodityName;
 
     /**
-     * Product name
+     * Type of charge (e.g., PrePaid for subscription-based, PostPaid for pay-as-you-go).
      */
-    private String subject;
+    private String chargeType;
 
     /**
-     * Product description summary
+     * The service ID associated with the commodity in the computation nest.
      */
-    private String body;
-
-    /**
-     * Product out trade number
-     */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
+    private String serviceId;
 }

@@ -24,7 +24,7 @@ import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetOrderParam;
+import org.example.common.param.order.GetOrderParam;
 import org.example.service.OrderService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

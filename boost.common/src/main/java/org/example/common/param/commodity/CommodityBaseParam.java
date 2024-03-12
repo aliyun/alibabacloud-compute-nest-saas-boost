@@ -12,34 +12,19 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.commodity;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
 
-public class PayOrderModel {
+import java.io.Serializable;
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
+@Data
+public class CommodityBaseParam implements Serializable {
 
-    /**
-     * Product name
-     */
-    private String subject;
+    private static final long serialVersionUID = -4413253084153080063L;
 
     /**
-     * Product description summary
+     * 商品code
      */
-    private String body;
-
-    /**
-     * Product out trade number
-     */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
+    private String CommodityCode;
 }

@@ -29,7 +29,7 @@ import org.example.common.model.MetricMetaDataModel;
 import org.example.common.model.MetricMetaInfoModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.GetServiceInstanceParam;
+import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.ListMetricsParam;
 import org.example.service.ServiceInstanceLifecycleService;
 import org.junit.jupiter.api.Assertions;

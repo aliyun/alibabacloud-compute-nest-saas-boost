@@ -13,12 +13,20 @@
 *limitations under the License.
 */
 
-package org.example.common.param;
+package org.example.common.param.si;
 
 import lombok.Data;
 
 @Data
-public class GetServiceMetadataParam {
+public class ListServiceInstancesParam {
 
-    private String serviceId;
+    private Integer maxResults;
+
+    private String nextToken;
+
+    private String serviceInstanceId;
+
+    private String serviceInstanceName;
+
+    private String status;
 }

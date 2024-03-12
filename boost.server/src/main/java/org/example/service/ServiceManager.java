@@ -22,8 +22,8 @@ import org.example.common.ListResult;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
-import org.example.common.param.GetServiceMetadataParam;
-import org.example.common.param.GetServiceTemplateParameterConstraintsParam;
+import org.example.common.param.service.GetServiceMetadataParam;
+import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
 
 public interface ServiceManager {
 

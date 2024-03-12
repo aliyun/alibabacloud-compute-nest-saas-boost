@@ -12,34 +12,18 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
+import org.example.common.param.commodity.CommodityBaseParam;
 
-public class PayOrderModel {
+@Data
+public class SpiBaseParam extends CommodityBaseParam {
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
-
-    /**
-     * Product name
-     */
-    private String subject;
+    private static final long serialVersionUID = 1824629370250074341L;
 
     /**
-     * Product description summary
+     * 令牌
      */
-    private String body;
-
-    /**
-     * Product out trade number
-     */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
+    private String token;
 }

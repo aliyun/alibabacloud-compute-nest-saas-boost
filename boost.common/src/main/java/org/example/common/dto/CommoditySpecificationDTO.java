@@ -12,34 +12,42 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.dto;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
 
-public class PayOrderModel {
+import java.util.List;
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
+@Data
+public class CommoditySpecificationDTO {
 
     /**
-     * Product name
+     * Code of the commodity associated with this specification.
      */
-    private String subject;
+    private String commodityCode;
 
     /**
-     * Product description summary
+     * Name of the specification.
      */
-    private String body;
+    private String specificationName;
 
     /**
-     * Product out trade number
+     * Unit for pricing calculation.
      */
-    private String outTradeNo;
+    private String payPeriodUnit;
 
     /**
-     * Payment type
+     * Allowed payment durations for the specification.
      */
-    private PayChannel payChannel;
+    private List<Integer> payPeriods;
+
+    /**
+     * Price per unit for the specification.
+     */
+    private Double unitPrice;
+
+    /**
+     * Currency unit for the specification.
+     */
+    private String currency;
 }

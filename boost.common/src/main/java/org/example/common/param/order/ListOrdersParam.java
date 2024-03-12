@@ -13,24 +13,27 @@
 *limitations under the License.
 */
 
-package org.example.common.param;
+package org.example.common.param.order;
 
-import org.example.common.constant.PaymentType;
-import org.example.common.constant.ProductName;
 import lombok.Data;
+import org.example.common.constant.TradeStatus;
 
-
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
-public class CreateOrderParam {
+public class ListOrdersParam {
 
-    @NotNull
-    private ProductName productName;
+    private String serviceInstanceId;
 
-    @NotNull
-    private String productComponents;
+    private String startTime;
 
-    @NotNull
-    private PaymentType type;
+    private String endTime;
+
+    private List<TradeStatus> tradeStatus;
+
+    private Integer maxResults;
+
+    private String nextToken;
+
+    private String orderId;
 }

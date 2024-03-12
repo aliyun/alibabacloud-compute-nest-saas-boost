@@ -14,7 +14,7 @@
  */
 package org.example.common.manager.impl;
 
-import org.example.common.constant.PaymentType;
+import org.example.common.constant.PayChannel;
 import org.example.common.manager.PayManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,17 +23,17 @@ public class PayManagerImpl implements PayManager {
 
 
     @Override
-    public String verifyTradeCallback(HttpServletRequest request, PaymentType paymentType) {
+    public String verifyTradeCallback(HttpServletRequest request, PayChannel payChannel) {
         return null;
     }
 
     @Override
-    public String createTransaction(Double totalAmount, String subject, String outTradeNo, PaymentType paymentType) {
+    public String createTransaction(Double totalAmount, String subject, String outTradeNo, PayChannel payChannel) {
         return null;
     }
 
     @Override
-    public Boolean refundOrder(String orderId, Double refundAmount, String refundId, PaymentType paymentType) {
+    public Boolean refundOrder(String orderId, Double refundAmount, String refundId, PayChannel payChannel) {
         return null;
     }
 }

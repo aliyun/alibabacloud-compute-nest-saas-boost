@@ -18,18 +18,16 @@ package org.example.service.impl;
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
 import com.alicloud.openservices.tablestore.model.search.sort.Sort.Sorter;
 import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
-import com.alipay.api.AlipayApiException;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.constant.ComputeNestConstants;
 import org.example.common.constant.OrderOtsConstant;
-import org.example.common.constant.PayPeriodUnit;
 import org.example.common.constant.RefundReason;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
+import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
@@ -40,14 +38,14 @@ import org.example.common.helper.WalletHelper;
 import org.example.common.model.RefundDetailModel;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.CreateOrderParam;
-import org.example.common.param.GetOrderParam;
+import org.example.common.param.order.CreateOrderParam;
+import org.example.common.param.commodity.specification.GetCommodityPriceParam;
+import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.GetServiceCostParam;
-import org.example.common.param.GetServiceMetadataParam;
-import org.example.common.param.ListOrdersParam;
-import org.example.common.param.RefundOrderParam;
-import org.example.common.param.UpdateServiceInstanceAttributeParam;
-import org.example.common.utils.BeanUtil;
+import org.example.common.param.service.GetServiceMetadataParam;
+import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.order.RefundOrderParam;
+import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
 import org.example.common.utils.UuidUtil;
@@ -56,7 +54,6 @@ import org.example.service.OrderService;
 import org.example.service.ServiceInstanceLifecycleService;
 import org.example.service.ServiceManager;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -68,9 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD;
-import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD_UNIT;
 
 @Service
 @Slf4j
@@ -98,39 +92,13 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public BaseResult<String> createOrder(UserInfoModel userInfoModel, CreateOrderParam param) throws AlipayApiException {
-        Long accountId = userInfoModel.getAid() == null ? null : Long.parseLong(userInfoModel.getAid());
-        String orderId = UuidUtil.generateOrderId(accountId, param.getType().getValue(), userInfoModel.getSub());
-        Map<String, Object> nestParameters = (Map<String, Object>) JsonUtil.parseObjectCustom(param.getProductComponents(), Map.class);
-        if (nestParameters == null) {
-            return BaseResult.fail("product components can't be null.");
-        }
-        Long payPeriod = ((Number) nestParameters.remove(PAY_PERIOD)).longValue();
-        PayPeriodUnit payPeriodUnit = PayPeriodUnit.valueOf(String.valueOf(nestParameters.remove(PAY_PERIOD_UNIT)));
-        Object serviceInstanceIdObj = nestParameters.remove(ComputeNestConstants.SERVICE_INSTANCE_ID);
-        String serviceInstanceId = serviceInstanceIdObj != null ? String.valueOf(serviceInstanceIdObj) : null;
-        GetServiceCostParam getServiceCostParam = new GetServiceCostParam();
-        BeanUtil.populateObject(nestParameters, getServiceCostParam);
-        getServiceCostParam.setPayPeriodUnit(payPeriodUnit);
-        getServiceCostParam.setPayPeriod(payPeriod);
-        Double cost = serviceManager.getServiceCost(userInfoModel, getServiceCostParam).getData();
-        if (StringUtils.isEmpty(serviceInstanceId)) {
-            CreateServiceInstanceResponse response = serviceInstanceLifecycleService.createServiceInstance(userInfoModel, nestParameters, true, null);
-            if (response == null || !response.getStatusCode().equals(HttpStatus.OK.value())) {
-                return BaseResult.fail(ErrorInfo.SERVER_UNAVAILABLE);
-            }
-        }
+    public BaseResult<OrderDTO> createOrder(CreateOrderParam param) {
+        return null;
+    }
 
-        String webForm = alipayService.createTransaction(cost, param.getProductName().getDisplayName(), orderId);
-        if (StringUtils.isNotEmpty(webForm)) {
-            OrderDO orderDataObject = createOrderDataObject(orderId, param, accountId, cost, accountId, getServiceCostParam);
-            orderDataObject.setServiceInstanceId(serviceInstanceId);
-            orderOtsHelper.createOrder(orderDataObject);
-            log.info("The Alipay web form has been successfully created with the following content{}.", webForm);
-            return BaseResult.success(webForm);
-        }
-        log.warn("The Alipay web form create failed, user id = {}, order id = {}", accountId, orderId);
-        return BaseResult.fail("The Alipay web form create failed.");
+    @Override
+    public BaseResult<CommoditySpecificationDTO> getCommodityPrice(GetCommodityPriceParam param) {
+        return null;
     }
 
     @Override

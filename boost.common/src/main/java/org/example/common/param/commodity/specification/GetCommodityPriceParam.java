@@ -12,34 +12,27 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.commodity.specification;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
+import org.example.common.constant.PayPeriodUnit;
+import org.example.common.param.SpiBaseParam;
 
-public class PayOrderModel {
-
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
+@Data
+public class GetCommodityPriceParam extends SpiBaseParam {
 
     /**
-     * Product name
+     * 支付周期
      */
-    private String subject;
+    private Integer payPeriod;
 
     /**
-     * Product description summary
+     * 支付周期单位
      */
-    private String body;
+    private PayPeriodUnit payPeriodUnit;
 
     /**
-     * Product out trade number
+     * 套餐名称
      */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
+    private String specificationName;
 }

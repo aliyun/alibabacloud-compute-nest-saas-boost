@@ -21,10 +21,10 @@ import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.CreateOrderParam;
-import org.example.common.param.GetOrderParam;
-import org.example.common.param.ListOrdersParam;
-import org.example.common.param.RefundOrderParam;
+import org.example.common.param.order.CreateOrderParam;
+import org.example.common.param.order.GetOrderParam;
+import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.order.RefundOrderParam;
 import org.example.service.OrderService;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -50,9 +50,8 @@ public class OrderController {
 
     @ApiOperation(value = "创建订单", nickname = "createOrder")
     @RequestMapping(path = "/createOrder", method = RequestMethod.POST)
-    public BaseResult<String> createOrder(@AuthenticationPrincipal @ApiIgnore UserInfoModel userInfoModel,
-                                          @Valid @ModelAttribute CreateOrderParam param) throws AlipayApiException {
-        return orderService.createOrder(userInfoModel, param);
+    public BaseResult<OrderDTO> createOrder(@Valid @ModelAttribute CreateOrderParam param) throws AlipayApiException {
+        return orderService.createOrder(param);
     }
 
     @ApiOperation(value = "查询一行订单", nickname = "getOrder")

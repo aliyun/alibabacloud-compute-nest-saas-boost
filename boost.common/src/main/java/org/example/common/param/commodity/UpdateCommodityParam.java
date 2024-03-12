@@ -12,34 +12,16 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.commodity;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
+import org.example.common.param.commodity.CommodityBaseParam;
 
-public class PayOrderModel {
-
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
+@Data
+public class UpdateCommodityParam extends CommodityBaseParam {
 
     /**
-     * Product name
+     * 服务id
      */
-    private String subject;
-
-    /**
-     * Product description summary
-     */
-    private String body;
-
-    /**
-     * Product out trade number
-     */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
+    private String serviceId;
 }

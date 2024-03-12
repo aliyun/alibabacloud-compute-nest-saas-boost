@@ -12,40 +12,39 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param;
+package org.example.common.dataobject;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.io.Serializable;
 
 @Data
-public class GetServiceTemplateParameterConstraintsParam {
+public class CommodityDO implements Serializable {
+
+    private static final long serialVersionUID = -1469237098541930864L;
 
     /**
-     * Template name
+     * Partition ID generated as MD5(commodityCode).
      */
-    @NotBlank
-    private String templateName;
+    private String pid;
 
     /**
-     * Deploy region
+     * Unique code of the commodity.
      */
-    @NotBlank
-    private String deployRegionId;
+    private String commodityCode;
 
     /**
-     * Template parameter
+     * Name of the commodity.
      */
-    private List<TemplateParameterParam> parameters;
+    private String commodityName;
 
     /**
-     * Nest service id
+     * Type of charge (e.g., PrePaid for subscription-based, PostPaid for pay-as-you-go).
+     */
+    private String chargeType;
+
+    /**
+     * The service ID associated with the commodity in the computation nest.
      */
     private String serviceId;
-
-    /**
-     * Nest service version
-     */
-    private String serviceVersion;
 }

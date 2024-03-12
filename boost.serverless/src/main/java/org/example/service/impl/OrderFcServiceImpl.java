@@ -94,7 +94,7 @@ public class OrderFcServiceImpl implements OrderFcService {
                 .orderOtsHelper(orderOtsHelper)
                 .scheduledThreadPool(scheduledThreadPool)
                 .countDownLatch(countDownLatch)
-                .paymentType(order.getType())
+                .payChannel(order.getType())
                 .build();
         scheduledThreadPool.submit(refundOrderTask);
     }

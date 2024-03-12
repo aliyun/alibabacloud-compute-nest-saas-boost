@@ -12,34 +12,12 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.model;
+package org.example.common.param.commodity;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
+import org.example.common.param.SpiBaseParam;
 
-public class PayOrderModel {
+@Data
+public class GetCommodityParam extends SpiBaseParam {
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
-
-    /**
-     * Product name
-     */
-    private String subject;
-
-    /**
-     * Product description summary
-     */
-    private String body;
-
-    /**
-     * Product out trade number
-     */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
 }
