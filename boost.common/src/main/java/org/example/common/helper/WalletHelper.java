@@ -19,6 +19,7 @@ package org.example.common.helper;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.config.SpecificationConfig;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
@@ -39,6 +40,9 @@ public class WalletHelper {
     @Resource
     private CommoditySpecificationOtsHelper commoditySpecificationOtsHelper;
 
+    @Resource
+    private CommodityOtsHelper commodityOtsHelper;
+
     public Double getServiceCost(String serviceId, String specificationName, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         Double unitPrice = specificationConfig.getPriceBySpecificationName(serviceId, specificationName, payPeriodUnit);
         if (unitPrice != null) {
@@ -48,9 +52,16 @@ public class WalletHelper {
     }
 
     public CommodityPriceModel getCommodityCost(String commodityCode, String specificationName, Long payPeriod) {
-        CommoditySpecificationDTO commoditySpecification = commoditySpecificationOtsHelper.getCommoditySpecification(commodityCode, specificationName);
+        Double unitPrice;
         CommodityPriceModel commodityPriceModel = new CommodityPriceModel();
-        Double unitPrice = commoditySpecification.getUnitPrice();
+        if (StringUtils.isEmpty(specificationName)) {
+            CommodityDTO commodity = commodityOtsHelper.getCommodity(commodityCode);
+            unitPrice = commodity.getUnitPrice();
+        } else {
+            CommoditySpecificationDTO commoditySpecification = commoditySpecificationOtsHelper.getCommoditySpecification(commodityCode, specificationName);
+            unitPrice = commoditySpecification.getUnitPrice();
+        }
+
         if (unitPrice != null) {
             commodityPriceModel.setUnitPrice(unitPrice);
             commodityPriceModel.setTotalAmount(Double.parseDouble(String.format("%.2f", payPeriod * unitPrice)));

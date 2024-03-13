@@ -16,6 +16,9 @@ package org.example.common.dto;
 
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 public class CommodityDTO {
 
@@ -38,4 +41,14 @@ public class CommodityDTO {
      * The service ID associated with the commodity.
      */
     private String serviceId;
+
+    /**
+     * Allowed payment durations of the commodity.
+     */
+    private Map<String, List<String>> allowedPaymentDurations;
+
+    /**
+     * Default Unit price of the commodity.
+     */
+    private Double unitPrice;
 }

@@ -12,21 +12,21 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param.commodity;
+package org.example.common.constant;
 
-import lombok.Data;
+public enum OrderType {
 
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
+    BUY("Purchase an item"),
 
-@Data
-public class CommodityBaseParam implements Serializable {
+    RENEW("Renew a subscription");
 
-    private static final long serialVersionUID = -4413253084153080063L;
+    private final String description;
 
-    /**
-     * 商品code
-     */
-    @NotEmpty
-    private String CommodityCode;
+    OrderType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

@@ -123,4 +123,10 @@ public class OrderDTO {
      * refund detail.
      */
     private String refundDetail;
+
+
+    /**
+     * payment form.
+     */
+    private String paymentForm;
 }

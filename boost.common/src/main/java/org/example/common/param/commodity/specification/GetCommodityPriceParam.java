@@ -18,21 +18,27 @@ import lombok.Data;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.SpiBaseParam;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
 public class GetCommodityPriceParam extends SpiBaseParam {
 
     /**
      * 支付周期
      */
+    @NotNull(message = "payPeriod is null")
     private Long payPeriod;
 
     /**
      * 支付周期单位
      */
+    @NotNull(message = "payPeriodUnit is null")
     private PayPeriodUnit payPeriodUnit;
 
     /**
      * 套餐名称
      */
+    @NotEmpty(message = "specificationName is null")
     private String specificationName;
 }

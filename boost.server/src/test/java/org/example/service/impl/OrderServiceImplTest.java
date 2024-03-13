@@ -15,12 +15,10 @@
 
 package org.example.service.impl;
 
-import com.alipay.api.AlipayApiException;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.PayChannel;
-import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
@@ -29,16 +27,14 @@ import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.GetOrderParam;
-import org.example.common.param.GetServiceCostParam;
-import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
-import org.example.service.base.AlipayService;
+import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.impl.OrderServiceImpl;
+import org.example.service.payment.PaymentServiceManger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +43,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
-import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +62,7 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 class OrderServiceImplTest {
 
     @Mock
-    AlipayService alipayService;
+    PaymentServiceManger alipayService;
 
     @Mock
     OrderOtsHelper orderOtsHelper;
@@ -163,7 +158,7 @@ class OrderServiceImplTest {
 
     @Test
     void testUpdateOrder() {
-        when(alipayService.refundOrder(anyString(), anyDouble(), anyString())).thenReturn(Boolean.TRUE);
+        when(alipayService.refundOrder(anyString(), anyDouble(), anyString(), PayChannel.ALIPAY)).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(null);
 
@@ -195,7 +190,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
+            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString(),PayChannel.ALIPAY);
         }
     }
 
@@ -224,7 +219,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
+            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString(), PayChannel.ALIPAY);
         }
     }
 
@@ -256,7 +251,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
+            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString(), PayChannel.ALIPAY);
         }
     }
 

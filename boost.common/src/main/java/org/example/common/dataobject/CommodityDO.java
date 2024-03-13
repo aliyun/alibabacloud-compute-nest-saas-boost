@@ -47,4 +47,14 @@ public class CommodityDO implements Serializable {
      * The service ID associated with the commodity in the computation nest.
      */
     private String serviceId;
+
+    /**
+     * Owner ID of the commodity.
+     */
+    private String ownerId;
+
+    /**
+     * Default Unit price of the commodity.
+     */
+    private Double unitPrice;
 }

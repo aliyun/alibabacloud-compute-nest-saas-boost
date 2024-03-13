@@ -37,6 +37,10 @@ public class CommoditySpecificationDTO {
      */
     private Map<String, List<String>> allowedPaymentDurations;
 
+    /**
+     * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
+     */
+    private String payPeriods;
 
     /**
      * Price per unit for the specification.
@@ -47,4 +51,9 @@ public class CommoditySpecificationDTO {
      * Currency unit for the specification.
      */
     private String currency;
+
+    /**
+     * Unit for pricing calculation (e.g., Year, Month, or PostPaid).
+     */
+    private String payPeriodUnit;
 }

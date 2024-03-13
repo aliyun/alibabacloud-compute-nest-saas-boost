@@ -12,21 +12,17 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param.commodity;
+package org.example.common.param;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 @Data
-public class CommodityBaseParam implements Serializable {
+public class ListBaseParam implements Serializable {
+    private static final long serialVersionUID = -3260478587973764770L;
 
-    private static final long serialVersionUID = -4413253084153080063L;
+    private Integer maxResults;
 
-    /**
-     * 商品code
-     */
-    @NotEmpty
-    private String CommodityCode;
+    private String nextToken;
 }

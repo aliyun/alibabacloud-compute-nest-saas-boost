@@ -14,30 +14,38 @@
  */
 package org.example.common.param.commodity.specification;
 
+import lombok.Data;
+import org.example.common.constant.Currency;
 import org.example.common.constant.PayPeriodUnit;
-import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@Data
 public class CreateCommoditySpecificationParam extends CommoditySpecificationParam {
 
     /**
      * Unit for pricing calculation.
      */
+    @NotNull
     private PayPeriodUnit payPeriodUnit;
 
     /**
      * Allowed payment durations for the specification.
      */
-    private List<Integer> payPeriods;
+    @NotEmpty(message = "payPeriods is null.")
+    private List<Long> payPeriods;
 
     /**
      * Price per unit for the specification.
      */
+    @NotNull(message = "unitPrice is null.")
     private Double unitPrice;
 
     /**
      * Currency unit for the specification.
      */
-    private String currency;
+    @NotNull(message = "currency is null.")
+    private Currency currency;
 }

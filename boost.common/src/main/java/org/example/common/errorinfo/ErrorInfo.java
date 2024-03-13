@@ -28,13 +28,13 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     SIGNATURE_VERIFICATION_ERROR(400, "SignatureVerificationError", "AliPay Signature Verification Error"),
 
-    ENTITY_NOT_EXIST(400, "EntityNotExist","The order entity does not exist."),
+    ENTITY_NOT_EXIST(400, "EntityNotExist","The entity \"%s\" does not exist."),
 
     SERVER_UNAVAILABLE(503,"ServerUnavailable","Server is unavailable."),
 
     SPECIFICATION_NOT_EXIST(400, "SpecificationNotExist", "The Specification does not exist."),
 
-    COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value can't be null."),
+    COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value \"%s\" can't be null."),
 
     CURRENT_ORDER_CANT_BE_REFUNDED(400, "Current_Order_Cant_Be_Refunded", "The Current Order Cant be refunded."),
 

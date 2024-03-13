@@ -15,6 +15,7 @@
 package org.example.common.dataobject;
 
 import lombok.Data;
+import org.example.common.constant.PayPeriodUnit;
 
 import java.io.Serializable;
 import java.util.List;
@@ -47,12 +48,12 @@ public class CommoditySpecificationDO implements Serializable {
     /**
      * Unit for pricing calculation (e.g., Year, Month, or PostPaid).
      */
-    private String payPeriodUnit;
+    private PayPeriodUnit payPeriodUnit;
 
     /**
      * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
      */
-    private List<Integer> payPeriods;
+    private String payPeriods;
 
     /**
      * Price per unit.

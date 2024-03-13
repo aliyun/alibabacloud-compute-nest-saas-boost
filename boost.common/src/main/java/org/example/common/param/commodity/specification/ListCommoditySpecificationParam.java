@@ -15,11 +15,21 @@
 package org.example.common.param.commodity.specification;
 
 import lombok.Data;
+import org.example.common.param.ListBaseParam;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
-public class ListCommoditySpecificationParam extends CommoditySpecificationParam{
+public class ListCommoditySpecificationParam extends ListBaseParam {
 
-    private Integer maxResults;
+    /**
+     * 套餐名称
+     */
+    private String SpecificationName;
 
-    private String nextToken;
+    /**
+     * 商品code
+     */
+    private String CommodityCode;
 }

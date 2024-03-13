@@ -35,7 +35,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/api")
-@Api(value="commoditySpecification",tags={"commoditySpecification"})
+@Api(value="specification",tags={"specification"})
 public class CommoditySpecificationController {
 
     private final CommoditySpecificationService commoditySpecificationService;

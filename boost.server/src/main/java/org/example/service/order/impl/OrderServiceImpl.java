@@ -24,10 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.OrderOtsConstant;
+import org.example.common.constant.PayChannel;
 import org.example.common.constant.RefundReason;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
-import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
@@ -40,7 +40,6 @@ import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.RefundDetailModel;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
@@ -50,7 +49,6 @@ import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
 import org.example.common.utils.UuidUtil;
-import org.example.service.base.AlipayService;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.OrderService;
@@ -73,7 +71,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     @Resource
-    private AlipayService alipayService;
+    private PaymentServiceManger alipayService;
 
     @Resource
     private OrderOtsHelper orderOtsHelper;
@@ -249,7 +247,7 @@ public class OrderServiceImpl implements OrderService {
             orderDO.setTradeStatus(TradeStatus.REFUNDING);
         } else {
             String refundId = UuidUtil.generateRefundId();
-            alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
+            alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId, PayChannel.ALIPAY);
             orderDO.setTradeStatus(TradeStatus.REFUNDED);
         }
         orderOtsHelper.updateOrder(orderDO);

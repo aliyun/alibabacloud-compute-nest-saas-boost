@@ -17,11 +17,14 @@ package org.example.common.param.commodity.specification;
 import lombok.Data;
 import org.example.common.param.commodity.CommodityBaseParam;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 public class CommoditySpecificationParam extends CommodityBaseParam {
 
     /**
      * 套餐名称
      */
+    @NotEmpty(message = "套餐名称不能为空")
     private String SpecificationName;
 }

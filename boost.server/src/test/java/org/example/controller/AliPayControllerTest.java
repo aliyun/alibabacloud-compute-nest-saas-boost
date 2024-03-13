@@ -15,7 +15,8 @@
 
 package org.example.controller;
 
-import org.example.service.base.AlipayService;
+import org.example.common.constant.PayChannel;
+import org.example.service.payment.PaymentServiceManger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,11 +24,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 class AliPayControllerTest {
     @Mock
-    AlipayService alipayService;
+    PaymentServiceManger alipayService;
     @InjectMocks
     AliPayController aliPayController;
 
@@ -38,7 +40,7 @@ class AliPayControllerTest {
 
     @Test
     void testVerifyTradeCallback() {
-        when(alipayService.verifyTradeCallback(any())).thenReturn("verifyTradeCallbackResponse");
+        when(alipayService.verifyTradeCallback(any(), PayChannel.ALIPAY)).thenReturn("verifyTradeCallbackResponse");
 
         String result = aliPayController.verifyTradeCallback(null);
         Assertions.assertEquals("verifyTradeCallbackResponse", result);

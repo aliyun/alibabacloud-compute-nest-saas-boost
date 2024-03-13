@@ -18,6 +18,7 @@ package org.example.common.utils;
 import org.example.common.constant.ChargeType;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.order.CreateOrderParam;
 import org.junit.jupiter.api.Test;
 
@@ -31,30 +32,55 @@ class TokenUtilTest {
 
 
     @Test
-    public void testCreateSpiToken() {
+    public void testCreateOrderSpiToken() {
         CreateOrderParam param = new CreateOrderParam();
         param.setChargeType(ChargeType.PRE_PAID);
-        param.setPayPeriod(12L);
+        param.setPayPeriod(1L);
         param.setPayPeriodUnit(PayPeriodUnit.Month);
         param.setPayChannel(PayChannel.ALIPAY);
         param.setOrderType("new");
         param.setSpecificationName("basic");
-        param.setCommodityCode("CC12345");
+        param.setCommodityCode("saas-boost-176625a4");
         param.setToken("ignoredToken");
+        param.setUserId("1563457855438522");
 
         Map<String, String> map = new HashMap<>();
-        map.put("commodityCode", "CC12345");
+        map.put("commodityCode", "saas-boost-176625a4");
         map.put("chargeType", ChargeType.PRE_PAID.toString());
         map.put("payPeriodUnit", PayPeriodUnit.Month.toString());
         map.put("payChannel", PayChannel.ALIPAY.toString());
         map.put("orderType", "new");
         map.put("specificationName", "basic");
+        map.put("payPeriod", "1");
+        map.put("userId", "1563457855438522");
+
+        String data = TokenUtil.buildUrlParams(map);
+        data += "&key=" + "isvKey";
+        String md5HexString = EncryptionUtil.getMd5HexString(data);
+        String actualToken = TokenUtil.createSpiToken(param, "isvKey");
+
+        assertEquals(md5HexString, actualToken);
+    }
+
+    @Test
+    public void testGetCommodityPriceSpiToken() {
+        GetCommodityPriceParam param = new GetCommodityPriceParam();
+        param.setPayPeriod(12L);
+        param.setPayPeriodUnit(PayPeriodUnit.Month);
+        param.setSpecificationName("basic");
+        param.setCommodityCode("saas-boost-176625a4");
+        param.setToken("ignoredToken");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("commodityCode", "saas-boost-176625a4");
+        map.put("payPeriodUnit", PayPeriodUnit.Month.toString());
+        map.put("specificationName", "basic");
         map.put("payPeriod", "12");
 
         String data = TokenUtil.buildUrlParams(map);
-        data += "&key=" + "secretKey";
+        data += "&key=" + "isvKey";
         String md5HexString = EncryptionUtil.getMd5HexString(data);
-        String actualToken = TokenUtil.createSpiToken(param, "secretKey");
+        String actualToken = TokenUtil.createSpiToken(param, "isvKey");
 
         assertEquals(md5HexString, actualToken);
     }

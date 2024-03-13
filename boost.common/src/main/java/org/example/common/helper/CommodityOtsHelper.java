@@ -33,10 +33,11 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.List;
 
+import static org.example.common.constant.CommodityOtsConstant.TABLE_NAME;
+
 @Slf4j
 @Component
 public class CommodityOtsHelper {
-    private static final String TABLE_NAME = "Commodity";
 
     @Resource
     private BaseOtsHelper baseOtsHelper;

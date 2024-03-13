@@ -12,21 +12,18 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param.commodity;
+package org.example.common.constant;
 
-import lombok.Data;
+public enum Currency {
+    CNY("RMB");
 
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
+    private final String description;
 
-@Data
-public class CommodityBaseParam implements Serializable {
+    Currency(String description) {
+        this.description = description;
+    }
 
-    private static final long serialVersionUID = -4413253084153080063L;
-
-    /**
-     * 商品code
-     */
-    @NotEmpty
-    private String CommodityCode;
+    public String getDescription() {
+        return description;
+    }
 }

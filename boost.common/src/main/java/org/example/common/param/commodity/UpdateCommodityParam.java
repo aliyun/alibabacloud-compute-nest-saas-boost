@@ -15,7 +15,8 @@
 package org.example.common.param.commodity;
 
 import lombok.Data;
-import org.example.common.param.commodity.CommodityBaseParam;
+
+import javax.validation.constraints.NotEmpty;
 
 @Data
 public class UpdateCommodityParam extends CommodityBaseParam {
@@ -23,5 +24,6 @@ public class UpdateCommodityParam extends CommodityBaseParam {
     /**
      * 服务id
      */
+    @NotEmpty
     private String serviceId;
 }

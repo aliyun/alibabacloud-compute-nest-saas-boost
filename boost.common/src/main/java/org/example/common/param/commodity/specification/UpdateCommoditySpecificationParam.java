@@ -18,6 +18,7 @@ import lombok.Data;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.commodity.CommodityBaseParam;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -31,7 +32,7 @@ public class UpdateCommoditySpecificationParam extends CommoditySpecificationPar
     /**
      * Allowed payment durations for the specification.
      */
-    private List<Integer> payPeriods;
+    private List<Long> payPeriods;
 
     /**
      * Price per unit for the specification.

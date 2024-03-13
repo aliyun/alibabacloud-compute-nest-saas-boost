@@ -52,21 +52,8 @@ public interface CommoditySpecificationOtsConstant {
      */
     String SPECIFICATION_NAME = "specificationName";
 
-    /**
-     * Field for price unit on CommoditySpecification table.
-     */
-    String PAY_PERIOD_UNIT = "payPeriodUnit";
+    String OWNER_ID = "ownerId";
 
-    /**
-     * Set of fields commonly used for match filters in the search index for commodity specifications.
-     */
-    Set<String> MATCH_FILTERS_SET = Collections.unmodifiableSet(new HashSet<String>() {
-        {
-            add(SPECIFICATION_NAME);
-            add(COMMODITY_CODE);
-            add(PAY_PERIOD_UNIT);
-        }
-    });
 
     /**
      * Set of fields commonly used for range queries in the search index for commodity specifications.

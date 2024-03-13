@@ -14,6 +14,7 @@
  */
 package org.example.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
@@ -37,6 +38,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/api")
+@Api(value="commodity",tags={"commodity"})
 public class CommodityController {
 
     private final CommodityService commodityService;
@@ -57,7 +59,7 @@ public class CommodityController {
     @AdminAPI
     @ApiOperation(value = "更新商品信息", nickname = "updateCommodity")
     @RequestMapping(path = "/updateCommodity}", method = RequestMethod.PUT)
-    public BaseResult<CommodityDTO> updateCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+    public BaseResult<Void> updateCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                                     UpdateCommodityParam param) {
         return commodityService.updateCommodity(userInfoModel, param);
     }

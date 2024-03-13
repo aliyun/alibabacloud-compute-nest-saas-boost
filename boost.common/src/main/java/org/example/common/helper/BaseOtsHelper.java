@@ -39,10 +39,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.ListResult;
 import org.example.common.adapter.OtsClient;
-import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.utils.EncryptionUtil;
+import org.example.common.utils.JsonUtil;
 import org.example.common.utils.OtsUtil;
 import org.example.common.utils.ReflectionUtil;
 import org.springframework.stereotype.Component;
@@ -75,21 +75,25 @@ public class BaseOtsHelper {
             criteria.setFilter(filter);
         }
         criteria.setMaxVersions(1);
+        log.info("criteria:{}", JsonUtil.toJsonString(criteria));
         GetRowResponse getRowResponse = otsClient.getRow(criteria);
         Optional<Row> optionalRow = Optional.ofNullable(getRowResponse != null ? getRowResponse.getRow() : null);
-        return optionalRow.map(order -> OtsUtil.convertRowToDTO(order, clazz))
-                .orElseThrow(() -> new BizException(ErrorInfo.ENTITY_NOT_EXIST));
+        return optionalRow.map(object -> OtsUtil.convertRowToDTO(object, clazz))
+                .orElseThrow(() -> new BizException(ErrorInfo.ENTITY_NOT_EXIST.getStatusCode(), ErrorInfo.ENTITY_NOT_EXIST.getCode(),
+                        String.format(ErrorInfo.ENTITY_NOT_EXIST.getMessage(), tableName)));
     }
 
     public void createEntity(String tableName, PrimaryKey primaryKey, List<Column> columns) {
         RowPutChange rowPutChange = new RowPutChange(tableName, primaryKey);
         rowPutChange.addColumns(columns);
+        log.info("rowPutChange:{}", JsonUtil.toJsonString(rowPutChange));
         otsClient.putRow(rowPutChange);
     }
 
     public Boolean updateEntity(String tableName, PrimaryKey primaryKey, List<Column> columns) {
         RowUpdateChange rowUpdateChange = new RowUpdateChange(tableName, primaryKey);
         rowUpdateChange.put(columns);
+        log.info("rowUpdateChange:{}", JsonUtil.toJsonString(rowUpdateChange));
         otsClient.updateRow(rowUpdateChange);
         return Boolean.TRUE;
     }
@@ -97,6 +101,7 @@ public class BaseOtsHelper {
     public Boolean deleteEntity(String tableName, PrimaryKey primaryKey) {
         RowDeleteChange rowDeleteChange = new RowDeleteChange(tableName, primaryKey);
         DeleteRowRequest deleteRowRequest = new DeleteRowRequest(rowDeleteChange);
+        log.info("deleteRowRequest:{}", JsonUtil.toJsonString(deleteRowRequest));
         otsClient.deletRow(deleteRowRequest);
         return Boolean.TRUE;
     }
@@ -161,8 +166,9 @@ public class BaseOtsHelper {
             }
         }
         SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
-        columnsToGet.setColumns(ReflectionUtil.getPropertyNames(OrderDTO.class));
+        columnsToGet.setColumns(ReflectionUtil.getPropertyNames(clazz));
         searchRequest.setColumnsToGet(columnsToGet);
+        log.info("searchRequest:{}", JsonUtil.toJsonString(searchRequest));
         SearchResponse searchResponse = otsClient.search(searchRequest);
         if (searchResponse == null || searchResponse.getRows() == null) {
             return ListResult.genSuccessListResult(null, 0);

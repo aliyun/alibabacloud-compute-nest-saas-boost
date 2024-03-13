@@ -15,11 +15,9 @@
 package org.example.common.param.commodity;
 
 import lombok.Data;
+import org.example.common.param.ListBaseParam;
 
 @Data
-public class ListAllCommoditiesParam extends CommodityBaseParam {
+public class ListAllCommoditiesParam extends ListBaseParam {
 
-    private Integer maxResults;
-
-    private String nextToken;
 }

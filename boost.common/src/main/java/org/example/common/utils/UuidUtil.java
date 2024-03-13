@@ -29,6 +29,8 @@ public class UuidUtil {
 
     private static final String ALIPAY_OUT_TRADE_NO_PREFIX = "alipay-";
 
+    private static final String COMMODITY_CODE_PREFIX = "saas-boost-";
+
     public static String generateUuid(String prefix, int randomStrLen) {
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         return prefix + uuid.substring(0, randomStrLen);
@@ -47,7 +49,7 @@ public class UuidUtil {
     }
 
     public static String generateCommodityCode() {
-        return generateUuid("", 8);
+        return generateUuid(COMMODITY_CODE_PREFIX, 8);
     }
 
     public static String generateOrderId(Long userId, String orderType) {

@@ -31,10 +31,10 @@ public interface CommodityService {
     BaseResult<CommodityDTO> createCommodity(UserInfoModel userInfoModel, CreateCommodityParam param);
 
 
-    ListResult<CommodityDTO> listAllCommodities(UserInfoModel userInfoModel, ListAllCommoditiesParam listAllCommoditiesParam);
+    ListResult<CommodityDTO> listAllCommodities(UserInfoModel userInfoModel, ListAllCommoditiesParam param);
 
 
-    BaseResult<CommodityDTO> updateCommodity(UserInfoModel userInfoModel, UpdateCommodityParam param);
+    BaseResult<Void> updateCommodity(UserInfoModel userInfoModel, UpdateCommodityParam param);
 
     BaseResult deleteCommodity(UserInfoModel userInfoModel, CommodityBaseParam param);
 

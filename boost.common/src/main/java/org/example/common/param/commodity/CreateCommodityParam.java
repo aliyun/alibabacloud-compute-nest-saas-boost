@@ -14,20 +14,30 @@
  */
 package org.example.common.param.commodity;
 
+import lombok.Data;
+import org.example.common.constant.ChargeType;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+@Data
 public class CreateCommodityParam {
 
     /**
      * Name of the commodity.
      */
+    @NotEmpty
     private String commodityName;
 
     /**
      * Type of charge (e.g., PrePaid for subscription-based, PostPaid for pay-as-you-go).
      */
-    private String chargeType;
+    @NotNull
+    private ChargeType chargeType;
 
     /**
      * The service ID associated with the commodity in the computation nest.
      */
+    @NotEmpty
     private String serviceId;
 }

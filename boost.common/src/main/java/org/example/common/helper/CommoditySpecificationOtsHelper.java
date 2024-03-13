@@ -51,9 +51,9 @@ public class CommoditySpecificationOtsHelper {
         return baseOtsHelper.updateEntity(CommoditySpecificationOtsConstant.TABLE_NAME, primaryKey, columns);
     }
 
-    public ListResult<CommoditySpecificationDTO> listCommoditySpecifications(String nextToken, List<BaseOtsHelper.OtsFilter> filters, List<Sort.Sorter> sorters) {
+    public ListResult<CommoditySpecificationDTO> listCommoditySpecifications(String nextToken, List<BaseOtsHelper.OtsFilter> matchFilters, List<Sort.Sorter> sorters) {
         return baseOtsHelper.listEntities(CommoditySpecificationOtsConstant.TABLE_NAME, CommoditySpecificationOtsConstant.SEARCH_INDEX_NAME,
-                filters, null, null, nextToken, sorters, CommoditySpecificationDTO.class);
+                matchFilters, null, null, nextToken, sorters, CommoditySpecificationDTO.class);
     }
 
     public CommoditySpecificationDTO getCommoditySpecification(String commodityCode, String specificationCode) {

@@ -20,13 +20,14 @@ import org.example.common.BaseResult;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.config.AlipayConfig;
 import org.example.common.constant.AliPayConstants;
+import org.example.common.constant.PayChannel;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.GetOrderParam;
-import org.example.service.base.impl.AlipayServiceImpl;
 import org.example.service.order.OrderService;
+import org.example.service.payment.PaymentServiceManger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyDouble;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.when;
 
 class AlipayServiceImplTest {
 
@@ -57,7 +62,7 @@ class AlipayServiceImplTest {
     Logger log;
 
     @InjectMocks
-    AlipayServiceImpl alipayServiceImpl;
+    PaymentServiceManger alipayServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -84,7 +89,7 @@ class AlipayServiceImplTest {
         request.setParameter("type", "ALIPAY");
         request.setParameter("total_amount", "100.0");
 
-        String result = alipayServiceImpl.verifyTradeCallback(request);
+        String result = alipayServiceImpl.verifyTradeCallback(request, PayChannel.ALIPAY);
         Assertions.assertEquals("success", result);
     }
 
@@ -111,7 +116,7 @@ class AlipayServiceImplTest {
         request.setParameter("total_amount", "100.0");
         request.setParameter("sign", "validSignature");
 
-        String result = alipayServiceImpl.verifyTradeCallback(request);
+        String result = alipayServiceImpl.verifyTradeCallback(request, PayChannel.ALIPAY);
         Assertions.assertEquals("success", result);
         Mockito.verify(orderService, Mockito.times(1)).updateOrder(Mockito.any(UserInfoModel.class), Mockito.any(OrderDO.class));
     }
@@ -122,7 +127,7 @@ class AlipayServiceImplTest {
         request.setParameter(AliPayConstants.OUT_TRADE_NO, "invalidOrderId");
         BaseResult<OrderDTO> orderResult = BaseResult.success();
         when(orderService.getOrder(eq(null), any(GetOrderParam.class))).thenReturn(orderResult);
-        String result = alipayServiceImpl.verifyTradeCallback(request);
+        String result = alipayServiceImpl.verifyTradeCallback(request, PayChannel.ALIPAY);
         Assertions.assertEquals("failure", result);
         Mockito.verify(orderService, Mockito.never()).updateOrder(Mockito.any(UserInfoModel.class), Mockito.any(OrderDO.class));
     }
@@ -149,7 +154,7 @@ class AlipayServiceImplTest {
         request.setParameter("seller_id", "111");
         request.setParameter("app_id", "222");
         request.setParameter("total_amount", "99.0");
-        String result = alipayServiceImpl.verifyTradeCallback(request);
+        String result = alipayServiceImpl.verifyTradeCallback(request, PayChannel.ALIPAY);
         Assertions.assertEquals("failure", result);
         Mockito.verify(orderService, Mockito.never()).updateOrder(Mockito.any(UserInfoModel.class), Mockito.any(OrderDO.class));
     }
@@ -158,7 +163,7 @@ class AlipayServiceImplTest {
     void testCreateTransaction() {
         when(baseAlipayClient.createTransaction(anyDouble(), anyString(), anyString())).thenReturn("createTransactionResponse");
 
-        String result = alipayServiceImpl.createTransaction(Double.valueOf(0), "subject", "outTradeNo");
+        String result = alipayServiceImpl.createTransaction(Double.valueOf(0), "subject", "outTradeNo", PayChannel.ALIPAY);
         Assertions.assertEquals("createTransactionResponse", result);
     }
 
@@ -166,7 +171,7 @@ class AlipayServiceImplTest {
     void testRefundOrder() {
         when(baseAlipayClient.refundOrder(anyString(), anyDouble(), anyString())).thenReturn(Boolean.TRUE);
 
-        Boolean result = alipayServiceImpl.refundOrder("orderId", Double.valueOf(0), "refundId");
+        Boolean result = alipayServiceImpl.refundOrder("orderId", Double.valueOf(0), "refundId", PayChannel.ALIPAY);
         Assertions.assertEquals(Boolean.TRUE, result);
     }
 }
