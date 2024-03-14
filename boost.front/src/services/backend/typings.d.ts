@@ -13,6 +13,13 @@ declare namespace API {
     refresh_token?: string;
   };
 
+  type BaseResult = {
+    code?: string;
+    data?: Record<string, any>;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultAuthConfigurationModel_ = {
     code?: string;
     data?: AuthConfigurationModel;
@@ -23,6 +30,20 @@ declare namespace API {
   type BaseResultAuthTokenModel_ = {
     code?: string;
     data?: AuthTokenModel;
+    message?: string;
+    requestId?: string;
+  };
+
+  type BaseResultCommodityDTO_ = {
+    code?: string;
+    data?: CommodityDTO;
+    message?: string;
+    requestId?: string;
+  };
+
+  type BaseResultCommodityPriceModel_ = {
+    code?: string;
+    data?: CommodityPriceModel;
     message?: string;
     requestId?: string;
   };
@@ -62,13 +83,6 @@ declare namespace API {
     requestId?: string;
   };
 
-  type BaseResultString_ = {
-    code?: string;
-    data?: string;
-    message?: string;
-    requestId?: string;
-  };
-
   type BaseResultUserInfoModel_ = {
     code?: string;
     data?: UserInfoModel;
@@ -76,10 +90,70 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultVoid_ = {
+    code?: string;
+    message?: string;
+    requestId?: string;
+  };
+
+  type CommodityDTO = {
+    allowedPaymentDurations?: Record<string, any>;
+    chargeType?: string;
+    commodityCode?: string;
+    commodityName?: string;
+    serviceId?: string;
+    unitPrice?: number;
+  };
+
+  type CommodityPriceModel = {
+    totalAmount?: number;
+    unitPrice?: number;
+  };
+
+  type CommoditySpecificationDTO = {
+    allowedPaymentDurations?: Record<string, any>;
+    commodityCode?: string;
+    currency?: string;
+    payPeriodUnit?: string;
+    payPeriods?: string;
+    specificationName?: string;
+    unitPrice?: number;
+  };
+
+  type createCommodityParams = {
+    chargeType?: 'POST_PAID' | 'PRE_PAID';
+    commodityName?: string;
+    serviceId?: string;
+  };
+
+  type CreateCommoditySpecificationParam = {
+    commodityCode?: string;
+    currency?: 'CNY';
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: number[];
+    specificationName?: string;
+    unitPrice?: number;
+  };
+
   type createOrderParams = {
-    productComponents?: string;
-    productName?: 'SERVICE_INSTANCE';
-    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    chargeType?: 'POST_PAID' | 'PRE_PAID';
+    commodityCode?: string;
+    orderType?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    specificationName?: string;
+    token?: string;
+    userId?: string;
+  };
+
+  type deleteCommodityParams = {
+    commodityCode?: string;
+  };
+
+  type deleteCommoditySpecificationParams = {
+    commodityCode?: string;
+    specificationName?: string;
   };
 
   type getAuthTokenParams = {
@@ -87,6 +161,19 @@ declare namespace API {
     redirectUri?: string;
     sessionState?: string;
     state?: string;
+  };
+
+  type getCommodityParams = {
+    commodityCode?: string;
+    token?: string;
+  };
+
+  type getCommodityPriceParams = {
+    commodityCode?: string;
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    specificationName?: string;
+    token?: string;
   };
 
   type getOrderParams = {
@@ -134,6 +221,18 @@ declare namespace API {
     resourceType?: string;
   };
 
+  type listAllCommoditiesParams = {
+    maxResults?: number;
+    nextToken?: string;
+  };
+
+  type listAllSpecificationsParams = {
+    commodityCode?: string;
+    maxResults?: number;
+    nextToken?: string;
+    specificationName?: string;
+  };
+
   type listMetricsParams = {
     endTime?: string;
     metricName?: string;
@@ -156,6 +255,24 @@ declare namespace API {
       | 'REFUNDED'
       | 'REFUNDING'
     )[];
+  };
+
+  type ListResultCommodityDTO_ = {
+    code?: string;
+    count?: number;
+    data?: CommodityDTO[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
+  };
+
+  type ListResultCommoditySpecificationDTO_ = {
+    code?: string;
+    count?: number;
+    data?: CommoditySpecificationDTO[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
   };
 
   type ListResultGetServiceTemplateParameterConstraintsResponseBodyParameterConstraints_ = {
@@ -222,6 +339,7 @@ declare namespace API {
     orderId?: string;
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    paymentForm?: string;
     productComponents?: string;
     productName?: 'SERVICE_INSTANCE';
     receiptAmount?: number;
@@ -245,7 +363,7 @@ declare namespace API {
   type RefundOrderParam = {
     dryRun?: boolean;
     orderId?: string;
-    paymentType?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     serviceInstanceId?: string;
   };
 
@@ -286,7 +404,21 @@ declare namespace API {
     parameterValue?: string;
   };
 
+  type updateCommodityParams = {
+    commodityCode?: string;
+    serviceId?: string;
+  };
+
+  type updateCommoditySpecificationParams = {
+    commodityCode?: string;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: number[];
+    specificationName?: string;
+    unitPrice?: number;
+  };
+
   type UserInfoModel = {
+    admin?: boolean;
     aid?: string;
     /** login_name */
     login_name?: string;
