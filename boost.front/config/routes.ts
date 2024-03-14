@@ -76,5 +76,11 @@ export default [
         component: './Doc',
         icon: 'DatabaseOutlined',
         name: '文档'
-    }
+    },
+    {
+        name: '商品',
+        icon: 'ShopOutlined',
+        path: '/commodity',
+        component: './Commodity',
+    },
 ];

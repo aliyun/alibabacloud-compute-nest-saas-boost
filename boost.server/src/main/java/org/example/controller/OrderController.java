@@ -50,14 +50,14 @@ public class OrderController {
 
     @ApiOperation(value = "创建订单", nickname = "createOrder")
     @RequestMapping(path = "/spi/createOrder", method = RequestMethod.POST)
-    public BaseResult<OrderDTO> createOrder(@Valid @ModelAttribute CreateOrderParam param) throws AlipayApiException {
+    public BaseResult<OrderDTO> createOrder(@ModelAttribute CreateOrderParam param) throws AlipayApiException {
         return orderService.createOrder(param);
     }
 
     @ApiOperation(value = "查询一行订单", nickname = "getOrder")
     @RequestMapping(path = "/getOrder", method = RequestMethod.GET)
     public BaseResult<OrderDTO> getOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                         @Valid @ModelAttribute GetOrderParam param)  {
+                                         @ModelAttribute GetOrderParam param)  {
         return orderService.getOrder(userInfoModel, param);
     }
 

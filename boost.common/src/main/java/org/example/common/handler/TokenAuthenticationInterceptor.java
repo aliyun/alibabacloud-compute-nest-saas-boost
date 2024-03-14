@@ -70,7 +70,9 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
             }
 
             UserInfoModel userInfoModel = tokenParseHelper.getUserInfoFromIdToken(singleToken);
-            if (adminOnly != null && !isAdminUser(userInfoModel)) {
+            boolean adminUser = isAdminUser(userInfoModel);
+            userInfoModel.setAdmin(adminUser);
+            if (adminOnly != null && !adminUser) {
                 setResponse(response, ErrorInfo.USER_NOT_ADMIN);
             }
 

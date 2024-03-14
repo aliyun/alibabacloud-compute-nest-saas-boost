@@ -142,7 +142,7 @@ class OrderServiceImplTest {
     void testGetOrder() {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(new OrderDTO());
 
-        BaseResult<OrderDTO> result = orderServiceImpl.getOrder(new UserInfoModel("sub", "name", "loginName", "123", "123"), new GetOrderParam("orderId"));
+        BaseResult<OrderDTO> result = orderServiceImpl.getOrder(new UserInfoModel("sub", "name", "loginName", "123", "123", Boolean.TRUE), new GetOrderParam("orderId"));
         Assertions.assertTrue(result.getCode().equals("200"));
     }
 
@@ -152,7 +152,7 @@ class OrderServiceImplTest {
         ListOrdersParam listOrdersParam = new ListOrdersParam();
         listOrdersParam.setStartTime("2022-09-08T09:09:09Z");
         listOrdersParam.setEndTime("2022-09-08T09:09:09Z");
-        ListResult<OrderDTO> result = orderServiceImpl.listOrders(new UserInfoModel("sub", "name", "loginName", "123", "123"),listOrdersParam );
+        ListResult<OrderDTO> result = orderServiceImpl.listOrders(new UserInfoModel("sub", "name", "loginName", "123", "123", Boolean.TRUE),listOrdersParam );
         Assertions.assertNull(result);
     }
 
@@ -322,7 +322,7 @@ class OrderServiceImplTest {
     }
 
     private UserInfoModel createMockUserInfoModel() {
-        return new UserInfoModel("sub", "name", "loginName", "123", "123");
+        return new UserInfoModel("sub", "name", "loginName", "123", "123", Boolean.TRUE);
     }
 }
 

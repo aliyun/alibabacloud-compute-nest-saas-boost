@@ -43,13 +43,15 @@ public class ServiceInstanceController {
 
     @ApiOperation(value = "获取该用户下的全部服务实例列表", nickname = "listServiceInstances")
     @RequestMapping(path = "/listServiceInstances",method = RequestMethod.GET)
-    public ListResult<ServiceInstanceModel> listServiceInstances(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert ListServiceInstancesParam listServiceInstancesParam) {
+    public ListResult<ServiceInstanceModel> listServiceInstances(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                                 @APIParameterConvert ListServiceInstancesParam listServiceInstancesParam) {
         return serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
     }
 
     @ApiOperation(value = "获取指定ID的服务实例详情", nickname = "getServiceInstance")
     @RequestMapping(path = "/getServiceInstance",method = RequestMethod.GET)
-    public BaseResult<ServiceInstanceModel> getServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert GetServiceInstanceParam getServiceInstanceParam) {
+    public BaseResult<ServiceInstanceModel> getServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                               @APIParameterConvert GetServiceInstanceParam getServiceInstanceParam) {
         return serviceInstanceLifecycleService.getServiceInstance(userInfoModel, getServiceInstanceParam);
     }
 }

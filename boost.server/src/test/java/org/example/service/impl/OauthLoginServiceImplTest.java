@@ -72,7 +72,7 @@ class OauthLoginServiceImplTest {
         userInfoModel.setUid("aliYunUserId");
         final BaseResult<UserInfoModel> expectedResult = new BaseResult<>(userInfoModel);
         expectedResult.setRequestId("id");
-        final UserInfoModel userInfoModel1 = new UserInfoModel("userId", "name", "aliYunLoginName", "aliYunId", "aliYunUserId");
+        final UserInfoModel userInfoModel1 = new UserInfoModel("userId", "name", "aliYunLoginName", "aliYunId", "aliYunUserId", Boolean.TRUE);
         when(mockTokenParseHelper.getUserInfoFromIdToken(mockTokenParseHelper.parseBearerTokenToToken("token"))).thenReturn(userInfoModel1);
 
         final BaseResult<UserInfoModel> result = keycloakLoginServiceImplUnderTest.getUserInfo(userInfoModel1);

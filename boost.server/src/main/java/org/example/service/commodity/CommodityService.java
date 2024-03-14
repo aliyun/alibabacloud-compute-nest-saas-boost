@@ -25,18 +25,21 @@ import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;
 import org.example.common.param.commodity.UpdateCommodityParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
 
 public interface CommodityService {
 
-    BaseResult<CommodityDTO> createCommodity(UserInfoModel userInfoModel, CreateCommodityParam param);
+    BaseResult<CommodityDTO> createCommodity(UserInfoModel userInfoModel, @Valid CreateCommodityParam param);
 
 
     ListResult<CommodityDTO> listAllCommodities(UserInfoModel userInfoModel, ListAllCommoditiesParam param);
 
 
-    BaseResult<Void> updateCommodity(UserInfoModel userInfoModel, UpdateCommodityParam param);
+    BaseResult<Void> updateCommodity(UserInfoModel userInfoModel, @Valid UpdateCommodityParam param);
 
-    BaseResult deleteCommodity(UserInfoModel userInfoModel, CommodityBaseParam param);
+    BaseResult deleteCommodity(UserInfoModel userInfoModel, @Valid CommodityBaseParam param);
 
     BaseResult<CommodityPriceModel> getCommodityPrice(GetCommodityPriceParam param);
 

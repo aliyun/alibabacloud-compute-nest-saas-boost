@@ -15,6 +15,7 @@
 package org.example.common.dataobject;
 
 import lombok.Data;
+import org.example.common.constant.Currency;
 import org.example.common.constant.PayPeriodUnit;
 
 import java.io.Serializable;
@@ -63,5 +64,5 @@ public class CommoditySpecificationDO implements Serializable {
     /**
      * Currency unit (e.g., CNY for Chinese Yuan).
      */
-    private String currency;
+    private Currency currency;
 }

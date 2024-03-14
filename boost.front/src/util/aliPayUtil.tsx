@@ -11,14 +11,15 @@ export const handleAlipaySubmit = async (values: API.createOrderParams, index: n
         });
     }
     const formString = response.data;
-    if (formString != undefined) {
+    const paymentForm = formString?.paymentForm;
+    if (formString != undefined && paymentForm != undefined) {
         let divForm = document.getElementsByTagName('divform')
         for(let i=0;i<divForm.length;i++){
             console.log(divForm[i]);
         }
         document.forms.length
         const div = document.createElement('div');
-        div.innerHTML = formString;
+        div.innerHTML = paymentForm;
         document.body.appendChild(div);
         document.forms[index].setAttribute('target', '_self')
         document.forms[index].submit();

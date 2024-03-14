@@ -15,6 +15,7 @@
 package org.example.common.dataobject;
 
 import lombok.Data;
+import org.example.common.constant.ChargeType;
 
 import java.io.Serializable;
 
@@ -41,7 +42,7 @@ public class CommodityDO implements Serializable {
     /**
      * Type of charge (e.g., PrePaid for subscription-based, PostPaid for pay-as-you-go).
      */
-    private String chargeType;
+    private ChargeType chargeType;
 
     /**
      * The service ID associated with the commodity in the computation nest.

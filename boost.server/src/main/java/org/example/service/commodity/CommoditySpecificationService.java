@@ -22,6 +22,9 @@ import org.example.common.param.commodity.specification.CommoditySpecificationPa
 import org.example.common.param.commodity.specification.CreateCommoditySpecificationParam;
 import org.example.common.param.commodity.specification.ListCommoditySpecificationParam;
 import org.example.common.param.commodity.specification.UpdateCommoditySpecificationParam;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
 
 public interface CommoditySpecificationService {
 

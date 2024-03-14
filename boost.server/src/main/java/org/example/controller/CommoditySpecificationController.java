@@ -28,10 +28,13 @@ import org.example.common.param.commodity.specification.UpdateCommoditySpecifica
 import org.example.service.commodity.CommoditySpecificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -49,7 +52,7 @@ public class CommoditySpecificationController {
     @ApiOperation(value = "创建商品规格", nickname = "createCommoditySpecification")
     @RequestMapping(path = "/createCommoditySpecification", method = RequestMethod.POST)
     public BaseResult<Void> createCommoditySpecification(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                                              CreateCommoditySpecificationParam param) {
+                                                         @Valid @RequestBody CreateCommoditySpecificationParam param) {
         return commoditySpecificationService.createCommoditySpecification(userInfoModel, param);
     }
 
@@ -65,7 +68,7 @@ public class CommoditySpecificationController {
     @ApiOperation(value = "更新商品规格信息", nickname = "updateCommoditySpecification")
     @RequestMapping(path = "/updateCommoditySpecification", method = RequestMethod.PUT)
     public BaseResult<Void> updateCommoditySpecification(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                                              UpdateCommoditySpecificationParam param) {
+                                                         @RequestBody UpdateCommoditySpecificationParam param) {
         return commoditySpecificationService.updateCommoditySpecification(userInfoModel, param);
     }
 

@@ -53,7 +53,7 @@ class OrderControllerTest {
     void testGetOrder() {
         when(orderService.getOrder(any(), any())).thenReturn(new BaseResult<OrderDTO>("code", "message", new OrderDTO(), "requestId"));
 
-        BaseResult<OrderDTO> result = orderController.getOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetOrderParam("orderId"));
+        BaseResult<OrderDTO> result = orderController.getOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetOrderParam("orderId"));
         Assertions.assertEquals(new BaseResult<OrderDTO>("code", "message", new OrderDTO(), "requestId"), result);
     }
 
@@ -61,7 +61,7 @@ class OrderControllerTest {
     void testListOrders() {
         when(orderService.listOrders(any(), any())).thenReturn(ListResult.genSuccessListResult(Arrays.asList(new OrderDTO()), 1));
 
-        ListResult<OrderDTO> result = orderController.listOrders(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListOrdersParam());
+        ListResult<OrderDTO> result = orderController.listOrders(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new ListOrdersParam());
         Assertions.assertTrue(result.getCount() != 0);
     }
 
@@ -69,7 +69,7 @@ class OrderControllerTest {
     void testRefundOrder() {
         when(orderService.refundOrders(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
 
-        BaseResult<Double> result = orderController.refundOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new RefundOrderParam());
+        BaseResult<Double> result = orderController.refundOrder(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new RefundOrderParam());
         Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);
     }
 }

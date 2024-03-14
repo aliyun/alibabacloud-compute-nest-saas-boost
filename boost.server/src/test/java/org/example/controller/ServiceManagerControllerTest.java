@@ -38,7 +38,7 @@ class ServiceManagerControllerTest {
     @Test
     void testGetServiceCost() {
         when(serviceManager.getServiceCost(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
-        BaseResult<Double> result = serviceManagerController.getServiceCost(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceCostParam());
+        BaseResult<Double> result = serviceManagerController.getServiceCost(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetServiceCostParam());
         Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);
     }
 }

@@ -26,10 +26,13 @@ import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
 
 public interface OrderService {
 
-    BaseResult<OrderDTO> createOrder(CreateOrderParam param);
+    BaseResult<OrderDTO> createOrder(@Valid CreateOrderParam param);
 
     /**
      * Get a row of order from table store:order.

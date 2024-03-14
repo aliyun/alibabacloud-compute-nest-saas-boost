@@ -60,14 +60,14 @@ class ServiceInstanceControllerTest {
         List<ServiceInstanceModel> serviceInstanceModels = Arrays.asList(createCreateServiceInstanceModel());
         when(serviceInstanceLifecycleService.listServiceInstances(any(), any())).thenReturn(ListResult.genSuccessListResult(serviceInstanceModels, 1, "message"));
 
-        ListResult<ServiceInstanceModel> serviceInstanceModelListResult = serviceInstanceController.listServiceInstances(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListServiceInstancesParam());
+        ListResult<ServiceInstanceModel> serviceInstanceModelListResult = serviceInstanceController.listServiceInstances(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new ListServiceInstancesParam());
         Assertions.assertEquals(serviceInstanceModelListResult.getCount(), 1);
     }
 
     @Test
     void testGetServiceInstance() {
         when(serviceInstanceLifecycleService.getServiceInstance(any(), any())).thenReturn(new BaseResult<ServiceInstanceModel>("code", "message", createCreateServiceInstanceModel(), "requestId"));
-        BaseResult<ServiceInstanceModel> result = serviceInstanceController.getServiceInstance(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceInstanceParam("serviceInstanceId"));
+        BaseResult<ServiceInstanceModel> result = serviceInstanceController.getServiceInstance(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetServiceInstanceParam("serviceInstanceId"));
         Assertions.assertEquals(result.getData().getServiceInstanceId(), "serviceInstanceId");
     }
 

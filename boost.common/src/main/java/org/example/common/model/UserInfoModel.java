@@ -41,4 +41,6 @@ public class UserInfoModel {
 
     @JsonProperty("uid")
     private String uid;
+
+    private Boolean admin = Boolean.FALSE;
 }

@@ -48,7 +48,7 @@ class CloudMonitorControllerTest {
     void testListMetricMetaDatas() {
         when(cloudMonitorService.listMetricMetaDatas()).thenReturn(ListResult.genSuccessListResult(new ArrayList<>(), 0));
 
-        ListResult<MetricMetaDataModel> result = cloudMonitorController.listMetricMetaDatas(new UserInfoModel("sub", "name", "loginName", "aid", "uid"));
+        ListResult<MetricMetaDataModel> result = cloudMonitorController.listMetricMetaDatas(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE));
         Assertions.assertEquals(result.getCount(), 0);
     }
 
@@ -56,7 +56,7 @@ class CloudMonitorControllerTest {
     void testListMetrics() {
         when(cloudMonitorService.listMetrics(any(), any())).thenReturn(new BaseResult<MetricDatasModel>("code", "message", new MetricDatasModel("dataPoints"), "requestId"));
 
-        BaseResult<MetricDatasModel> result = cloudMonitorController.listMetrics(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListMetricsParam("metricName", "startTime", "endTime", "serviceInstanceId"));
+        BaseResult<MetricDatasModel> result = cloudMonitorController.listMetrics(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new ListMetricsParam("metricName", "startTime", "endTime", "serviceInstanceId"));
         Assertions.assertEquals(new BaseResult<MetricDatasModel>("code", "message", new MetricDatasModel("dataPoints"), "requestId"), result);
     }
 }
