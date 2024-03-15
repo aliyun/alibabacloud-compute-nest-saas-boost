@@ -5,6 +5,10 @@ import lombok.Getter;
 @Getter
 public enum CallSource {
 
+    /**
+     * 计算巢用户
+     */
+    User(1),
 
     /**
      * 云市场
@@ -15,6 +19,12 @@ public enum CallSource {
      * 计算巢服务商
      */
     Supplier(3),
+
+    /**
+     * 凌霄
+     */
+    Css(5),
+
 
     ;
     private final Integer value;

@@ -24,6 +24,15 @@ public class UpdateCommodityParam extends CommodityBaseParam {
     /**
      * 服务id
      */
-    @NotEmpty
     private String serviceId;
+
+    /**
+     * 商品名称
+     */
+    private String commodityName;
+
+    /**
+     * 商品单价
+     */
+    private Double unitPrice;
 }

@@ -14,7 +14,6 @@
  */
 package org.example.service.commodity.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.CommoditySpecificationOtsConstant;
@@ -22,7 +21,7 @@ import org.example.common.dataobject.CommodityDO;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.errorinfo.ErrorInfo;
-import org.example.common.helper.BaseOtsHelper;
+import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.CommodityOtsHelper;
 import org.example.common.helper.SpiTokenHelper;
 import org.example.common.helper.WalletHelper;
@@ -33,11 +32,13 @@ import org.example.common.param.commodity.CreateCommodityParam;
 import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;
 import org.example.common.param.commodity.UpdateCommodityParam;
+import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.commodity.specification.ListCommoditySpecificationParam;
 import org.example.service.commodity.CommodityService;
 import org.example.service.commodity.CommoditySpecificationService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -65,6 +66,9 @@ public class CommodityServiceImpl implements CommodityService {
     @Resource
     private SpiTokenHelper spiTokenHelper;
 
+    @Value("${service.admin.aid}")
+    private String adminAid;
+
     private static final String ARRAY_REGEX = "\\s*,\\s*";
 
     @Override
@@ -79,8 +83,8 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     public ListResult<CommodityDTO> listAllCommodities(UserInfoModel userInfoModel, ListAllCommoditiesParam param) {
-        List<BaseOtsHelper.OtsFilter> matchFilters = new ArrayList<>();
-        BaseOtsHelper.OtsFilter commodityCodeMatchFilter = BaseOtsHelper.OtsFilter.createMatchFilter(CommoditySpecificationOtsConstant.OWNER_ID, userInfoModel.getAid());
+        List<OtsFilter> matchFilters = new ArrayList<>();
+        OtsFilter commodityCodeMatchFilter = OtsFilter.createMatchFilter(CommoditySpecificationOtsConstant.OWNER_ID, adminAid);
         matchFilters.add(commodityCodeMatchFilter);
 
         return commodityOtsHelper.listCommodities(param.getNextToken(), matchFilters, null);
@@ -95,9 +99,22 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     @Override
-    public BaseResult deleteCommodity(UserInfoModel userInfoModel, CommodityBaseParam param) {
-        Boolean deleted = commodityOtsHelper.deleteCommodity(param.getCommodityCode());
-        return BaseResult.success(deleted);
+    public BaseResult<Void> deleteCommodity(UserInfoModel userInfoModel, CommodityBaseParam param) {
+        ListCommoditySpecificationParam listCommoditySpecificationParam = new ListCommoditySpecificationParam();
+        listCommoditySpecificationParam.setCommodityCode(param.getCommodityCode());
+        ListResult<CommoditySpecificationDTO> commoditySpecificationResult = commoditySpecificationService.listAllSpecifications(userInfoModel,
+                listCommoditySpecificationParam);
+        if (commoditySpecificationResult.getData() != null && !commoditySpecificationResult.getData().isEmpty()) {
+            List<CommoditySpecificationDTO> commoditySpecifications = commoditySpecificationResult.getData();
+            for (CommoditySpecificationDTO commoditySpecification : commoditySpecifications) {
+                CommoditySpecificationParam deleteParam = new CommoditySpecificationParam();
+                deleteParam.setCommodityCode(param.getCommodityCode());
+                deleteParam.setSpecificationName(commoditySpecification.getSpecificationName());
+                commoditySpecificationService.deleteCommoditySpecification(userInfoModel, deleteParam);
+            }
+        }
+        commodityOtsHelper.deleteCommodity(param.getCommodityCode());
+        return BaseResult.success();
     }
 
     @Override
@@ -140,12 +157,6 @@ public class CommodityServiceImpl implements CommodityService {
             commodity.setAllowedPaymentDurations(allowedPaymentDurations);
         }
         return BaseResult.success(commodity);
-    }
-
-    private CommodityDO convertToCommodityDO(CommodityDTO commodityDTO) {
-        CommodityDO commodityDO = new CommodityDO();
-        BeanUtils.copyProperties(commodityDTO, commodityDO);
-        return commodityDO;
     }
 }
 

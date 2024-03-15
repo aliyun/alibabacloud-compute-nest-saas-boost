@@ -17,6 +17,8 @@ package org.example.common.param.si;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ListServiceInstancesParam {
 
@@ -29,4 +31,6 @@ public class ListServiceInstancesParam {
     private String serviceInstanceName;
 
     private String status;
+
+    private List<String> serviceIdList;
 }

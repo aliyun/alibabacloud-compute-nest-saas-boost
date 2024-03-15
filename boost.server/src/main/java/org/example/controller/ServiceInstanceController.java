@@ -26,6 +26,7 @@ import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,9 +43,9 @@ public class ServiceInstanceController {
     private ServiceInstanceLifecycleService serviceInstanceLifecycleService;
 
     @ApiOperation(value = "获取该用户下的全部服务实例列表", nickname = "listServiceInstances")
-    @RequestMapping(path = "/listServiceInstances",method = RequestMethod.GET)
+    @RequestMapping(path = "/listServiceInstances",method = RequestMethod.POST)
     public ListResult<ServiceInstanceModel> listServiceInstances(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                                 @APIParameterConvert ListServiceInstancesParam listServiceInstancesParam) {
+                                                                 @RequestBody ListServiceInstancesParam listServiceInstancesParam) {
         return serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
     }
 

@@ -29,7 +29,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
         actionRef.current?.reload();
     };
 
-    const handleAddOrUpdateSpecification = async (values: API.CreateCommoditySpecificationParam | API.updateCommoditySpecificationParams) => {
+    const handleSaveSpecification = async (values: API.CreateCommoditySpecificationParam | API.UpdateCommoditySpecificationParam) => {
         try {
             let response;
             if (currentSpecification) {
@@ -45,13 +45,13 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                     unitPrice: values.unitPrice,
                     specificationName: values.specificationName,
                     commodityCode: commodity.commodityCode,
+                    currency: "CNY",
                 });
             }
 
             if (response.code === "200") {
                 message.success(`${currentSpecification ? 'Specification updated' : 'Specification added'} successfully`);
                 setCurrentSpecification(undefined);
-                actionRef.current?.reload();
             } else {
                 message.error(`Failed to ${currentSpecification ? 'update' : 'add'} specification`);
             }
@@ -59,7 +59,11 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
             console.error(error);
             message.error(`Failed to ${currentSpecification ? 'update' : 'add'} specification`);
         }
+        setTimeout(() => {
+            actionRef.current?.reload();
+        }, 1500);
         setIsModalVisible(false);
+        setCurrentSpecification(undefined);
     };
 
     const handleDelete = async (specificationName: string) => {
@@ -75,7 +79,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
     const actionColumn: ProColumns<API.CommoditySpecificationDTO> = {
         title: 'Action',
         dataIndex: 'action',
-        valueType: 'option', // 使用 'option' 类型来渲染操作列
+        valueType: 'option',
         render: (text, record, _, action) => [
             <a key="edit" onClick={() => {
                 setCurrentSpecification(record);
@@ -98,8 +102,9 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
     ];
 
     return (
+
         <Modal
-            title={currentSpecification ? "Edit Specification" : "New Specification"}
+            title={"套餐管理"}
             open={visible}
             onCancel={() => {
                 setCurrentSpecification(undefined);
@@ -108,7 +113,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
             footer={null}
         >
             <Modal
-                title="New Specification"
+                title={currentSpecification ? "编辑套餐" : "新建套餐"}
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
@@ -117,10 +122,9 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                     key={currentSpecification ? currentSpecification.specificationName : 'new'}
                     initialValues={{
                         ...currentSpecification,
-                        payPeriods: currentSpecification?.payPeriods ? JSON.parse(currentSpecification.payPeriods) : [], // 确保是数字数组
+                        payPeriods: currentSpecification?.payPeriods ? JSON.parse(currentSpecification.payPeriods) : [],
                     }}
-                    onSubmit={handleAddOrUpdateSpecification}
-                    visible={isModalVisible}
+                    onSubmit={handleSaveSpecification}
                 />
             </Modal>
             <ProTable
@@ -140,8 +144,8 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                         <a
                             key="add"
                             onClick={() => {
-                                setIsModalVisible(true);
                                 setCurrentSpecification(undefined);
+                                setIsModalVisible(true);
                             }}
                             style={{color: 'inherit'}}
                         >
@@ -159,6 +163,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                 }}
             />
         </Modal>
+
     );
 };
 

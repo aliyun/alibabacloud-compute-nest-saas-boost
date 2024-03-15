@@ -20,6 +20,7 @@ import com.alicloud.openservices.tablestore.model.ColumnValue;
 import com.alicloud.openservices.tablestore.model.PrimaryKeyColumn;
 import com.alicloud.openservices.tablestore.model.Row;
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.constant.ChargeType;
 import org.example.common.constant.Currency;
 import org.example.common.constant.OrderType;
 import org.example.common.constant.PayChannel;
@@ -32,7 +33,6 @@ import org.example.common.exception.BizException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +63,7 @@ public class OtsUtil {
         CLASS_TO_FUNCTION_CONVERTERS.put(PayPeriodUnit.class, PayPeriodUnit::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(Currency.class, Currency::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(OrderType.class, OrderType::valueOf);
+        CLASS_TO_FUNCTION_CONVERTERS.put(ChargeType.class, ChargeType::valueOf);
     }
 
     static {
@@ -78,6 +79,7 @@ public class OtsUtil {
         COLUMN_VALUE_CONVERTERS.put(PayPeriodUnit.class, fieldValue -> ColumnValue.fromString(((PayPeriodUnit)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(Currency.class, fieldValue -> ColumnValue.fromString(((Currency)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(OrderType.class, fieldValue -> ColumnValue.fromString(((OrderType)fieldValue).name()));
+        COLUMN_VALUE_CONVERTERS.put(ChargeType.class, fieldValue -> ColumnValue.fromString(((ChargeType)fieldValue).name()));
         // 添加其他类型的映射关系
     }
 

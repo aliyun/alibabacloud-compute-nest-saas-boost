@@ -19,7 +19,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {ProForm, ProFormContext, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import {CustomParameters, defaultSpecification} from "@/pages/PageCustomConfig";
 import {getServiceCost, getServiceMetadata} from "@/services/backend/serviceManager";
-import {createFormItem} from "@/util/FormItemUtil";
+import {createFormItem} from "@/util/formItemUtil";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 import {
     ParameterGroupsInterface,

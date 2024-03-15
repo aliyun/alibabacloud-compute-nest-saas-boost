@@ -40,4 +40,10 @@ public class CreateCommodityParam {
      */
     @NotEmpty
     private String serviceId;
+
+    /**
+     * Unit price of the commodity.
+     */
+    @NotEmpty
+    private Double unitPrice;
 }

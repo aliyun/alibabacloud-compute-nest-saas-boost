@@ -39,7 +39,7 @@ public interface CommodityService {
 
     BaseResult<Void> updateCommodity(UserInfoModel userInfoModel, @Valid UpdateCommodityParam param);
 
-    BaseResult deleteCommodity(UserInfoModel userInfoModel, @Valid CommodityBaseParam param);
+    BaseResult<Void> deleteCommodity(UserInfoModel userInfoModel, @Valid CommodityBaseParam param);
 
     BaseResult<CommodityPriceModel> getCommodityPrice(GetCommodityPriceParam param);
 

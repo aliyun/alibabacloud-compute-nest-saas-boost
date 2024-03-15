@@ -49,15 +49,15 @@ export async function listAllSpecifications(
 
 /** 更新商品规格信息 PUT /api/updateCommoditySpecification */
 export async function updateCommoditySpecification(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.updateCommoditySpecificationParams,
+  body: API.UpdateCommoditySpecificationParam,
   options?: { [key: string]: any },
 ) {
   return request<API.BaseResultVoid_>('/api/updateCommoditySpecification', {
     method: 'PUT',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }

@@ -15,6 +15,7 @@
 package org.example.common.dto;
 
 import lombok.Data;
+import org.example.common.constant.ChargeType;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class CommodityDTO {
     /**
      * Type of charge for the commodity.
      */
-    private String chargeType;
+    private ChargeType chargeType;
 
     /**
      * The service ID associated with the commodity.

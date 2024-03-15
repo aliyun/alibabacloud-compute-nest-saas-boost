@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import moment from "moment";
 import {listOrders, refundOrder} from "@/services/backend/order";
 import {OrderColumns, TradeStatusEnum} from "@/pages/Order/common";
 import {PageContainer} from "@ant-design/pro-layout";
 import {ProTable} from "@ant-design/pro-components";
 import {Button, message, Modal, Pagination, Typography} from "antd";
-import {handleGoToPage} from "@/util/nextTokenUtil";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
@@ -14,8 +13,12 @@ import {PayTypeEnum, ProductNameEnum, TIME_FORMAT} from "@/constants";
 import {getHashSearchParams} from "@/util/urlUtil";
 import styles from "./components/css/order.module.css"
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import {ActionType} from "@ant-design/pro-table/lib";
+import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
+import {handlePaySubmit} from "@/util/aliPayUtil";
 
 dayjs.extend(utc);
+
 export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const searchParams = getHashSearchParams();
     const initialOrderId = searchParams.get('orderId') || undefined;
@@ -25,11 +28,12 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [refundAmount, setRefundAmount] = useState<string>("0.00");
     const [total, setTotal] = useState<number>(0);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
-    const [shouldFetchData, setShouldFetchData] = useState(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [orderId, setOrderId] = useState<string | null>(null);
     const [canRefundOrderIndex, setCanRefundOrderIndex] = useState<number | undefined>(undefined);
     const {Paragraph} = Typography;
+    const actionRef = useRef<ActionType>();
+
     const [filterValues, setFilterValues] = useState<{
         tradeStatus?: | 'TRADE_CLOSED'
             | 'TRADE_SUCCESS'
@@ -41,49 +45,11 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         orderId?: string;
     }>({orderId: initialOrderId});
 
-    useEffect(() => {
-        fetchData(currentPage, true);
-    }, [currentPage, shouldFetchData]);
-
-    useEffect(() => {
-    }, [canRefundOrderIndex]);
-
-    const handleConfirmRefund = async (): Promise<void> => {
-        try {
-            if (orderId) {
-                await refundOrder({orderId: orderId, dryRun: false});
-                setOrderId(null);
-                message.success('退款中');
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error(error);
-            message.error('退款失败');
-        }
-        setVisible(false);
-    };
-
-    const handleButtonClick = async (record: any) => {
-        try {
-            const response = await refundOrder(
-                {orderId: record.orderId, dryRun: true} as API.RefundOrderParam
-            );
-            setOrderId(record.orderId);
-            const data = response?.data;
-            if (data !== undefined) {
-                setRefundAmount(data.toFixed(2));
-                setVisible(true);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleModalClose = () => {
-        setVisible(false);
-    };
-
-    const fetchData = async (currentPage: number, show: boolean) => {
+    const fetchOrders = async (params: {
+        pageSize: number;
+        current: number;
+        [key: string]: any;
+    }): Promise<FetchResult<API.OrderDTO>> => {
         let param = {
             maxResults: pageSize,
             nextToken: nextTokens[currentPage - 1],
@@ -135,15 +101,60 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                     type: PayTypeEnum[item.type as keyof typeof PayTypeEnum],
                 };
             }) || [];
-            if (show) {
+            return {
                 //@ts-ignored
-                setOrders(transformedData);
-                setShouldFetchData(false);
-            }
+                data: transformedData,
+                success: true,
+                total: result.count || 0,
+            };
+        }
+        return {
+            data: [],
+            success: true,
+            total: 0,
+        }
+    }
 
+
+    useEffect(() => {
+    }, [canRefundOrderIndex]);
+
+    const handleConfirmRefund = async (): Promise<void> => {
+        try {
+            if (orderId) {
+                await refundOrder({orderId: orderId, dryRun: false});
+                setOrderId(null);
+                message.success('退款中');
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
+            message.error('退款失败');
+        }
+        setVisible(false);
+    };
+
+    const handleButtonClick = async (record: any) => {
+        try {
+            const response = await refundOrder(
+                {orderId: record.orderId, dryRun: true} as API.RefundOrderParam
+            );
+            setOrderId(record.orderId);
+            const data = response?.data;
+            if (data !== undefined) {
+                setRefundAmount(data.toFixed(2));
+                setVisible(true);
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
-    const columns = props.serviceInstanceId ? OrderColumns.concat([
+
+    const handleModalClose = () => {
+        setVisible(false);
+    };
+
+    const columns = OrderColumns.concat([
         {
             title: '操作',
             key: 'action',
@@ -151,8 +162,16 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             search: false,
             // @ts-ignore
             render: (text?: string, record?: any, index) => {
-                if (canRefundOrderIndex == index
-                ) {
+                console.log(record.tradeStatus);
+                if (record.tradeStatus == TradeStatusEnum.WAIT_BUYER_PAY) {
+                    return (
+                        <Button onClick={() => handlePaySubmit(record.paymentForm, 1)}>
+                            支付
+                        </Button>
+                    );
+                }
+
+                if (props.serviceInstanceId != undefined && canRefundOrderIndex == index) {
                     const refundButton = (
                         <div className={styles.refundButton} onClick={() => handleButtonClick(record)}>
                             退款
@@ -186,21 +205,23 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 return null;
             },
         },
-    ]) : OrderColumns;
+    ])
     return (
         <PageContainer title={props.serviceInstanceId}>
             <ProTable
                 onSubmit={(values) => {
+                    // @ts-ignore
                     setFilterValues(values);
-                    setShouldFetchData(true);
+                    actionRef.current?.reload();
                 }}
+                actionRef={actionRef}
                 headerTitle={'服务实例订单列表'}
                 options={{
                     search: false,
                     density: false,
                     fullScreen: true,
                     reload: () => {
-                        setShouldFetchData(true);
+                        actionRef.current?.reload();
                     },
                     setting: false,
                 }}
@@ -214,21 +235,20 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                         <div style={{display: 'flex', gap: '8px', marginBottom: '24px', marginRight: '+220px'}}>
                             <div>{dom[0]}</div>
                             <div>{dom[1]}</div>
-                            {/* 重置按钮 */}
                         </div>
                     ],
                 }}
-                columns={columns} dataSource={orders} rowKey="key" pagination={false}/>
+                columns={columns}
+                request={fetchOrders}
+                rowKey="key" pagination={false}/>
             <Pagination
                 style={{marginTop: '16px', textAlign: 'right'}}
                 current={currentPage}
                 pageSize={pageSize}
                 total={total}
-                onChange={(page, pageSize) => handleGoToPage(page, currentPage, total, fetchData, setCurrentPage)}
-                prevIcon={<span
-                    onClick={() => handleGoToPage(currentPage + 1, currentPage, total, fetchData, setCurrentPage)}>上一页</span>}
-                nextIcon={<span
-                    onClick={() => handleGoToPage(currentPage - 1, currentPage, total, fetchData, setCurrentPage)}>下一页</span>}
+                onChange={(page, pageSize) => {
+                    handleGoToPage(page, currentPage, total, fetchOrders, setCurrentPage, actionRef, pageSize);
+                }}
                 showSizeChanger={false}
             />
         </PageContainer>

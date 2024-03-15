@@ -98,7 +98,7 @@ declare namespace API {
 
   type CommodityDTO = {
     allowedPaymentDurations?: Record<string, any>;
-    chargeType?: string;
+    chargeType?: 'POST_PAID' | 'PRE_PAID';
     commodityCode?: string;
     commodityName?: string;
     serviceId?: string;
@@ -124,6 +124,7 @@ declare namespace API {
     chargeType?: 'POST_PAID' | 'PRE_PAID';
     commodityName?: string;
     serviceId?: string;
+    unitPrice?: number;
   };
 
   type CreateCommoditySpecificationParam = {
@@ -311,9 +312,10 @@ declare namespace API {
     requestId?: string;
   };
 
-  type listServiceInstancesParams = {
+  type ListServiceInstancesParam = {
     maxResults?: number;
     nextToken?: string;
+    serviceIdList?: string[];
     serviceInstanceId?: string;
     serviceInstanceName?: string;
     status?: string;
@@ -378,7 +380,7 @@ declare namespace API {
     serviceInstanceName?: string;
     serviceModel?: ServiceModel;
     serviceName?: string;
-    source?: 'Market' | 'Supplier';
+    source?: 'User' | 'Market' | 'Supplier' | 'Css';
     status?: string;
     updateTime?: string;
   };
@@ -406,10 +408,12 @@ declare namespace API {
 
   type updateCommodityParams = {
     commodityCode?: string;
+    commodityName?: string;
     serviceId?: string;
+    unitPrice?: number;
   };
 
-  type updateCommoditySpecificationParams = {
+  type UpdateCommoditySpecificationParam = {
     commodityCode?: string;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
     payPeriods?: number[];

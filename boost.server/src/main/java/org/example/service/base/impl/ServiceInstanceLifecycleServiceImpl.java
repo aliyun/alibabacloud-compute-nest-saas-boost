@@ -48,14 +48,15 @@ import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
 import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
+import org.example.common.utils.JsonUtil;
 import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.common.utils.UuidUtil;
-import org.example.service.order.OrderService;
 import org.example.service.base.ServiceInstanceLifecycleService;
+import org.example.service.order.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -104,6 +105,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         ListServiceInstancesRequest request = convertToRequest(listServiceInstancesParam, DEFAULT_REGION_ID);
         request.setFilter(buildFilterForListServiceInstance(listServiceInstancesParam, userInfoModel));
         try {
+            log.info("listServiceInstances request: {}", JsonUtil.toJsonString(request));
             ListServiceInstancesResponse response = computeNestSupplierClient.listServiceInstances(request);
             return convertFromListServiceInstancesResponse(userInfoModel, response);
         } catch (TeaException e) {
@@ -116,9 +118,13 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     private List<ListServiceInstancesRequestFilter> buildFilterForListServiceInstance(ListServiceInstancesParam listServiceInstancesParam, UserInfoModel userInfoModel) {
         ListServiceInstancesRequestFilter accountIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.USER_ID, Collections.singletonList(userInfoModel.getAid()));
-        ListServiceInstancesRequestFilter serviceTypeFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_TYPE_PARAMETER, Collections.singletonList(ComputeNestConstants.MANAGED_SERVICE_TYPE));
-        ListServiceInstancesRequestFilter serviceIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_ID, Collections.singletonList(serviceId));
-        List<ListServiceInstancesRequestFilter> filterList = new ArrayList<>(Arrays.asList(accountIdFilter, serviceTypeFilter, serviceIdFilter));
+//        ListServiceInstancesRequestFilter serviceTypeFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_TYPE_PARAMETER, Collections.singletonList(ComputeNestConstants.MANAGED_SERVICE_TYPE));
+        List<ListServiceInstancesRequestFilter> filterList = new ArrayList<>(Collections.singletonList(accountIdFilter));
+        if (listServiceInstancesParam.getServiceIdList() != null && !listServiceInstancesParam.getServiceIdList().isEmpty()) {
+            ListServiceInstancesRequestFilter serviceIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_ID, listServiceInstancesParam.getServiceIdList());
+            filterList.add(serviceIdFilter);
+        }
+
         if (!StringUtils.isEmpty(listServiceInstancesParam.getServiceInstanceId())) {
             ListServiceInstancesRequestFilter serviceInstanceIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_INSTANCE_ID,
                     Collections.singletonList(listServiceInstancesParam.getServiceInstanceId()));

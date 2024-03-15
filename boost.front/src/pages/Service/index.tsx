@@ -19,7 +19,6 @@ import {GlobalOutlined, MailOutlined} from "@ant-design/icons";
 
 const { Paragraph } = Typography;
 const ServicePage: React.FC = () => {
-    const [createModalVisible, setCreateModalVisible] = useState(false);
     return (
         <PageContainer title={"精选服务"}>
             <ProCard bordered={true} className={styles.supplierProCard}>
@@ -59,18 +58,6 @@ const ServicePage: React.FC = () => {
                         <Paragraph/>
                     </Space>
                 </div>
-                <Button type="primary" onClick={() => {
-                    setCreateModalVisible(true)
-                }} key="create">
-                    点击购买
-                </Button>
-                <CreateModal
-                    createModalVisible={createModalVisible}
-                    setCreateModalVisible={setCreateModalVisible}
-                    handleCreateSubmit={() => {
-                        return;
-                    }}
-                />
             </ProCard>
         </PageContainer>
     );

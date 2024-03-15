@@ -69,11 +69,9 @@ public class CommodityController {
     @RequestMapping(path = "/deleteCommodity", method = RequestMethod.DELETE)
     public BaseResult<Void> deleteCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                             CommodityBaseParam commodityBaseParam) {
-        commodityService.deleteCommodity(userInfoModel, commodityBaseParam);
-        return BaseResult.success();
+        return commodityService.deleteCommodity(userInfoModel, commodityBaseParam);
     }
 
-    @AdminAPI
     @ApiOperation(value = "获取所有商品", nickname = "listAllCommodities")
     @RequestMapping(path = "/listAllCommodities", method = RequestMethod.POST)
     public ListResult<CommodityDTO> listAllCommodities(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
