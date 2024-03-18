@@ -37,6 +37,7 @@ const ServiceInstanceList: React.FC = () => {
     const [activeServiceId, setActiveServiceId] = useState<string | undefined>(undefined);
     const actionRef = useRef<ActionType>();
     const [isCommoditiesFetched, setIsCommoditiesFetched] = useState(false);
+    const [initialCommodityName, setInitialCommodityName] = useState("待选择");
 
     const fetchCommodities = async () => {
         try {
@@ -50,6 +51,7 @@ const ServiceInstanceList: React.FC = () => {
                     ...oldFilterValues,
                     serviceIdList: [defaultCommodityId],
                 }));
+                setInitialCommodityName(fetchedCommodities[0].commodityName || fetchedCommodities[0].commodityCode || "未知商品");
                 console.log(filterValues);
             }
         } catch (error) {
@@ -65,11 +67,8 @@ const ServiceInstanceList: React.FC = () => {
     useEffect(() => {
         if (activeServiceId != undefined) {
             setFilterValues({...filterValues, serviceIdList: [activeServiceId]});
+            actionRef.current?.reload();
         }
-        fetchServiceInstances({
-            pageSize,
-            current: currentPage,
-        });
     }, [activeServiceId]);
 
     const fetchServiceInstances = async (params: {
@@ -126,6 +125,7 @@ const ServiceInstanceList: React.FC = () => {
                 mode: 'multiple',
                 defaultValue: commodities.length > 0 ? [String(commodities[0].serviceId)] : [],
             },
+            initialValue: initialCommodityName,
             valueEnum: commodities.reduce((obj, commodity) => {
                 const key = String(commodity.serviceId);
                 const text = commodity.commodityName || commodity.commodityCode || "未知商品";
@@ -137,6 +137,7 @@ const ServiceInstanceList: React.FC = () => {
                 transform: (value) => {
                     return ({...filterValues, serviceIdList: Array.isArray(value) ? value : value ? [value] : []});
                 },
+
             },
         },
         ...getListColumns(),
