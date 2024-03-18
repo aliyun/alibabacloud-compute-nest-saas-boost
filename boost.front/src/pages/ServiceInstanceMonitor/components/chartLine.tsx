@@ -29,9 +29,11 @@ interface DataProps {
 }
 
 function parseDataPoints(dataPointsStr: string): object[] {
+    if (dataPointsStr == undefined || dataPointsStr === "") {
+        return [];
+    }
     try {
-        const dataPoints = JSON.parse(dataPointsStr);
-        return dataPoints;
+        return JSON.parse(dataPointsStr);
     } catch (error) {
         console.error('Error parsing datapoints:', error);
         return [];

@@ -106,6 +106,7 @@ declare namespace API {
   };
 
   type CommodityPriceModel = {
+    commodityName?: string;
     totalAmount?: number;
     unitPrice?: number;
   };
@@ -380,6 +381,7 @@ declare namespace API {
     serviceInstanceName?: string;
     serviceModel?: ServiceModel;
     serviceName?: string;
+    serviceType?: 'private' | 'managed';
     source?: 'User' | 'Market' | 'Supplier' | 'Css';
     status?: string;
     updateTime?: string;

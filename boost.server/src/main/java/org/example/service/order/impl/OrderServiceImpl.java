@@ -106,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
         Long userId = Long.parseLong(param.getUserId());
         String orderId = UuidUtil.generateOrderId(userId, param.getPayChannel().getValue());
 
-        String transaction = paymentServiceManger.createTransaction(commodityCost.getTotalAmount(), param.getSpecificationName(), orderId, param.getPayChannel());
+        String transaction = paymentServiceManger.createTransaction(commodityCost.getTotalAmount(), commodityCost.getCommodityName(), orderId, param.getPayChannel());
         OrderDO orderDataObject = createOrderDataObject(orderId, param, userId, commodityCost.getTotalAmount(), userId, transaction);
         orderOtsHelper.createOrder(orderDataObject);
         OrderDTO orderDTO = new OrderDTO();

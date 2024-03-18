@@ -36,10 +36,9 @@ import org.example.common.model.MetricMetaDataModel;
 import org.example.common.model.MetricMetaInfoModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.ListMetricsParam;
+import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.utils.JsonUtil;
-import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.service.base.CloudMonitorService;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.springframework.beans.BeanUtils;
@@ -97,21 +96,24 @@ public class CloudMonitorServiceImpl implements CloudMonitorService {
         if (serviceInstanceModel == null) {
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND.getStatusCode(), ErrorInfo.RESOURCE_NOT_FOUND.getCode(), ErrorInfo.RESOURCE_NOT_FOUND.getMessage());
         }
+        String groupIdFromServiceInstanceResponse = getGroupIdFromServiceInstanceResponse(serviceInstanceModel.getResources());
+        if (StringUtils.isEmpty(groupIdFromServiceInstanceResponse)) {
+            return BaseResult.success();
+        }
         DescribeMetricListRequest metricRequest = new DescribeMetricListRequest();
         metricRequest.setNamespace(getNameSpaceFromMetricName(listMetricsParam.getMetricName()))
                 .setMetricName(listMetricsParam.getMetricName())
-                .setDimensions(JsonUtil.toJsonString(new Resources(getGroupIdFromServiceInstanceResponse(serviceInstanceModel.getResources()))))
+                .setDimensions(JsonUtil.toJsonString(new Resources(groupIdFromServiceInstanceResponse)))
                 .setStartTime(listMetricsParam.getStartTime())
                 .setEndTime(listMetricsParam.getEndTime());
         try {
             DescribeMetricListResponse metricResponse = cloudMonitorClient.getMetricList(metricRequest);
             MetricDatasModel metricDatasModel = new MetricDatasModel(metricResponse.getBody().getDatapoints());
             return BaseResult.success(metricDatasModel);
-        } catch (TeaException e) {
-            throw new BizException(e.getStatusCode(), e.getCode(), OpenAPIErrorMessageUtil.getErrorMessageFromComputeNestError(e.getMessage()));
         } catch (Exception e) {
-            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE.getStatusCode(), ErrorInfo.SERVER_UNAVAILABLE.getCode(), ErrorInfo.SERVER_UNAVAILABLE.getMessage());
+            log.error("Unable to correctly resolve the GroupId of this ServiceInstance. Resources = {}", serviceInstanceModel.getResources(), e);
         }
+        return BaseResult.success();
     }
 
     private String getNameSpaceFromMetricName(String metricName) {
@@ -132,8 +134,8 @@ public class CloudMonitorServiceImpl implements CloudMonitorService {
             root = mapper.readTree(resources);
             return String.valueOf(root.get("CloudMonitorGroupId").asLong());
         } catch (Exception e) {
-            log.error("Unable to correctly resolve the GroupId of this ServiceInstance. Resources = {}", resources);
-            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND.getStatusCode(), ErrorInfo.RESOURCE_NOT_FOUND.getCode(), ErrorInfo.RESOURCE_NOT_FOUND.getMessage());
+            log.error("Unable to correctly resolve the GroupId of this ServiceInstance. Resources = {}", resources, e);
+            return null;
         }
     }
 

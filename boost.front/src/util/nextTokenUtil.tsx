@@ -27,7 +27,7 @@ export const handleGoToPage = async (
     page: number,
     currentPage: number,
     totalPage: number,
-    ListResult: (params: { pageSize: number; current: number; [key: string]: any }) => Promise<FetchResult<any>>,
+    ListResult: (params: { pageSize: number; current: number; [key: string]: any }) => Promise<FetchResult<any> | undefined>,
     setCurrentPage: (page: number) => void,
     actionRef: React.MutableRefObject<ActionType | undefined>,
     pageSize: number

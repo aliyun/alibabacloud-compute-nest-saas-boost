@@ -90,7 +90,7 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
                 <Link
                     to={{
                         pathname: `/serviceInstance/${entity.serviceInstanceId}`,
-                        search: `source=${entity.source}`,
+                        search: `source=${entity.source}&status=${entity.status}`,
                     }}
                 >
                     {dom}

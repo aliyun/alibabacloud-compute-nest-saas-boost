@@ -21,43 +21,75 @@ import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
 import {listAllCommodities} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {listServiceInstances} from "@/services/backend/serviceInstance";
-import {list} from "postcss";
 
 const ServiceInstanceList: React.FC = () => {
-    const [serviceInstances, setServiceInstances] = useState<API.ServiceInstanceModel[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const pageSize = 10;
-    const [createModalVisible, setCreateModalVisible] = useState(false);
     const [filterValues, setFilterValues] = useState<{
         status?: string;
         serviceInstanceId?: string;
         serviceInstanceName?: string;
+        serviceIdList?: string[];
     }>({});
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [commodities, setCommodities] = useState<API.CommodityDTO[]>([]);
     const [activeServiceId, setActiveServiceId] = useState<string | undefined>(undefined);
     const actionRef = useRef<ActionType>();
+    const [isCommoditiesFetched, setIsCommoditiesFetched] = useState(false);
 
     const fetchCommodities = async () => {
         try {
             const result = await listAllCommodities({maxResults: pageSize});
+            const fetchedCommodities = result.data || [];
             setCommodities(result.data || []);
+            if (fetchedCommodities.length > 0) {
+                const defaultCommodityId = String(fetchedCommodities[0].serviceId);
+                setActiveServiceId(defaultCommodityId);
+                setFilterValues(oldFilterValues => ({
+                    ...oldFilterValues,
+                    serviceIdList: [defaultCommodityId],
+                }));
+                console.log(filterValues);
+            }
         } catch (error) {
             message.error('Failed to fetch commodities');
         }
+        setIsCommoditiesFetched(true);
     };
 
     useEffect(() => {
         fetchCommodities();
     }, []);
 
+    useEffect(() => {
+        if (activeServiceId != undefined) {
+            setFilterValues({...filterValues, serviceIdList: [activeServiceId]});
+        }
+        fetchServiceInstances({
+            pageSize,
+            current: currentPage,
+        });
+    }, [activeServiceId]);
+
     const fetchServiceInstances = async (params: {
         pageSize: number;
         current: number;
         [key: string]: any;
-    }): Promise<FetchResult<API.ServiceInstanceModel>> => {
+    }): Promise<FetchResult<API.ServiceInstanceModel> | undefined> => {
         try {
+            if (!isCommoditiesFetched) {
+                // 如果商品名单还未加载完成，返回空值或延迟请求
+                return {
+                    data: [],
+                    success: true,
+                    total: 0,
+                };
+            }
+            if (filterValues?.serviceIdList == undefined || filterValues.serviceIdList.length === 0) {
+                message.error("至少选择一个商品");
+                return;
+            }
             console.log(filterValues);
             const response: API.ListResultServiceInstanceModel_ = await listServiceInstances({
                 maxResults: pageSize,
@@ -77,12 +109,12 @@ const ServiceInstanceList: React.FC = () => {
             }
         } catch (error) {
             message.error('Failed to fetch service instances');
+            return {
+                data: [],
+                success: false,
+                total: 0,
+            };
         }
-        return {
-            data: [],
-            success: false,
-            total: 0,
-        };
     };
 
     const columns: ProColumns<API.ServiceInstanceModel>[] = [
@@ -92,14 +124,15 @@ const ServiceInstanceList: React.FC = () => {
             valueType: 'select',
             fieldProps: {
                 mode: 'multiple',
+                defaultValue: commodities.length > 0 ? [String(commodities[0].serviceId)] : [],
             },
             valueEnum: commodities.reduce((obj, commodity) => {
                 const key = String(commodity.serviceId);
                 const text = commodity.commodityName || commodity.commodityCode || "未知商品";
-                obj[key] = { text };
+                obj[key] = {text};
                 return obj;
             }, {} as Record<string, { text: string }>),
-            // hideInTable: true,
+            hideInTable: true,
             search: {
                 transform: (value) => {
                     return ({...filterValues, serviceIdList: Array.isArray(value) ? value : value ? [value] : []});

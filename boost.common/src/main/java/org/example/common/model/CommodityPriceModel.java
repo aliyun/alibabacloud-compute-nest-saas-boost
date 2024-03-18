@@ -22,4 +22,6 @@ public class CommodityPriceModel {
     private Double unitPrice;
 
     private Double totalAmount;
+
+    private String commodityName;
 }

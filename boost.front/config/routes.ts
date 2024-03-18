@@ -82,6 +82,6 @@ export default [
         icon: 'ShopOutlined',
         path: '/commodity',
         component: './Commodity',
-        access: 'isAdmin'
+        access: 'admin'
     },
 ];
