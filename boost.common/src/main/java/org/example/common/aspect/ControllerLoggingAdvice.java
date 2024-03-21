@@ -25,6 +25,10 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.example.common.utils.ReflectionUtil.getAllFields;
 
 @Slf4j
 @Aspect
@@ -33,11 +37,14 @@ public class ControllerLoggingAdvice {
 
     @Pointcut("execution(* org.example.controller..*.*(..))")
     private void logControllerMethod() {}
+
     @Before("logControllerMethod()")
     public void logBefore(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
+        List<String> argsWithSuperclassFields = Arrays.stream(joinPoint.getArgs())
+                .map(arg -> arg == null ? "null" : arg.getClass().getSimpleName() + getAllFields(arg))
+                .collect(Collectors.toList());
         String methodName = joinPoint.getSignature().getName();
-        log.info("\nMethodName:\t{}"+"\nParameters:\t{}"+"\nRequestId:\t{}", methodName, Arrays.toString(args), MDC.get("requestId"));
+        log.info("\nMethodName:\t{}"+"\nParameters:\t{}"+"\nRequestId:\t{}", methodName, argsWithSuperclassFields, MDC.get("requestId"));
     }
 
     @AfterReturning(pointcut = "logControllerMethod()", returning = "result")

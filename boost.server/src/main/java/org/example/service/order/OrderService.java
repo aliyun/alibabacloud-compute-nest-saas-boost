@@ -18,21 +18,18 @@ package org.example.service.order;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dataobject.OrderDO;
-import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.CreateOrderParam;
-import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 
 public interface OrderService {
 
-    BaseResult<OrderDTO> createOrder(@Valid CreateOrderParam param);
+    OrderDTO createOrder(@Valid CreateOrderParam param);
 
     /**
      * Get a row of order from table store:order.

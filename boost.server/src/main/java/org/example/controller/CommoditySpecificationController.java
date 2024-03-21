@@ -68,7 +68,7 @@ public class CommoditySpecificationController {
     @ApiOperation(value = "更新商品规格信息", nickname = "updateCommoditySpecification")
     @RequestMapping(path = "/updateCommoditySpecification", method = RequestMethod.PUT)
     public BaseResult<Void> updateCommoditySpecification(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                         @RequestBody UpdateCommoditySpecificationParam param) {
+                                                         @RequestBody @Valid UpdateCommoditySpecificationParam param) {
         return commoditySpecificationService.updateCommoditySpecification(userInfoModel, param);
     }
 
@@ -76,7 +76,7 @@ public class CommoditySpecificationController {
     @ApiOperation(value = "删除商品规格", nickname = "deleteCommoditySpecification")
     @RequestMapping(path = "/deleteCommoditySpecification", method = RequestMethod.DELETE)
     public BaseResult deleteCommoditySpecification(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                   CommoditySpecificationParam param) {
+                                                   @Valid CommoditySpecificationParam param) {
         return commoditySpecificationService.deleteCommoditySpecification(userInfoModel, param);
     }
 }

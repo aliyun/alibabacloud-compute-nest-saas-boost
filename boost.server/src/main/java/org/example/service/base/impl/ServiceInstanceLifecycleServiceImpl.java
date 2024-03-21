@@ -34,28 +34,39 @@ import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRespons
 import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
 import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
 import com.aliyun.tea.TeaException;
+import com.aliyuncs.CommonRequest;
+import com.aliyuncs.CommonResponse;
+import com.aliyuncs.exceptions.ClientException;
+import com.aliyuncs.http.MethodType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.CallSource;
 import org.example.common.constant.ComputeNestConstants;
+import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.model.ServiceInstanceModel;
+import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
 import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
+import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
 import org.example.common.utils.OpenAPIErrorMessageUtil;
 import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
+import org.example.service.base.ServiceManager;
 import org.example.service.order.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,13 +74,13 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.example.common.constant.ComputeNestConstants.COMPUTE_NEST_SUPPLIER_API_VERSION;
 import static org.example.common.constant.ComputeNestConstants.DEFAULT_REGION_ID;
 import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD;
 import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD_UNIT;
@@ -90,7 +101,15 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
     @Resource
     private OrderService orderService;
 
+    @Resource
+    private AcsApiCaller acsApiCaller;
+
+    @Resource
+    private ServiceManager serviceManager;
+
     private static final String PREFIX = "saas-boost";
+
+    private static final Integer DEFAULT_RETENTION_DAYS = 3;
 
     public ServiceInstanceLifecycleServiceImpl(ComputeNestSupplierClient computeNestSupplierClient, ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper) {
         this.computeNestSupplierClient = computeNestSupplierClient;
@@ -203,6 +222,58 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         UpdateServiceInstanceAttributeRequest request = new UpdateServiceInstanceAttributeRequest();
         BeanUtils.copyProperties(updateServiceInstanceAttributeParam, request);
         return computeNestSupplierClient.updateServiceInstanceAttribute(request);
+    }
+
+    @Override
+    public void payOrderCallback(UserInfoModel userInfoModel, OrderDO orderDO) throws ClientException {
+        if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
+            CommonRequest commonRequest = buildPayOrderCallbackRequest(orderDO.getOrderId(), orderDO.getType().name()
+                    , Long.valueOf(userInfoModel.getAid()), orderDO.getServiceId());
+            CommonResponse commonResponse = acsApiCaller.getCommonResponse(commonRequest);
+            if (commonResponse.getHttpStatus() == HttpStatus.SC_OK && StringUtils.isNotEmpty(commonResponse.getData())) {
+                ServiceInstanceModel serviceInstanceModel = JsonUtil.parseObject(commonResponse.getData(), ServiceInstanceModel.class);
+                orderDO.setServiceInstanceId(serviceInstanceModel.getServiceInstanceId());
+                log.info("paOrderCallback success, orderId = {}, serviceInstanceId = {}", orderDO.getOrderId(), serviceInstanceModel.getServiceInstanceId());
+            } else {
+                throw new BizException(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getStatusCode(), ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getCode(),
+                        String.format(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getMessage(), orderDO.getOrderId()));
+            }
+        } else {
+            updateServiceInstance(userInfoModel, orderDO);
+        }
+    }
+
+    private void updateServiceInstance(UserInfoModel userInfoModel, OrderDO orderDO) {
+        Integer retentionDays = fetchRetentionDays(userInfoModel);
+        Long endTimeMillis = DateUtil.getIsO8601FutureDateMillis(orderDO.getBillingEndDateMillis(), retentionDays);
+        String endTime = DateUtil.parseIs08601DateMillis(endTimeMillis);
+
+        UpdateServiceInstanceAttributeParam updateServiceInstanceAttributeParam = new UpdateServiceInstanceAttributeParam();
+        updateServiceInstanceAttributeParam.setServiceInstanceId(orderDO.getServiceInstanceId());
+        updateServiceInstanceAttributeParam.setEndTime(endTime);
+        updateServiceInstanceAttribute(userInfoModel, updateServiceInstanceAttributeParam);
+    }
+
+    private Integer fetchRetentionDays(UserInfoModel userInfoModel) {
+        BaseResult<ServiceMetadataModel> serviceMetadataResult =
+                serviceManager.getServiceMetadata(userInfoModel, new GetServiceMetadataParam());
+        return Optional.ofNullable(serviceMetadataResult.getData())
+                .map(ServiceMetadataModel::getRetentionDays)
+                .orElse(DEFAULT_RETENTION_DAYS);
+    }
+
+    private CommonRequest buildPayOrderCallbackRequest(String orderId, String orderType, Long aliUid, String serviceId) {
+        CommonRequest request = new CommonRequest();
+        request.setSysRegionId(DEFAULT_REGION_ID);
+        request.setSysMethod(MethodType.POST);
+        request.setSysDomain(ComputeNestConstants.SERVICE_ENDPOINT);
+        request.setSysVersion(COMPUTE_NEST_SUPPLIER_API_VERSION);
+        request.setSysAction("PayOrderCallback");
+        request.putQueryParameter("OrderId", orderId);
+        request.putQueryParameter("OrderType", orderType);
+        request.putQueryParameter("AliUid", String.valueOf(aliUid));
+        request.putQueryParameter("ServiceId", serviceId);
+        return request;
     }
 
     private ServiceModel buildServiceModel(GetServiceInstanceResponseBody responseBody) {

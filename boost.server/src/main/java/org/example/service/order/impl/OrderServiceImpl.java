@@ -18,13 +18,11 @@ package org.example.service.order.impl;
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
 import com.alicloud.openservices.tablestore.model.search.sort.Sort.Sorter;
 import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
-import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.OrderOtsConstant;
-import org.example.common.constant.PayChannel;
 import org.example.common.constant.RefundReason;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
@@ -38,14 +36,11 @@ import org.example.common.helper.SpiTokenHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.RefundDetailModel;
-import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
-import org.example.common.param.service.GetServiceMetadataParam;
-import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
 import org.example.common.utils.UuidUtil;
@@ -62,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -94,24 +88,22 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private PaymentServiceManger paymentServiceManger;
 
-    private static final Integer DEFAULT_RETENTION_DAYS = 3;
-
 
     @Override
-    public BaseResult<OrderDTO> createOrder(CreateOrderParam param) {
+    public OrderDTO createOrder(CreateOrderParam param) {
         if (!spiTokenHelper.checkSpiToken(param, param.getToken())) {
-            return BaseResult.fail(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED);
+            return new OrderDTO();
         }
         CommodityPriceModel commodityCost = walletHelper.getCommodityCost(param.getCommodityCode(), param.getSpecificationName(), param.getPayPeriod());
         Long userId = Long.parseLong(param.getUserId());
         String orderId = UuidUtil.generateOrderId(userId, param.getPayChannel().getValue());
 
-        String transaction = paymentServiceManger.createTransaction(commodityCost.getTotalAmount(), commodityCost.getCommodityName(), orderId, param.getPayChannel());
+        String transaction = paymentServiceManger.createTransaction(commodityCost.getTotalAmount(), commodityCost.getCommodityName(), orderId);
         OrderDO orderDataObject = createOrderDataObject(orderId, param, userId, commodityCost.getTotalAmount(), userId, transaction);
         orderOtsHelper.createOrder(orderDataObject);
         OrderDTO orderDTO = new OrderDTO();
         BeanUtils.copyProperties(orderDataObject, orderDTO);
-        return BaseResult.success(orderDTO);
+        return orderDTO;
     }
 
     @Override
@@ -165,10 +157,8 @@ public class OrderServiceImpl implements OrderService {
     public void updateOrder(UserInfoModel userInfoModel, OrderDO orderDO) {
         try {
             updateBillingDates(orderDO);
-            Integer retentionDays = fetchRetentionDays(userInfoModel);
-            Long endTimeMillis = DateUtil.getIsO8601FutureDateMillis(orderDO.getBillingEndDateMillis(), retentionDays);
-            String endTime = DateUtil.parseIs08601DateMillis(endTimeMillis);
-            createOrUpdateServiceInstance(userInfoModel, orderDO, endTime);
+            serviceInstanceLifecycleService.payOrderCallback(userInfoModel, orderDO);
+            orderOtsHelper.updateOrder(orderDO);
         } catch (Exception e) {
             handleUpdateOrderFailure(e, orderDO);
         }
@@ -204,36 +194,6 @@ public class OrderServiceImpl implements OrderService {
         log.info("the current order with orderId : {}, the billingStartDate = {}, the billing end date = {}", orderDataObject.getOrderId(), billingStartDate, billingEndDate);
     }
 
-    private Integer fetchRetentionDays(UserInfoModel userInfoModel) {
-        BaseResult<ServiceMetadataModel> serviceMetadataResult =
-                serviceManager.getServiceMetadata(userInfoModel, new GetServiceMetadataParam());
-        return Optional.ofNullable(serviceMetadataResult.getData())
-                .map(ServiceMetadataModel::getRetentionDays)
-                .orElse(DEFAULT_RETENTION_DAYS);
-    }
-
-    private void createOrUpdateServiceInstance(UserInfoModel userInfoModel, OrderDO orderDO, String endTime) {
-        if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
-            CreateServiceInstanceResponse serviceInstanceResponse =
-                    serviceInstanceLifecycleService.createServiceInstance(
-                            userInfoModel, JsonUtil.parseObjectCustom(orderDO.getProductComponents(), Map.class), false, endTime);
-            Optional.ofNullable(serviceInstanceResponse)
-                    .map(response -> response.body)
-                    .map(body -> body.serviceInstanceId)
-                    .ifPresent(orderDO::setServiceInstanceId);
-        } else {
-            updateServiceInstance(userInfoModel, orderDO.getServiceInstanceId(), endTime);
-        }
-        orderOtsHelper.updateOrder(orderDO);
-    }
-
-    private void updateServiceInstance(UserInfoModel userInfoModel, String serviceInstanceId, String endTime) {
-        UpdateServiceInstanceAttributeParam updateServiceInstanceAttributeParam = new UpdateServiceInstanceAttributeParam();
-        updateServiceInstanceAttributeParam.setServiceInstanceId(serviceInstanceId);
-        updateServiceInstanceAttributeParam.setEndTime(endTime);
-        serviceInstanceLifecycleService.updateServiceInstanceAttribute(userInfoModel, updateServiceInstanceAttributeParam);
-    }
-
     private void handleUpdateOrderFailure(Exception e, OrderDO orderDO) {
         log.error("updateOrder error, orderDO = {}", orderDO, e);
         RefundDetailModel refundDetailModel = new RefundDetailModel();
@@ -247,7 +207,7 @@ public class OrderServiceImpl implements OrderService {
             orderDO.setTradeStatus(TradeStatus.REFUNDING);
         } else {
             String refundId = UuidUtil.generateRefundId();
-            alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId, PayChannel.ALIPAY);
+            alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
             orderDO.setTradeStatus(TradeStatus.REFUNDED);
         }
         orderOtsHelper.updateOrder(orderDO);

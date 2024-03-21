@@ -48,31 +48,28 @@ export async function listAllCommodities(
 }
 
 /** 获取商品信息 POST /api/spi/getCommodity */
-export async function getCommodity(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getCommodityParams,
-  options?: { [key: string]: any },
-) {
-  return request<API.BaseResultCommodityDTO_>('/api/spi/getCommodity', {
+export async function getCommodity(body: API.GetCommodityParam, options?: { [key: string]: any }) {
+  return request<API.CommodityDTO>('/api/spi/getCommodity', {
     method: 'POST',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }
 
 /** 获取商品价格 POST /api/spi/getCommodityPrice */
 export async function getCommodityPrice(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getCommodityPriceParams,
+  body: API.GetCommodityPriceParam,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResultCommodityPriceModel_>('/api/spi/getCommodityPrice', {
+  return request<API.CommodityPriceModel>('/api/spi/getCommodityPrice', {
     method: 'POST',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }

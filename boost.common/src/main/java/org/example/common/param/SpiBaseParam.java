@@ -20,8 +20,6 @@ import org.example.common.param.commodity.CommodityBaseParam;
 @Data
 public class SpiBaseParam extends CommodityBaseParam {
 
-    private static final long serialVersionUID = 1824629370250074341L;
-
     /**
      * 令牌
      */

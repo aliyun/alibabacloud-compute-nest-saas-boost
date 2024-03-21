@@ -18,7 +18,6 @@ package org.example.service.impl;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.constant.PayChannel;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
@@ -158,7 +157,7 @@ class OrderServiceImplTest {
 
     @Test
     void testUpdateOrder() {
-        when(alipayService.refundOrder(anyString(), anyDouble(), anyString(), PayChannel.ALIPAY)).thenReturn(Boolean.TRUE);
+        when(alipayService.refundOrder(anyString(), anyDouble(), anyString())).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(null);
 
@@ -190,7 +189,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString(),PayChannel.ALIPAY);
+            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
         }
     }
 
@@ -219,7 +218,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString(), PayChannel.ALIPAY);
+            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
         }
     }
 
@@ -251,7 +250,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString(), PayChannel.ALIPAY);
+            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
         }
     }
 

@@ -18,6 +18,7 @@ package org.example.common.utils;
 import org.example.common.constant.ChargeType;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.order.CreateOrderParam;
 import org.junit.jupiter.api.Test;
@@ -76,6 +77,23 @@ class TokenUtilTest {
         map.put("payPeriodUnit", PayPeriodUnit.Month.toString());
         map.put("specificationName", "basic");
         map.put("payPeriod", "12");
+
+        String data = TokenUtil.buildUrlParams(map);
+        data += "&key=" + "isvKey";
+        String md5HexString = EncryptionUtil.getMd5HexString(data);
+        String actualToken = TokenUtil.createSpiToken(param, "isvKey");
+
+        assertEquals(md5HexString, actualToken);
+    }
+
+    @Test
+    public void testGetCommoditySpiToken() {
+        GetCommodityParam param = new GetCommodityParam();
+        param.setCommodityCode("boost-ffb866f6");
+        param.setToken("ignoredToken");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("commodityCode", "boost-ffb866f6");
 
         String data = TokenUtil.buildUrlParams(map);
         data += "&key=" + "isvKey";

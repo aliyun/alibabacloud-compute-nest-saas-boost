@@ -14,18 +14,18 @@
  */
 package org.example.service.payment;
 
-import org.example.common.constant.PayChannel;
+import org.example.common.dataobject.OrderDO;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public interface PaymentService {
     /**
      * Verifies the trade callback received from the payment channel.
-     *
-     * @param request     the HTTP request containing the callback data
+     * @param orderDO the order to be verified
+     * @param map the request body from the payment channel
      * @return a String indicating the result of the verification
      */
-    String verifyTradeCallback(HttpServletRequest request);
+    String verifyTradeCallback(OrderDO unverifiedOrder, Map<String, String> map);
 
     /**
      * Creates a new transaction with the specified details in the payment channel.

@@ -15,7 +15,6 @@
 
 package org.example.controller;
 
-import org.example.common.constant.PayChannel;
 import org.example.service.payment.PaymentServiceManger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,7 @@ class AliPayControllerTest {
     @Mock
     PaymentServiceManger alipayService;
     @InjectMocks
-    AliPayController aliPayController;
+    PayController payController;
 
     @BeforeEach
     void setUp() {
@@ -40,9 +39,9 @@ class AliPayControllerTest {
 
     @Test
     void testVerifyTradeCallback() {
-        when(alipayService.verifyTradeCallback(any(), PayChannel.ALIPAY)).thenReturn("verifyTradeCallbackResponse");
+        when(alipayService.verifyTradeCallback(any())).thenReturn("verifyTradeCallbackResponse");
 
-        String result = aliPayController.verifyTradeCallback(null);
+        String result = payController.verifyTradeCallback(null);
         Assertions.assertEquals("verifyTradeCallbackResponse", result);
     }
 }

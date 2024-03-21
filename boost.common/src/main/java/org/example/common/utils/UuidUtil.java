@@ -27,9 +27,9 @@ public class UuidUtil {
 
     private static final String NEST_REFUND_ID_PREFIX = "nest-refund";
 
-    private static final String ALIPAY_OUT_TRADE_NO_PREFIX = "alipay-";
+    public static final String ALIPAY_OUT_TRADE_NO_PREFIX = "alipay-";
 
-    private static final String COMMODITY_CODE_PREFIX = "saas-boost-";
+    private static final String COMMODITY_CODE_PREFIX = "boost-";
 
     public static String generateUuid(String prefix, int randomStrLen) {
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");

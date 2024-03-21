@@ -17,11 +17,11 @@ package org.example.common.param.order;
 
 import lombok.Data;
 import org.example.common.constant.ChargeType;
+import org.example.common.constant.OrderType;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.SpiBaseParam;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -30,8 +30,8 @@ public class CreateOrderParam extends SpiBaseParam {
     /**
      * 计费类型
      */
-    @NotNull
-    private ChargeType chargeType;
+//    @NotNull
+    private ChargeType chargeType = ChargeType.PRE_PAID;
 
     /**
      * 支付周期
@@ -48,14 +48,13 @@ public class CreateOrderParam extends SpiBaseParam {
     /**
      * 支付渠道
      */
-    @NotNull
-    private PayChannel payChannel;
+    private PayChannel payChannel = PayChannel.ALIPAY;
 
     /**
      * 订单类型
      */
-    @NotEmpty
-    private String orderType;
+//    @NotEmpty
+    private String orderType = OrderType.BUY.toString();
 
     /**
      * 套餐名称

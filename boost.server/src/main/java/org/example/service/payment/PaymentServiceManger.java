@@ -15,7 +15,11 @@
 package org.example.service.payment;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.example.common.constant.AliPayConstants;
 import org.example.common.constant.PayChannel;
+import org.example.common.dataobject.OrderDO;
+import org.example.common.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.example.common.utils.UuidUtil.ALIPAY_OUT_TRADE_NO_PREFIX;
 
 @Component
 @Slf4j
@@ -43,23 +49,30 @@ public class PaymentServiceManger {
     /**
      * Retrieves the PayChannelService implementation for the given type.
      *
-     * @param type the type of the payment channel
+     * @param outTradeNo the type of the payment channel
      * @return the corresponding PayChannelService implementation
      */
-    public PaymentService getPayChannelService(String type) {
-        return payChannelServiceMap.get(type);
+    public PaymentService getPayChannelService(String outTradeNo) {
+        if (StringUtils.isNotEmpty(outTradeNo) && outTradeNo.startsWith(ALIPAY_OUT_TRADE_NO_PREFIX)) {
+            return payChannelServiceMap.get(PayChannel.ALIPAY.getValue());
+        }
+        return payChannelServiceMap.get(PayChannel.WECHATPAY.getValue());
     }
 
-    public String verifyTradeCallback(HttpServletRequest request, PayChannel payChannel) {
-        return getPayChannelService(payChannel.getValue()).verifyTradeCallback(request);
+    public String verifyTradeCallback(HttpServletRequest request) {
+        OrderDO unverifiedOrder = HttpUtil.requestToObject(request, OrderDO.class);
+        Map<String, String> map = HttpUtil.requestToMap(request);
+        String orderId = map.get(AliPayConstants.OUT_TRADE_NO);
+        return getPayChannelService(orderId).verifyTradeCallback(unverifiedOrder, map);
     }
 
 
-    public String createTransaction(Double totalAmount, String subject, String outTradeNo, PayChannel payChannel) {
-        return getPayChannelService(payChannel.getValue()).createTransaction(totalAmount, subject, outTradeNo);
+    public String createTransaction(Double totalAmount, String subject, String orderId) {
+        return getPayChannelService(orderId).createTransaction(totalAmount, subject, orderId);
     }
 
-    public Boolean refundOrder(String orderId, Double refundAmount, String refundId, PayChannel payChannel) {
-        return getPayChannelService(payChannel.getValue()).refundOrder(orderId, refundAmount, refundId);
+    public Boolean refundOrder(String orderId, Double refundAmount, String refundId) {
+        return getPayChannelService(orderId).refundOrder(orderId, refundAmount, refundId);
     }
+
 }

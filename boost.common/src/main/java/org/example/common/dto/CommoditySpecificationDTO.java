@@ -16,9 +16,6 @@ package org.example.common.dto;
 
 import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
-
 @Data
 public class CommoditySpecificationDTO {
 
@@ -31,11 +28,6 @@ public class CommoditySpecificationDTO {
      * Name of the specification.
      */
     private String specificationName;
-
-    /**
-     * Allowed payment durations for the specification.
-     */
-    private Map<String, List<String>> allowedPaymentDurations;
 
     /**
      * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.

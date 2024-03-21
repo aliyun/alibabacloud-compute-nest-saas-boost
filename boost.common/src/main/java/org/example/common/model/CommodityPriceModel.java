@@ -24,4 +24,6 @@ public class CommodityPriceModel {
     private Double totalAmount;
 
     private String commodityName;
+
+    private String currency;
 }

@@ -12,21 +12,16 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param.commodity;
+package org.example.common.param.si;
 
 import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
+import org.example.common.constant.OrderType;
+import org.example.common.dataobject.OrderDO;
 
 @Data
-public class CommodityBaseParam implements Serializable {
+public class PayOrderCallbackParam {
 
-    private static final long serialVersionUID = -4413253084153080063L;
+    private OrderDO order;
 
-    /**
-     * 商品code
-     */
-    @NotEmpty
-    private String commodityCode;
+    private OrderType orderType;
 }

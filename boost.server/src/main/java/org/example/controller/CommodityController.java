@@ -31,10 +31,13 @@ import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.service.commodity.CommodityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -52,7 +55,7 @@ public class CommodityController {
     @ApiOperation(value = "创建商品", nickname = "createCommodity")
     @RequestMapping(path = "/createCommodity", method = RequestMethod.POST)
     public BaseResult<CommodityDTO> createCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                    CreateCommodityParam param) {
+                                                    @Valid CreateCommodityParam param) {
         return commodityService.createCommodity(userInfoModel, param);
     }
 
@@ -60,7 +63,7 @@ public class CommodityController {
     @ApiOperation(value = "更新商品信息", nickname = "updateCommodity")
     @RequestMapping(path = "/updateCommodity}", method = RequestMethod.PUT)
     public BaseResult<Void> updateCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                    UpdateCommodityParam param) {
+                                            @Valid UpdateCommodityParam param) {
         return commodityService.updateCommodity(userInfoModel, param);
     }
 
@@ -68,7 +71,7 @@ public class CommodityController {
     @ApiOperation(value = "删除商品", nickname = "deleteCommodity")
     @RequestMapping(path = "/deleteCommodity", method = RequestMethod.DELETE)
     public BaseResult<Void> deleteCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                            CommodityBaseParam commodityBaseParam) {
+                                            @Valid CommodityBaseParam commodityBaseParam) {
         return commodityService.deleteCommodity(userInfoModel, commodityBaseParam);
     }
 
@@ -81,13 +84,13 @@ public class CommodityController {
 
     @ApiOperation(value = "获取商品价格", nickname = "getCommodityPrice")
     @RequestMapping(path = "/spi/getCommodityPrice", method = RequestMethod.POST)
-    public BaseResult<CommodityPriceModel> getCommodityPrice(GetCommodityPriceParam param) {
+    public CommodityPriceModel getCommodityPrice(@Valid @RequestBody GetCommodityPriceParam param) {
         return commodityService.getCommodityPrice(param);
     }
 
     @ApiOperation(value = "获取商品信息", nickname = "getCommodity")
     @RequestMapping(path = "/spi/getCommodity", method = RequestMethod.POST)
-    public BaseResult<CommodityDTO> getCommodity(GetCommodityParam param) {
+    public CommodityDTO getCommodity(@Valid @RequestBody GetCommodityParam param) {
         return commodityService.getCommodity(param);
     }
 }

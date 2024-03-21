@@ -29,13 +29,11 @@ import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.GetOrderParam;
-import org.example.common.utils.HttpUtil;
 import org.example.service.order.OrderService;
 import org.example.service.payment.PaymentService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -54,9 +52,7 @@ public class AlipayServiceImpl implements PaymentService {
     private BaseAlipayClient baseAlipayClient;
 
     @Override
-    public String verifyTradeCallback(HttpServletRequest request) {
-        OrderDO unverifiedOrder = HttpUtil.requestToObject(request, OrderDO.class);
-        Map<String, String> map = HttpUtil.requestToMap(request);
+    public String verifyTradeCallback(OrderDO unverifiedOrder, Map<String, String> map) {
         String orderId = map.get(AliPayConstants.OUT_TRADE_NO);
         OrderDTO orderFromOts = Optional.ofNullable(orderService.getOrder(null, new GetOrderParam(orderId)))
                 .map(BaseResult::getData)

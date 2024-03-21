@@ -20,7 +20,6 @@ import org.example.common.constant.CommoditySpecificationOtsConstant;
 import org.example.common.dataobject.CommodityDO;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
-import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.helper.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.CommodityOtsHelper;
 import org.example.common.helper.SpiTokenHelper;
@@ -48,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.example.common.utils.UuidUtil.generateCommodityCode;
 
@@ -70,6 +70,10 @@ public class CommodityServiceImpl implements CommodityService {
     private String adminAid;
 
     private static final String ARRAY_REGEX = "\\s*,\\s*";
+
+    public static final List<String> MONTHS = IntStream.rangeClosed(1, 12)
+            .mapToObj(i -> i + ":Month")
+            .collect(Collectors.toList());
 
     @Override
     public BaseResult<CommodityDTO> createCommodity(UserInfoModel userInfoModel, CreateCommodityParam param) {
@@ -118,21 +122,21 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     @Override
-    public BaseResult<CommodityPriceModel> getCommodityPrice(GetCommodityPriceParam param) {
+    public CommodityPriceModel getCommodityPrice(GetCommodityPriceParam param) {
         if (!spiTokenHelper.checkSpiToken(param, param.getToken())) {
-            return BaseResult.fail(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED);
+            return new CommodityPriceModel();
         }
 
         String commodityCode = param.getCommodityCode();
         String specificationName = param.getSpecificationName();
         CommodityPriceModel commodityCost = walletHelper.getCommodityCost(commodityCode, specificationName, param.getPayPeriod());
-        return BaseResult.success(commodityCost);
+        return commodityCost;
     }
 
     @Override
-    public BaseResult<CommodityDTO> getCommodity(GetCommodityParam param) {
+    public CommodityDTO getCommodity(GetCommodityParam param) {
         if (!spiTokenHelper.checkSpiToken(param, param.getToken())) {
-            return BaseResult.fail(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED);
+            return new CommodityDTO();
         }
         CommodityDTO commodity = commodityOtsHelper.getCommodity(param.getCommodityCode());
         ListCommoditySpecificationParam listCommoditySpecificationParam = new ListCommoditySpecificationParam();
@@ -145,18 +149,23 @@ public class CommodityServiceImpl implements CommodityService {
                 String payPeriodsStr = commoditySpecification.getPayPeriods();
                 String specificationName = commoditySpecification.getSpecificationName();
                 String payPeriodUnit = commoditySpecification.getPayPeriodUnit();
-                List<Integer> payPeriods = Arrays.stream(payPeriodsStr.split(ARRAY_REGEX))
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList());
-                for (Integer payPeriod : payPeriods) {
-                    List<String> allowedPaymentDuration = allowedPaymentDurations.getOrDefault(specificationName, new ArrayList<>());
-                    allowedPaymentDuration.add(payPeriod+":"+payPeriodUnit);
-                    allowedPaymentDurations.put(specificationName, allowedPaymentDuration);
+                if (payPeriodsStr != null && !payPeriodsStr.trim().isEmpty()) {
+                    List<Integer> payPeriods = Arrays.stream(payPeriodsStr.split(ARRAY_REGEX))
+                            .filter(str -> !str.isEmpty())
+                            .map(Integer::parseInt)
+                            .collect(Collectors.toList());
+                    for (Integer payPeriod : payPeriods) {
+                        List<String> allowedPaymentDuration = allowedPaymentDurations.getOrDefault(specificationName, new ArrayList<>());
+                        allowedPaymentDuration.add(payPeriod+":"+payPeriodUnit);
+                        allowedPaymentDurations.put(specificationName, allowedPaymentDuration);
+                    }
                 }
             }
-            commodity.setAllowedPaymentDurations(allowedPaymentDurations);
+        } else {
+            allowedPaymentDurations.put(commodity.getCommodityCode(), MONTHS);
         }
-        return BaseResult.success(commodity);
+        commodity.setAllowedPaymentDurations(allowedPaymentDurations);
+        return commodity;
     }
 }
 

@@ -19,8 +19,10 @@ import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstan
 import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
+import com.aliyuncs.exceptions.ClientException;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.dataobject.OrderDO;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
@@ -72,4 +74,12 @@ public interface ServiceInstanceLifecycleService {
      * @return {@link UpdateServiceInstanceAttributeResponse}
      */
     UpdateServiceInstanceAttributeResponse updateServiceInstanceAttribute(UserInfoModel userInfoModel, UpdateServiceInstanceAttributeParam updateServiceInstanceAttributeParam);
+
+    /**
+     * Pay order callback.
+     * @param userInfoModel user information
+     * @param orderDO order data object
+     * @throws ClientException exception
+     */
+    void payOrderCallback(UserInfoModel userInfoModel,  OrderDO orderDO) throws ClientException;
 }

@@ -25,7 +25,6 @@ import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;
 import org.example.common.param.commodity.UpdateCommodityParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 
@@ -41,7 +40,7 @@ public interface CommodityService {
 
     BaseResult<Void> deleteCommodity(UserInfoModel userInfoModel, @Valid CommodityBaseParam param);
 
-    BaseResult<CommodityPriceModel> getCommodityPrice(GetCommodityPriceParam param);
+    CommodityPriceModel getCommodityPrice(GetCommodityPriceParam param);
 
-    BaseResult<CommodityDTO> getCommodity(GetCommodityParam param);
+    CommodityDTO getCommodity(GetCommodityParam param);
 }

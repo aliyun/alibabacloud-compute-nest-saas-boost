@@ -15,15 +15,16 @@
 package org.example.service.payment.impl;
 
 import org.example.common.constant.PayChannel;
+import org.example.common.dataobject.OrderDO;
 import org.example.service.payment.PaymentService;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public class WechatPayServiceImpl implements PaymentService {
 
 
     @Override
-    public String verifyTradeCallback(HttpServletRequest request) {
+    public String verifyTradeCallback(OrderDO unverifiedOrder, Map<String, String> map) {
         return null;
     }
 

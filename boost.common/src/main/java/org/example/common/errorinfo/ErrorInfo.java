@@ -42,7 +42,9 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     USER_NOT_ADMIN(400, "UserNotAdmin",  "Access denied. The current user is not an administrator."),
 
-    SPI_TOKEN_VALIDATION_FAILED(403, "SpiTokenValidationFailed", "SPI Token Validation Failed")
+    SPI_TOKEN_VALIDATION_FAILED(403, "SpiTokenValidationFailed", "SPI Token Validation Failed"),
+
+    SERVICE_INSTANCE_CREATE_FAILED(400, "ServiceInstanceCreateFailed", "the specified order id \"%s\" create service instance failed.")
     ;
 
     private final int statusCode;

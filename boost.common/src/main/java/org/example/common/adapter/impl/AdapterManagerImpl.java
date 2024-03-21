@@ -15,6 +15,7 @@
 package org.example.common.adapter.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.AdapterManager;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.CloudMonitorClient;
@@ -66,6 +67,9 @@ public class AdapterManagerImpl implements AdapterManager {
     @Resource
     private OosSecretParamConfig oosSecretParamConfig;
 
+    @Resource
+    private AcsApiCaller acsApiCaller;
+
     @Value("${deploy.type}")
     private String deployType;
 
@@ -74,15 +78,29 @@ public class AdapterManagerImpl implements AdapterManager {
 
     private static final String BOOST_SERVERLESS_MODULE = "serverless";
 
+    private String akid = "";
+
+    private String aksec = "";
+
     @Override
     public void clientInjection(Map<String, String> header) throws Exception {
         log.info("Client injection starts, deployType: {}", deployType);
+        if ("god".equals(deployType)) {
+            oosClient.createClient(akid, aksec);
+            oosSecretParamConfig.init();
+            otsClient.createClient(akid, aksec);
+            computeNestSupplierClient.createClient(akid, aksec);
+            cloudMonitorClient.createClient(akid, aksec);
+            acsApiCaller.createClient(akid, aksec);
+            return;
+        }
         if ((header == null || header.isEmpty())) {
             oosClient.createClient(aliyunConfig);
             oosSecretParamConfig.init();
             otsClient.createClient(aliyunConfig);
             computeNestSupplierClient.createClient(aliyunConfig);
             cloudMonitorClient.createClient(aliyunConfig);
+            acsApiCaller.createClient(aliyunConfig);
         } else {
             String accessKeyId = header.get(Constants.FC_ACCESS_KEY_ID);
             String accessKeySecret = header.get(Constants.FC_ACCESS_KEY_SECRET);

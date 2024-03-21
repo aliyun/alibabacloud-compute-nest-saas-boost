@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 public class SpiTokenHelper {
 
     public Boolean checkSpiToken(Object param, String spiToken) {
-        String currentSpiToken = TokenUtil.createSpiToken(param, "isvKey");
+        String currentSpiToken = TokenUtil.createSpiToken(param, "41b8157fac194a6daea6");
         if (StringUtils.isEmpty(currentSpiToken) || !currentSpiToken.equals(spiToken)) {
             return false;
         }

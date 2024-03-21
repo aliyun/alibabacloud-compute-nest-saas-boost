@@ -172,4 +172,6 @@ public class OrderDO implements Serializable {
      * payment form.
      */
     private String paymentForm;
+
+    private String serviceId;
 }
