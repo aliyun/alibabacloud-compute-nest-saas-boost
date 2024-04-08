@@ -19,7 +19,7 @@ import org.example.common.ListResult;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.commodity.CommodityBaseParam;
+import org.example.common.param.CommodityBaseParam;
 import org.example.common.param.commodity.CreateCommodityParam;
 import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;

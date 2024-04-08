@@ -20,17 +20,17 @@ public enum PayPeriodUnit {
     /**
      * Monthly subscription.
      */
-    Month("month"),
+    Month("Month"),
 
     /**
      * Daily subscription.
      */
-    Day("day"),
+    Day("Day"),
 
     /**
      * Annual subscription.
      */
-    Year("year");
+    Year("Year");
 
     private String name;
 

@@ -24,7 +24,6 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameter
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
@@ -41,7 +40,6 @@ import org.example.common.utils.JsonUtil;
 import org.example.common.utils.YamlUtil;
 import org.example.service.base.ServiceManager;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -64,9 +62,6 @@ public class ServiceManagerImpl implements ServiceManager {
     @Resource
     private ComputeNestSupplierClient computeNestSupplierClient;
 
-    @Value("${service.id:abc}")
-    private String serviceId;
-
     @Resource
     private WalletHelper walletHelper;
 
@@ -74,11 +69,7 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public BaseResult<ServiceMetadataModel> getServiceMetadata(UserInfoModel userInfoModel, GetServiceMetadataParam getServiceMetadataParam) {
         GetServiceRequest request = new GetServiceRequest();
-        if (StringUtils.isNotEmpty(getServiceMetadataParam.getServiceId())) {
-            request.setServiceId(getServiceMetadataParam.getServiceId());
-        } else {
-            request.setServiceId(serviceId);
-        }
+        request.setServiceId(getServiceMetadataParam.getServiceId());
         try {
             GetServiceResponse serviceResponse = computeNestSupplierClient.getService(request);
             GetServiceResponseBody responseBody = serviceResponse.getBody();
@@ -128,24 +119,22 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public ListResult<GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsParam getServiceTemplateParameterConstraintsParam) {
+    public ListResult<GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(GetServiceTemplateParameterConstraintsParam constraintsParam) {
         GetServiceTemplateParameterConstraintsRequest request = new GetServiceTemplateParameterConstraintsRequest();
-        BeanUtils.copyProperties(getServiceTemplateParameterConstraintsParam, request);
+        BeanUtils.copyProperties(constraintsParam, request);
         List<GetServiceTemplateParameterConstraintsRequest.GetServiceTemplateParameterConstraintsRequestParameters> convertedParameters = new ArrayList<>();
 
-        if (getServiceTemplateParameterConstraintsParam.getParameters() != null) {
-            convertedParameters = getServiceTemplateParameterConstraintsParam.getParameters().stream()
+        if (constraintsParam.getParameters() != null) {
+            convertedParameters = constraintsParam.getParameters().stream()
                     .map(param -> {
-                        GetServiceTemplateParameterConstraintsRequest.GetServiceTemplateParameterConstraintsRequestParameters getServiceTemplateParameterConstraintsRequestParameters = new GetServiceTemplateParameterConstraintsRequest.GetServiceTemplateParameterConstraintsRequestParameters();
+                        GetServiceTemplateParameterConstraintsRequest.GetServiceTemplateParameterConstraintsRequestParameters getServiceTemplateParameterConstraintsRequestParameters
+                                = new GetServiceTemplateParameterConstraintsRequest.GetServiceTemplateParameterConstraintsRequestParameters();
                         BeanUtils.copyProperties(param, getServiceTemplateParameterConstraintsRequestParameters);
                         return getServiceTemplateParameterConstraintsRequestParameters;
                     }).collect(Collectors.toList());
         }
         request.setParameters(convertedParameters);
         request.setRegionId(DEFAULT_REGION_ID);
-        if (StringUtils.isEmpty(request.getServiceId())) {
-            request.setServiceId(serviceId);
-        }
         GetServiceTemplateParameterConstraintsResponse serviceTemplateParameterConstraints = computeNestSupplierClient.getServiceTemplateParameterConstraints(request);
         GetServiceTemplateParameterConstraintsResponseBody responseBody = serviceTemplateParameterConstraints.getBody();
         List<GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> parameterConstraints = responseBody.getParameterConstraints();

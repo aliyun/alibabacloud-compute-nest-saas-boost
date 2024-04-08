@@ -1,10 +1,10 @@
 /*
 *Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
+*Licensed under the Apache License, Version 2L (the "License");
 *you may not use this file except in compliance with the License.
 *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+*   http://www.apache.org/licenses/LICENSE-2L
 
 *Unless required by applicable law or agreed to in writing, software
 *distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,9 +21,9 @@ import org.example.common.ListResult;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
-import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.helper.WalletHelper;
+import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.GetOrderParam;
@@ -43,6 +43,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +52,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyDouble;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.verify;
@@ -91,11 +91,11 @@ class OrderServiceImplTest {
 
 //    @Test
 //    void testCreateOrder() throws AlipayApiException {
-//        when(alipayService.createTransaction(anyDouble(), anyString(), anyString())).thenReturn("createTransactionResponse");
+//        when(alipayService.createTransaction(any(), anyString(), anyString())).thenReturn("createTransactionResponse");
 //        CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
 //        response.setStatusCode(HttpStatus.OK.value());
 //        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), any())).thenReturn(response);
-//        when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
+//        when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Long>("code", "message", Long.valueOf(0), "requestId"));
 //        List<OrderDTO> orderList = new ArrayList<>();
 //        orderList.add(new OrderDTO());
 //        ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
@@ -114,11 +114,11 @@ class OrderServiceImplTest {
 
 //    @Test
 //    void testCreateOrderWithExistedServiceInstance() throws AlipayApiException {
-//        when(alipayService.createTransaction(anyDouble(), anyString(), anyString())).thenReturn("createTransactionResponse");
+//        when(alipayService.createTransaction(any(), anyString(), anyString())).thenReturn("createTransactionResponse");
 //        CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
 //        response.setStatusCode(HttpStatus.OK.value());
 //        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), any())).thenReturn(response);
-//        when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
+//        when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Long>("code", "message", Long.valueOf(0), "requestId"));
 //        List<OrderDTO> orderList = new ArrayList<>();
 //        orderList.add(new OrderDTO());
 //        ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
@@ -157,7 +157,7 @@ class OrderServiceImplTest {
 
     @Test
     void testUpdateOrder() {
-        when(alipayService.refundOrder(anyString(), anyDouble(), anyString())).thenReturn(Boolean.TRUE);
+        when(alipayService.refundOrder(anyString(), any(), anyString())).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(null);
 
@@ -178,7 +178,7 @@ class OrderServiceImplTest {
                 "  \"ServiceInstanceId\":\"si-123\"\n" +
                 "}");
         when(orderDO.getOrderId()).thenReturn("order-id");
-        when(orderDO.getReceiptAmount()).thenReturn(100.0);
+        when(orderDO.getReceiptAmount()).thenReturn(100L);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(response);
         when(serviceManager.getServiceMetadata(any(UserInfoModel.class), any(GetServiceMetadataParam.class)))
                 .thenReturn(BaseResult.success(serviceMetadataModel));
@@ -189,7 +189,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
+            verify(alipayService).refundOrder(eq("order-id"), eq(BigDecimal.valueOf(100)), anyString());
         }
     }
 
@@ -207,7 +207,7 @@ class OrderServiceImplTest {
                 "  \"ServiceInstanceId\":\"si-123\"\n" +
                 "}");
         when(orderDO.getServiceInstanceId()).thenReturn("si-id");
-        when(orderDO.getReceiptAmount()).thenReturn(100.0);
+        when(orderDO.getReceiptAmount()).thenReturn(100L);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(response);
         when(serviceManager.getServiceMetadata(any(UserInfoModel.class), any(GetServiceMetadataParam.class)))
                 .thenReturn(BaseResult.success(serviceMetadataModel));
@@ -218,7 +218,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
+            verify(alipayService).refundOrder(eq("order-id"), eq(BigDecimal.valueOf(100)), anyString());
         }
     }
 
@@ -239,7 +239,7 @@ class OrderServiceImplTest {
                 "}");
         when(orderDO.getServiceInstanceId()).thenReturn("si-id");
         when(orderOtsHelper.listOrders(anyList(), any(),anyList(), any(), anyList())).thenReturn(orderDtoListResult);
-        when(orderDO.getReceiptAmount()).thenReturn(100.0);
+        when(orderDO.getReceiptAmount()).thenReturn(100L);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(response);
         when(serviceManager.getServiceMetadata(any(UserInfoModel.class), any(GetServiceMetadataParam.class)))
                 .thenReturn(BaseResult.success(serviceMetadataModel));
@@ -250,7 +250,7 @@ class OrderServiceImplTest {
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(100.0), anyString());
+            verify(alipayService).refundOrder(eq("order-id"), eq(BigDecimal.valueOf(100)), anyString());
         }
     }
 
@@ -260,12 +260,12 @@ class OrderServiceImplTest {
         List<OrderDTO> orderList = createMockOrderList();
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
-        when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
+        when(walletHelper.getRefundAmount(any(), anyString(), anyString(), anyLong(), any())).thenReturn(Long.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.listServiceInstanceOrders(anyString(), anyLong(), any(), any())).thenReturn(orderList);
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
-        BaseResult<Double> result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
+        BaseResult<Long> result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
         Assertions.assertTrue(result.getCode().equals("200"));
         refundOrderParam.setDryRun(false);
         result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
@@ -278,13 +278,13 @@ class OrderServiceImplTest {
         List<OrderDTO> orderList = createMockOrderList();
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
-        when(walletHelper.getRefundAmount(anyDouble(), anyString(), anyString(), anyLong(), any())).thenReturn(Double.valueOf(0));
+        when(walletHelper.getRefundAmount(any(), anyString(), anyString(), anyLong(), any())).thenReturn(Long.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.listServiceInstanceOrders(anyString(), anyLong(), any(), any())).thenReturn(orderList);
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(false);
         when(orderOtsHelper.isOrderInConsuming(any(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
-        BaseResult<Double> result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
+        BaseResult<Long> result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
         Assertions.assertTrue(result.getCode().equals("200"));
         refundOrderParam.setDryRun(false);
         result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
@@ -295,7 +295,7 @@ class OrderServiceImplTest {
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setOrderId("123");
         orderDTO.setTradeStatus(TradeStatus.REFUNDING);
-        orderDTO.setTotalAmount(123.99);
+        orderDTO.setTotalAmount(12399L);
         return orderDTO;
     }
 

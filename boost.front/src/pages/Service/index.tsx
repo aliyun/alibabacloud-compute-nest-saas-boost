@@ -83,8 +83,7 @@ const ServicePage: React.FC = () => {
     };
 
     const handleUpdateCommodityStatus = (serviceId: string | undefined, version: string | undefined) => {
-        // window.location.href = `https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=${serviceId}&ServiceVersion=${version}`;
-        window.location.href = `https://pre-computing-nest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=${serviceId}&ServiceVersion=${version}`;
+        window.location.href = `https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=${serviceId}&ServiceVersion=${version}`;
     };
 
     const actionColumn: ProColumns<ServiceModel> = {

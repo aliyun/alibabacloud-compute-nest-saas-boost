@@ -26,11 +26,10 @@ import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
 import org.example.common.helper.ots.BaseOtsHelper;
 import org.example.common.helper.ots.CommodityOtsHelper;
-import org.example.common.helper.SpiTokenHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.commodity.CommodityBaseParam;
+import org.example.common.param.CommodityBaseParam;
 import org.example.common.param.commodity.CreateCommodityParam;
 import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;
@@ -68,9 +67,6 @@ class CommodityServiceImplTest {
 
     @Injectable
     private WalletHelper walletHelper;
-
-    @Injectable
-    private SpiTokenHelper spiTokenHelper;
 
     @Test
     void testCreateCommodity() {
@@ -177,17 +173,15 @@ class CommodityServiceImplTest {
         getPriceParam.setPayPeriod(12L);
         CommodityDTO commodityDTO = new CommodityDTO();
         CommodityPriceModel expectedCommodityPriceModel = new CommodityPriceModel();
-        expectedCommodityPriceModel.setTotalAmount(1200.00);
+        expectedCommodityPriceModel.setTotalAmount(1200L);
 
         new Expectations() {{
-            spiTokenHelper.checkSpiToken(any, anyString, anyString);
-            result = true;
             walletHelper.getCommodityCost(anyString, anyString, anyLong);
             result = expectedCommodityPriceModel;
         }};
 
         CommodityPriceModel result = commodityService.getCommodityPrice(getPriceParam);
-        assertEquals(result.getTotalAmount(), 1200.00);
+        assertEquals(result.getTotalAmount(), 1200L);
     }
 
     @Test
@@ -202,8 +196,6 @@ class CommodityServiceImplTest {
                 Collections.emptyList(), 0);
 
         new Expectations() {{
-            spiTokenHelper.checkSpiToken(any, anyString, anyString);
-            result = true;
             commodityOtsHelper.getCommodity(anyString);
             result = expectedCommodityDTO;
 
@@ -231,14 +223,11 @@ class CommodityServiceImplTest {
         CommoditySpecificationDTO specificationDTO = new CommoditySpecificationDTO();
         specificationDTO.setCommodityCode("COMMODITY1");
         specificationDTO.setSpecificationName("J");
-        specificationDTO.setPayPeriods("1,2,3");
+        specificationDTO.setPayPeriods("[1,2,3]");
         specificationDTO.setPayPeriodUnit("Month");
         ArrayList<CommoditySpecificationDTO> commoditySpecificationList = new ArrayList<>();
         commoditySpecificationList.add(specificationDTO);
         new Expectations() {{
-            spiTokenHelper.checkSpiToken(getParam, getParam.getToken(), anyString);
-            result = true;
-
             commodityOtsHelper.getCommodity(getParam.getCommodityCode());
             result = expectedCommodityDTO;
 
@@ -246,8 +235,8 @@ class CommodityServiceImplTest {
             result = ListResult.genSuccessListResult(commoditySpecificationList, 1);
         }};
 
-        Map<String, List<String>> allowedPaymentDurations = expectedCommodityDTO.getAllowedPaymentDurations();
         CommodityDTO commodityDTO = commodityService.getCommodity(getParam);
+        Map<String, List<String>> allowedPaymentDurations = commodityDTO.getAllowedPaymentDurations();
         assertEquals(expectedCommodityDTO, commodityDTO);
         List<String> list = Arrays.asList("1:Month", "2:Month", "3:Month");
         assertEquals(list, allowedPaymentDurations.get("J"));

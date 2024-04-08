@@ -12,22 +12,22 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
+package org.example.common;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-package org.example.common.param.commodity;
-
-import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
-
-@Data
-public class CommodityBaseParam implements Serializable {
-
-    private static final long serialVersionUID = -4413253084153080063L;
+/**
+ * SPI annotation to be used for marking SPI controller methods.
+ * Requires a Class type to provide specific class information.
+ */
+@Target({ElementType.TYPE, ElementType.METHOD}) // TYPE for classes, METHOD for methods
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SPI {
 
     /**
-     * 商品code
+     * @return The class that provides SPI handling logic or type information.
      */
-    @NotEmpty
-    private String commodityCode;
+    Class<?> value();
 }

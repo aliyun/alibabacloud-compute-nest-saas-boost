@@ -7,12 +7,12 @@ import lombok.Getter;
 public enum ServiceType {
 
     /**
-     * 部署在用户账户下
+     * resources belongs to user
      */
     user(0, "private"),
 
     /**
-     * 托管在服务商账户下
+     * resources belongs to supplier
      */
     managed(1, "managed")
 

@@ -16,7 +16,7 @@
 package org.example.common.param.commodity.specification;
 
 import lombok.Data;
-import org.example.common.param.commodity.CommodityBaseParam;
+import org.example.common.param.CommodityBaseParam;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -24,8 +24,10 @@ import javax.validation.constraints.NotEmpty;
 public class CommoditySpecificationParam extends CommodityBaseParam {
 
     /**
-     * 套餐名称
+     * The unique specification name for a package within a commodity.
+     * This identifier represents a single, distinct specification offer associated with a commodity.,
+     * ensuring each product has a uniquely defined set of features or services as part of its offering.
      */
     @NotEmpty(message = "套餐名称不能为空")
-    private String SpecificationName;
+    private String specificationName;
 }

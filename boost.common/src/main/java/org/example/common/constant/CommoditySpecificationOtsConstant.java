@@ -67,7 +67,6 @@ public interface CommoditySpecificationOtsConstant {
      * Set of fields commonly used for range queries in the search index for commodity specifications.
      * Assuming we have fields that represent time or other quantities that may require range queries.
      */
-    Set<String> QUERY_FILTERS_SET = Collections.unmodifiableSet(new HashSet<String>() {
-    });
+    Set<String> QUERY_FILTERS_SET = Collections.unmodifiableSet(new HashSet<String>() {});
 }
 

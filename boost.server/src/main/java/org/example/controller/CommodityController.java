@@ -19,10 +19,11 @@ import io.swagger.annotations.ApiOperation;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.SPI;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.commodity.CommodityBaseParam;
+import org.example.common.param.CommodityBaseParam;
 import org.example.common.param.commodity.CreateCommodityParam;
 import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;
@@ -83,12 +84,14 @@ public class CommodityController {
     }
 
     @ApiOperation(value = "获取商品价格", nickname = "getCommodityPrice")
+    @SPI(value = GetCommodityPriceParam.class)
     @RequestMapping(path = "/spi/getCommodityPrice", method = RequestMethod.POST)
     public CommodityPriceModel getCommodityPrice(@Valid @RequestBody GetCommodityPriceParam param) {
         return commodityService.getCommodityPrice(param);
     }
 
     @ApiOperation(value = "获取商品信息", nickname = "getCommodity")
+    @SPI(value = GetCommodityParam.class)
     @RequestMapping(path = "/spi/getCommodity", method = RequestMethod.POST)
     public CommodityDTO getCommodity(@Valid @RequestBody GetCommodityParam param) {
         return commodityService.getCommodity(param);

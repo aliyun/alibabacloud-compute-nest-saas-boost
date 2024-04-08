@@ -15,7 +15,6 @@
 
 package org.example.common.helper;
 
-
 import com.aliyuncs.CommonRequest;
 import com.aliyuncs.CommonResponse;
 import com.aliyuncs.exceptions.ClientException;
@@ -27,6 +26,7 @@ import org.example.common.adapter.AcsApiCaller;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ots.CommodityOtsHelper;
+import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.order.CreateOrderParam;
 import org.example.common.utils.TokenUtil;
 import org.junit.jupiter.api.Assertions;
@@ -64,7 +64,7 @@ public class SpiTokenHelperTest {
             result = spiToken;
         }};
 
-        spiTokenHelper.checkSpiToken(param, "d0bb029154adb6e74d40118bc775b597", commodityCode);
+        spiTokenHelper.checkSpiToken(param, CreateOrderParam.class);
 
         new Verifications() {{
             commodityOtsHelper.getCommodity(commodityCode);
@@ -78,7 +78,9 @@ public class SpiTokenHelperTest {
         String commodityCode = "commodity_code";
         String invalidSpiToken = "invalid_spi_token";
         String validSpiToken = "valid_spi_token";
-        Object param = new Object();
+        GetCommodityParam param = new GetCommodityParam();
+        param.setCommodityCode(commodityCode);
+        param.setToken(invalidSpiToken);
         CommodityDTO expectedCommodityDTO = new CommodityDTO();
         expectedCommodityDTO.setServiceId("service_id");
 
@@ -94,7 +96,7 @@ public class SpiTokenHelperTest {
         }};
 
         BizException thrown = Assertions.assertThrows(BizException.class, () -> {
-            spiTokenHelper.checkSpiToken(param, invalidSpiToken, commodityCode);
+            spiTokenHelper.checkSpiToken(param, GetCommodityParam.class);
         });
 
         Assertions.assertEquals("SpiTokenValidationFailed", thrown.getCode());
@@ -104,7 +106,9 @@ public class SpiTokenHelperTest {
     public void testCheckSpiToken_EmptyData() throws ClientException {
         String commodityCode = "commodity_code";
         String spiToken = "spi_token";
-        Object param = new Object();
+        GetCommodityParam param = new GetCommodityParam();
+        param.setCommodityCode(commodityCode);
+        param.setToken(spiToken);
         CommodityDTO expectedCommodityDTO = new CommodityDTO();
         expectedCommodityDTO.setServiceId("service_id");
 
@@ -118,7 +122,7 @@ public class SpiTokenHelperTest {
         }};
 
         BizException thrown = Assertions.assertThrows(BizException.class, () -> {
-            spiTokenHelper.checkSpiToken(param, spiToken, commodityCode);
+            spiTokenHelper.checkSpiToken(param, GetCommodityParam.class);
         });
 
         Assertions.assertEquals("ServiceProviderKeyNotExist", thrown.getCode());
@@ -128,7 +132,9 @@ public class SpiTokenHelperTest {
     public void testCheckSpiToken_ClientException() throws ClientException {
         String commodityCode = "commodity_code";
         String spiToken = "spi_token";
-        Object param = new Object();
+        GetCommodityParam param = new GetCommodityParam();
+        param.setCommodityCode(commodityCode);
+        param.setToken(spiToken);
         CommodityDTO expectedCommodityDTO = new CommodityDTO();
         expectedCommodityDTO.setServiceId("service_id");
 
@@ -141,7 +147,7 @@ public class SpiTokenHelperTest {
 
         BizException thrown = Assertions.assertThrows(BizException.class, () -> {
 
-            spiTokenHelper.checkSpiToken(param, spiToken, commodityCode);
+            spiTokenHelper.checkSpiToken(param, GetCommodityParam.class);
         });
 
         Assertions.assertEquals("ErrorCode", thrown.getCode());

@@ -42,7 +42,7 @@ public class CreateCommoditySpecificationParam extends CommoditySpecificationPar
      * Price per unit for the specification.
      */
     @NotNull(message = "unitPrice is null.")
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * Currency unit for the specification.

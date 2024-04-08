@@ -52,7 +52,7 @@ class CommoditySpecificationServiceImplTest {
         CreateCommoditySpecificationParam createParam = new CreateCommoditySpecificationParam();
         createParam.setPayPeriodUnit(PayPeriodUnit.Month);
         createParam.setPayPeriods(Arrays.asList(1L, 3L, 6L, 12L));
-        createParam.setUnitPrice(99.99);
+        createParam.setUnitPrice(9999L);
         createParam.setCurrency(Currency.CNY);
 
         new Expectations() {{
@@ -88,7 +88,7 @@ class CommoditySpecificationServiceImplTest {
         UpdateCommoditySpecificationParam updateParam = new UpdateCommoditySpecificationParam();
         updateParam.setPayPeriodUnit(PayPeriodUnit.Month);
         updateParam.setPayPeriods(Arrays.asList(1L, 3L, 6L, 12L));
-        updateParam.setUnitPrice(109.99);
+        updateParam.setUnitPrice(10999L);
 
         new Expectations() {{
             commoditySpecificationOtsHelper.updateCommoditySpecification((CommoditySpecificationDO) any);

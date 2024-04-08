@@ -17,8 +17,11 @@ package org.example.common.param.service;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 public class GetServiceMetadataParam {
 
+    @NotEmpty
     private String serviceId;
 }

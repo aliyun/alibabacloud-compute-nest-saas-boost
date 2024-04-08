@@ -48,6 +48,13 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultLong_ = {
+    code?: string;
+    data?: number;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultMetricDatasModel_ = {
     code?: string;
     data?: MetricDatasModel;
@@ -108,8 +115,9 @@ declare namespace API {
   };
 
   type CommodityPriceModel = {
+    commodityCode?: string;
+    commodityName?: string;
     currency?: string;
-    productName?: string;
     serviceId?: string;
     specificationName?: string;
     totalAmount?: number;
@@ -348,6 +356,8 @@ declare namespace API {
     accountId?: number;
     billingEndDateMillis?: number;
     billingStartDateMillis?: number;
+    commodityCode?: string;
+    commodityName?: string;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
@@ -356,7 +366,6 @@ declare namespace API {
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
     paymentForm?: string;
     productComponents?: string;
-    productName?: string;
     receiptAmount?: number;
     refundAmount?: number;
     refundDate?: string;

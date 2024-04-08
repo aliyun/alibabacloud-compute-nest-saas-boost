@@ -145,8 +145,8 @@ public class OrderOtsHelper {
     }
 
 
-    public Double refundUnconsumedOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
-        Double totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
+    public Long refundUnconsumedOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
+        Long totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
         if (!dryRun) {
             OrderDO refundOrder = createRefundOrder(order, refundId, totalAmount, currentIs08601Time);
             updateOrder(refundOrder);
@@ -154,10 +154,10 @@ public class OrderOtsHelper {
         return totalAmount;
     }
 
-    public Double refundConsumingOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
+    public Long refundConsumingOrder(OrderDTO order, Boolean dryRun, String refundId, String currentIs08601Time) {
         // Process logic for orders that are currently being consumed or consumed.
-        Double totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
-        Double refundAmount = walletHelper.getRefundAmount(totalAmount, currentIs08601Time, order.getGmtPayment(), order.getPayPeriod(), order.getPayPeriodUnit());
+        Long totalAmount = order.getTotalAmount() == null ? order.getReceiptAmount() : order.getTotalAmount();
+        Long refundAmount = walletHelper.getRefundAmount(totalAmount, currentIs08601Time, order.getGmtPayment(), order.getPayPeriod(), order.getPayPeriodUnit());
         if (dryRun) {
             return refundAmount;
         }
@@ -173,7 +173,7 @@ public class OrderOtsHelper {
         return currentLocalDateTimeMillis >= orderDTO.getBillingStartDateMillis() && currentLocalDateTimeMillis < orderDTO.getBillingEndDateMillis();
     }
 
-    private OrderDO createRefundOrder(OrderDTO order, String refundId, Double refundAmount, String refundDate) {
+    private OrderDO createRefundOrder(OrderDTO order, String refundId, Long refundAmount, String refundDate) {
         OrderDO refundOrder = new OrderDO();
         BeanUtils.copyProperties(order, refundOrder);
         refundOrder.setRefundId(refundId);

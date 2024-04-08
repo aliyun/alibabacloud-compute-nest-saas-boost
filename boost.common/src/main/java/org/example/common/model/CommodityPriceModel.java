@@ -21,32 +21,35 @@ import lombok.Data;
 public class CommodityPriceModel {
 
     /**
-     * 单价
+     * unitPrice of commodity
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
-     * 支付总价
+     * payment total Amount
      */
-    private Double totalAmount;
+    private Long totalAmount;
 
     /**
-     * 商品code
+     * The unique code representing a specific commodity.
+     * This code corresponds directly to a service within the Compute Nest ecosystem,
+     * ensuring a one-to-one mapping between the commodity and its associated service.
      */
     private String commodityCode;
 
     /**
-     * 商品名称
+     * commodity name
      */
     private String commodityName;
 
     /**
-     * 套餐名称
+     * This represents the set of features or services included in a commodity offer，
+     * and is also used to define package in the Compute Nest.
      */
     private String specificationName;
 
     /**
-     * 币种
+     * payment currency
      */
     private String currency;
 

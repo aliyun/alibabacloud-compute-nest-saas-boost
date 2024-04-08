@@ -19,6 +19,7 @@ import org.example.common.dataobject.OrderDO;
 import org.example.service.payment.PaymentService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
@@ -31,12 +32,12 @@ public class WechatPayServiceImpl implements PaymentService {
     }
 
     @Override
-    public String createTransaction(Double totalAmount, String subject, String outTradeNo) {
+    public String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo) {
         return null;
     }
 
     @Override
-    public Boolean refundOrder(String orderId, Double refundAmount, String refundId) {
+    public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundId) {
         return null;
     }
 

@@ -52,7 +52,10 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     SERVICE_PROVIDER_KEY_NOT_EXIST(400, "ServiceProviderKeyNotExist", "The specified serviceProviderKey does not exist for serviceId=%s and commodityCode=%s."),
 
-    DELETION_NOT_ALLOWED(400, "DeleteionNotAllowed", "Service Instance \"%s\" Deletion is not allowed for the current serviceType: \"%s\"."),
+    DELETION_NOT_ALLOWED(400, "DeletionNotAllowed", "Service Instance \"%s\" Deletion is not allowed for the current serviceType: \"%s\"."),
+
+    INVALID_SPI_PARAMETER(400, "InvalidParameter", "The provided SPI Parameter \"%s\" missing token or commodity code."),
+
     ;
 
     private final int statusCode;

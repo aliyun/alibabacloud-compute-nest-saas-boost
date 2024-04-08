@@ -16,32 +16,33 @@ package org.example.common.param.commodity;
 
 import lombok.Data;
 import org.example.common.constant.CommodityStatus;
+import org.example.common.param.CommodityBaseParam;
 
 @Data
 public class UpdateCommodityParam extends CommodityBaseParam {
 
     /**
-     * 服务id
+     * compute nest service id
      */
     private String serviceId;
 
     /**
-     * 商品名称
+     * commodity name
      */
     private String commodityName;
 
     /**
-     * 商品单价
+     * commodity unit price
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
-     * 商品描述
+     * commodity description
      */
     private String description;
 
     /**
-     * 商品状态
+     * commodity status
      */
     private CommodityStatus commodityStatus;
 }

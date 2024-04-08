@@ -38,7 +38,7 @@ public class CommoditySpecificationDTO {
     /**
      * Price per unit for the specification.
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * Currency unit for the specification.

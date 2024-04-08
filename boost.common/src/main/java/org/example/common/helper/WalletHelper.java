@@ -26,9 +26,11 @@ import org.example.common.helper.ots.CommodityOtsHelper;
 import org.example.common.helper.ots.CommoditySpecificationOtsHelper;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.utils.DateUtil;
+import org.example.common.utils.MoneyUtil;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 
 import static org.example.common.utils.DateUtil.parseFromIsO8601DateString;
 
@@ -55,7 +57,7 @@ public class WalletHelper {
     }
 
     public CommodityPriceModel getCommodityCost(String commodityCode, String specificationName, Long payPeriod) {
-        Double unitPrice;
+        Long unitPrice;
         CommodityPriceModel commodityPriceModel = new CommodityPriceModel();
         CommodityDTO commodity = commodityOtsHelper.getCommodity(commodityCode);
         commodityPriceModel.setCommodityCode(commodityCode);
@@ -71,7 +73,8 @@ public class WalletHelper {
 
         if (unitPrice != null ) {
             commodityPriceModel.setUnitPrice(unitPrice);
-            commodityPriceModel.setTotalAmount(Double.parseDouble(String.format(DECIMAL_FORMAT, payPeriod * unitPrice)));
+
+            commodityPriceModel.setTotalAmount(payPeriod * unitPrice);
             return commodityPriceModel;
         }
         throw new BizException(ErrorInfo.SPECIFICATION_NOT_EXIST);
@@ -87,16 +90,16 @@ public class WalletHelper {
         }
     }
 
-    public Double getRefundAmount(Double totalAmount, String refundDate, String paymentDate, Long payPeriod, PayPeriodUnit payPeriodUnit) {
+    public Long getRefundAmount(Long totalAmount, String refundDate, String paymentDate, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         if (!checkNotNull(totalAmount, refundDate, paymentDate, payPeriod, payPeriodUnit)) {
             throw new BizException(ErrorInfo.SERVER_UNAVAILABLE);
         }
         Long refundMillis = parseFromIsO8601DateString(refundDate);
         Long paymentMillis = parseFromIsO8601DateString(paymentDate);
         Long endMillis = DateUtil.getIsO8601FutureDateMillis(paymentDate, getBillingDays(payPeriodUnit, payPeriod));
-        Double refundRatio = Double.valueOf(endMillis - refundMillis) / Double.valueOf(endMillis - paymentMillis);
-        Double refundAmount = Double.parseDouble(String.format(DECIMAL_FORMAT, totalAmount * refundRatio));
-        return refundAmount > 0 ? refundAmount : 0;
+        BigDecimal refundRatio = MoneyUtil.divide(BigDecimal.valueOf(endMillis - refundMillis), BigDecimal.valueOf(endMillis - paymentMillis));
+        BigDecimal refundAmount = MoneyUtil.multiply(MoneyUtil.fromCents(totalAmount), refundRatio);
+        return MoneyUtil.isGreater(refundAmount, BigDecimal.ZERO) ? MoneyUtil.toCents(refundAmount) : 0L;
     }
 
     private Long getBillingDays(PayPeriodUnit payPeriodUnit, Long payPeriod) {
@@ -110,7 +113,7 @@ public class WalletHelper {
         }
     }
 
-    private Boolean checkNotNull(Double totalAmount, String refundDate, String paymentDate, Long payPeriod, PayPeriodUnit payPeriodUnit) {
+    private Boolean checkNotNull(Long totalAmount, String refundDate, String paymentDate, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         return totalAmount != null && StringUtils.isNotEmpty(refundDate) && StringUtils.isNotEmpty(paymentDate) && payPeriod != null && payPeriodUnit != null;
     }
 }

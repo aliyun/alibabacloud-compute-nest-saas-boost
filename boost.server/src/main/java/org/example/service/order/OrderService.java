@@ -60,5 +60,5 @@ public interface OrderService {
      * @param userInfoModel user info
      * @return true or false
      */
-    BaseResult<Double> refundOrders(UserInfoModel userInfoModel, RefundOrderParam param);
+    BaseResult<Long> refundOrders(UserInfoModel userInfoModel, RefundOrderParam param);
 }

@@ -22,42 +22,48 @@ import lombok.Data;
 public class ServiceMetadataModel {
 
     /**
-     * 参数元数据
+     * parameterMetadata for compute nest service
      */
     private String parameterMetadata;
 
     /**
-     * 套餐数据
+     * compute nest service specifications, contains the predefined parameters.
      */
     private String specifications;
 
     /**
-     * 模板名称
+     * template name
      */
     private String templateName;
 
     /**
-     * 允许的地域
+     * A list of regions where deployment is allowed.
      */
     private String allowedRegions;
 
     /**
-     * 商品code
+     * The unique code representing a specific commodity.
+     * This code corresponds directly to a service within the Compute Nest ecosystem,
+     * ensuring a one-to-one mapping between the commodity and its associated service.
      */
     private String commodityCode;
 
     /**
-     * 保留天数
+     * The number of days a hosted Compute Nest service instance is retained after it has expired.
      */
     private Integer retentionDays;
 
     /**
-     * 服务状态
+     * compute nest service status, including:
+     * 1. CREATING: The service is being created.
+     * 2. ONLINE: The service is active.
+     * 3. CREATING: The service is inactive.
+     * ...
      */
     private String status;
 
     /**
-     * 服务版本
+     * service version
      */
     private String version;
 }

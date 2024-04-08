@@ -8,7 +8,7 @@ import org.example.common.config.AliyunConfig;
 public interface AcsApiCaller {
 
     /**
-     * 调用阿里云API
+     * request aliyun api
      *
      * @param request
      * @return
@@ -17,14 +17,14 @@ public interface AcsApiCaller {
     CommonResponse getCommonResponse(CommonRequest request) throws ClientException;
 
     /**
-     * 创建阿里云Client
+     * create aliyun ak client
      *
      * @param aliyunConfig
      */
     void createClient(AliyunConfig aliyunConfig);
 
     /**
-     * 创建阿里云Client
+     * create aliyun ak client
      *
      * @param accessKeyId
      * @param accessKeySecret
@@ -32,7 +32,7 @@ public interface AcsApiCaller {
     void createClient(String accessKeyId, String accessKeySecret);
 
     /**
-     * 创建阿里云Client
+     * create aliyun ak client
      *
      * @param accessKeyId
      * @param accessKeySecret

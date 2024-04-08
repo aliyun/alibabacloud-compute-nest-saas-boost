@@ -75,12 +75,12 @@ public class OrderDO implements Serializable {
     /**
      * Buyer payment amount.
      */
-    private Double buyerPayAmount;
+    private Long buyerPayAmount;
 
     /**
      * Seller received amount.
      */
-    private Double receiptAmount;
+    private Long receiptAmount;
 
     /**
      * Commodity Name.
@@ -93,9 +93,9 @@ public class OrderDO implements Serializable {
     private String commodityCode;
 
     /**
-     * Total Amount.
+     * Total Amount.cents
      */
-    private Double totalAmount;
+    private Long totalAmount;
 
     /**
      * Seller Id.
@@ -135,7 +135,7 @@ public class OrderDO implements Serializable {
     /**
      * Refund Amount.
      */
-    private Double refundAmount;
+    private Long refundAmount;
 
     /**
      * Compute nest service instance id.

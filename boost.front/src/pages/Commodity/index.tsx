@@ -8,6 +8,7 @@ import {PageContainer} from "@ant-design/pro-layout";
 import {createCommodity, deleteCommodity, listAllCommodities, updateCommodity} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
+import {yuanToCents} from "@/util/moneyUtil";
 
 const CommodityList: React.FC = () => {
     const [isCommodityModalVisible, setIsCommodityModalVisible] = useState(false);
@@ -53,11 +54,20 @@ const CommodityList: React.FC = () => {
             if (result.data !== undefined) {
                 setTotal(result.count || 0);
                 nextTokens[params.current] = result.nextToken;
+                const convertedData: API.CommodityDTO[] = result.data.map((commodity) => {
+                    const unitPriceInYuan = commodity.unitPrice !== undefined
+                        ? (Number((commodity.unitPrice / 100).toFixed(2)))
+                        : undefined;
+                    return {...commodity, unitPrice: unitPriceInYuan};
+                });
+
                 return {
-                    data: result.data,
+                    data: convertedData,
                     success: true,
                     total: result.count || 0,
                 };
+
+
             }
         } catch (error) {
             message.error('Failed to fetch commodities');
@@ -80,7 +90,7 @@ const CommodityList: React.FC = () => {
             try {
                 await updateCommodity({
                     commodityCode: values.commodityCode?.trim(),
-                    unitPrice: values.unitPrice,
+                    unitPrice: yuanToCents(values.unitPrice),
                     serviceId: values.serviceId?.trim(),
                     commodityName: values.commodityName?.trim(),
                     commodityStatus: values.commodityStatus,
@@ -94,7 +104,7 @@ const CommodityList: React.FC = () => {
             try {
                 await createCommodity({
                     commodityName: values.commodityName?.trim(),
-                    unitPrice: values.unitPrice,
+                    unitPrice: yuanToCents(values.unitPrice),
                     chargeType: values.chargeType,
                     serviceId: values.serviceId,
                     commodityStatus: values.commodityStatus,
@@ -172,23 +182,7 @@ const CommodityList: React.FC = () => {
                               </a>
                           </Tooltip>
                       ]}
-                      request={async (params, sorter, filter) => {
-                          try {
-                              const response: API.ListResultCommodityDTO_ = await listAllCommodities({});
-                              return {
-                                  data: response.data,
-                                  success: true,
-                                  total: response.data != undefined ? response.data.length : 0,
-                              };
-                          } catch (error) {
-                              message.error('Failed to fetch commodities');
-                              return {
-                                  data: [],
-                                  total: 0,
-                                  success: false,
-                              };
-                          }
-                      }}
+                      request={fetchCommodities}
                       options={{
                           search: false,
                           density: false,

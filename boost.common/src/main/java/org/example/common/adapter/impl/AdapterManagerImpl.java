@@ -78,9 +78,23 @@ public class AdapterManagerImpl implements AdapterManager {
 
     private static final String BOOST_SERVERLESS_MODULE = "serverless";
 
+    private static final String ACCESS_KEY_ID = "";
+
+    private static final String ACCESS_KEY_SECRET = "";
+
     @Override
     public void clientInjection(Map<String, String> header) throws Exception {
-
+        if (DeployType.LOCAL.getDeployType().equals(deployType)) {
+            oosClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+            oosSecretParamConfig.init();
+            otsClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+            computeNestSupplierClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+            cloudMonitorClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+            acsApiCaller.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+            baseAlipayClient.createClient(alipayConfig);
+            log.info("Local Client injection success");
+            return;
+        }
         if ((header == null || header.isEmpty())) {
             oosClient.createClient(aliyunConfig);
             oosSecretParamConfig.init();

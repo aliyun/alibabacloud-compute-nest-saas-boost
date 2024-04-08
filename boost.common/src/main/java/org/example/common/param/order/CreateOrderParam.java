@@ -30,34 +30,35 @@ import javax.validation.constraints.NotNull;
 public class CreateOrderParam extends SpiBaseParam {
 
     /**
-     * 计费类型
+     * charge type
      */
     private ChargeType chargeType = ChargeType.PrePaid;
 
     /**
-     * 支付周期
+     * pay period
      */
     @NotNull
     private Long payPeriod;
 
     /**
-     * 支付周期单位
+     * pay period unit, e.g. Month
      */
     @NotNull
     private PayPeriodUnit payPeriodUnit;
 
     /**
-     * 订单类型
+     * order type
      */
     private String orderType = OrderType.BUY.toString();
 
     /**
-     * 套餐名称
+     * This represents the set of features or services included in a commodity offer，
+     * and is also used to define package in the Compute Nest.
      */
     private String specificationName;
 
     /**
-     * 账号id
+     * aliUid
      */
     private String userId;
 

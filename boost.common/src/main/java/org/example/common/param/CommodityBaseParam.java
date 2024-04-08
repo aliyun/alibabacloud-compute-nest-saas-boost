@@ -13,34 +13,23 @@
  *limitations under the License.
  */
 
-package org.example.common.model;
+package org.example.common.param;
 
-import org.example.common.constant.PayChannel;
+import lombok.Data;
 
-public class PayOrderModel {
+import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 
-    /**
-     * Product total amount
-     */
-    private Double totalAmount;
+@Data
+public class CommodityBaseParam implements Serializable {
 
-    /**
-     * Product name
-     */
-    private String subject;
+    private static final long serialVersionUID = -4413253084153080063L;
 
     /**
-     * Product description summary
+     * The unique code representing a specific commodity.
+     * This code corresponds directly to a service within the Compute Nest ecosystem,
+     * ensuring a one-to-one mapping between the commodity and its associated service.
      */
-    private String body;
-
-    /**
-     * Product out trade number
-     */
-    private String outTradeNo;
-
-    /**
-     * Payment type
-     */
-    private PayChannel payChannel;
+    @NotEmpty
+    private String commodityCode;
 }

@@ -17,9 +17,9 @@ package org.example.common.constant;
 
 public enum OrderType {
 
-    BUY("Purchase an item"),
+    BUY("Buy"),
 
-    RENEW("Renew a subscription");
+    RENEW("Renew");
 
     private final String description;
 

@@ -15,12 +15,12 @@
 
 package org.example.controller;
 
-import com.alipay.api.AlipayApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.SPI;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.CreateOrderParam;
@@ -49,8 +49,9 @@ public class OrderController {
     private OrderService orderService;
 
     @ApiOperation(value = "创建订单", nickname = "createOrder")
+    @SPI(value = CreateOrderParam.class)
     @RequestMapping(path = "/spi/createOrder", method = RequestMethod.POST)
-    public OrderDTO createOrder(@RequestBody @Valid CreateOrderParam param) throws AlipayApiException {
+    public OrderDTO createOrder(@RequestBody @Valid CreateOrderParam param) {
         return orderService.createOrder(param);
     }
 
@@ -70,7 +71,7 @@ public class OrderController {
 
     @ApiOperation(value = "订单退款", nickname = "refundOrder")
     @RequestMapping(value = "/refundOrder", method = RequestMethod.POST)
-    public BaseResult<Double> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+    public BaseResult<Long> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                            @RequestBody RefundOrderParam param) {
         return orderService.refundOrders(userInfoModel, param);
     }

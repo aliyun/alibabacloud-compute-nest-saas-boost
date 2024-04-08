@@ -1,10 +1,10 @@
 /*
  *Copyright (c) Alibaba Group;
- *Licensed under the Apache License, Version 2.0 (the "License");
+ *Licensed under the Apache License, Version 2L (the "License");
  *you may not use this file except in compliance with the License.
  *You may obtain a copy of the License at
 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2L
 
  *Unless required by applicable law or agreed to in writing, software
  *distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -188,11 +187,11 @@ class OrderOtsHelperTest {
     @Test
     // 测试用例设计思路：order.getTotalAmount()不为空，验证totalAmount值为order.getTotalAmount()
     public void refundUnconsumedOrder_TotalAmountIsNotNull_ReturnsTotalAmount() {
-        Double totalAmount = 200.0;
+        Long totalAmount = 200L;
         when(order.getTotalAmount()).thenReturn(totalAmount);
         when(order.getOrderId()).thenReturn("orderId");
         when(baseOtsHelper.updateEntity(anyString(), any(), any())).thenReturn(Boolean.TRUE);
-        Double result = orderOtsHelper.refundUnconsumedOrder(order, dryRun, refundId, currentIs08601Time);
+        Long result = orderOtsHelper.refundUnconsumedOrder(order, dryRun, refundId, currentIs08601Time);
 
         assertEquals(totalAmount, result);
     }
@@ -200,11 +199,11 @@ class OrderOtsHelperTest {
     @Test
     // 测试用例设计思路：dryRun为true，验证直接返回refundAmount
     public void refundConsumingOrder_DryRunIsTrue_ReturnsRefundAmount() {
-        Double refundAmount = 300.0;
+        Long refundAmount = 300L;
         when(order.getTotalAmount()).thenReturn(null);
         when(order.getReceiptAmount()).thenReturn(refundAmount);
-        when(walletHelper.getRefundAmount(anyDouble(), anyString(), any(), anyLong(), any())).thenReturn(300.0);
-        Double result = orderOtsHelper.refundConsumingOrder(order, true, refundId, currentIs08601Time);
+        when(walletHelper.getRefundAmount(anyLong(), anyString(), any(), anyLong(), any())).thenReturn(300L);
+        Long result = orderOtsHelper.refundConsumingOrder(order, true, refundId, currentIs08601Time);
 
         assertEquals(refundAmount, result);
     }
@@ -212,14 +211,14 @@ class OrderOtsHelperTest {
     @Test
     // 测试用例设计思路：dryRun为false，验证返回值为refundAmount
     public void refundConsumingOrder_DryRunIsFalse_ReturnsRefundAmount() {
-        Double refundAmount = 400.0;
+        Long refundAmount = 400L;
         when(order.getTotalAmount()).thenReturn(null);
         when(order.getReceiptAmount()).thenReturn(refundAmount);
         when(order.getOrderId()).thenReturn("orderId");
-        when(walletHelper.getRefundAmount(anyDouble(), anyString(), any(), anyLong(), any())).thenReturn(400.0);
+        when(walletHelper.getRefundAmount(anyLong(), anyString(), any(), anyLong(), any())).thenReturn(400L);
         when(baseOtsHelper.updateEntity(anyString(), any(), any())).thenReturn(Boolean.TRUE);
 
-        Double result = orderOtsHelper.refundConsumingOrder(order, false, refundId, currentIs08601Time);
+        Long result = orderOtsHelper.refundConsumingOrder(order, false, refundId, currentIs08601Time);
 
         assertEquals(refundAmount, result);
     }
@@ -229,12 +228,12 @@ class OrderOtsHelperTest {
     public void refundUnconsumedOrder_DryRunIsFalse_CallsCreateRefundOrderAndUpdateOrder() throws Exception {
         orderOtsHelper = spy(new OrderOtsHelper());
         ReflectionTestUtils.setField(orderOtsHelper, "baseOtsHelper", baseOtsHelper);
-        Double totalAmount = 500.0;
+        Long totalAmount = 500L;
         when(order.getTotalAmount()).thenReturn(null);
         when(order.getReceiptAmount()).thenReturn(totalAmount);
         when(order.getOrderId()).thenReturn("orderId");
         when(baseOtsHelper.updateEntity(anyString(), any(), any())).thenReturn(Boolean.TRUE);
-        Double result = orderOtsHelper.refundUnconsumedOrder(order, false, refundId, currentIs08601Time);
+        Long result = orderOtsHelper.refundUnconsumedOrder(order, false, refundId, currentIs08601Time);
 
         Assertions.assertEquals(result, totalAmount);
     }
@@ -245,15 +244,15 @@ class OrderOtsHelperTest {
         orderOtsHelper = spy(new OrderOtsHelper());
         ReflectionTestUtils.setField(orderOtsHelper, "baseOtsHelper", baseOtsHelper);
         ReflectionTestUtils.setField(orderOtsHelper, "walletHelper", walletHelper);
-        Double refundAmount = 600.0;
+        Long refundAmount = 600L;
         when(order.getTotalAmount()).thenReturn(null);
         when(order.getReceiptAmount()).thenReturn(refundAmount);
         when(order.getOrderId()).thenReturn("orderId");
-        when(walletHelper.getRefundAmount(anyDouble(), anyString(), any(), anyLong(), any())).thenReturn(500.0);
+        when(walletHelper.getRefundAmount(anyLong(), anyString(), any(), anyLong(), any())).thenReturn(500L);
 
-        Double result = orderOtsHelper.refundConsumingOrder(order, false, refundId, currentIs08601Time);
+        Long result = orderOtsHelper.refundConsumingOrder(order, false, refundId, currentIs08601Time);
 
-        Assertions.assertEquals(result, 500.0);
+        Assertions.assertEquals(result, 500L);
     }
 
 

@@ -21,29 +21,29 @@ import lombok.Getter;
 public enum CallSource {
 
     /**
-     * 计算巢用户
+     * compute nest user
      */
     User(1),
 
     /**
-     * 云市场
+     * aliyun market
      */
     Market(2),
 
     /**
-     * 计算巢服务商
+     * compute nest supplier
      */
     Supplier(3),
 
     /**
-     * 凌霄
+     * aliyun lingxiao
      */
     Css(5),
 
     /**
-     * 计算巢SaaS Boost
+     * compute nest SaaS Boost
      */
-    SaaSBoost(6),
+    SaasBoost(6),
 
     ;
     private final Integer value;

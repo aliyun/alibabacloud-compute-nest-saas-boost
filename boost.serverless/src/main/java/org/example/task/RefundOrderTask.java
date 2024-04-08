@@ -27,6 +27,7 @@ import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
+import org.example.common.utils.MoneyUtil;
 
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
@@ -44,7 +45,7 @@ public class RefundOrderTask implements Runnable {
 
     private String orderId;
 
-    private Double refundAmount;
+    private Long refundAmount;
 
     private String refundId;
 
@@ -68,8 +69,8 @@ public class RefundOrderTask implements Runnable {
                 orderDO.setTradeStatus(TradeStatus.REFUNDED);
                 orderDO.setOrderId(orderId);
                 Boolean alipaySuccess = Boolean.TRUE;
-                if (payChannel != null && payChannel != PayChannel.PAY_POST && Double.parseDouble(String.format("%.2f", refundAmount)) > 0) {
-                    alipaySuccess = baseAlipayClient.refundOrder(orderId, Double.parseDouble(String.format("%.2f", refundAmount)), refundId);
+                if (payChannel != null && payChannel != PayChannel.PAY_POST && refundAmount > 0) {
+                    alipaySuccess = baseAlipayClient.refundOrder(orderId, MoneyUtil.fromCents(refundAmount), refundId);
                 }
                 OrderDTO order = orderOtsHelper.getOrder(orderId, null);
                 Long currentLocalDateTimeMillis = DateUtil.getCurrentLocalDateTimeMillis();

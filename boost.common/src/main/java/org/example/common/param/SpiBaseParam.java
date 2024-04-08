@@ -16,13 +16,13 @@
 package org.example.common.param;
 
 import lombok.Data;
-import org.example.common.param.commodity.CommodityBaseParam;
 
 @Data
 public class SpiBaseParam extends CommodityBaseParam {
 
     /**
-     * 令牌
+     * This token is utilized to determine if the request is being made by a service provider,
+     * providing an extra layer of security and access control.
      */
     private String token;
 }

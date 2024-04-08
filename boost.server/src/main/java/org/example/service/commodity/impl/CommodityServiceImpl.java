@@ -21,13 +21,12 @@ import org.example.common.constant.CommodityStatus;
 import org.example.common.dataobject.CommodityDO;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
-import org.example.common.helper.SpiTokenHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.helper.ots.BaseOtsHelper.OtsFilter;
 import org.example.common.helper.ots.CommodityOtsHelper;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.commodity.CommodityBaseParam;
+import org.example.common.param.CommodityBaseParam;
 import org.example.common.param.commodity.CreateCommodityParam;
 import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.ListAllCommoditiesParam;
@@ -63,9 +62,6 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Resource
     private WalletHelper walletHelper;
-
-    @Resource
-    private SpiTokenHelper spiTokenHelper;
 
     @Value("${service.admin.aid}")
     private String adminAid;
@@ -128,8 +124,6 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     public CommodityPriceModel getCommodityPrice(GetCommodityPriceParam param) {
-        spiTokenHelper.checkSpiToken(param, param.getToken(), param.getCommodityCode());
-
         String commodityCode = param.getCommodityCode();
         String specificationName = param.getSpecificationName();
         return walletHelper.getCommodityCost(commodityCode, specificationName, param.getPayPeriod());
@@ -137,7 +131,6 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     public CommodityDTO getCommodity(GetCommodityParam param) {
-        spiTokenHelper.checkSpiToken(param, param.getToken(), param.getCommodityCode());
         CommodityDTO commodity = commodityOtsHelper.getCommodity(param.getCommodityCode());
         ListCommoditySpecificationParam listCommoditySpecificationParam = new ListCommoditySpecificationParam();
         listCommoditySpecificationParam.setCommodityCode(param.getCommodityCode());

@@ -50,7 +50,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/getAuthToken")
                 .excludePathPatterns("/api/getAuthConfiguration")
-                .excludePathPatterns("/api/spi/**")
                 .excludePathPatterns("/api/payment/verifyTradeCallback");
     }
 

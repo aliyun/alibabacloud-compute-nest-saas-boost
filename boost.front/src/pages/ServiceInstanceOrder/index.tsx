@@ -19,6 +19,7 @@ import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
 import {handlePaySubmit} from "@/util/aliPayUtil";
 import {createTransaction} from "@/services/backend/payment";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
+import {centsToYuan} from "@/util/moneyUtil";
 
 dayjs.extend(utc);
 
@@ -148,7 +149,8 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             setOrderId(record.orderId);
             const data = response?.data;
             if (data !== undefined) {
-                setRefundAmount(data.toFixed(2));
+                let refundAmount: string | undefined = centsToYuan(data);
+                setRefundAmount(refundAmount || "0.00");
                 setVisible(true);
             }
         } catch (error) {

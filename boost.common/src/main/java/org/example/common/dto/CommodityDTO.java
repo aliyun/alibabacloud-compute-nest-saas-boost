@@ -53,7 +53,7 @@ public class CommodityDTO {
     /**
      * Default Unit price of the commodity.
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * Description of the commodity.

@@ -59,7 +59,7 @@ public class CommodityDO implements Serializable {
     /**
      * Default Unit price of the commodity.
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * Status of the commodity.

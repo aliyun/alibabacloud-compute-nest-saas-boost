@@ -1,17 +1,17 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.common.handler;
 
@@ -19,8 +19,10 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
+import org.example.common.SPI;
 import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
+import org.example.common.helper.SpiTokenHelper;
 import org.example.common.helper.TokenParseHelper;
 import org.example.common.model.JwtAuthenticationTokenModel;
 import org.example.common.model.UserInfoModel;
@@ -29,13 +31,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.annotation.Resource;
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -49,16 +59,29 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
     private String adminAid;
 
     @Resource
-    public TokenParseHelper tokenParseHelper;
+    private TokenParseHelper tokenParseHelper;
+
+    @Resource
+    private SpiTokenHelper spiTokenHelper;
+
+    private static final String SPI_PREFIX = "/api/spi";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
 
         try {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            String requestPath = request.getRequestURI();
+            SPI spi = handlerMethod.getMethodAnnotation(SPI.class);
+            boolean spiUrl = requestPath.startsWith(SPI_PREFIX);
+
+            if (spi != null || spiUrl) {
+                return handleSpi(request, response, spi, spiUrl);
+            }
+
             AdminAPI adminOnly = handlerMethod.getMethodAnnotation(AdminAPI.class);
 
             String token = request.getHeader(Constants.AUTHORIZATION);
@@ -87,6 +110,25 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
         }
     }
 
+    private boolean handleSpi(HttpServletRequest request, HttpServletResponse response, SPI spi, boolean spiUrl) {
+        if (spiUrl && spi != null) {
+            Class<?> classValue = spi.value();
+            try {
+                ReReadableHttpServletRequestWrapper reReadableHttpServletRequestWrapper = new ReReadableHttpServletRequestWrapper(request);
+
+                String requestBody = StreamUtils.copyToString(reReadableHttpServletRequestWrapper.getInputStream(), StandardCharsets.UTF_8);
+                Object spiObject = JsonUtil.parseObjectByJackson(requestBody, classValue);
+
+                return spiTokenHelper.checkSpiToken(spiObject, classValue);
+            } catch (Exception e) {
+                log.error("SPI request body parsing failed.", e);
+            }
+        }
+        setResponse(response, ErrorInfo.VERIFY_FAILED);
+        return false;
+    }
+
+
     private boolean isAdminUser(UserInfoModel userInfoModel) {
         return adminAid.equals(userInfoModel.getAid());
     }
@@ -100,5 +142,53 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
             log.error("Token verification failed, Response definition failed.", ex);
         }
         return false;
+    }
+
+    private static class ReReadableHttpServletRequestWrapper extends HttpServletRequestWrapper {
+        private ByteArrayOutputStream cachedBodyOutputStream;
+
+        public ReReadableHttpServletRequestWrapper(HttpServletRequest request) throws IOException {
+            super(request);
+            InputStream requestInputStream = request.getInputStream();
+            cachedBodyOutputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = requestInputStream.read(buffer)) != -1) {
+                cachedBodyOutputStream.write(buffer, 0, bytesRead);
+            }
+        }
+
+        @Override
+        public ServletInputStream getInputStream() {
+            return new CachedBodyServletInputStream(cachedBodyOutputStream.toByteArray());
+        }
+
+        private class CachedBodyServletInputStream extends ServletInputStream {
+            private ByteArrayInputStream input;
+
+            public CachedBodyServletInputStream(byte[] cachedBody) {
+                this.input = new ByteArrayInputStream(cachedBody);
+            }
+
+            @Override
+            public int read() throws IOException {
+                return input.read();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return input.available() == 0;
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+                throw new RuntimeException("Not implemented");
+            }
+        }
     }
 }

@@ -35,6 +35,7 @@ import org.example.service.payment.PaymentService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -102,7 +103,7 @@ public class AlipayServiceImpl implements PaymentService {
     }
 
     @Override
-    public String createTransaction(Double totalAmount, String subject, String outTradeNo) {
+    public String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo) {
         OrderDTO order = orderOtsHelper.getOrder(outTradeNo, null);
         if (StringUtils.isNotEmpty(order.getPaymentForm())) {
             return order.getPaymentForm();
@@ -117,7 +118,7 @@ public class AlipayServiceImpl implements PaymentService {
     }
 
     @Override
-    public Boolean refundOrder(String orderId, Double refundAmount, String refundId) {
+    public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundId) {
         return baseAlipayClient.refundOrder(orderId, refundAmount, refundId);
     }
 

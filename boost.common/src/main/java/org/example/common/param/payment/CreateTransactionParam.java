@@ -21,12 +21,12 @@ import org.example.common.constant.PayChannel;
 public class CreateTransactionParam {
 
     /**
-     * 订单id
+     * order id for alipay or wechat
      */
     private String orderId;
 
     /**
-     * 支付渠道
+     * pay channel
      */
     private PayChannel payChannel;
 }

@@ -22,6 +22,7 @@ import com.aliyuncs.http.MethodType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.adapter.AcsApiCaller;
+import org.example.common.constant.ComputeNestConstants;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
@@ -31,6 +32,8 @@ import org.example.common.utils.TokenUtil;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 @Component
@@ -47,10 +50,15 @@ public class SpiTokenHelper {
 
     private static final String SERVICE_KEY = "ServiceKey";
 
-    public void checkSpiToken(Object param, String spiToken, String commodityCode) {
-        CommodityDTO commodity = commodityOtsHelper.getCommodity(commodityCode);
-        CommonRequest commonRequest = initialCommonRequest(commodity.getServiceId());
+    public boolean checkSpiToken(Object param, Class<? extends Object> paramClass) {
+        CommonRequest commonRequest = null;
         try {
+            Method getTokenMethod = paramClass.getMethod("getToken");
+            String spiToken = (String) getTokenMethod.invoke(param);
+            Method getCommodityCode = paramClass.getMethod("getCommodityCode");
+            String commodityCode = (String) getCommodityCode.invoke(param);
+            CommodityDTO commodity = commodityOtsHelper.getCommodity(commodityCode);
+            commonRequest = initialCommonRequest(commodity.getServiceId());
             CommonResponse commonResponse = acsApiCaller.getCommonResponse(commonRequest);
             String data = commonResponse.getData();
             if (StringUtils.isNotEmpty(data)) {
@@ -58,25 +66,31 @@ public class SpiTokenHelper {
                 String serviceKey = map.getOrDefault(SERVICE_KEY, null);
                 String currentSpiToken = TokenUtil.createSpiToken(param, serviceKey);
                 if (StringUtils.isEmpty(currentSpiToken) || !currentSpiToken.equals(spiToken)) {
-                    throw new BizException(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED.getStatusCode(), ErrorInfo.SPI_TOKEN_VALIDATION_FAILED.getCode(), String.format(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED.getMessage(), spiToken));
+                    throw new BizException(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED.getStatusCode(), ErrorInfo.SPI_TOKEN_VALIDATION_FAILED.getCode(),
+                            String.format(ErrorInfo.SPI_TOKEN_VALIDATION_FAILED.getMessage(), spiToken));
                 }
-                return;
+                return true;
             }
-            throw new BizException(ErrorInfo.SERVICE_PROVIDER_KEY_NOT_EXIST.getStatusCode(), ErrorInfo.SERVICE_PROVIDER_KEY_NOT_EXIST.getCode(), String.format(ErrorInfo.SERVICE_PROVIDER_KEY_NOT_EXIST.getMessage(), commodity.getServiceId(), commodityCode));
+            throw new BizException(ErrorInfo.SERVICE_PROVIDER_KEY_NOT_EXIST.getStatusCode(), ErrorInfo.SERVICE_PROVIDER_KEY_NOT_EXIST.getCode(),
+                    String.format(ErrorInfo.SERVICE_PROVIDER_KEY_NOT_EXIST.getMessage(), commodity.getServiceId(), commodityCode));
         } catch (ClientException e) {
-            throw new BizException(ErrorInfo.COMMON_REQUEST_FAILED.getStatusCode(), e.getErrCode(), String.format(ErrorInfo.COMMON_REQUEST_FAILED.getMessage(), GET_SERVICE_PROVIDER_KEY, JsonUtil.toJsonString(commonRequest), e.getMessage()), e);
+            throw new BizException(ErrorInfo.COMMON_REQUEST_FAILED.getStatusCode(), e.getErrCode(),
+                    String.format(ErrorInfo.COMMON_REQUEST_FAILED.getMessage(), GET_SERVICE_PROVIDER_KEY, JsonUtil.toJsonString(commonRequest), e.getMessage()), e);
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            throw new BizException(ErrorInfo.INVALID_SPI_PARAMETER.getStatusCode(), ErrorInfo.INVALID_SPI_PARAMETER.getCode(),
+                    String.format(ErrorInfo.INVALID_SPI_PARAMETER.getMessage(), paramClass), e);
         }
     }
 
     private CommonRequest initialCommonRequest(String serviceId) {
         CommonRequest request = new CommonRequest();
-        request.setSysRegionId("cn-hangzhou");
-        request.setSysProduct("ComputeNestSupplier");
+        request.setSysRegionId(ComputeNestConstants.DEFAULT_REGION_ID);
+        request.setSysProduct(ComputeNestConstants.SUPPLIER_SYS_PRODUCT_NAME);
         request.setSysMethod(MethodType.POST);
-        request.setSysDomain("computenestsupplier.cn-hangzhou.aliyuncs.com");
-        request.setSysVersion("2021-05-21");
+        request.setSysDomain(ComputeNestConstants.SERVICE_ENDPOINT);
+        request.setSysVersion(ComputeNestConstants.COMPUTE_NEST_SUPPLIER_API_VERSION);
         request.setSysAction(GET_SERVICE_PROVIDER_KEY);
-        request.putQueryParameter("ServiceId", serviceId);
+        request.putQueryParameter(ComputeNestConstants.SERVICE_ID, serviceId);
         return request;
     }
 }

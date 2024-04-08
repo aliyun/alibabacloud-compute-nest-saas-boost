@@ -46,7 +46,7 @@ public class CreateCommodityParam {
      * Unit price of the commodity.
      */
     @NotNull
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * Description of the commodity.

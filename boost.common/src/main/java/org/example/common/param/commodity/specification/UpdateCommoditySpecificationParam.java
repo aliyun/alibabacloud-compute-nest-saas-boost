@@ -36,5 +36,5 @@ public class UpdateCommoditySpecificationParam extends CommoditySpecificationPar
     /**
      * Price per unit for the specification.
      */
-    private Double unitPrice;
+    private Long unitPrice;
 }
