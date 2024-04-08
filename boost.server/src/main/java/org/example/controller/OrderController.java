@@ -70,7 +70,7 @@ public class OrderController {
 
     @ApiOperation(value = "订单退款", nickname = "refundOrder")
     @RequestMapping(value = "/refundOrder", method = RequestMethod.POST)
-    public BaseResult<Double> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+    public BaseResult<Long> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                            @RequestBody RefundOrderParam param) {
         return orderService.refundOrders(userInfoModel, param);
     }

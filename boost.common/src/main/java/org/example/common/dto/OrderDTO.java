@@ -56,7 +56,7 @@ public class OrderDTO {
     /**
      * Total Amount.
      */
-    private Double totalAmount;
+    private Long totalAmount;
 
     /**
      * Payment type.
@@ -76,7 +76,7 @@ public class OrderDTO {
     /**
      * Refund Amount.
      */
-    private Double refundAmount;
+    private Long refundAmount;
 
     /**
      * Compute nest service instance id.
@@ -106,7 +106,7 @@ public class OrderDTO {
     /**
      * Seller received amount.
      */
-    private Double receiptAmount;
+    private Long receiptAmount;
 
     /**
      * Account Id. corresponds to the aliyun aid.

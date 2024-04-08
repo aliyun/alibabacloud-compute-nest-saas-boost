@@ -33,7 +33,7 @@ public class UpdateCommodityParam extends CommodityBaseParam {
     /**
      * 商品单价
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * 商品描述

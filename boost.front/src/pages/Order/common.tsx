@@ -16,6 +16,7 @@
 import {Tag} from 'antd';
 import {ProColumns} from "@ant-design/pro-components";
 import {PayChannelEnum} from "@/constants";
+import {centsToYuan} from "@/util/moneyUtil";
 
 export const TradeStatusEnum = {
     TRADE_CLOSED: '交易关闭',
@@ -36,8 +37,8 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
     },
     {
         title: '产品名称',
-        dataIndex: 'productName',
-        key: 'productName',
+        dataIndex: 'commodityName',
+        key: 'commodityName',
         sorter: false,
         search: false,
     }
@@ -48,6 +49,9 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         key: 'specificationName',
         sorter: false,
         search: false,
+        render: (_, record) => {
+            return record.specificationName || '无套餐';
+        },
     },
     {
         title: '交易状态',
@@ -96,6 +100,9 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         key: 'totalAmount',
         sorter: false,
         search: false,
+        render: (_, record) => (
+            <span>{centsToYuan(record.totalAmount)}</span>
+        ),
     },
     {
         title: '创建时间',

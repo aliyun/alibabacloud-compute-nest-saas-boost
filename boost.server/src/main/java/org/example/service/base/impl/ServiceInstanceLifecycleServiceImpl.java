@@ -96,7 +96,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     private final ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
 
-    @Value("${service.id:abc}")
+    @Value("${service.id:null}")
     private String serviceId;
 
     @Resource
@@ -138,7 +138,6 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     private List<ListServiceInstancesRequestFilter> buildFilterForListServiceInstance(ListServiceInstancesParam listServiceInstancesParam, UserInfoModel userInfoModel) {
         ListServiceInstancesRequestFilter accountIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.USER_ID, Collections.singletonList(userInfoModel.getAid()));
-//        ListServiceInstancesRequestFilter serviceTypeFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_TYPE_PARAMETER, Collections.singletonList(ComputeNestConstants.MANAGED_SERVICE_TYPE));
         List<ListServiceInstancesRequestFilter> filterList = new ArrayList<>(Collections.singletonList(accountIdFilter));
         if (listServiceInstancesParam.getServiceIdList() != null && !listServiceInstancesParam.getServiceIdList().isEmpty()) {
             ListServiceInstancesRequestFilter serviceIdFilter = serviceInstanceLifeStyleHelper.createFilter(ComputeNestConstants.SERVICE_ID, listServiceInstancesParam.getServiceIdList());

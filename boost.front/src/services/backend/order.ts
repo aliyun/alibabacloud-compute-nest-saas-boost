@@ -31,7 +31,7 @@ export async function listOrders(body: API.ListOrdersParam, options?: { [key: st
 
 /** 订单退款 POST /api/refundOrder */
 export async function refundOrder(body: API.RefundOrderParam, options?: { [key: string]: any }) {
-  return request<API.BaseResultDouble_>('/api/refundOrder', {
+  return request<API.BaseResultLong_>('/api/refundOrder', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -15,7 +15,6 @@
 
 package org.example.common.helper;
 
-
 import com.aliyuncs.CommonRequest;
 import com.aliyuncs.CommonResponse;
 import com.aliyuncs.exceptions.ClientException;

@@ -19,14 +19,18 @@ import org.example.common.constant.AliPayConstants;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.ots.OrderOtsHelper;
+import org.example.common.model.PaymentOrderModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.payment.CreateTransactionParam;
 import org.example.common.utils.HttpUtil;
+import org.example.common.utils.MoneyUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +67,21 @@ public class PaymentServiceManger {
     }
 
     public String verifyTradeCallback(HttpServletRequest request) {
-        OrderDO unverifiedOrder = HttpUtil.requestToObject(request, OrderDO.class);
+        PaymentOrderModel payOrderModel = HttpUtil.requestToObject(request, PaymentOrderModel.class);
+        OrderDO unverifiedOrder = new OrderDO();
+        BeanUtils.copyProperties(payOrderModel, unverifiedOrder);
+        BigDecimal totalAmountYuan = new BigDecimal(payOrderModel.getTotalAmount());
+        unverifiedOrder.setTotalAmount(MoneyUtil.toCents(totalAmountYuan));
+        if (payOrderModel.getBuyerPayAmount() != null) {
+            BigDecimal buyerPayAmountYuan = new BigDecimal(payOrderModel.getBuyerPayAmount());
+            unverifiedOrder.setBuyerPayAmount(MoneyUtil.toCents(buyerPayAmountYuan));
+        }
+
+        if (payOrderModel.getReceiptAmount() != null) {
+            BigDecimal receiptAmountYuan = new BigDecimal(payOrderModel.getReceiptAmount());
+            unverifiedOrder.setReceiptAmount(MoneyUtil.toCents(receiptAmountYuan));
+        }
+        unverifiedOrder.setOrderId(payOrderModel.getOutTradeNo());
         Map<String, String> map = HttpUtil.requestToMap(request);
         String orderId = map.get(AliPayConstants.OUT_TRADE_NO);
         return getPayChannelService(orderId).verifyTradeCallback(unverifiedOrder, map);
@@ -73,10 +91,12 @@ public class PaymentServiceManger {
     public String createTransaction(UserInfoModel userInfoModel, CreateTransactionParam param) {
         String orderId = param.getOrderId();
         OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.parseLong(userInfoModel.getAid()));
-        return payChannelServiceMap.get(param.getPayChannel().getValue()).createTransaction(order.getTotalAmount(), order.getCommodityName(), orderId);
+        Long totalAmountCents = order.getTotalAmount();
+        BigDecimal totalAmount = MoneyUtil.fromCents(totalAmountCents);
+        return payChannelServiceMap.get(param.getPayChannel().getValue()).createTransaction(totalAmount, order.getCommodityName(), orderId);
     }
 
-    public Boolean refundOrder(String orderId, Double refundAmount, String refundId) {
+    public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundId) {
         return getPayChannelService(orderId).refundOrder(orderId, refundAmount, refundId);
     }
 

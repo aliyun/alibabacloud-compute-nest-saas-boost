@@ -16,12 +16,13 @@ package org.example.service.payment;
 
 import org.example.common.dataobject.OrderDO;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 public interface PaymentService {
     /**
      * Verifies the trade callback received from the payment channel.
-     * @param orderDO the order to be verified
+     * @param unverifiedOrder the order to be verified
      * @param map the request body from the payment channel
      * @return a String indicating the result of the verification
      */
@@ -35,7 +36,7 @@ public interface PaymentService {
      * @param outTradeNo  the external trade number for reference
      * @return a String representing the transaction identifier or reference
      */
-    String createTransaction(Double totalAmount, String subject, String outTradeNo);
+    String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo);
 
     /**
      * Processes a refund for a specific order in the payment channel.
@@ -45,7 +46,7 @@ public interface PaymentService {
      * @param refundId     the identifier for the refund transaction
      * @return a Boolean indicating whether the refund was successful
      */
-    Boolean refundOrder(String orderId, Double refundAmount, String refundId);
+    Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundId);
 
     /**
      * Gets the type of the payment channel.

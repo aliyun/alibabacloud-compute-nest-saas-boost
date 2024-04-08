@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {message, Modal, Tooltip} from 'antd';
 import {
     createCommoditySpecification,
@@ -10,24 +10,12 @@ import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {specificationColumns, SpecificationForm, SpecificationModalProps} from "@/pages/Commodity/common";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {PlusOutlined} from "@ant-design/icons";
+import {yuanToCents} from "@/util/moneyUtil";
 
 const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visible, onClose}) => {
-    const [specifications, setSpecifications] = useState<API.CommoditySpecificationDTO[]>([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentSpecification, setCurrentSpecification] = useState<API.CommoditySpecificationDTO | undefined>(undefined);
     const actionRef = useRef<ActionType>();
-
-    useEffect(() => {
-        if (visible) {
-            fetchSpecifications();
-        }
-    }, [visible]);
-
-    const fetchSpecifications = async () => {
-        const response = await listAllSpecifications({commodityCode: commodity.commodityCode});
-        setSpecifications(response.data || []);
-        actionRef.current?.reload();
-    };
 
     const handleSaveSpecification = async (values: API.CreateCommoditySpecificationParam | API.UpdateCommoditySpecificationParam) => {
         try {
@@ -42,7 +30,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                 response = await createCommoditySpecification({
                     payPeriods: values.payPeriods,
                     payPeriodUnit: values.payPeriodUnit,
-                    unitPrice: values.unitPrice,
+                    unitPrice: yuanToCents(values.unitPrice),
                     specificationName: values.specificationName?.trim(),
                     commodityCode: commodity.commodityCode,
                     currency: "CNY",
@@ -50,7 +38,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
             }
 
             if (response.code === "200") {
-                message.success(`${currentSpecification ? 'Specification updated' : 'Specification added'} successfully`);
+                message.success(`${currentSpecification ? '套餐修改' : '套餐新增'} successfully`);
                 setCurrentSpecification(undefined);
             } else {
                 message.error(`Failed to ${currentSpecification ? 'update' : 'add'} specification`);
@@ -69,7 +57,6 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
     const handleDelete = async (specificationName: string) => {
         try {
             await deleteCommoditySpecification({commodityCode: commodity.commodityCode, specificationName});
-            // fetchSpecifications();
             message.success('套餐删除成功');
             setTimeout(() => {
                 actionRef.current?.reload();
@@ -160,11 +147,25 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                 ]}
                 request={async (params, sorter, filter) => {
                     const response = await listAllSpecifications({commodityCode: commodity.commodityCode});
+                    if (response.data != undefined) {
+                        const convertedData: API.CommoditySpecificationDTO[] = response.data.map((specification) => {
+                            const unitPriceInYuan = specification.unitPrice !== undefined
+                                ? (Number((specification.unitPrice / 100).toFixed(2)))
+                                : undefined;
+                            return {...specification, unitPrice: unitPriceInYuan};
+                        });
+                        return {
+                            data: convertedData,
+                            success: true,
+                            total: convertedData != undefined ? convertedData.length : 0,
+                        };
+                    }
                     return {
-                        data: response.data,
+                        data: [],
                         success: true,
-                        total: response.data != undefined ? response.data.length : 0,
-                    };
+                        total: 0
+                    }
+
                 }}
             />
         </Modal>

@@ -23,12 +23,12 @@ public class CommodityPriceModel {
     /**
      * 单价
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * 支付总价
      */
-    private Double totalAmount;
+    private Long totalAmount;
 
     /**
      * 商品code

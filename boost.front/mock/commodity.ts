@@ -11,7 +11,7 @@ const mockListAllCommodities = (req: Request, res: Response) => {
                 version: "1.0",
                 commodityStatus: "Online",
                 commodityCode: "exampleCommodityCode001",
-                unitPrice: 100.0,
+                unitPrice: 10000,
             },
         ],
     });
@@ -47,7 +47,7 @@ const getCommodity = (req: Request, res: Response) => {
 
 const getCommodityPrice = (req: Request, res: Response) => {
     res.json({
-        price: 100.0,
+        price: 10000,
         currency: 'USD',
     });
 };

@@ -33,6 +33,7 @@ import org.example.common.config.AlipayConfig;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.constant.Constants;
 import org.example.common.exception.BizException;
+import org.example.common.utils.MoneyUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -108,7 +109,7 @@ class BaseAlipayClientImplTest {
             result = response;
         }};
         setClient();
-        alipayClientImpl.createTransaction(Double.valueOf(0), "subject", "outTradeNo");
+        alipayClientImpl.createTransaction(MoneyUtil.fromCents(0L), "subject", "outTradeNo");
         Assertions.assertTrue(response.isSuccess());
     }
 
@@ -120,7 +121,7 @@ class BaseAlipayClientImplTest {
             result = true;
         }};
         setClient();
-        Assertions.assertDoesNotThrow(()->alipayClientImpl.refundOrder("orderId", Double.valueOf(0), "refundRequestId"));
+        Assertions.assertDoesNotThrow(()->alipayClientImpl.refundOrder("orderId", MoneyUtil.fromCents(1L), "refundRequestId"));
     }
 
     @Test

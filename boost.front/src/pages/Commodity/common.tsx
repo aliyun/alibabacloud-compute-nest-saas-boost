@@ -140,7 +140,7 @@ export const specificationColumns: ProColumns<API.CommoditySpecificationDTO>[] =
         dataIndex: 'unitPrice',
         key: 'unitPrice',
         valueType: 'money', // 假设 unitPrice 是金额，可以使用 'money' 类型
-        search: false
+        search: false,
     },
     {
         title: '币种',

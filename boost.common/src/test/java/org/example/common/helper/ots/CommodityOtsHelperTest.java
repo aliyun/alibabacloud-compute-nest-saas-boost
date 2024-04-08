@@ -47,11 +47,14 @@ class CommodityOtsHelperTest {
 
     @Mock
     private BaseOtsHelper mockBaseOtsHelper;
+
     @InjectMocks
     private CommodityOtsHelper commodityOtsHelper;
 
     private String commodityCode = "COMMODITY1";
+
     private CommodityDO commodityDO;
+
     private CommodityDTO commodityDTO;
 
     @BeforeEach

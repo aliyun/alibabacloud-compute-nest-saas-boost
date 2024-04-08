@@ -38,6 +38,7 @@ import org.example.common.exception.BizException;
 import org.example.common.utils.DateUtil;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.example.common.constant.AliPayConstants.OUT_TRADE_NO;
@@ -76,7 +77,7 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
     }
 
     @Override
-    public String createTransaction(Double totalAmount, String subject, String outTradeNo) {
+    public String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo) {
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setNotifyUrl(alipayConfig.getNotifyUrl());
         request.setReturnUrl(alipayConfig.getReturnUrl());
@@ -93,7 +94,7 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
     }
 
     @Override
-    public Boolean refundOrder(String orderId, Double refundAmount, String refundRequestId) {
+    public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundRequestId) {
         Double formatRefundAmount = Double.parseDouble(String.format("%.2f", refundAmount));
         JSONObject bizContent = new JSONObject().fluentPut(OUT_TRADE_NO, orderId)
                 .fluentPut(REFUND_AMOUNT, formatRefundAmount)

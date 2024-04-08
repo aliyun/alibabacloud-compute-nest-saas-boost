@@ -46,9 +46,9 @@ import org.example.common.param.order.RefundOrderParam;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
+import org.example.common.utils.MoneyUtil;
 import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
-import org.example.service.base.ServiceManager;
 import org.example.service.order.OrderService;
 import org.example.service.payment.PaymentServiceManger;
 import org.springframework.beans.BeanUtils;
@@ -80,17 +80,10 @@ public class OrderServiceImpl implements OrderService {
     private ServiceInstanceLifecycleService serviceInstanceLifecycleService;
 
     @Resource
-    private ServiceManager serviceManager;
-
-    @Resource
     private ServiceInstanceLifeStyleHelper serviceInstanceLifeStyleHelper;
 
     @Resource
     private SpiTokenHelper spiTokenHelper;
-
-    @Resource
-    private PaymentServiceManger paymentServiceManger;
-
 
     @Override
     public OrderDTO createOrder(CreateOrderParam param) {
@@ -209,14 +202,14 @@ public class OrderServiceImpl implements OrderService {
             orderDO.setTradeStatus(TradeStatus.REFUNDING);
         } else {
             String refundId = UuidUtil.generateRefundId();
-            alipayService.refundOrder(orderDO.getOrderId(), orderDO.getReceiptAmount(), refundId);
+            alipayService.refundOrder(orderDO.getOrderId(), MoneyUtil.fromCents(orderDO.getReceiptAmount()), refundId);
             orderDO.setTradeStatus(TradeStatus.REFUNDED);
         }
         orderOtsHelper.updateOrder(orderDO);
     }
 
     @Override
-    public BaseResult<Double> refundOrders(UserInfoModel userInfoModel, RefundOrderParam param) {
+    public BaseResult<Long> refundOrders(UserInfoModel userInfoModel, RefundOrderParam param) {
         String refundId = UuidUtil.generateRefundId();
         Long currentLocalDateTimeMillis = DateUtil.getCurrentLocalDateTimeMillis();
         String currentLocalDateTime = DateUtil.parseIs08601DateMillis(currentLocalDateTimeMillis);
@@ -228,7 +221,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private BaseResult<Double> handleServiceInstanceRefund(UserInfoModel userInfoModel, RefundOrderParam param, String refundId, Long currentLocalDateTimeMillis, String currentLocalDateTime) {
+    private BaseResult<Long> handleServiceInstanceRefund(UserInfoModel userInfoModel, RefundOrderParam param, String refundId, Long currentLocalDateTimeMillis, String currentLocalDateTime) {
         GetServiceInstanceParam getServiceInstanceParam = new GetServiceInstanceParam();
         getServiceInstanceParam.setServiceInstanceId(param.getServiceInstanceId());
         BaseResult<ServiceInstanceModel> result = serviceInstanceLifecycleService.getServiceInstance(userInfoModel, getServiceInstanceParam);
@@ -244,13 +237,13 @@ public class OrderServiceImpl implements OrderService {
                 TradeStatus.TRADE_SUCCESS
         );
         if (CollectionUtils.isEmpty(orderDTOList) || serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(orderDTOList, currentLocalDateTimeMillis)) {
-            return BaseResult.success(0D);
+            return BaseResult.success(0L);
         }
         return refundValidOrders(param, refundId, currentLocalDateTime, orderDTOList);
     }
 
-    private BaseResult<Double> refundValidOrders(RefundOrderParam param, String refundId, String currentLocalDateTime, List<OrderDTO> orderDTOList) {
-        Double allRefundAmount = 0D;
+    private BaseResult<Long> refundValidOrders(RefundOrderParam param, String refundId, String currentLocalDateTime, List<OrderDTO> orderDTOList) {
+        Long allRefundAmount = 0L;
         boolean consumingOrderFound = false;
         RefundDetailModel refundDetailModel = createRefundDetailModel(param, RefundReason.SERVICE_INSTANCE_DELETION_REFUND);
 
@@ -274,7 +267,7 @@ public class OrderServiceImpl implements OrderService {
         return BaseResult.success(allRefundAmount);
     }
 
-    private BaseResult<Double> handleSingleOrderRefund(UserInfoModel userInfoModel, RefundOrderParam param, String refundId, Long currentLocalDateTimeMillis, String currentLocalDateTime) {
+    private BaseResult<Long> handleSingleOrderRefund(UserInfoModel userInfoModel, RefundOrderParam param, String refundId, Long currentLocalDateTimeMillis, String currentLocalDateTime) {
         OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.valueOf(userInfoModel.getAid()));
         if (!orderOtsHelper.validateOrderCanBeRefunded(order, Long.valueOf(userInfoModel.getAid()))) {
             throw new BizException(ErrorInfo.CURRENT_ORDER_CANT_BE_REFUNDED);
@@ -283,7 +276,7 @@ public class OrderServiceImpl implements OrderService {
         RefundDetailModel refundDetailModel = createRefundDetailModel(param, refundReason);
         refundDetailModel.setMessage(refundReason.getDefaultMessage());
         order.setRefundDetail(JsonUtil.toJsonString(refundDetailModel));
-        Double refundAmount = orderOtsHelper.isOrderInConsuming(order, currentLocalDateTimeMillis) ?
+        Long refundAmount = orderOtsHelper.isOrderInConsuming(order, currentLocalDateTimeMillis) ?
                 orderOtsHelper.refundConsumingOrder(order, param.getDryRun(), refundId, currentLocalDateTime) :
                 orderOtsHelper.refundUnconsumedOrder(order, param.getDryRun(), refundId, currentLocalDateTime);
         return BaseResult.success(refundAmount);

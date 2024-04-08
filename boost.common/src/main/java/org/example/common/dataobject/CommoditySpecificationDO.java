@@ -59,7 +59,7 @@ public class CommoditySpecificationDO implements Serializable {
     /**
      * Price per unit.
      */
-    private Double unitPrice;
+    private Long unitPrice;
 
     /**
      * Currency unit (e.g., CNY for Chinese Yuan).

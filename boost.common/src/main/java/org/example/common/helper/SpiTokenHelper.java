@@ -22,6 +22,7 @@ import com.aliyuncs.http.MethodType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.adapter.AcsApiCaller;
+import org.example.common.constant.ComputeNestConstants;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
@@ -70,13 +71,13 @@ public class SpiTokenHelper {
 
     private CommonRequest initialCommonRequest(String serviceId) {
         CommonRequest request = new CommonRequest();
-        request.setSysRegionId("cn-hangzhou");
-        request.setSysProduct("ComputeNestSupplier");
+        request.setSysRegionId(ComputeNestConstants.DEFAULT_REGION_ID);
+        request.setSysProduct(ComputeNestConstants.SUPPLIER_SYS_PRODUCT_NAME);
         request.setSysMethod(MethodType.POST);
-        request.setSysDomain("computenestsupplier.cn-hangzhou.aliyuncs.com");
-        request.setSysVersion("2021-05-21");
+        request.setSysDomain(ComputeNestConstants.SERVICE_ENDPOINT);
+        request.setSysVersion(ComputeNestConstants.COMPUTE_NEST_SUPPLIER_API_VERSION);
         request.setSysAction(GET_SERVICE_PROVIDER_KEY);
-        request.putQueryParameter("ServiceId", serviceId);
+        request.putQueryParameter(ComputeNestConstants.SERVICE_ID, serviceId);
         return request;
     }
 }

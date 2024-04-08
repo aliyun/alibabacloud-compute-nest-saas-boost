@@ -11,15 +11,15 @@ import com.aliyuncs.profile.IClientProfile;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.AcsApiCaller;
 import org.example.common.config.AliyunConfig;
+import org.example.common.constant.ComputeNestConstants;
 import org.example.common.utils.JsonUtil;
 import org.springframework.stereotype.Component;
+
 @Component
 @Slf4j
 public class AcsApiCallerImpl implements AcsApiCaller {
 
     private IAcsClient client;
-
-    private static final String DEFAULT_REGION_ID = "cn-hangzhou";
 
     @Override
     public CommonResponse getCommonResponse(CommonRequest request) throws ClientException {
@@ -45,7 +45,7 @@ public class AcsApiCallerImpl implements AcsApiCaller {
             String accessKeyId = aliyunConfig.getClient().getAccessKeyId();
             String accessKeySecret = aliyunConfig.getClient().getAccessKeySecret();
             String securityToken = aliyunConfig.getClient().getSecurityToken();
-            IClientProfile profile = DefaultProfile.getProfile(DEFAULT_REGION_ID, accessKeyId,
+            IClientProfile profile = DefaultProfile.getProfile(ComputeNestConstants.DEFAULT_REGION_ID, accessKeyId,
                     accessKeySecret, securityToken);
 
             this.client = new DefaultAcsClient(profile);
@@ -57,7 +57,7 @@ public class AcsApiCallerImpl implements AcsApiCaller {
     @Override
     public void createClient(String accessKeyId, String accessKeySecret) {
         try {
-            IClientProfile profile = DefaultProfile.getProfile(DEFAULT_REGION_ID, accessKeyId,
+            IClientProfile profile = DefaultProfile.getProfile(ComputeNestConstants.DEFAULT_REGION_ID, accessKeyId,
                     accessKeySecret);
 
             this.client = new DefaultAcsClient(profile);
@@ -69,7 +69,7 @@ public class AcsApiCallerImpl implements AcsApiCaller {
     @Override
     public void createClient(String accessKeyId, String accessKeySecret, String securityToken) {
         try {
-            IClientProfile profile = DefaultProfile.getProfile(DEFAULT_REGION_ID, accessKeyId,
+            IClientProfile profile = DefaultProfile.getProfile(ComputeNestConstants.DEFAULT_REGION_ID, accessKeyId,
                     accessKeySecret, securityToken);
 
             this.client = new DefaultAcsClient(profile);
