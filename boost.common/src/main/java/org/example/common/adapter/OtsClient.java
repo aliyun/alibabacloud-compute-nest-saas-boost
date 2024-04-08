@@ -15,6 +15,8 @@
 
 package org.example.common.adapter;
 
+import com.alicloud.openservices.tablestore.model.DeleteRowRequest;
+import com.alicloud.openservices.tablestore.model.DeleteRowResponse;
 import com.alicloud.openservices.tablestore.model.GetRangeResponse;
 import com.alicloud.openservices.tablestore.model.GetRowResponse;
 import com.alicloud.openservices.tablestore.model.PutRowResponse;
@@ -56,6 +58,13 @@ public interface OtsClient {
      * @return {@link GetRowResponse}
      */
     GetRowResponse getRow(SingleRowQueryCriteria singleRowQueryCriteria);
+
+    /**
+     * Delete a row of data in Table Store.
+     * @param deleteRowRequest Delete row request
+     * @return {@link DeleteRowResponse}
+     */
+    DeleteRowResponse deletRow(DeleteRowRequest deleteRowRequest);
 
     /**
      * Query data using range query with a multi-dimensional index.

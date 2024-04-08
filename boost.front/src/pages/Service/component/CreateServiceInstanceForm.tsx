@@ -13,14 +13,13 @@
 *limitations under the License.
 */
 
-import {Divider, List, Modal, Radio} from "antd";
+import {Divider, List, Radio} from "antd";
 import ProCard from "@ant-design/pro-card";
 import React, {useContext, useEffect, useState} from "react";
 import {ProForm, ProFormContext, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import {CustomParameters, defaultSpecification} from "@/pages/PageCustomConfig";
 import {getServiceCost, getServiceMetadata} from "@/services/backend/serviceManager";
-import {createFormItem} from "@/util/FormItemUtil";
-import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
+import {createFormItem} from "@/util/formItemUtil";
 import {
     ParameterGroupsInterface,
     ParameterTypeInterfaceArray,
@@ -29,6 +28,7 @@ import {
 import {ALIYUN_REGIONS} from "@/constants";
 import styles from "./css/service.module.css";
 import {DEFAULT_PAY_PERIOD_UNIT, showErrorModal} from "@/global";
+import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 
 export const CreateServiceInstanceForm: React.FC = () => {
     const [selectedCard, setSelectedCard] = useState<string | null>(null);

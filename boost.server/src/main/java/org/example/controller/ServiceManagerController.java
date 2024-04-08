@@ -23,9 +23,9 @@ import org.example.common.ListResult;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
-import org.example.common.param.GetServiceMetadataParam;
-import org.example.common.param.GetServiceTemplateParameterConstraintsParam;
-import org.example.service.ServiceManager;
+import org.example.common.param.service.GetServiceMetadataParam;
+import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
+import org.example.service.base.ServiceManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +46,8 @@ public class ServiceManagerController {
 
     @ApiOperation(value = "获取服务支付金额", nickname = "getServiceCost")
     @RequestMapping(path = "/getServiceCost",method = RequestMethod.GET)
-    public BaseResult<Double> getServiceCost(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, @APIParameterConvert GetServiceCostParam getServiceCostParam) {
+    public BaseResult<Double> getServiceCost(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                             @APIParameterConvert GetServiceCostParam getServiceCostParam) {
         return serviceManager.getServiceCost(userInfoModel, getServiceCostParam);
     }
 

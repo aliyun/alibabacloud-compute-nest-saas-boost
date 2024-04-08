@@ -90,7 +90,7 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
                 <Link
                     to={{
                         pathname: `/serviceInstance/${entity.serviceInstanceId}`,
-                        search: `source=${entity.source}`,
+                        search: `source=${entity.source}&status=${entity.status}&serviceType=${entity.serviceType}`,
                     }}
                 >
                     {dom}
@@ -157,6 +157,11 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
         search: false,
         dataIndex: 'updateTime',
         valueType: 'dateTime',
+    },
+    {
+        title: <FormattedMessage id="pages.instanceSearchTable.serviceType" defaultMessage="服务类型"/>,
+        dataIndex: 'serviceType',
+        hideInTable: true,
     },
 ];
 

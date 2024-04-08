@@ -21,15 +21,43 @@ import lombok.Data;
 @Data
 public class ServiceMetadataModel {
 
+    /**
+     * 参数元数据
+     */
     private String parameterMetadata;
 
+    /**
+     * 套餐数据
+     */
     private String specifications;
 
+    /**
+     * 模板名称
+     */
     private String templateName;
 
+    /**
+     * 允许的地域
+     */
     private String allowedRegions;
 
+    /**
+     * 商品code
+     */
     private String commodityCode;
 
+    /**
+     * 保留天数
+     */
     private Integer retentionDays;
+
+    /**
+     * 服务状态
+     */
+    private String status;
+
+    /**
+     * 服务版本
+     */
+    private String version;
 }

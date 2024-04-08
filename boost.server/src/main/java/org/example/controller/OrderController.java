@@ -16,18 +16,18 @@
 package org.example.controller;
 
 import com.alipay.api.AlipayApiException;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dto.OrderDTO;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.CreateOrderParam;
-import org.example.common.param.GetOrderParam;
-import org.example.common.param.ListOrdersParam;
-import org.example.common.param.RefundOrderParam;
-import org.example.service.OrderService;
-import io.swagger.annotations.Api;
-import lombok.extern.slf4j.Slf4j;
+import org.example.common.param.order.CreateOrderParam;
+import org.example.common.param.order.GetOrderParam;
+import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.order.RefundOrderParam;
+import org.example.service.order.OrderService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,16 +49,15 @@ public class OrderController {
     private OrderService orderService;
 
     @ApiOperation(value = "创建订单", nickname = "createOrder")
-    @RequestMapping(path = "/createOrder", method = RequestMethod.POST)
-    public BaseResult<String> createOrder(@AuthenticationPrincipal @ApiIgnore UserInfoModel userInfoModel,
-                                          @Valid @ModelAttribute CreateOrderParam param) throws AlipayApiException {
-        return orderService.createOrder(userInfoModel, param);
+    @RequestMapping(path = "/spi/createOrder", method = RequestMethod.POST)
+    public OrderDTO createOrder(@RequestBody @Valid CreateOrderParam param) throws AlipayApiException {
+        return orderService.createOrder(param);
     }
 
     @ApiOperation(value = "查询一行订单", nickname = "getOrder")
     @RequestMapping(path = "/getOrder", method = RequestMethod.GET)
     public BaseResult<OrderDTO> getOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                         @Valid @ModelAttribute GetOrderParam param)  {
+                                         @ModelAttribute GetOrderParam param)  {
         return orderService.getOrder(userInfoModel, param);
     }
 
@@ -71,7 +70,7 @@ public class OrderController {
 
     @ApiOperation(value = "订单退款", nickname = "refundOrder")
     @RequestMapping(value = "/refundOrder", method = RequestMethod.POST)
-    public BaseResult<Double> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+    public BaseResult<Long> refundOrder(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                            @RequestBody RefundOrderParam param) {
         return orderService.refundOrders(userInfoModel, param);
     }

@@ -198,6 +198,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
 
     if (data !== undefined) {
+        const showRefundAndDeleteButtons = data.serviceType === 'managed';
 
         const {outputs, parameters} = processServiceInstanceData(data);
         console.log(CallSource[CallSource.Market]);
@@ -211,24 +212,28 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                 <span>服务实例</span>
                 <Space>
                     <div>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <Button title={"删除服务实例"} onClick={() => handleServiceInstanceDelete()}
-                                hidden={renewalAndDeleteVisible} danger={true}>删除服务实例</Button>
-                    </div>
-                    <Modal open={visible} onCancel={closeRefundModel} footer={null}>
-                        <ProCard title="退款金额">
-                            <Paragraph>您当前服务实例可退金额为：<span
-                                style={{color: "red"}}>{refundAmount}</span></Paragraph>
-                            <div style={{marginTop: 16, textAlign: 'right'}}>
-                                <Button style={{width: '100px'}} className="ant-btn ant-btn-primary" type="primary"
-                                        onClick={confirmDeleteServiceInstance}>
-                                    退款
-                                </Button>
-                                <Button style={{width: '100px'}} className="ant-btn ant-btn-default"
-                                        onClick={closeRefundModel}>取消</Button>
+                        {showRefundAndDeleteButtons && (
+                            <div>
+                                <Button title={"删除服务实例"} onClick={() => handleServiceInstanceDelete()}
+                                        hidden={renewalAndDeleteVisible} danger={true}>删除服务实例</Button>
+                                <Modal
+                                    open={visible}
+                                    onCancel={closeRefundModel}
+                                    footer={null}
+                                    title="退款金额"
+                                >
+                                    <Paragraph>您当前服务实例可退金额为：<span style={{color: "red"}}>{refundAmount}</span></Paragraph>
+                                    <div style={{marginTop: 16, textAlign: 'right'}}>
+                                        <Button style={{width: '100px'}} type="primary"
+                                                onClick={confirmDeleteServiceInstance}>
+                                            退款
+                                        </Button>
+                                        <Button style={{width: '100px'}}
+                                                onClick={closeRefundModel}>取消</Button>
+                                    </div>
+                                </Modal>
                             </div>
-                        </ProCard>
-                    </Modal>
+                        )}
                     </div>
                     {source != CallSource[CallSource.Market] && <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <ModalForm
