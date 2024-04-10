@@ -111,14 +111,14 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
 
     },
     {
-        title: <FormattedMessage id="pages.instanceSearchTable.serviceName" defaultMessage="服务名"/>,
+        title: <FormattedMessage id="pages.instanceSearchTable.serviceName" defaultMessage="服务名称"/>,
         search: false,
         render: (text, record) => {
             return record.serviceModel ? record.serviceModel.name : '';
         }
     },
     {
-        title: <FormattedMessage id="pages.instanceSearchTable.order" defaultMessage="订单号"/>,
+        title: <FormattedMessage id="pages.instanceSearchTable.orderId" defaultMessage="订单号"/>,
         search: false,
         dataIndex: 'orderId',
         render: (text, record) => {

@@ -16,6 +16,7 @@
 import React from "react";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {ActionType, ProTableProps} from "@ant-design/pro-table/lib";
+import {FormattedMessage} from "@@/exports";
 
 export interface ServiceInstanceTableProps {
     serviceInstances: API.ServiceInstanceModel[];
@@ -54,7 +55,7 @@ export const ServiceInstanceTableInterface: React.FC<ServiceInstanceTableProps> 
 }) => {
     return (
         <ProTable<API.ServiceInstanceModel>
-            headerTitle="实例列表"
+            headerTitle={<FormattedMessage id="menu.list.service-instance-list" defaultMessage="实例列表"/>
             rowKey="key"
             dataSource={serviceInstances}
             actionRef={actionRef}

@@ -1,4 +1,6 @@
 import {ProColumns} from "@ant-design/pro-components";
+import {FormattedMessage} from "@@/exports";
+import React from "react";
 
 export const profileImageUrl = "boost.front/public/logo.png";
 
@@ -12,13 +14,13 @@ export const featuredServiceDescription2 = "SaaS Boost集成了计算巢，拥�
 
 export const serviceColumns: ProColumns<ServiceModel>[] = [
     {
-        title: '商品名',
+        title: <FormattedMessage id="menu.commodity.commodity-name" defaultMessage='商品名'/>,
         dataIndex: 'commodityName',
         key: 'commodityName',
         search: false,
     },
     {
-        title: '商品介绍',
+        title: <FormattedMessage id="menu.commodity.commodity-description" defaultMessage='商品描述'/>,
         dataIndex: 'description',
         key: 'description',
         search: false,
