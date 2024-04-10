@@ -12,16 +12,6 @@ ADD . /workspace
 #ADD ./boost.serverless/pom.xml ./boost.serverless/
 #ADD ./boost.serverless/src ./boost.serverless/src
 #WORKDIR /workspace/alibabacloud-compute-nest-saas-boost
-RUN find / -type f -name "AdapterManagerImpl.java"
-
-RUN pwd && ls -la
-WORKDIR /workspace
-
-RUN pwd && ls -la
-
-WORKDIR /
-
-RUN pwd && ls -la
 
 # 先安装common模块, 再构建Serverless应用，排除boost.server模块
 RUN mvn clean package -DskipTests
