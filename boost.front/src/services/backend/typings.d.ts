@@ -13,6 +13,13 @@ declare namespace API {
     refresh_token?: string;
   };
 
+  type BaseResult = {
+    code?: string;
+    data?: Record<string, any>;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultAuthConfigurationModel_ = {
     code?: string;
     data?: AuthConfigurationModel;
@@ -27,7 +34,21 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultCommodityDTO_ = {
+    code?: string;
+    data?: CommodityDTO;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultDouble_ = {
+    code?: string;
+    data?: number;
+    message?: string;
+    requestId?: string;
+  };
+
+  type BaseResultLong_ = {
     code?: string;
     data?: number;
     message?: string;
@@ -76,10 +97,83 @@ declare namespace API {
     requestId?: string;
   };
 
-  type createOrderParams = {
-    productComponents?: string;
-    productName?: 'SERVICE_INSTANCE';
-    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+  type BaseResultVoid_ = {
+    code?: string;
+    message?: string;
+    requestId?: string;
+  };
+
+  type CommodityDTO = {
+    allowedPaymentDurations?: Record<string, any>;
+    chargeType?: 'PostPaid' | 'PrePaid';
+    commodityCode?: string;
+    commodityName?: string;
+    commodityStatus?: 'DRAFT' | 'ONLINE';
+    description?: string;
+    serviceId?: string;
+    unitPrice?: number;
+  };
+
+  type CommodityPriceModel = {
+    commodityCode?: string;
+    commodityName?: string;
+    currency?: string;
+    serviceId?: string;
+    specificationName?: string;
+    totalAmount?: number;
+    unitPrice?: number;
+  };
+
+  type CommoditySpecificationDTO = {
+    commodityCode?: string;
+    currency?: string;
+    payPeriodUnit?: string;
+    payPeriods?: string;
+    specificationName?: string;
+    unitPrice?: number;
+  };
+
+  type createCommodityParams = {
+    chargeType?: 'PostPaid' | 'PrePaid';
+    commodityName?: string;
+    commodityStatus?: 'DRAFT' | 'ONLINE';
+    description?: string;
+    serviceId?: string;
+    unitPrice?: number;
+  };
+
+  type CreateCommoditySpecificationParam = {
+    commodityCode?: string;
+    currency?: 'CNY';
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: number[];
+    specificationName?: string;
+    unitPrice?: number;
+  };
+
+  type CreateOrderParam = {
+    chargeType?: 'PostPaid' | 'PrePaid';
+    commodityCode?: string;
+    orderType?: string;
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    specificationName?: string;
+    token?: string;
+    userId?: string;
+  };
+
+  type createTransactionParams = {
+    orderId?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+  };
+
+  type deleteCommodityParams = {
+    commodityCode?: string;
+  };
+
+  type deleteCommoditySpecificationParams = {
+    commodityCode?: string;
+    specificationName?: string;
   };
 
   type getAuthTokenParams = {
@@ -87,6 +181,19 @@ declare namespace API {
     redirectUri?: string;
     sessionState?: string;
     state?: string;
+  };
+
+  type GetCommodityParam = {
+    commodityCode?: string;
+    token?: string;
+  };
+
+  type GetCommodityPriceParam = {
+    commodityCode?: string;
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    specificationName?: string;
+    token?: string;
   };
 
   type getOrderParams = {
@@ -134,6 +241,19 @@ declare namespace API {
     resourceType?: string;
   };
 
+  type listAllCommoditiesParams = {
+    commodityStatus?: 'DRAFT' | 'ONLINE';
+    maxResults?: number;
+    nextToken?: string;
+  };
+
+  type listAllSpecificationsParams = {
+    commodityCode?: string;
+    maxResults?: number;
+    nextToken?: string;
+    specificationName?: string;
+  };
+
   type listMetricsParams = {
     endTime?: string;
     metricName?: string;
@@ -156,6 +276,24 @@ declare namespace API {
       | 'REFUNDED'
       | 'REFUNDING'
     )[];
+  };
+
+  type ListResultCommodityDTO_ = {
+    code?: string;
+    count?: number;
+    data?: CommodityDTO[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
+  };
+
+  type ListResultCommoditySpecificationDTO_ = {
+    code?: string;
+    count?: number;
+    data?: CommoditySpecificationDTO[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
   };
 
   type ListResultGetServiceTemplateParameterConstraintsResponseBodyParameterConstraints_ = {
@@ -194,9 +332,10 @@ declare namespace API {
     requestId?: string;
   };
 
-  type listServiceInstancesParams = {
+  type ListServiceInstancesParam = {
     maxResults?: number;
     nextToken?: string;
+    serviceIdList?: string[];
     serviceInstanceId?: string;
     serviceInstanceName?: string;
     status?: string;
@@ -217,13 +356,16 @@ declare namespace API {
     accountId?: number;
     billingEndDateMillis?: number;
     billingStartDateMillis?: number;
+    commodityCode?: string;
+    commodityName?: string;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    paymentForm?: string;
     productComponents?: string;
-    productName?: 'SERVICE_INSTANCE';
     receiptAmount?: number;
     refundAmount?: number;
     refundDate?: string;
@@ -239,13 +381,12 @@ declare namespace API {
       | 'TRADE_FINISHED'
       | 'REFUNDED'
       | 'REFUNDING';
-    type?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
   };
 
   type RefundOrderParam = {
     dryRun?: boolean;
     orderId?: string;
-    paymentType?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     serviceInstanceId?: string;
   };
 
@@ -260,7 +401,8 @@ declare namespace API {
     serviceInstanceName?: string;
     serviceModel?: ServiceModel;
     serviceName?: string;
-    source?: 'Market' | 'Supplier';
+    serviceType?: 'private' | 'managed';
+    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaaSBoost';
     status?: string;
     updateTime?: string;
   };
@@ -271,7 +413,9 @@ declare namespace API {
     parameterMetadata?: string;
     retentionDays?: number;
     specifications?: string;
+    status?: string;
     templateName?: string;
+    version?: string;
   };
 
   type ServiceModel = {
@@ -286,7 +430,25 @@ declare namespace API {
     parameterValue?: string;
   };
 
+  type updateCommodityParams = {
+    commodityCode?: string;
+    commodityName?: string;
+    commodityStatus?: 'DRAFT' | 'ONLINE';
+    description?: string;
+    serviceId?: string;
+    unitPrice?: number;
+  };
+
+  type UpdateCommoditySpecificationParam = {
+    commodityCode?: string;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: number[];
+    specificationName?: string;
+    unitPrice?: number;
+  };
+
   type UserInfoModel = {
+    admin?: boolean;
     aid?: string;
     /** login_name */
     login_name?: string;

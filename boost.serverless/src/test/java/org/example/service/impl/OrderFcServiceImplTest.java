@@ -20,7 +20,7 @@ import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
-import org.example.common.helper.OrderOtsHelper;
+import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
 import org.example.process.OrderProcessor;
 import org.junit.Before;

@@ -20,22 +20,31 @@ public enum PayPeriodUnit {
     /**
      * Monthly subscription.
      */
-    Month("月"),
+    Month("Month"),
 
     /**
      * Daily subscription.
      */
-    Day("日"),
+    Day("Day"),
 
     /**
      * Annual subscription.
      */
-    Year("年");
+    Year("Year");
 
     private String name;
 
     PayPeriodUnit(String name){
         this.name = name;
+    }
+
+    public static PayPeriodUnit to(String value) {
+        for (PayPeriodUnit unit : PayPeriodUnit.values()) {
+            if (unit.name.equalsIgnoreCase(value)) {
+                return unit;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant " + PayPeriodUnit.class.getCanonicalName() + " with value " + value);
     }
 
     @Override

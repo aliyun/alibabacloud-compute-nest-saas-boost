@@ -56,4 +56,10 @@ public interface ComputeNestConstants {
     String DEFAULT_SPECIFICATION_NAME = "default specification";
 
     String TEMPLATE_NAME_PREFIX = "templateName";
+
+    String SERVICE_ENDPOINT = "computenestsupplier.cn-hangzhou.aliyuncs.com";
+
+    String COMPUTE_NEST_SUPPLIER_API_VERSION = "2021-05-21";
+
+    String SUPPLIER_SYS_PRODUCT_NAME = "ComputeNestSupplier";
 }

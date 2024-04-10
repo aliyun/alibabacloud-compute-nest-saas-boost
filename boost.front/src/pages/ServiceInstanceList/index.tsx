@@ -13,94 +13,183 @@
 *limitations under the License.
 */
 
-import {PageContainer,} from '@ant-design/pro-components';
-import React, {useEffect, useState} from 'react';
-import {listServiceInstances} from "@/services/backend/serviceInstance";
+import {PageContainer, ProColumns, ProTable,} from '@ant-design/pro-components';
+import React, {useEffect, useRef, useState} from 'react';
 import {getListColumns} from "@/pages/ServiceInstanceList/common";
-import CreateModal from "@/pages/Service/component/PayForm";
-import {Pagination} from "antd";
-import {handleGoToPage} from "@/util/nextTokenUtil";
-import {ServiceInstanceTableInterface} from "@/pages/ServiceInstanceList/components/interface";
+import {message, Pagination} from "antd";
+import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
+import {listAllCommodities} from "@/services/backend/commodity";
+import {ActionType} from "@ant-design/pro-table/lib";
+import {listServiceInstances} from "@/services/backend/serviceInstance";
 
 const ServiceInstanceList: React.FC = () => {
-    const [serviceInstances, setServiceInstances] = useState<API.ServiceInstanceModel[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const pageSize = 10;
-    const [createModalVisible, setCreateModalVisible] = useState(false);
     const [filterValues, setFilterValues] = useState<{
         status?: string;
         serviceInstanceId?: string;
         serviceInstanceName?: string;
+        serviceIdList?: string[];
     }>({});
-    const [shouldFetchData, setShouldFetchData] = useState(false);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
+    const [commodities, setCommodities] = useState<API.CommodityDTO[]>([]);
+    const [activeServiceId, setActiveServiceId] = useState<string | undefined>(undefined);
+    const actionRef = useRef<ActionType>();
+    const [isCommoditiesFetched, setIsCommoditiesFetched] = useState(false);
+    const [initialCommodityName, setInitialCommodityName] = useState("待选择");
 
-    const fetchData = async (currentPage: number, show: boolean) => {
-        let serviceInstances: API.ServiceInstanceModel[] = [];
-        const response: API.ListResultServiceInstanceModel_ = await listServiceInstances({
-            maxResults: pageSize,
-            nextToken: nextTokens[currentPage - 1],
-            ...filterValues,
-        });
-        console.log(response.data);
-        response.data?.map((item: API.ServiceInstanceModel) => {
-            serviceInstances.push(item);
-        })
-        if (response.data !== undefined) {
-            nextTokens[currentPage] = response.nextToken;
+    const fetchCommodities = async () => {
+        try {
+            const result = await listAllCommodities({maxResults: pageSize});
+            const fetchedCommodities = result.data || [];
+            setCommodities(result.data || []);
+            if (fetchedCommodities.length > 0) {
+                const defaultCommodityId = String(fetchedCommodities[0].serviceId);
+                setActiveServiceId(defaultCommodityId);
+                setFilterValues(oldFilterValues => ({
+                    ...oldFilterValues,
+                    serviceIdList: [defaultCommodityId],
+                }));
+                setInitialCommodityName(fetchedCommodities[0].commodityName || fetchedCommodities[0].commodityCode || "未知商品");
+                console.log(filterValues);
+            }
+        } catch (error) {
+            message.error('Failed to fetch commodities');
         }
-        setTotal(serviceInstances.length);
-        if (show) {
-            //@ts-ignored
-            setServiceInstances(serviceInstances);
-            setShouldFetchData(false);
-        }
-
+        setIsCommoditiesFetched(true);
     };
 
     useEffect(() => {
-        fetchData(currentPage, true);
-    }, [currentPage, shouldFetchData]);
+        fetchCommodities();
+    }, []);
+
+    useEffect(() => {
+        if (activeServiceId != undefined) {
+            setFilterValues({...filterValues, serviceIdList: [activeServiceId]});
+            actionRef.current?.reload();
+        }
+    }, [activeServiceId]);
+
+    const fetchServiceInstances = async (params: {
+        pageSize: number;
+        current: number;
+        [key: string]: any;
+    }): Promise<FetchResult<API.ServiceInstanceModel> | undefined> => {
+        try {
+            if (!isCommoditiesFetched) {
+                // 如果商品名单还未加载完成，返回空值或延迟请求
+                return {
+                    data: [],
+                    success: true,
+                    total: 0,
+                };
+            }
+            if (filterValues?.serviceIdList == undefined || filterValues.serviceIdList.length === 0) {
+                message.error("至少选择一个商品");
+                return;
+            }
+            console.log(filterValues);
+            const response: API.ListResultServiceInstanceModel_ = await listServiceInstances({
+                maxResults: pageSize,
+                nextToken: nextTokens[currentPage - 1],
+                serviceInstanceId: filterValues.serviceInstanceId,
+                ...filterValues,
+            });
+
+            if (response.data !== undefined) {
+                nextTokens[currentPage] = response.nextToken;
+                setTotal(response.count || 0);
+                return {
+                    data: response.data as API.ServiceInstanceModel[],
+                    success: true,
+                    total: response.count || 0,
+                };
+            }
+        } catch (error) {
+            message.error('Failed to fetch service instances');
+            return {
+                data: [],
+                success: false,
+                total: 0,
+            };
+        }
+    };
+
+    const columns: ProColumns<API.ServiceInstanceModel>[] = [
+        {
+            title: '商品',
+            dataIndex: 'service',
+            valueType: 'select',
+            fieldProps: {
+                mode: 'multiple',
+                defaultValue: commodities.length > 0 ? [String(commodities[0].serviceId)] : [],
+            },
+            initialValue: initialCommodityName,
+            valueEnum: commodities.reduce((obj, commodity) => {
+                const key = String(commodity.serviceId);
+                const text = commodity.commodityName || commodity.commodityCode || "未知商品";
+                obj[key] = {text};
+                return obj;
+            }, {} as Record<string, { text: string }>),
+            hideInTable: true,
+            search: {
+                transform: (value) => {
+                    return ({...filterValues, serviceIdList: Array.isArray(value) ? value : value ? [value] : []});
+                },
+
+            },
+        },
+        ...getListColumns(),
+    ];
 
     return (
         <PageContainer>
-            <ServiceInstanceTableInterface
-                search={true}
-                serviceInstances={serviceInstances}
-                columns={getListColumns()}
-                onCreate={() => {setCreateModalVisible(true);
+            <ProTable<API.ServiceInstanceModel>
+                headerTitle="实例列表"
+                rowKey="serviceInstanceId"
+                pagination={false}
+                actionRef={actionRef}
+                search={{
+                    labelWidth: 'auto',
+                    defaultCollapsed: false,
+                    layout: 'horizontal',
+                    span: 6,
+                    optionRender: (searchConfig, formProps, dom) => [
+                        <div style={{display: 'flex', gap: '8px', marginBottom: '24px', marginRight: '+220px'}}>
+                            <div style={{flexGrow: 1}}>{dom[0]}</div>
+                            {/* 查询输入框 */}
+                            <div>{dom[1]}</div>
+                            {/* 查询按钮 */}
+                            <div>{dom[2]}</div>
+                            {/* 重置按钮 */}
+                        </div>
+                    ],
                 }}
-                onRefresh={() => setShouldFetchData(true)}
+
+                columns={columns}
                 onSubmit={(values) => {
+                    console.log(values);
                     setFilterValues(values);
-                    setShouldFetchData(true);
-                }}
-                options={{
-                    search: false,
-                    density: false,
-                    fullScreen: false,
-                    reload: false,
-                    setting: false,
-                }}
+                    actionRef.current?.reload();
+                }} options={{
+                search: false,
+                density: false,
+                fullScreen: false,
+                reload: () => {
+                    actionRef.current?.reload();
+                }, setting: false,
+            }}
+                onRefresh={() => actionRef.current?.reload()}
+                //@ts-ignore
+                request={fetchServiceInstances}
             />
-
-            <CreateModal
-                createModalVisible={createModalVisible}
-                setCreateModalVisible={setCreateModalVisible}
-                handleCreateSubmit={()=>{return;}}
-            />
-
             <Pagination
                 style={{marginTop: '16px', textAlign: 'right'}}
                 current={currentPage}
                 pageSize={pageSize}
                 total={total}
-                onChange={(page, pageSize) => handleGoToPage(page, currentPage, total, fetchData, setCurrentPage)}
-                prevIcon={<span
-                    onClick={() => handleGoToPage(currentPage + 1, currentPage, total, fetchData, setCurrentPage)}>上一页</span>}
-                nextIcon={<span
-                    onClick={() => handleGoToPage(currentPage - 1, currentPage, total, fetchData, setCurrentPage)}>下一页</span>}
+                onChange={(page, pageSize) => handleGoToPage(page, currentPage, total, fetchServiceInstances, setCurrentPage, actionRef, pageSize)}
                 showSizeChanger={false}
             />
         </PageContainer>

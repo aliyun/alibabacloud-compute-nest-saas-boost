@@ -19,14 +19,11 @@ import mockit.Injectable;
 import org.example.common.BaseResult;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
-import org.example.service.ServiceInstanceLifecycleService;
-import org.example.service.ServiceManager;
+import org.example.service.base.ServiceManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +38,7 @@ class ServiceManagerControllerTest {
     @Test
     void testGetServiceCost() {
         when(serviceManager.getServiceCost(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
-        BaseResult<Double> result = serviceManagerController.getServiceCost(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new GetServiceCostParam());
+        BaseResult<Double> result = serviceManagerController.getServiceCost(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetServiceCostParam());
         Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);
     }
 }
