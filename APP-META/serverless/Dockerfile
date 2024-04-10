@@ -10,6 +10,7 @@ FROM maven:3.6 AS builder
 #ADD ./boost.serverless/pom.xml ./boost.serverless/
 #ADD ./boost.serverless/src ./boost.serverless/src
 #WORKDIR /workspace/alibabacloud-compute-nest-saas-boost
+RUN find / -type f -name "AdapterManagerImpl.java"
 
 RUN pwd && ls -la
 WORKDIR /workspace
