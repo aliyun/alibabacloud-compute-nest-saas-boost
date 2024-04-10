@@ -36,8 +36,6 @@ import {
     setProviderName,
     setProviderOfficialLink
 } from "@/store/providerInfo/actions";
-import {FormattedMessage} from "@@/exports";
-import {renderToString} from "react-dom/server";
 
 const {Paragraph} = Typography;
 
@@ -150,13 +148,13 @@ const ServicePage: React.FC = () => {
     };
 
     const actionColumn: ProColumns<ServiceModel> = {
-        title: <FormattedMessage id="pages.instanceSearchTable.titleOption" defaultMessage='操作'/>,
+        title: '操作',
         dataIndex: 'action',
         valueType: 'option',
         render: (text, record, _) => [
 
             record.serviceStatus === 'Online' && record.serviceId !== undefined && record.version !== undefined &&
-            <a onClick={() => handleUpdateCommodityStatus(record.serviceId, record.version)}><FormattedMessage id="button.go-to-purchase" defaultMessage='前往购买'/></a>
+            <a onClick={() => handleUpdateCommodityStatus(record.serviceId, record.version)}>前往购买</a>
 
         ],
     };
@@ -167,7 +165,7 @@ const ServicePage: React.FC = () => {
     ];
 
     return (
-        <PageContainer title={<FormattedMessage id="menu.featured-services" defaultMessage="精选服务"/>}>
+        <PageContainer title={"精选服务"}>
             <ProCard bordered={true}
                      className={styles.supplierProCard}
             >
@@ -191,7 +189,7 @@ const ServicePage: React.FC = () => {
                 </Spin>
             </ProCard>
             <ProTable columns={columns} rowKey="serviceId"
-                      headerTitle={<FormattedMessage id="menu.featured-commodities" defaultMessage="精选商品"/>}
+                      headerTitle={"精选商品"}
                       actionRef={actionRef}
                       pagination={false}
                       request={fetchServices}
