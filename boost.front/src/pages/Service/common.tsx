@@ -2,13 +2,7 @@ import {ProColumns} from "@ant-design/pro-components";
 
 export const profileImageUrl = "boost.front/public/logo.png";
 
-export const companyTitle = "服务商待填";
-
-export const companyWebsiteUrl = "服务商待填官网";
-
 export const contactEmail = "email@example.com";
-
-export const companyDescription = "服务商待填描述信息";
 
 export const featuredServiceTitle = "Compute Nest SaaS Boost";
 

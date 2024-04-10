@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import org.example.common.BaseResult;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.payment.CreateTransactionParam;
-import org.example.service.payment.PaymentServiceManger;
+import org.example.service.payment.PaymentServiceManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,18 +36,18 @@ import javax.servlet.http.HttpServletRequest;
 public class PaymentController {
 
     @Resource
-    private PaymentServiceManger paymentServiceManger;
+    private PaymentServiceManager paymentServiceManager;
 
     @ApiOperation(value = "支付异步回调校验", nickname = "verifyTradeCallback")
     @PostMapping("/payment/verifyTradeCallback")
     public String verifyTradeCallback(HttpServletRequest request) {
-        return paymentServiceManger.verifyTradeCallback(request);
+        return paymentServiceManager.verifyTradeCallback(request);
     }
 
     @ApiOperation(value = "创建交易", nickname = "createTransaction")
     @PostMapping("/payment/createTransaction")
     public BaseResult<String> createTransaction(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, CreateTransactionParam param) {
-        return BaseResult.success(paymentServiceManger.createTransaction(userInfoModel, param));
+        return BaseResult.success(paymentServiceManager.createTransaction(userInfoModel, param));
     }
 
 }

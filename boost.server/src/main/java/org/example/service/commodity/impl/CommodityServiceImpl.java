@@ -16,7 +16,7 @@ package org.example.service.commodity.impl;
 
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.config.OosSecretParamConfig;
+import org.example.common.config.OosParamConfig;
 import org.example.common.constant.CommoditySpecificationOtsConstant;
 import org.example.common.constant.CommodityStatus;
 import org.example.common.dataobject.CommodityDO;
@@ -64,7 +64,7 @@ public class CommodityServiceImpl implements CommodityService {
     private WalletHelper walletHelper;
 
     @Resource
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosParamConfig;
 
     private static final String ARRAY_REGEX = "\\s*,\\s*";
 
@@ -85,7 +85,7 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     public ListResult<CommodityDTO> listAllCommodities(UserInfoModel userInfoModel, ListAllCommoditiesParam param) {
         List<OtsFilter> matchFilters = new ArrayList<>();
-        OtsFilter commodityCodeMatchFilter = OtsFilter.createMatchFilter(CommoditySpecificationOtsConstant.OWNER_ID, oosSecretParamConfig.getSecretValue(OOS_SECRET_ADMIN_AID));
+        OtsFilter commodityCodeMatchFilter = OtsFilter.createMatchFilter(CommoditySpecificationOtsConstant.OWNER_ID, oosParamConfig.getSecretValue(OOS_SECRET_ADMIN_AID));
         matchFilters.add(commodityCodeMatchFilter);
 
         if (param.getCommodityStatus() != null) {

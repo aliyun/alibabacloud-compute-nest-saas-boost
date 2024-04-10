@@ -68,4 +68,11 @@ public interface BaseAlipayClient {
      * @throws Exception Common Exception
      */
     void createClient(AlipayConfig alipayConfig) throws Exception;
+
+    /**
+     * Update Alipay Client.
+     * @param parameterName parameter name, value is parameter value
+     * @throws Exception Common Exception
+     */
+    void updateClient(String parameterName, String value) throws Exception;
 }
