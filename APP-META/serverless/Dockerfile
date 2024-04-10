@@ -1,20 +1,9 @@
-# 阶段1: 使用Maven官方镜像构建应用
 FROM maven:3.6 AS builder
 WORKDIR /workspace
 
 ADD . /workspace
-# 复制项目文件
-#ADD pom.xml .
-#ADD /boost.common/pom.xml ./boost.common/
-#ADD ./boost.common/src ./boost.common/src
-#ADD ./boost.server/pom.xml ./boost.server/
-#ADD ./boost.server/src ./boost.server/src
-#ADD ./boost.serverless/pom.xml ./boost.serverless/
-#ADD ./boost.serverless/src ./boost.serverless/src
-#WORKDIR /workspace/alibabacloud-compute-nest-saas-boost
 
-# 先安装common模块, 再构建Serverless应用，排除boost.server模块
-RUN mvn clean package -DskipTests
+RUN mvn clean package -pl '!boost.server' -DskipTests
 
 # 阶段2: 使用Java官方镜像运行构建的应用
 FROM openjdk:8-jre-slim
