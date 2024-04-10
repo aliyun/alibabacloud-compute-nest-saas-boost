@@ -15,10 +15,11 @@
 
 package org.example.common.dto;
 
-import lombok.Data;
-import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.constant.PaymentType;
+import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
+import lombok.Data;
 
 @Data
 public class OrderDTO {
@@ -39,14 +40,9 @@ public class OrderDTO {
     private String gmtCreate;
 
     /**
-     * alipay : subject
+     * Desc:subject
      */
-    private String commodityName;
-
-    /**
-     * commodity code
-     */
-    private String commodityCode;
+    private ProductName productName;
 
     /**
      * Desc:nest service configs
@@ -56,12 +52,12 @@ public class OrderDTO {
     /**
      * Total Amount.
      */
-    private Long totalAmount;
+    private Double totalAmount;
 
     /**
      * Payment type.
      */
-    private PayChannel payChannel;
+    private PaymentType type;
 
     /**
      * Refund ID, can only be created once.
@@ -76,7 +72,7 @@ public class OrderDTO {
     /**
      * Refund Amount.
      */
-    private Long refundAmount;
+    private Double refundAmount;
 
     /**
      * Compute nest service instance id.
@@ -106,7 +102,7 @@ public class OrderDTO {
     /**
      * Seller received amount.
      */
-    private Long receiptAmount;
+    private Double receiptAmount;
 
     /**
      * Account Id. corresponds to the aliyun aid.
@@ -127,10 +123,4 @@ public class OrderDTO {
      * refund detail.
      */
     private String refundDetail;
-
-
-    /**
-     * payment form.
-     */
-    private String paymentForm;
 }

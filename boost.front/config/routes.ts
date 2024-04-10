@@ -33,7 +33,7 @@ export default [
         path: '/service',
         component: './Service',
         icon: 'AppstoreAddOutlined',
-        name: 'list.featured-services'
+        name: '精选服务'
     }
     ,
     {
@@ -69,19 +69,12 @@ export default [
         path: '/message',
         component: './Message',
         icon: 'MessageOutlined',
-        name: 'list.table-message'
+        name: '消息'
     },
     {
         path: '/doc',
         component: './Doc',
         icon: 'DatabaseOutlined',
-        name: 'list.table-document'
-    },
-    {
-        name: 'list.commodity-list',
-        icon: 'ShopOutlined',
-        path: '/commodity',
-        component: './Commodity',
-        access: 'admin'
-    },
+        name: '文档'
+    }
 ];

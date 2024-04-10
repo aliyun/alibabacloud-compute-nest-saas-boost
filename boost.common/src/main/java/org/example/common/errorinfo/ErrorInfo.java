@@ -28,35 +28,15 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     SIGNATURE_VERIFICATION_ERROR(400, "SignatureVerificationError", "AliPay Signature Verification Error"),
 
-    ENTITY_NOT_EXIST(400, "EntityNotExist","The entity \"%s\" does not exist."),
+    ENTITY_NOT_EXIST(400, "EntityNotExist","The order entity does not exist."),
 
     SERVER_UNAVAILABLE(503,"ServerUnavailable","Server is unavailable."),
 
     SPECIFICATION_NOT_EXIST(400, "SpecificationNotExist", "The Specification does not exist."),
 
-    COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value \"%s\" can't be null."),
+    COLUMN_VALUE_IS_NULL(400, "Column_Value_Is_Null", "The column value can't be null."),
 
-    CURRENT_ORDER_CANT_BE_REFUNDED(400, "Current_Order_Cant_Be_Refunded", "The Current Order Cant be refunded."),
-
-    SIGNATURE_PARSED_FAILED(400, "SignatureParsedFailed", "AliPay Signature Parsed Failed"),
-
-    USER_NOT_ADMIN(400, "UserNotAdmin",  "Access denied. The current user is not an administrator."),
-
-    SPI_TOKEN_VALIDATION_FAILED(403, "SpiTokenValidationFailed", "The specified SPI Token \"%s\" Validation Failed"),
-
-    SERVICE_INSTANCE_CREATE_FAILED(400, "ServiceInstanceCreateFailed", "the specified order id \"%s\" create service instance failed."),
-
-    PARAMETER_MISSING(400, "ParameterMissing", "The parameter \"%s\" is missing."),
-
-    COMMON_REQUEST_FAILED(400, "%s", "Common Request Failed, request action (\"%s\"), request parameters (\"%s\") failed. Request Error message: \"%s\"."),
-
-    SERVICE_PROVIDER_KEY_NOT_EXIST(400, "ServiceProviderKeyNotExist", "The specified serviceProviderKey does not exist for serviceId=%s and commodityCode=%s."),
-
-    DELETION_NOT_ALLOWED(400, "DeletionNotAllowed", "Service Instance \"%s\" Deletion is not allowed for the current serviceType: \"%s\"."),
-
-    INVALID_SPI_PARAMETER(400, "InvalidParameter", "The provided SPI Parameter \"%s\" missing token or commodity code."),
-
-    ;
+    CURRENT_ORDER_CANT_BE_REFUNDED(400, "Current_Order_Cant_Be_Refunded", "The Current Order Cant be refunded.");
 
     private final int statusCode;
 

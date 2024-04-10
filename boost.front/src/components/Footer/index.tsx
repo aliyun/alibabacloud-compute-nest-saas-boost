@@ -1,12 +1,13 @@
-import {DefaultFooter} from '@ant-design/pro-components';
-import {useIntl} from '@umijs/max';
+import { GithubOutlined } from '@ant-design/icons';
+import { DefaultFooter } from '@ant-design/pro-components';
+import { useIntl } from '@umijs/max';
 import React from 'react';
 
 const Footer: React.FC = () => {
   const intl = useIntl();
   const defaultMessage = intl.formatMessage({
     id: 'app.copyright.produced',
-    defaultMessage: '服务商待填',
+    defaultMessage: '阿里云计算巢',
   });
 
   const currentYear = new Date().getFullYear();
@@ -19,9 +20,9 @@ const Footer: React.FC = () => {
       copyright={`${currentYear} ${defaultMessage}`}
       links={[
         {
-          key: 'supplier',
-          title: '服务商待填',
-          href: '服务商待填',
+          key: 'Aliyun Compute Nest',
+          title: '阿里云计算巢',
+          href: 'https://computenest.console.aliyun.com',
           blankTarget: true,
         },
       ]}

@@ -18,8 +18,6 @@ package org.example.common.adapter;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import org.example.common.config.AlipayConfig;
 
-import java.math.BigDecimal;
-
 public interface BaseAlipayClient {
 
     /**
@@ -44,7 +42,7 @@ public interface BaseAlipayClient {
      * @param outTradeNo out trade number
      * @return String
      */
-    String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo);
+    String createTransaction(Double totalAmount, String subject, String outTradeNo);
 
     /**
      * Order Refund.
@@ -53,7 +51,7 @@ public interface BaseAlipayClient {
      * @param refundRequestId Refund Request Id
      * @return {@link Boolean}
      */
-    Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundRequestId);
+    Boolean refundOrder(String orderId, Double refundAmount, String refundRequestId);
 
     /**
      * Close order.

@@ -11,7 +11,7 @@ export default {
   'layout.user.link.help': '帮助',
   'layout.user.link.privacy': '隐私',
   'layout.user.link.terms': '条款',
-  'app.copyright.produced': '（待填）服务商出品',
+  'app.copyright.produced': '阿里云计算巢出品',
   'app.preview.down.block': '下载此页面到本地项目',
   'app.welcome.link.fetch-blocks': '获取全部区块',
   'app.welcome.link.block-list': '基于 block 开发，快速构建标准页面',

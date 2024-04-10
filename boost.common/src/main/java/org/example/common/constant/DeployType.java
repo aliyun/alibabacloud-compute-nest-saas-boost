@@ -17,11 +17,6 @@ package org.example.common.constant;
 public enum DeployType {
 
     /**
-     * local deploy. For Debug.
-     */
-    LOCAL("local"),
-
-    /**
      * aliyun ack deploy.
      */
     K8S("k8s"),

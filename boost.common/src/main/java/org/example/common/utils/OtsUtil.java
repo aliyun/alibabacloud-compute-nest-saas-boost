@@ -20,12 +20,8 @@ import com.alicloud.openservices.tablestore.model.ColumnValue;
 import com.alicloud.openservices.tablestore.model.PrimaryKeyColumn;
 import com.alicloud.openservices.tablestore.model.Row;
 import lombok.extern.slf4j.Slf4j;
-import org.example.common.constant.ChargeType;
-import org.example.common.constant.CommodityStatus;
-import org.example.common.constant.Currency;
-import org.example.common.constant.OrderType;
-import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.constant.PaymentType;
 import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 import org.example.common.errorinfo.ErrorInfo;
@@ -35,22 +31,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 @Slf4j
 public class OtsUtil {
-
-    private static final Set<String> IGNORED_FIELDS = new HashSet<>();
-
-    static {
-        // 初始化需要忽略的字段集合
-        IGNORED_FIELDS.add("serialVersionUID");
-        // 可以在这里添加更多需要忽略的字段名
-    }
 
     private static final Map<Class<?>, Function<Object, ColumnValue>> COLUMN_VALUE_CONVERTERS = new HashMap<>();
 
@@ -68,14 +54,10 @@ public class OtsUtil {
         CLASS_TO_FUNCTION_CONVERTERS.put(boolean.class, Boolean::parseBoolean);
         CLASS_TO_FUNCTION_CONVERTERS.put(Float.class, Float::parseFloat);
         CLASS_TO_FUNCTION_CONVERTERS.put(float.class, Float::parseFloat);
-        CLASS_TO_FUNCTION_CONVERTERS.put(PayChannel.class, PayChannel::valueOf);
+        CLASS_TO_FUNCTION_CONVERTERS.put(PaymentType.class, PaymentType::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(TradeStatus.class, TradeStatus::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(ProductName.class, ProductName::valueOf);
         CLASS_TO_FUNCTION_CONVERTERS.put(PayPeriodUnit.class, PayPeriodUnit::valueOf);
-        CLASS_TO_FUNCTION_CONVERTERS.put(Currency.class, Currency::valueOf);
-        CLASS_TO_FUNCTION_CONVERTERS.put(OrderType.class, OrderType::valueOf);
-        CLASS_TO_FUNCTION_CONVERTERS.put(ChargeType.class, ChargeType::valueOf);
-        CLASS_TO_FUNCTION_CONVERTERS.put(CommodityStatus.class, CommodityStatus::valueOf);
     }
 
     static {
@@ -85,14 +67,10 @@ public class OtsUtil {
         COLUMN_VALUE_CONVERTERS.put(Float.class, fieldValue -> ColumnValue.fromDouble((Float) fieldValue));
         COLUMN_VALUE_CONVERTERS.put(Double.class, fieldValue -> ColumnValue.fromDouble((Double) fieldValue));
         COLUMN_VALUE_CONVERTERS.put(Boolean.class, fieldValue -> ColumnValue.fromBoolean((Boolean) fieldValue));
-        COLUMN_VALUE_CONVERTERS.put(PayChannel.class, fieldValue -> ColumnValue.fromString(((PayChannel)fieldValue).name()));
+        COLUMN_VALUE_CONVERTERS.put(PaymentType.class, fieldValue -> ColumnValue.fromString(((PaymentType)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(TradeStatus.class, fieldValue -> ColumnValue.fromString(((TradeStatus)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(ProductName.class, fieldValue -> ColumnValue.fromString(((ProductName)fieldValue).name()));
         COLUMN_VALUE_CONVERTERS.put(PayPeriodUnit.class, fieldValue -> ColumnValue.fromString(((PayPeriodUnit)fieldValue).name()));
-        COLUMN_VALUE_CONVERTERS.put(Currency.class, fieldValue -> ColumnValue.fromString(((Currency)fieldValue).name()));
-        COLUMN_VALUE_CONVERTERS.put(OrderType.class, fieldValue -> ColumnValue.fromString(((OrderType)fieldValue).name()));
-        COLUMN_VALUE_CONVERTERS.put(ChargeType.class, fieldValue -> ColumnValue.fromString(((ChargeType)fieldValue).name()));
-        COLUMN_VALUE_CONVERTERS.put(CommodityStatus.class, fieldValue -> ColumnValue.fromString(((CommodityStatus)fieldValue).name()));
         // 添加其他类型的映射关系
     }
 
@@ -105,10 +83,6 @@ public class OtsUtil {
         for (Field field : fields) {
             field.setAccessible(true);
             String fieldName = field.getName();
-            if (IGNORED_FIELDS.contains(fieldName)) {
-                continue;
-            }
-
             try {
                 Object fieldValue = field.get(parameters);
                 Column column = createColumn(fieldName, fieldValue);
@@ -129,9 +103,7 @@ public class OtsUtil {
         }
         ColumnValue columnValue = createColumnValue(fieldValue);
         if (columnValue == null) {
-            String errorMessage = String.format(ErrorInfo.COLUMN_VALUE_IS_NULL.getMessage(), fieldName);
-            throw new BizException(ErrorInfo.COLUMN_VALUE_IS_NULL.getStatusCode(),
-                    ErrorInfo.COLUMN_VALUE_IS_NULL.getCode(), errorMessage);
+            throw new BizException(ErrorInfo.COLUMN_VALUE_IS_NULL);
         }
         return new Column(fieldName, columnValue);
     }

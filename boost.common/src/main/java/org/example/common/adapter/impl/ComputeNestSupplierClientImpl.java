@@ -37,7 +37,6 @@ import com.aliyun.teautil.models.RuntimeOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.config.AliyunConfig;
-import org.example.common.constant.ComputeNestConstants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +45,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient {
+
+    private static final String SERVICE_ENDPOINT = "computenestsupplier.cn-hangzhou.aliyuncs.com";
 
     private Client client;
 
@@ -99,7 +100,7 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
     @Override
     public void createClient(AliyunConfig aliyunConfig) throws Exception {
         Config config = new Config().setCredential(aliyunConfig.getClient());
-        config.endpoint = ComputeNestConstants.SERVICE_ENDPOINT;
+        config.endpoint = SERVICE_ENDPOINT;
         this.client = new Client(config);
     }
 
@@ -107,13 +108,13 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
     public void createClient(String accessKeyId, String accessKeySecret, String securityToken) throws Exception {
         this.client = new Client(new Config().setAccessKeyId(accessKeyId)
                 .setAccessKeySecret(accessKeySecret).setSecurityToken(securityToken)
-                .setEndpoint(ComputeNestConstants.SERVICE_ENDPOINT));
+                .setEndpoint(SERVICE_ENDPOINT));
     }
 
     @Override
     public void createClient(String accessKeyId, String accessKeySecret) throws Exception {
         Config config = new Config().setAccessKeyId(accessKeyId).setAccessKeySecret(accessKeySecret);
-        config.endpoint = ComputeNestConstants.SERVICE_ENDPOINT;
+        config.endpoint = SERVICE_ENDPOINT;
         this.client = new Client(config);
     }
 

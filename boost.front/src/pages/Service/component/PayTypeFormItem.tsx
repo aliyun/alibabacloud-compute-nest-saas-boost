@@ -14,34 +14,39 @@
 */
 
 import React from "react";
-import {ProFormRadio} from "@ant-design/pro-form";
-import {Space} from "antd";
+import {ProFormItem, ProFormRadio} from "@ant-design/pro-form";
+import {Col, Radio, Row, Space} from "antd";
 import ProCard from '@ant-design/pro-card';
 
-import {PayChannelEnum} from "@/constants";
+import {PayTypeEnum} from "@/constants";
 import {AlipayCircleOutlined} from "@ant-design/icons";
 
 const PayTypeFormItem: React.FC = () => {
-    const payTypeEntries = Object.entries(PayChannelEnum);
+    const payTypeEntries = Object.entries(PayTypeEnum);
 
     return (
-        <ProFormRadio.Group
-            name="payChannel"
-            initialValue="ALIPAY"
+        <ProFormItem
+            name="type"
+            initialValue={"ALIPAY"}
             rules={[{ required: true, message: '请选择支付方式' }]}
-            options={payTypeEntries.map(([key, value]) => ({
-                label: (
-                    <ProCard bordered>
-                        <Space>
-                            {key === 'ALIPAY' && <AlipayCircleOutlined style={{ color: '#009fe8' }} />}
-                            {value}
-                        </Space>
-                    </ProCard>
-                ),
-                value: key,
-            }))}
-        />
+        >
+            <ProFormRadio.Group initialValue={PayTypeEnum.ALIPAY}>
+                <Row gutter={16}>
+                    {payTypeEntries.map(([key, value]) => (
+                        <Col key={key} span={12}>
+                            <ProCard hoverable bordered>
+                                <Radio value={key}>
+                                    <Space>
+                                        {key === 'ALIPAY' && <AlipayCircleOutlined style={{color: '#009fe8'}} />}
+                                        {value}
+                                    </Space>
+                                </Radio>
+                            </ProCard>
+                        </Col>
+                    ))}
+                </Row>
+            </ProFormRadio.Group>
+        </ProFormItem>
     );
 };
 export default PayTypeFormItem;
-

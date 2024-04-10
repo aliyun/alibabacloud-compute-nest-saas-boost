@@ -41,9 +41,8 @@ import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.model.ListServiceInstancesModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.si.GetServiceInstanceParam;
-import org.example.common.param.si.ListServiceInstancesParam;
-import org.example.service.base.impl.ServiceInstanceLifecycleServiceImpl;
+import org.example.common.param.GetServiceInstanceParam;
+import org.example.common.param.ListServiceInstancesParam;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -175,6 +174,4 @@ class ServiceInstanceLifecycleServiceImplTest {
         userInfoModel.setAid("100");
         Assertions.assertDoesNotThrow(() -> serviceInstanceLifecycleService.createServiceInstance(userInfoModel, map, true, null));
     }
-
-
 }

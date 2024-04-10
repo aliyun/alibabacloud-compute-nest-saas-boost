@@ -16,23 +16,22 @@
 import {Request, Response} from "express";
 
 const authToken = (req: Request, res: Response) => {
-    res.json({
-        'data': {
-            'idToken': 'mytestToken'
-        }
-    });
+  res.json({
+      'data': {
+          'idToken': 'mytestToken'
+      }
+  });
 };
 
 const userInfo = (req: Request, res: Response) => {
     res.json({
         'data': {
-            'name': 'zhaoyu.zhaoyu',
-            "admin": true
+            'name': 'zhaoyu.zhaoyu'
         }
     })
 }
 
 export default {
-    'GET /api/getAuthToken': authToken,
-    'GET /api/getUserInfo': userInfo
+  'GET /api/getAuthToken': authToken,
+  'GET /api/getUserInfo': userInfo
 };

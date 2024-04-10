@@ -24,7 +24,7 @@ import org.example.common.model.AuthConfigurationModel;
 import org.example.common.model.AuthTokenModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
-import org.example.service.base.LoginService;
+import org.example.service.LoginService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -22,8 +22,8 @@ import org.example.common.constant.OrderOtsConstant;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
-import org.example.common.helper.ots.BaseOtsHelper.OtsFilter;
-import org.example.common.helper.ots.OrderOtsHelper;
+import org.example.common.helper.BaseOtsHelper.OtsFilter;
+import org.example.common.helper.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
 import org.example.process.OrderProcessor;
 import org.example.service.OrderFcService;
@@ -94,7 +94,7 @@ public class OrderFcServiceImpl implements OrderFcService {
                 .orderOtsHelper(orderOtsHelper)
                 .scheduledThreadPool(scheduledThreadPool)
                 .countDownLatch(countDownLatch)
-                .payChannel(order.getPayChannel())
+                .paymentType(order.getType())
                 .build();
         scheduledThreadPool.submit(refundOrderTask);
     }

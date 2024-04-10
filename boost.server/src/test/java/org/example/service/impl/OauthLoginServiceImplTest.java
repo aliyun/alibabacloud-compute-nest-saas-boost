@@ -27,7 +27,6 @@ import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
 import org.example.common.utils.HttpUtil;
 import org.example.common.utils.JsonUtil;
-import org.example.service.base.impl.OauthLoginServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +71,7 @@ class OauthLoginServiceImplTest {
         userInfoModel.setUid("aliYunUserId");
         final BaseResult<UserInfoModel> expectedResult = new BaseResult<>(userInfoModel);
         expectedResult.setRequestId("id");
-        final UserInfoModel userInfoModel1 = new UserInfoModel("userId", "name", "aliYunLoginName", "aliYunId", "aliYunUserId", Boolean.TRUE);
+        final UserInfoModel userInfoModel1 = new UserInfoModel("userId", "name", "aliYunLoginName", "aliYunId", "aliYunUserId");
         when(mockTokenParseHelper.getUserInfoFromIdToken(mockTokenParseHelper.parseBearerTokenToToken("token"))).thenReturn(userInfoModel1);
 
         final BaseResult<UserInfoModel> result = keycloakLoginServiceImplUnderTest.getUserInfo(userInfoModel1);

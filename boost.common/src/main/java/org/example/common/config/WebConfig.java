@@ -48,9 +48,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**");
         registry.addInterceptor(tokenAuthenticationInterceptor)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/getAuthToken")
-                .excludePathPatterns("/api/getAuthConfiguration")
-                .excludePathPatterns("/api/payment/verifyTradeCallback");
+                .excludePathPatterns("/api/getAuthToken").excludePathPatterns("/api/getAuthConfiguration");
     }
 
     @Override

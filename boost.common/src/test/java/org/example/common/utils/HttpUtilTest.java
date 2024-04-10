@@ -17,7 +17,7 @@ package org.example.common.utils;
 
 
 import mockit.Tested;
-import org.example.common.constant.PayChannel;
+import org.example.common.constant.PaymentType;
 import org.example.common.dataobject.OrderDO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +76,7 @@ class HttpUtilTest {
         request.setParameter("type", "ALIPAY");
         request.setParameter("notExistField", "notExistValue");
         OrderDO orderDO = new OrderDO();
-        orderDO.setPayChannel(PayChannel.ALIPAY);
+        orderDO.setType(PaymentType.ALIPAY);
         orderDO.setTradeStatus(TRADE_SUCCESS);
         OrderDO result = HttpUtil.requestToObject(request, OrderDO.class);
         Assertions.assertEquals(orderDO, result);

@@ -15,8 +15,7 @@
 
 import {Tag} from 'antd';
 import {ProColumns} from "@ant-design/pro-components";
-import {PayChannelEnum} from "@/constants";
-import {centsToYuan} from "@/util/moneyUtil";
+import {PayTypeEnum} from "@/constants";
 
 export const TradeStatusEnum = {
     TRADE_CLOSED: '交易关闭',
@@ -37,8 +36,8 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
     },
     {
         title: '产品名称',
-        dataIndex: 'commodityName',
-        key: 'commodityName',
+        dataIndex: 'productName',
+        key: 'productName',
         sorter: false,
         search: false,
     }
@@ -49,9 +48,6 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         key: 'specificationName',
         sorter: false,
         search: false,
-        render: (_, record) => {
-            return record.specificationName || '无套餐';
-        },
     },
     {
         title: '交易状态',
@@ -89,9 +85,9 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
     },
     {
         title: '支付类型',
-        dataIndex: 'payChannel',
-        key: 'payChannel',
-        valueEnum: PayChannelEnum,
+        dataIndex: 'type',
+        key: 'type',
+        valueEnum: PayTypeEnum,
         search: false,
     },
     {
@@ -100,9 +96,6 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         key: 'totalAmount',
         sorter: false,
         search: false,
-        render: (_, record) => (
-            <span>{centsToYuan(record.totalAmount)}</span>
-        ),
     },
     {
         title: '创建时间',
@@ -111,13 +104,16 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         key: 'gmtCreate',
         valueType: 'dateTime',
     },
-    {
-        title: "支付表单",
-        key: 'paymentForm',
-        dataIndex: 'paymentForm',
-        sorter: false,
-        search: false,
-        // hideInForm: true,
-        hideInTable: true,
-    }
+    // {
+    //     title: '服务配置',
+    //     key: 'productComponents',
+    //     render: (_: any, record: any) => {
+    //         const instancePassword = record.productComponents?.InstancePassword || '';
+    //         const maskedPassword = instancePassword.replace(/.*/, '******');
+    //         return <span
+    //             style={{display: 'inline-block', minWidth: '200px'}}>InstancePassword: {maskedPassword}</span>;
+    //     },
+    //     sorter: false,
+    //     search: false,
+    // },
 ];

@@ -13,12 +13,12 @@
 *limitations under the License.
 */
 
-import React, {useEffect, useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {listMetricMetaDatas, listMetrics} from "@/services/backend/cloudMonitor";
 import TimeItem from "@/pages/ServiceInstanceMonitor/components/timeItem";
 import dayjs, {Dayjs} from "dayjs";
 import {RangePickerProps} from "antd/es/date-picker";
-import {Space, Typography} from 'antd';
+import {Space} from 'antd';
 import ChartItem from "@/pages/ServiceInstanceMonitor/components/chartItem";
 
 interface ServiceInstanceMonitorProps {
@@ -37,7 +37,6 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
     const [listChartItem, setListChartItem] = useState<ChartItemProps[]>([]);
     //const defaultTimeScope = [dayjs().subtract(1, "hour"), dayjs()];
     const [timeScope, setTimeScope] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, "hour"), dayjs()]);
-    const [monitorAvailable, setMonitorAvailable] = useState(true);
 
     const onChange = (
         value?: RangePickerProps['value'],
@@ -54,82 +53,60 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
         value && console.log('timeValue: ', value[0] ?? '');
     };
 
+
     useEffect(() => {
+        //console.log('forbackend', dayjs(defaultTimeScope[1]).valueOf().toString());
         const fetchMetricMetaData = async () => {
-            try {
-                const response = await listMetricMetaDatas();
-                const listMetricMetaData = response.data as API.MetricMetaDataModel[];
-                setDataCount(response.count as number);
-
-                const promises = listMetricMetaData.map(it => {
-                    const listMetricParams: API.listMetricsParams = {
-                        metricName: it.metricName,
-                        serviceInstanceId: serviceInstanceId,
-                        startTime: dayjs(timeScope[0]).valueOf().toString(),
-                        endTime: dayjs(timeScope[1]).valueOf().toString(),
+            const response: API.ListResultMetricMetaDataModel_ = await listMetricMetaDatas();
+            const listMetricMetaData = response.data as API.MetricMetaDataModel[];
+            console.log(listMetricMetaData);
+            setDataCount(response.count as number);
+            const promises = listMetricMetaData.map(it => {
+                const listMetricParams: API.listMetricsParams = {
+                    metricName: it.metricName,
+                    serviceInstanceId: serviceInstanceId,
+                    startTime: dayjs(timeScope[0]).valueOf().toString(),
+                    endTime: dayjs(timeScope[1]).valueOf().toString()
+                };
+                return listMetrics(listMetricParams);
+            })
+            Promise.all(promises).then(results => {
+                const listChartItemTemp = results.map((response, index) => {
+                    const metricMetaData = listMetricMetaData[index];
+                    let chartItem: ChartItemProps = {
+                        title: metricMetaData.metricDescription as string,
+                        data: response.data?.dataPoints as string,
+                        statistics: metricMetaData.statistics as string[]
                     };
-                    return listMetrics(listMetricParams).catch(() => null); // 捕获并忽略错误
-                });
-
-                const results = await Promise.all(promises);
-
-                // 过滤掉任何因错误而返回 null 的结果
-                const validResults = results.filter(result => result !== null);
-
-                if (validResults.length === 0) {
-                    // 如果没有有效的结果，设置监控不可用
-                    setMonitorAvailable(false);
-                } else {
-                    // 否则，处理并设置图表数据
-                    const listChartItemTemp = validResults.map((response, index) => {
-                        const metricMetaData = listMetricMetaData[index];
-                        let chartItem: ChartItemProps = {
-                            title: metricMetaData.metricDescription as string,
-                            data: response?.data?.dataPoints as string,
-                            statistics: metricMetaData.statistics as string[],
-                        };
-
-                        return chartItem;
-                    });
-                    setListChartItem(listChartItemTemp);
-                }
-            } catch (error) {
-                // 如果在获取监控元数据时出错，同样设置监控不可用
-                setMonitorAvailable(false);
-                console.error('Error fetching metric metadata:', error);
-            }
+                    return chartItem;
+                })
+                setListChartItem(listChartItemTemp);
+            })
         };
         fetchMetricMetaData();
-    }, [serviceInstanceId, timeScope]);
+    }, [serviceInstanceId, setDataCount, timeScope]);
 
-    const hasData = listChartItem.every(item => !item.data || item.data === '');
-    return (
-        <div>
+    console.log(listChartItem);
+    return (<div>
             <Space direction="vertical" size={20} style={{display: 'flex'}}>
-
-                {!hasData ? (
-                    <>
-                        <TimeItem
-                            defaultStartValue={timeScope[0]}
-                            defaultEndValue={timeScope[1]}
-                            onOk={onChange}
-                            onChange={onChange}
-                        />
-                        <div style={{display: 'flex'}}>
-                            {listChartItem.map((item, index) => (
-                                <div key={index} style={{width: '33.3%'}}>
-                                    <div style={{marginRight: "16px"}}>
-                                        <ChartItem title={item.title} data={item.data} statistics={item.statistics}/>
-                                    </div>
-                                </div>
-                            ))}
+                {<TimeItem
+                    defaultStartValue={timeScope[0]}
+                    defaultEndValue={timeScope[1]}
+                    onOk={handleChange}
+                    onChange={onChange}/>}
+                <div style={{display: 'flex'}}>{
+                    Array.from({length: dataCount}, (_, index) => (
+                        <div key={index} style={{width: '33.3%'}}>
+                            <div style={{marginRight: "16px"}}>
+                                {
+                                    listChartItem[index] &&
+                                    <ChartItem title={listChartItem[index].title} data={listChartItem[index]?.data}
+                                               statistics={listChartItem[index].statistics}/>
+                                }
+                            </div>
                         </div>
-                    </>
-                ) : (
-                    <Typography.Paragraph type="secondary">
-                        当前服务实例监控暂时不支持。
-                    </Typography.Paragraph>
-                )}
+                    ))
+                }</div>
             </Space>
         </div>
     );
