@@ -1,7 +1,8 @@
 # 阶段1: 使用Maven官方镜像构建应用
 FROM maven:3.6 AS builder
+WORKDIR /workspace
 
-ADD ./ /workspace
+ADD . /workspace
 # 复制项目文件
 #ADD pom.xml .
 #ADD /boost.common/pom.xml ./boost.common/
