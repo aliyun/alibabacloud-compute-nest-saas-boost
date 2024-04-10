@@ -15,6 +15,8 @@
 
 package org.example.service.parameter.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
@@ -41,16 +43,34 @@ public class ParameterManagerServiceImpl implements ParameterManagerService {
 
     @Override
     public ListResult<ConfigParameterModel> listConfigParameters(UserInfoModel userInfoModel, ListConfigParametersParam listConfigParametersParam) {
-        for(ConfigParameterQueryModel configParameterQueryModel : listConfigParametersParam.getConfigParameterQueryModels()){
-            String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, configParameterQueryModel.getName());
-            configParameterQueryModel.setName(format);
+        ListResult<ConfigParameterModel> results = new ListResult<>();
+        results.setData(new ArrayList<>());
+        List<ConfigParameterQueryModel> queries = listConfigParametersParam.getConfigParameterQueryModels();
+        if (queries == null || queries.isEmpty()) {
+            results.setMessage("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+            return results;
         }
 
-        ListResult<ConfigParameterModel> listConfigParameters = parameterOosHelper.listConfigParameters(listConfigParametersParam);
-        for (ConfigParameterModel configParameterModel : listConfigParameters.getData()) {
+        List<String> secretNameList = new ArrayList<>();
+        List<String> nameList = new ArrayList<>();
+        for(ConfigParameterQueryModel configParameterQueryModel : listConfigParametersParam.getConfigParameterQueryModels()){
+            String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, configParameterQueryModel.getName());
+            if (configParameterQueryModel.getEncrypted()) {
+                secretNameList.add(format);
+            } else {
+                nameList.add(format);
+            }
+        }
+
+        List<ConfigParameterModel> secretParametersList = parameterOosHelper.listSecretParameters(secretNameList);
+        List<ConfigParameterModel> parametersList = parameterOosHelper.listParameters(nameList);
+        List<ConfigParameterModel> listConfigParameters = new ArrayList<>(secretParametersList);
+        listConfigParameters.addAll(parametersList);
+        for (ConfigParameterModel configParameterModel : listConfigParameters) {
             configParameterModel.setName(configParameterModel.getName().replace(String.format("%s-%s-", SERVICE_INSTANCE_ID, stackName), ""));
         }
-        return listConfigParameters;
+        results.setData(listConfigParameters);
+        return results;
     }
 
     @Override

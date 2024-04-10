@@ -269,4 +269,17 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
         BigDecimal amountInYuan = new BigDecimal(amountInCents).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
         return amountInYuan.toString();
     }
+
+    @Override
+    public void updateClient(String parameterName, String value) throws Exception {
+        this.alipayConfig.updateOosParamConfig(parameterName, value);
+        alipayClient = new DefaultAlipayClient(
+                alipayConfig.getGateway(),
+                alipayConfig.getAppId(),
+                alipayConfig.getPrivateKey(),
+                Constants.JSON_FORMAT,
+                Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase(),
+                alipayConfig.getOfficialPublicKey(),
+                AliPayConstants.SIGN_TYPE_RSA2);
+    }
 }
