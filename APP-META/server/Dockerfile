@@ -6,7 +6,7 @@ ADD . /workspace
 
 WORKDIR /workspace/boost.front
 
-RUN npm install
+RUN npm install -g npm@10.2.4
 
 RUN npm run build
 
