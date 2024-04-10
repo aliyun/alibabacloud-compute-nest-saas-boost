@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS frontend-builder
+FROM node:latest AS frontend-builder
 
 WORKDIR /workspace
 
