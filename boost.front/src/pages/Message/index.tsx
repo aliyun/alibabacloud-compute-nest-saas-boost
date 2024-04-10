@@ -9,6 +9,7 @@ import {Button, Timeline, Typography} from "antd";
 import styles from "./components/css/message.module.css"
 import {TIME_FORMAT} from "@/constants";
 import {getMessageByTemplate, MessageItem, MessageTemplate, RefundDetail} from "@/pages/Message/components/interface";
+import {FormattedMessage} from "@@/exports";
 import {centsToYuan} from "@/util/moneyUtil";
 dayjs.extend(utc);
 
@@ -71,7 +72,7 @@ const Message:React.FC = () => {
     };
 
     return (
-        <PageContainer title={'消息'}>
+        <PageContainer title={<FormattedMessage id='menu.messages' defaultMessage='消息'/>}>
             <ProCard   bodyStyle={{
                 padding: '24px',
                 paddingBottom: '0px',
@@ -95,7 +96,7 @@ const Message:React.FC = () => {
                         onClick={toggleExpanded}
                         style={{ marginTop: 16, marginLeft: 'calc(50% - 50px)' }} // 调整按钮位置
                     >
-                        {expanded ? '收起' : '查看更多'}
+                        {expanded ? <FormattedMessage id='button.collapse' defaultMessage='收起'/> : <FormattedMessage id='button.view-more' defaultMessage='查看更多'/>}
                     </Button>
                 )}
             </ProCard>

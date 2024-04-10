@@ -29,6 +29,8 @@ import {ALIYUN_REGIONS} from "@/constants";
 import styles from "./css/service.module.css";
 import {DEFAULT_PAY_PERIOD_UNIT, showErrorModal} from "@/global";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
+import {FormattedMessage} from "@@/exports";
+import {renderToString} from "react-dom/server";
 
 export const CreateServiceInstanceForm: React.FC = () => {
     const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -81,8 +83,8 @@ export const CreateServiceInstanceForm: React.FC = () => {
                     }, {} as { [key: string]: string });
                     setRegionIds(valueEnum);
                     /**
-                     * Step 2: Load the package and preserve package-dependent parameters if the package is not empty.
-                     * Use the default package configuration if the package does not exist.
+                     * Step 2: Load the specification and preserve specification-dependent parameters if the specification is not empty.
+                     * Use the default specification configuration if the specification does not exist.
                      */
                     if (serviceMetadata.specifications !== undefined && serviceMetadata.specifications.length > 2) {
 
@@ -157,7 +159,8 @@ export const CreateServiceInstanceForm: React.FC = () => {
                 setElements(elements);
                 setErrorModalVisible(true);
                 if (!errorModalVisible) {
-                    showErrorModal('获取服务失败', '当前套餐和价格均为默认价格。请访问文档修改配置：');
+                    showErrorModal(renderToString(<FormattedMessage id="message.fetch-service-failure" defaultMessage='获取服务失败'/>),
+                        renderToString(<FormattedMessage id="message.default-pricing" defaultMessage='当前套餐和价格均为默认价格。请访问文档修改配置：'/>));
                 }
             }
         };
@@ -179,7 +182,8 @@ export const CreateServiceInstanceForm: React.FC = () => {
                 }
                 setCurrentPrice(null);
             } catch (error) {
-                showErrorModal('套餐名不匹配', '套餐名不匹配，请修改后重新运行流水线：');
+                showErrorModal(renderToString(<FormattedMessage id="message.specification-name-mismatch" defaultMessage='套餐名不匹配'/>),
+                    renderToString(<FormattedMessage id="message.specification-name-mismatch-instruction" defaultMessage='套餐名不匹配，请修改后重新运行流水线：'/>));
                 setCurrentPrice(100);
             }
         };
@@ -190,7 +194,7 @@ export const CreateServiceInstanceForm: React.FC = () => {
     return (
         <ProForm.Item>
             <ProForm.Item name="SpecificationName" key="SpecificationName">
-                <div className={styles.specificationTitle}>{"选择套餐"}</div>
+                <div className={styles.specificationTitle}>{<FormattedMessage id="title.select-specification" defaultMessage="选择套餐"/>}</div>
                 <Radio.Group>
                     <List
                         className={styles.list}
@@ -212,9 +216,9 @@ export const CreateServiceInstanceForm: React.FC = () => {
                 </Radio.Group>
             </ProForm.Item>
             <Divider className={styles.msrectangleshape}/>
-            <div className={styles.specificationTitle}>{"配置参数"}</div>
+            <div className={styles.specificationTitle}>{<FormattedMessage id="title.configure-parameters" defaultMessage="配置参数"/>}</div>
             <ProFormDigit
-                label="包月时间"
+                label={<FormattedMessage id="title.monthly-duration" defaultMessage="包月时间"/>}
                 name="PayPeriod"
                 key={"PayPeriod"}
                 min={1}
@@ -226,10 +230,10 @@ export const CreateServiceInstanceForm: React.FC = () => {
                 required={true}
 
             />
-            <ProFormSelect key={"RegionId"} name={"RegionId"} label={"部署地域"}
+            <ProFormSelect key={"RegionId"} name={"RegionId"} label={<FormattedMessage id="title.deployment-region" defaultMessage="部署地域"/>}
                            className={styles.inputConfig}
                            valueEnum={regionIds}
-                           rules={[{required: true, message: '请选择部署地域'}]} fieldProps={{
+                           rules={[{required: true, message: <FormattedMessage id="message.select-deployment-region" defaultMessage='请选择部署地域'/>}]} fieldProps={{
                 onChange: (e) => {
                     setDeployedRegionId(e);
                     form.formRef?.current.setFieldValue("ZoneId", undefined);
@@ -240,11 +244,11 @@ export const CreateServiceInstanceForm: React.FC = () => {
             <div className={styles.currentPrice}>
                 当前价格:
                 <span className={styles.priceValue}>
-                    {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : " 加载中..."}
+                    {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : <FormattedMessage id="message.loading" defaultMessage=" 加载中..."/>}
                 </span>
             </div>
             <Divider className={styles.msrectangleshape}/>
-            <div className={styles.specificationTitle}>{"支付方式"}</div>
+            <div className={styles.specificationTitle}>{<FormattedMessage id='title.payment-method' defaultMessage="支付方式"/>}</div>
             <PayTypeFormItem/>
             <ProFormText name="templateName" key="templateName" initialValue={templateName} fieldProps={{defaultValue: templateName, value: templateName}} hidden={true}></ProFormText>
         </ProForm.Item>

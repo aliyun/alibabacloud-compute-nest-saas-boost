@@ -21,6 +21,7 @@ import {Index} from "@/pages/ServiceInstanceOrder";
 import {useNavigate, useParams} from 'react-router-dom';
 import {CallSource} from "@/constants";
 import {getHashSearchParams} from "@/util/urlUtil";
+import {FormattedMessage} from "@@/exports";
 
 interface TabItem {
     key: string;
@@ -58,18 +59,18 @@ const ServiceInstanceDetail: React.FC = () => {
             const newItems = [
                 {
                     key: 'description',
-                    label: '概览',
+                    label: <FormattedMessage id='pages.overview' defaultMessage='概览'/>,
                     children: <ServiceInstanceContent serviceInstanceId={id} status={status} serviceType={serviceType}/>,
                 },
                 {
                     key: 'monitor',
-                    label: '监控',
+                    label: <FormattedMessage id='pages.monitoring' defaultMessage='监控'/>,
                     children: <ServiceInstanceMonitor serviceInstanceId={id}/>,
                 },
                 // 根据 source 条件动态添加订单 Tab
                 ...(source !== CallSource[CallSource.Market]) ? [{
                     key: 'serviceInstanceOrders',
-                    label: '订单',
+                    label: <FormattedMessage id='pages.orders' defaultMessage='订单'/>,
                     children: <Index serviceInstanceId={id} status={status} serviceType={serviceType}/>,
                 }] : [],
             ];

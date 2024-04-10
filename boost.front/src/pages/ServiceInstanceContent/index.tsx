@@ -37,6 +37,8 @@ import {
     UnitMappingType
 } from "@/pages/ServiceInstanceContent/components/constants"
 import {getCommodity, getCommodityPrice} from "@/services/backend/commodity";
+import {FormattedMessage} from "@@/exports";
+import {renderToString} from "react-dom/server";
 
 dayjs.extend(utc);
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
@@ -144,12 +146,12 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         try {
             if (serviceInstanceId) {
                 await refundOrder({serviceInstanceId: props.serviceInstanceId, dryRun: false});
-                message.success('退款中');
+                message.success(<FormattedMessage id="message.refunding" defaultMessage='退款中'/>);
                 window.location.reload();
             }
         } catch (error) {
             console.error(error);
-            message.error('退款失败');
+            message.error(<FormattedMessage id="message.refund-failed" defaultMessage='退款失败'/>);
         }
         setRefundModalVisible(false);
     };
@@ -219,13 +221,13 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         }
         const title = (
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <span>服务实例</span>
+                <span><FormattedMessage id="menu.list.table-list" defaultMessage='服务实例'/></span>
                 <Space>
                     <div>
                         {showRefundAndDeleteButtons && (
                             <div>
                                 <Button title={"删除服务实例"} onClick={() => handleServiceInstanceDelete()}
-                                        hidden={renewalAndDeleteVisible} danger={true}>删除服务实例</Button>
+                                        hidden={renewalAndDeleteVisible} danger={true}><FormattedMessage id="button.delete-service-instance" defaultMessage='删除服务实例'/></Button>
                                 <Modal
                                     open={refundModalVisible}
                                     onCancel={() => {
@@ -236,17 +238,18 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                 >
                                     <Paragraph>您当前服务实例可退金额为：<span
                                         style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
+                                    <Paragraph><FormattedMessage id="message.current-refundable-amount" defaultMessage='您当前服务实例可退金额为：'/><span style={{color: "red"}}>{refundAmount}</span></Paragraph>
                                     <div style={{marginTop: 16, textAlign: 'right'}}>
                                         <Space>
 
                                             <Button style={{width: '100px'}} type="primary"
                                                     onClick={confirmDeleteServiceInstance}>
-                                                退款
+                                                <FormattedMessage id='button.refund' defaultMessage='退款'/>
                                             </Button>
                                             <Button style={{width: '100px'}}
                                                     onClick={() => {
                                                         setRefundModalVisible(false);
-                                                    }}>取消</Button>
+                                                    }}><FormattedMessage id='button.cancel' defaultMessage='取消'/></Button>
                                         </Space>
                                     </div>
                                 </Modal>
@@ -257,7 +260,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
 
                             <Button hidden={renewalAndDeleteVisible} onClick={() => setRenewalModalVisible(true)}>
-                                续费
+                                <FormattedMessage id='button.renew' defaultMessage='续费'/>
                             </Button>
                             <Modal title="续费" open={renewalModalVisible}
                                    onCancel={() => setRenewalModalVisible(false)}
@@ -268,12 +271,12 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                                  return (
                                                      <Space>
                                                          <Button type="primary" htmlType="submit" loading={submitting}>
-                                                             续费
+                                                             <FormattedMessage id='button.renew' defaultMessage='续费'/>
                                                          </Button>
                                                          <Button onClick={() => {
                                                              setRenewalModalVisible(false);
                                                          }}>
-                                                             取消
+                                                             <FormattedMessage id='button.cancel' defaultMessage='取消'/>
                                                          </Button>
                                                      </Space>
                                                  );
@@ -299,9 +302,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
                                     <PayTypeFormItem/>
                                     <div className={styles.currentPrice}>
-                                        当前价格:
+                                        <FormattedMessage id='message.current-price' defaultMessage="当前价格:"/>
                                         <span className={styles.priceValue}>
-                                        {currentPrice ? `     ¥${currentPrice}` : " 加载中..."}
+                                        {currentPrice ? `     ¥${currentPrice}` : <FormattedMessage id='message.loading' defaultMessage=" 加载中..."/>}
                                     </span>
                                     </div>
                                     <Divider className={styles.msrectangleshape}/>
@@ -317,9 +320,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             <Space direction="vertical" size="large" style={{display: 'flex'}}>
                 <Descriptions bordered={true} title={title} column={2}>
 
-                    <Descriptions.Item label="服务实例ID">{data?.serviceInstanceId} </Descriptions.Item>
-                    <Descriptions.Item label="服务实例名">{data?.serviceInstanceName}</Descriptions.Item>
-                    <Descriptions.Item label="状态">
+                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.serviceInstanceId' defaultMessage="实例ID"/>}>{data?.serviceInstanceId} </Descriptions.Item>
+                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.serviceInstanceName' defaultMessage="实例名称"/>}>{data?.serviceInstanceName}</Descriptions.Item>
+                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.status' defaultMessage="状态"/>}>
                         {
                             <Badge
                                 //@ts-ignore
@@ -328,12 +331,14 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                 text={data ? getStatusEnum()[data?.status].text : 'Deployed'}/>
                         }
                     </Descriptions.Item>
-                    <Descriptions.Item label="创建时间">
+                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.createTime' defaultMessage="创建时间"/>}>
                         {createTime}
                     </Descriptions.Item>
-                    <Descriptions.Item label="更新时间">{updateTime}</Descriptions.Item>
+                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.updateTime' defaultMessage="更新时间"/>}>
+                        {updateTime}</Descriptions.Item>
                     <Descriptions.Item
-                        label="到期时间">{source == CallSource[CallSource.Market] ? "按量计费中" :
+                        label={<FormattedMessage id='pages.instanceSearchTable.expiration-time' defaultMessage="到期时间"/>}>
+                        {source == CallSource[CallSource.Market] ? <FormattedMessage id='message.paying-by-usage' defaultMessage="按量计费中"/> :
                         (
                             <div>{data.endTime ? dayjs(data.endTime).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
                         )}
@@ -356,23 +361,23 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             }
                         })
                     }
-                    {source == CallSource[CallSource.Market] && <Descriptions.Item label="云市场订单">
+                    {source == CallSource[CallSource.Market] && <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.cloud-market-order' defaultMessage="云市场订单"/>}>
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                             <Button title={"前往云市场"}
-                                    onClick={navigateToCloudMarketplaceOrderDetails}>前往云市场</Button>
+                                    onClick={navigateToCloudMarketplaceOrderDetails}><FormattedMessage id='button.goto-cloud-market' defaultMessage="前往云市场"/></Button>
                         </div>
                     </Descriptions.Item>}
 
 
                 </Descriptions>
                 <Divider/>
-                <Descriptions bordered={true} title="服务信息" column={2}>
-                    <Descriptions.Item label="服务ID">{data?.serviceModel?.serviceId}</Descriptions.Item>
-                    <Descriptions.Item label="服务名">{data?.serviceModel?.name} </Descriptions.Item>
-                    <Descriptions.Item label="描述">{data?.serviceModel?.description} </Descriptions.Item>
+                <Descriptions bordered={true} title={<FormattedMessage id='title.service-info' defaultMessage="服务信息"/>} column={2}>
+                    <Descriptions.Item label={<FormattedMessage id='title.label.service-id' defaultMessage="服务ID"/>}>{data?.serviceModel?.serviceId}</Descriptions.Item>
+                    <Descriptions.Item label={<FormattedMessage id='title.label.service-name' defaultMessage="服务名"/>}>{data?.serviceModel?.name} </Descriptions.Item>
+                    <Descriptions.Item label={<FormattedMessage id='title.label.description' defaultMessage="描述"/>}>{data?.serviceModel?.description} </Descriptions.Item>
                 </Descriptions>
                 <Divider/>
-                <Descriptions bordered={true} title="配置信息" column={1}>
+                <Descriptions bordered={true} title={<FormattedMessage id='title.configuration-info' defaultMessage="配置信息"/>} column={1}>
                     {
                         Object.keys(parameters).map((key) => {
                             return (<Descriptions.Item

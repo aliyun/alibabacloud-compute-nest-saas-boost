@@ -5,6 +5,9 @@ import pages from './en-US/pages';
 import pwa from './en-US/pwa';
 import settingDrawer from './en-US/settingDrawer';
 import settings from './en-US/settings';
+import button from './en-US/button'
+import message from './en-US/message'
+import title from  './en-US/title'
 
 export default {
   'navBar.lang': 'Languages',
@@ -22,4 +25,7 @@ export default {
   ...pwa,
   ...component,
   ...pages,
+  ...button,
+  ...message,
+  ...title,
 };
