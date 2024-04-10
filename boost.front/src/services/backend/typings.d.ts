@@ -133,6 +133,17 @@ declare namespace API {
     unitPrice?: number;
   };
 
+  type ConfigParameterModel = {
+    name?: string;
+    type?: string;
+    value?: string;
+  };
+
+  type ConfigParameterQueryModel = {
+    encrypted?: boolean;
+    name?: string;
+  };
+
   type createCommodityParams = {
     chargeType?: 'PostPaid' | 'PrePaid';
     commodityName?: string;
@@ -254,6 +265,10 @@ declare namespace API {
     specificationName?: string;
   };
 
+  type ListConfigParametersParam = {
+    configParameterQueryModels?: ConfigParameterQueryModel[];
+  };
+
   type listMetricsParams = {
     endTime?: string;
     metricName?: string;
@@ -291,6 +306,15 @@ declare namespace API {
     code?: string;
     count?: number;
     data?: CommoditySpecificationDTO[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
+  };
+
+  type ListResultConfigParameterModel_ = {
+    code?: string;
+    count?: number;
+    data?: ConfigParameterModel[];
     message?: string;
     nextToken?: string;
     requestId?: string;
@@ -445,6 +469,12 @@ declare namespace API {
     payPeriods?: number[];
     specificationName?: string;
     unitPrice?: number;
+  };
+
+  type UpdateConfigParameterParam = {
+    encrypted?: boolean;
+    name?: string;
+    value?: string;
   };
 
   type UserInfoModel = {

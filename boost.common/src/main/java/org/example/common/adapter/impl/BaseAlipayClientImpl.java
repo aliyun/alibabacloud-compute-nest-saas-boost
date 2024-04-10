@@ -142,4 +142,17 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
                 alipayConfig.getOfficialPublicKey(),
                 AliPayConstants.SIGN_TYPE_RSA2);
     }
+
+    @Override
+    public void updateClient(String parameterName, String value) throws Exception {
+        this.alipayConfig.updateOosParamConfig(parameterName, value);
+        alipayClient = new DefaultAlipayClient(
+                alipayConfig.getGateway(),
+                alipayConfig.getAppId(),
+                alipayConfig.getPrivateKey(),
+                Constants.JSON_FORMAT,
+                Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase(),
+                alipayConfig.getOfficialPublicKey(),
+                AliPayConstants.SIGN_TYPE_RSA2);
+    }
 }

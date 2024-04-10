@@ -37,11 +37,11 @@ import static org.mockito.Mockito.*;
 
 class OrderControllerTest {
     @Mock
-    OrderService orderService;
+    private OrderService orderService;
     @Mock
-    Logger log;
+    private Logger log;
     @InjectMocks
-    OrderController orderController;
+    private OrderController orderController;
 
     @BeforeEach
     void setUp() {

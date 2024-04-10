@@ -5,6 +5,7 @@
 import * as cloudMonitor from './cloudMonitor';
 import * as commodity from './commodity';
 import * as order from './order';
+import * as parameterManager from './parameterManager';
 import * as payment from './payment';
 import * as serviceInstance from './serviceInstance';
 import * as serviceManager from './serviceManager';
@@ -17,6 +18,7 @@ export default {
   order,
   serviceManager,
   serviceInstance,
+  parameterManager,
   cloudMonitor,
   payment,
 };

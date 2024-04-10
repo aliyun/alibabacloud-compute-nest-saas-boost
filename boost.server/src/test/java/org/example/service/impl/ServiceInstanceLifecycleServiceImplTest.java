@@ -39,7 +39,7 @@ import org.example.common.constant.CallSource;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
-import org.example.common.model.ListServiceInstancesModel;
+import org.example.common.helper.WalletHelper;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
@@ -47,6 +47,7 @@ import org.example.common.param.si.ListServiceInstancesParam;
 import org.example.service.base.ServiceManager;
 import org.example.service.base.impl.ServiceInstanceLifecycleServiceImpl;
 import org.example.service.order.OrderService;
+import org.example.service.payment.PaymentServiceManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -78,6 +79,12 @@ class ServiceInstanceLifecycleServiceImplTest {
 
     @Injectable
     private ServiceManager serviceManager;
+
+    @Injectable
+    private WalletHelper walletHelper;
+
+    @Injectable
+    private PaymentServiceManager paymentServiceManger;
 
     private ListServiceInstancesResponseBody createListServiceInstancesResponseBody() {
         ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos serviceInfos = new ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos().setName("serviceInfoName-2").setShortDescription("description");
@@ -133,7 +140,7 @@ class ServiceInstanceLifecycleServiceImplTest {
         UserInfoModel userInfoModel = new UserInfoModel();
         ListServiceInstancesParam listServiceInstancesParam = new ListServiceInstancesParam();
         try {
-            BaseResult<ListServiceInstancesModel> result = serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
+            ListResult<ServiceInstanceModel> result = serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
             assert false;
         } catch (BizException bizException) {
             assertEquals(ErrorInfo.VERIFY_FAILED.getStatusCode(), bizException.getStatusCode());

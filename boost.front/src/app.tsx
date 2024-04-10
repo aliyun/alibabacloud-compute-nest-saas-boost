@@ -26,7 +26,9 @@ const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 import {redirectLogin, getTicket} from "@/session";
 import {getUserInfo} from "@/services/backend/user";
-import logoicon from '../public/logo.svg'
+import {Provider, useSelector} from 'react-redux';
+import { store } from './store';
+import {RootState} from "@/store/state";
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -36,14 +38,13 @@ const authHeaderInterceptor = (url: string, options: RequestConfig) => {
   const ticket = getTicket()
   let authHeader = {}
   if (ticket !== undefined){
-      authHeader = { Authorization: 'Bearer ' + ticket.token };
+    authHeader = { Authorization: 'Bearer ' + ticket.token };
   }
   return {
     url: `${url}`,
     options: { ...options, interceptors: true, headers: authHeader },
   };
 };
-
 
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
@@ -59,6 +60,11 @@ export async function getInitialState(): Promise<{
     const userInfoResponse = await getUserInfo() as API.BaseResultUserInfoModel_;
     return userInfoResponse.data
   };
+  const updateSettings = {
+    ...defaultSettings,
+    title: '',
+    logo: '',
+  };
   // 如果不是登录页面，执行
   const { location } = history;
   if (location.pathname !== loginPath) {
@@ -66,17 +72,28 @@ export async function getInitialState(): Promise<{
     return {
       fetchUserInfo,
       currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
+      settings: updateSettings as Partial<LayoutSettings>,
     };
   }
   return {
     fetchUserInfo,
-    settings: defaultSettings as Partial<LayoutSettings>,
+    settings: updateSettings as Partial<LayoutSettings>,
   };
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const providerInfo = useSelector((state: RootState) => ({
+    name: state.providerInfo.providerName,
+    link: state.providerInfo.providerOfficialLink,
+    description: state.providerInfo.providerDescription,
+    logoUrl: state.providerInfo.providerLogoUrl,
+  }));
+  const updateSettings = {
+    ...initialState?.settings,
+    title: providerInfo?.name ? providerInfo.name : '',
+    logo: providerInfo?.logoUrl ? providerInfo.logoUrl : '',
+  };
 
   return {
     actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
@@ -92,7 +109,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       }
     },
     avatarProps: {
-        // @ts-ignore
+      // @ts-ignore
       src: initialState?.currentUser?.avatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
@@ -131,13 +148,13 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       },
     ],
     links: isDev
-      ? [
+        ? [
           <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
             <LinkOutlined />
             <span>OpenAPI 文档</span>
           </Link>,
         ]
-      : [],
+        : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
@@ -145,26 +162,26 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     childrenRender: (children) => {
       // if (initialState?.loading) return <PageLoading />;
       return (
-        <>
-          {children}
-          {isDev && (
-            <SettingDrawer
-              disableUrlParams
-              enableDarkTheme
-              settings={initialState?.settings}
-              onSettingChange={(settings) => {
-                setInitialState((preInitialState) => ({
-                  ...preInitialState,
-                  settings,
-                }));
-              }}
-            />
-          )}
-        </>
+          <>
+            {children}
+            {isDev && (
+                <SettingDrawer
+                    disableUrlParams
+                    enableDarkTheme
+                    settings={updateSettings}
+                    onSettingChange={(settings) => {
+                      setInitialState((preInitialState) => ({
+                        ...preInitialState,
+                        settings,
+                      }));
+                    }}
+                />
+            )}
+          </>
       );
     },
-    ...initialState?.settings,
-    logo: <img src={logoicon}/>,
+    ...updateSettings,
+    logo: <img src={updateSettings?.logo}/>,
   };
 };
 
@@ -175,6 +192,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  */
 export const request = {
   ...errorConfig,
-    requestInterceptors: [authHeaderInterceptor],
+  requestInterceptors: [authHeaderInterceptor],
 
 };
+
+export function rootContainer(container: React.ReactNode) {
+  return <Provider store={store}>{container}</Provider>;
+}
