@@ -21,13 +21,12 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
-import org.example.common.constant.PayChannel;
+import org.example.common.constant.PaymentType;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
-import org.example.common.helper.ots.OrderOtsHelper;
+import org.example.common.helper.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
-import org.example.common.utils.MoneyUtil;
 
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
@@ -45,7 +44,7 @@ public class RefundOrderTask implements Runnable {
 
     private String orderId;
 
-    private Long refundAmount;
+    private Double refundAmount;
 
     private String refundId;
 
@@ -55,7 +54,7 @@ public class RefundOrderTask implements Runnable {
 
     private CountDownLatch countDownLatch;
 
-    private PayChannel payChannel;
+    private PaymentType paymentType;
 
     private static final int MAX_RETRY_TIMES = 3;
 
@@ -69,8 +68,8 @@ public class RefundOrderTask implements Runnable {
                 orderDO.setTradeStatus(TradeStatus.REFUNDED);
                 orderDO.setOrderId(orderId);
                 Boolean alipaySuccess = Boolean.TRUE;
-                if (payChannel != null && payChannel != PayChannel.PAY_POST && refundAmount > 0) {
-                    alipaySuccess = baseAlipayClient.refundOrder(orderId, MoneyUtil.fromCents(refundAmount), refundId);
+                if (paymentType != null && paymentType != PaymentType.PAY_POST && Double.parseDouble(String.format("%.2f", refundAmount)) > 0) {
+                    alipaySuccess = baseAlipayClient.refundOrder(orderId, Double.parseDouble(String.format("%.2f", refundAmount)), refundId);
                 }
                 OrderDTO order = orderOtsHelper.getOrder(orderId, null);
                 Long currentLocalDateTimeMillis = DateUtil.getCurrentLocalDateTimeMillis();
@@ -103,7 +102,7 @@ public class RefundOrderTask implements Runnable {
 
 
     private Boolean shouldDeleteServiceInstance(Long currentLocalDateTimeMillis, OrderDTO order) {
-        if (order.getPayChannel() == PayChannel.PAY_POST) {
+        if (order.getType() == PaymentType.PAY_POST) {
             return Boolean.TRUE;
         }
 

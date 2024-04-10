@@ -17,17 +17,17 @@ export async function getServiceInstance(
   });
 }
 
-/** 获取该用户下的全部服务实例列表 POST /api/listServiceInstances */
+/** 获取该用户下的全部服务实例列表 GET /api/listServiceInstances */
 export async function listServiceInstances(
-  body: API.ListServiceInstancesParam,
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.listServiceInstancesParams,
   options?: { [key: string]: any },
 ) {
   return request<API.ListResultServiceInstanceModel_>('/api/listServiceInstances', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+    method: 'GET',
+    params: {
+      ...params,
     },
-    data: body,
     ...(options || {}),
   });
 }

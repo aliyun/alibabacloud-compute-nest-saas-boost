@@ -15,7 +15,6 @@
 package org.example.common.adapter.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.AdapterManager;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.CloudMonitorClient;
@@ -67,9 +66,6 @@ public class AdapterManagerImpl implements AdapterManager {
     @Resource
     private OosSecretParamConfig oosSecretParamConfig;
 
-    @Resource
-    private AcsApiCaller acsApiCaller;
-
     @Value("${deploy.type}")
     private String deployType;
 
@@ -78,30 +74,15 @@ public class AdapterManagerImpl implements AdapterManager {
 
     private static final String BOOST_SERVERLESS_MODULE = "serverless";
 
-    private static final String ACCESS_KEY_ID = "";
-
-    private static final String ACCESS_KEY_SECRET = "";
-
     @Override
     public void clientInjection(Map<String, String> header) throws Exception {
-        if (DeployType.LOCAL.getDeployType().equals(deployType)) {
-            oosClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            oosSecretParamConfig.init();
-            otsClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            computeNestSupplierClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            cloudMonitorClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            acsApiCaller.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            baseAlipayClient.createClient(alipayConfig);
-            log.info("Local Client injection success");
-            return;
-        }
+        log.info("Client injection starts, deployType: {}", deployType);
         if ((header == null || header.isEmpty())) {
             oosClient.createClient(aliyunConfig);
             oosSecretParamConfig.init();
             otsClient.createClient(aliyunConfig);
             computeNestSupplierClient.createClient(aliyunConfig);
             cloudMonitorClient.createClient(aliyunConfig);
-            acsApiCaller.createClient(aliyunConfig);
         } else {
             String accessKeyId = header.get(Constants.FC_ACCESS_KEY_ID);
             String accessKeySecret = header.get(Constants.FC_ACCESS_KEY_SECRET);
@@ -110,7 +91,6 @@ public class AdapterManagerImpl implements AdapterManager {
             otsClient.createClient(accessKeyId, accessKeySecret, securityToken);
             computeNestSupplierClient.createClient(accessKeyId, accessKeySecret, securityToken);
             oosSecretParamConfig.init();
-            acsApiCaller.createClient(accessKeyId, accessKeySecret, securityToken);
         }
         baseAlipayClient.createClient(alipayConfig);
         log.info("Client injection success");

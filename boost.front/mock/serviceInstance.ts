@@ -213,9 +213,7 @@ const getServiceMetadata = (req: Request, res: Response) => {
                 "Type": "Normal",
                 "Description": "高配版(Premium Package)"
             }],
-            "templateName": "模板1",
-            "version": "1.0.0",
-            "status": "Online"
+            "templateName": "模板1"
         }
 
 

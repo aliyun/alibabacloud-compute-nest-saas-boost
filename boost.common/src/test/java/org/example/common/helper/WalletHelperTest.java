@@ -39,6 +39,8 @@ class WalletHelperTest {
     @InjectMocks
     WalletHelper walletHelper;
 
+    @Mocked
+    private DateUtil dateUtilMock;
 
     @BeforeEach
     void setUp() {
@@ -55,15 +57,14 @@ class WalletHelperTest {
 
     @Test
     void testGetRefundAmount() {
+        Double result = walletHelper.getRefundAmount(100.0d, "2023-08-16T00:00:00Z", "2023-08-01T00:00:00Z", 1L, PayPeriodUnit.Month);
+        assertEquals(Double.valueOf(50.0), result);
 
-        Long result = walletHelper.getRefundAmount(10000L, "2023-08-16T00:00:00Z", "2023-08-01T00:00:00Z", 1L, PayPeriodUnit.Month);
-        assertEquals(Long.valueOf(5000), result);
+        result = walletHelper.getRefundAmount(100.0d, "2023-08-16T12:00:00Z", "2023-08-16T00:00:00Z", 1L, PayPeriodUnit.Day);
+        assertEquals(Double.valueOf(50.0), result);
 
-        result = walletHelper.getRefundAmount(10000L, "2023-08-16T12:00:00Z", "2023-08-16T00:00:00Z", 1L, PayPeriodUnit.Day);
-        assertEquals(Long.valueOf(5000), result);
-
-        result = walletHelper.getRefundAmount(10000L, "2023-06-30T00:00:00Z", "2023-01-01T00:00:00Z", 1L, PayPeriodUnit.Year);
-        assertEquals(Long.valueOf(5000), result);
+        result = walletHelper.getRefundAmount(100.0d, "2023-06-30T00:00:00Z", "2023-01-01T00:00:00Z", 1L, PayPeriodUnit.Year);
+        assertEquals(Double.valueOf(50.0), result);
     }
 
     @Test
@@ -86,7 +87,7 @@ class WalletHelperTest {
     }
 
     @Test
-    public void testGetBillingEndDateTimeLongNull(@Mocked DateUtil dateUtilMock) {
+    public void testGetBillingEndDateTimeLongNull() {
         Long lastBillingEndDateLong = null;
         Long payPeriod = 30L;
         PayPeriodUnit payPeriodUnit = PayPeriodUnit.Day;

@@ -40,7 +40,12 @@ class UuidUtilTest {
     }
 
     @Test
+    void testGenerateAliPayOutTradeNo() {
+        Assertions.assertEquals(UuidUtil.generateAliPayOutTradeNo().length(), 27);
+    }
+
+    @Test
     void testGenerateOrderId() {
-        Assertions.assertDoesNotThrow(()->UuidUtil.generateOrderId(1563457855438522L));
+        assertThat(UuidUtil.generateOrderId(1234567890L, "Alipay", "abcdefadzxczxczxczxcxzczadasa").length()).isEqualTo(27L);
     }
 }

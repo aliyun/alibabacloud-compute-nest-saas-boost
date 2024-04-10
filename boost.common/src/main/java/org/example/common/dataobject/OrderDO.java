@@ -16,16 +16,13 @@
 package org.example.common.dataobject;
 
 import lombok.Data;
-import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
+import org.example.common.constant.PaymentType;
+import org.example.common.constant.ProductName;
 import org.example.common.constant.TradeStatus;
 
-import java.io.Serializable;
-
 @Data
-public class OrderDO implements Serializable {
-
-    private static final long serialVersionUID = -6487622390063929077L;
+public class OrderDO {
 
     /**
      * Primary key : Id.
@@ -75,27 +72,22 @@ public class OrderDO implements Serializable {
     /**
      * Buyer payment amount.
      */
-    private Long buyerPayAmount;
+    private Double buyerPayAmount;
 
     /**
      * Seller received amount.
      */
-    private Long receiptAmount;
+    private Double receiptAmount;
 
     /**
-     * Commodity Name.
+     * Service name of the purchase, corresponding to Alipay subject.
      */
-    private String commodityName;
+    private ProductName productName;
 
     /**
-     * Commodity Code.
+     * Total Amount.
      */
-    private String commodityCode;
-
-    /**
-     * Total Amount.cents
-     */
-    private Long totalAmount;
+    private Double totalAmount;
 
     /**
      * Seller Id.
@@ -120,7 +112,7 @@ public class OrderDO implements Serializable {
     /**
      * Payment type.
      */
-    private PayChannel payChannel;
+    private PaymentType type;
 
     /**
      * Refund ID, can only be created once.
@@ -135,7 +127,7 @@ public class OrderDO implements Serializable {
     /**
      * Refund Amount.
      */
-    private Long refundAmount;
+    private Double refundAmount;
 
     /**
      * Compute nest service instance id.
@@ -171,14 +163,4 @@ public class OrderDO implements Serializable {
      * refund detail.
      */
     private String refundDetail;
-
-    /**
-     * payment form.
-     */
-    private String paymentForm;
-
-    /**
-     * service id.
-     */
-    private String serviceId;
 }

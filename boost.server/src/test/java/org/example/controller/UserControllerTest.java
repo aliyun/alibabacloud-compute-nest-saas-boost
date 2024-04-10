@@ -20,7 +20,7 @@ import org.example.common.BaseResult;
 import org.example.common.model.AuthTokenModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetAuthTokenParam;
-import org.example.service.base.LoginService;
+import org.example.service.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

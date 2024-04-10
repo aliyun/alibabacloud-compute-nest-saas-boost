@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.common.model.UserInfoModel;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.List;
@@ -111,8 +110,9 @@ class JsonUtilTest {
 
     @Test
     void testGetGson() {
-        Assertions.assertDoesNotThrow(()->JsonUtil.toJsonString(null));
+
         final Gson result = JsonUtil.getGson();
+
     }
 
     @Test

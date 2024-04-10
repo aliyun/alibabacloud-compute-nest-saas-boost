@@ -207,7 +207,7 @@ public class TokenParseHelperTest {
                 return null;
             }
         };
-        UserInfoModel expectedUserInfoModel = new UserInfoModel("John Doe", "aliyun", "test", "test", "test", Boolean.TRUE);
+        UserInfoModel expectedUserInfoModel = new UserInfoModel("John Doe", "aliyun", "test", "test", "test");
         UserInfoModel actualUserInfoModel = tokenParseHelper.getUserInfoFromIdToken(token);
 
         assertEquals(expectedUserInfoModel.getName(), actualUserInfoModel.getName());

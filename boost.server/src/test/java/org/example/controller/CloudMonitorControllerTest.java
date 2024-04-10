@@ -21,7 +21,7 @@ import org.example.common.model.MetricDatasModel;
 import org.example.common.model.MetricMetaDataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.ListMetricsParam;
-import org.example.service.base.CloudMonitorService;
+import org.example.service.CloudMonitorService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class CloudMonitorControllerTest {
     void testListMetricMetaDatas() {
         when(cloudMonitorService.listMetricMetaDatas()).thenReturn(ListResult.genSuccessListResult(new ArrayList<>(), 0));
 
-        ListResult<MetricMetaDataModel> result = cloudMonitorController.listMetricMetaDatas(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE));
+        ListResult<MetricMetaDataModel> result = cloudMonitorController.listMetricMetaDatas(new UserInfoModel("sub", "name", "loginName", "aid", "uid"));
         Assertions.assertEquals(result.getCount(), 0);
     }
 
@@ -56,7 +56,7 @@ class CloudMonitorControllerTest {
     void testListMetrics() {
         when(cloudMonitorService.listMetrics(any(), any())).thenReturn(new BaseResult<MetricDatasModel>("code", "message", new MetricDatasModel("dataPoints"), "requestId"));
 
-        BaseResult<MetricDatasModel> result = cloudMonitorController.listMetrics(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new ListMetricsParam("metricName", "startTime", "endTime", "serviceInstanceId"));
+        BaseResult<MetricDatasModel> result = cloudMonitorController.listMetrics(new UserInfoModel("sub", "name", "loginName", "aid", "uid"), new ListMetricsParam("metricName", "startTime", "endTime", "serviceInstanceId"));
         Assertions.assertEquals(new BaseResult<MetricDatasModel>("code", "message", new MetricDatasModel("dataPoints"), "requestId"), result);
     }
 }
