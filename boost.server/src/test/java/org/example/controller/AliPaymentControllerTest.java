@@ -15,7 +15,7 @@
 
 package org.example.controller;
 
-import org.example.service.payment.PaymentServiceManger;
+import org.example.service.payment.PaymentServiceManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 class AliPaymentControllerTest {
     @Mock
-    PaymentServiceManger alipayService;
+    PaymentServiceManager alipayService;
     @InjectMocks
     PaymentController paymentController;
 

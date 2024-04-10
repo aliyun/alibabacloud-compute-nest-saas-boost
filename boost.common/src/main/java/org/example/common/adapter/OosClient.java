@@ -16,25 +16,43 @@
 package org.example.common.adapter;
 
 
+import com.aliyun.oos20190601.models.GetParameterResponse;
+import com.aliyun.oos20190601.models.GetSecretParameterResponse;
+import com.aliyun.oos20190601.models.UpdateParameterResponse;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
 import org.example.common.config.AliyunConfig;
-
-import java.util.Map;
 
 public interface OosClient {
 
     /**
      * Get oos secret parameter
      * @param name name
-     * @return secret parameter
+     * @return GetSecretParameterResponse
      */
-    String getSecretParameter(String name);
+    GetSecretParameterResponse getSecretParameter(String name);
 
     /**
-     * Get secret parameters by path
-     * @param path oos secret parameters path
-     * @return {@link Map}
+     * Update oos secret parameter
+     * @param name name
+     * @param value value
+     * @return UpdateSecretParameterResponse
      */
-    Map<String, String> getSecretParametersByPath(String path);
+    UpdateSecretParameterResponse updateSecretParameter(String name, String value);
+
+    /**
+     * Get oos parameter
+     * @param name name
+     * @return GetParameterResponse
+     */
+    GetParameterResponse getParameter(String name);
+
+    /**
+     * Update oos parameter
+     * @param name name
+     * @param value value
+     * @return UpdateParameterResponse
+     */
+    UpdateParameterResponse updateParameter(String name, String value);
 
     /**
      * Create oos client by ecs ram role

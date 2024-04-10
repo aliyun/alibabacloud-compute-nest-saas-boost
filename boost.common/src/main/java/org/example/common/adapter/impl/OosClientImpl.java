@@ -16,26 +16,22 @@
 package org.example.common.adapter.impl;
 
 import com.aliyun.oos20190601.Client;
+import com.aliyun.oos20190601.models.GetParameterRequest;
+import com.aliyun.oos20190601.models.GetParameterResponse;
 import com.aliyun.oos20190601.models.GetSecretParameterRequest;
 import com.aliyun.oos20190601.models.GetSecretParameterResponse;
-import com.aliyun.oos20190601.models.GetSecretParameterResponseBody;
-import com.aliyun.oos20190601.models.GetSecretParametersByPathRequest;
-import com.aliyun.oos20190601.models.GetSecretParametersByPathResponse;
-import com.aliyun.oos20190601.models.GetSecretParametersByPathResponseBody.GetSecretParametersByPathResponseBodyParameters;
+import com.aliyun.oos20190601.models.UpdateParameterRequest;
+import com.aliyun.oos20190601.models.UpdateParameterResponse;
+import com.aliyun.oos20190601.models.UpdateSecretParameterRequest;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
 import com.aliyun.teaopenapi.models.Config;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.example.common.adapter.OosClient;
 import org.example.common.config.AliyunConfig;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -47,53 +43,57 @@ public class OosClientImpl implements OosClient {
     private String regionId;
 
     @Override
-    public String getSecretParameter(String name) {
+    public GetSecretParameterResponse getSecretParameter(String name) {
         try {
             GetSecretParameterRequest getSecretParameterRequest = new GetSecretParameterRequest()
                     .setRegionId(regionId)
                     .setName(name)
                     .setWithDecryption(Boolean.TRUE);
-            GetSecretParameterResponse response = client.getSecretParameter(getSecretParameterRequest);
-            Optional<String> optionalValue = Optional.ofNullable(response)
-                    .map(GetSecretParameterResponse::getBody)
-                    .map(GetSecretParameterResponseBody::getParameter)
-                    .map(GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter::getValue);
-            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
+            return client.getSecretParameter(getSecretParameterRequest);
         } catch (Exception e) {
-            log.error("List secretParameter error", e);
+            log.error("getSecretParameter error", e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
 
     @Override
-    public Map<String, String> getSecretParametersByPath(String path) {
-        GetSecretParametersByPathRequest request = createGetSecretParametersByPathRequest(path);
-        Map<String, String> secretMap = new HashMap<>(10, 0.75F);
+    public UpdateSecretParameterResponse updateSecretParameter(String name, String value) {
         try {
-            GetSecretParametersByPathResponse response = client.getSecretParametersByPath(request);
-            if (response != null && response.body != null) {
-                List<GetSecretParametersByPathResponseBodyParameters> parameters = response.body.getParameters();
-                populateSecretMap(secretMap, parameters);
-                return secretMap;
-            }
+            UpdateSecretParameterRequest updateSecretParameterRequest = new UpdateSecretParameterRequest()
+                    .setRegionId(regionId)
+                    .setName(name)
+                    .setValue(value);
+            return client.updateSecretParameter(updateSecretParameterRequest);
         } catch (Exception e) {
-            log.error("List secretParameter error", e);
+            log.error("updateSecretParameter error", e);
+            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
-        throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
     }
 
-    private GetSecretParametersByPathRequest createGetSecretParametersByPathRequest(String path) {
-        return new GetSecretParametersByPathRequest()
-                .setPath(path)
-                .setRegionId(regionId)
-                .setWithDecryption(Boolean.TRUE);
+    @Override
+    public GetParameterResponse getParameter(String name) {
+        try {
+            GetParameterRequest getParameterRequest = new GetParameterRequest()
+                    .setRegionId(regionId)
+                    .setName(name);
+            return client.getParameter(getParameterRequest);
+        } catch (Exception e) {
+            log.error("getParameter error", e);
+            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+        }
     }
 
-    private void populateSecretMap(Map<String, String> secretMap, List<GetSecretParametersByPathResponseBodyParameters> parameters) {
-        for (GetSecretParametersByPathResponseBodyParameters param : parameters) {
-            if (StringUtils.isNotEmpty(param.getName())) {
-                secretMap.put(param.getName(), param.getValue());
-            }
+    @Override
+    public UpdateParameterResponse updateParameter(String name, String value) {
+        try {
+            UpdateParameterRequest updateParameterRequest = new UpdateParameterRequest()
+                    .setRegionId(regionId)
+                    .setName(name)
+                    .setValue(value);
+            return client.updateParameter(updateParameterRequest);
+        } catch (Exception e) {
+            log.error("updateParameter error", e);
+            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
 
