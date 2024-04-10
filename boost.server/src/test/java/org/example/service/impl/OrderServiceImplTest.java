@@ -33,7 +33,7 @@ import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.impl.OrderServiceImpl;
-import org.example.service.payment.PaymentServiceManger;
+import org.example.service.payment.PaymentServiceManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +61,7 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 class OrderServiceImplTest {
 
     @Mock
-    PaymentServiceManger alipayService;
+    PaymentServiceManager alipayService;
 
     @Mock
     OrderOtsHelper orderOtsHelper;
