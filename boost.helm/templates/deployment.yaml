@@ -40,12 +40,10 @@ spec:
             - name: alipay-return-url
               value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/#/payCallBack"
             - name: alipay-notify-url
-              value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/alipay/verifyTradeCallback"
+              value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/api/payment/verifyTradeCallback"
             - name: TZ
               value: "Asia/Shanghai"
-            - name: service-id
-              value: {{ .Values.env.serviceId }}
-            - name: deploy-type
+            - name: deploy_type
               value: k8s
             - name: stack-name
               value: {{ .Values.env.stackName }}

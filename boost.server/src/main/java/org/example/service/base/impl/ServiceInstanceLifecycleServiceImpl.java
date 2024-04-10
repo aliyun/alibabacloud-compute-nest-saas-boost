@@ -226,15 +226,15 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
     }
 
     @Override
-    public void payOrderCallback(UserInfoModel userInfoModel, OrderDO orderDO) throws ClientException {
+    public String payOrderCallback(UserInfoModel userInfoModel, OrderDO orderDO) throws ClientException {
         if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
-            CommonRequest commonRequest = buildPayOrderCallbackRequest(orderDO.getOrderId(), OrderType.BUY.name()
-                    , Long.valueOf(userInfoModel.getAid()), orderDO.getServiceId());
+            CommonRequest commonRequest = buildPayOrderCallbackRequest(orderDO, userInfoModel.getAid());
             CommonResponse commonResponse = acsApiCaller.getCommonResponse(commonRequest);
             if (commonResponse.getHttpStatus() == HttpStatus.SC_OK && StringUtils.isNotEmpty(commonResponse.getData())) {
                 ServiceInstanceModel serviceInstanceModel = JsonUtil.parseObject(commonResponse.getData(), ServiceInstanceModel.class);
                 orderDO.setServiceInstanceId(serviceInstanceModel.getServiceInstanceId());
                 log.info("paOrderCallback success, orderId = {}, serviceInstanceId = {}", orderDO.getOrderId(), serviceInstanceModel.getServiceInstanceId());
+                return serviceInstanceModel.getServiceInstanceId();
             } else {
                 throw new BizException(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getStatusCode(), ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getCode(),
                         String.format(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getMessage(), orderDO.getOrderId()));
@@ -242,6 +242,22 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         } else {
             updateServiceInstance(userInfoModel, orderDO);
         }
+        return null;
+    }
+
+    private CommonRequest buildPayOrderCallbackRequest(OrderDO orderDO, String aid) {
+        CommonRequest request = new CommonRequest();
+        request.setSysRegionId(DEFAULT_REGION_ID);
+        request.setSysMethod(MethodType.POST);
+        request.setSysDomain(ComputeNestConstants.SERVICE_ENDPOINT);
+        request.setSysVersion(COMPUTE_NEST_SUPPLIER_API_VERSION);
+        request.setSysAction("PayOrderCallback");
+        request.putQueryParameter("OrderId", orderDO.getOrderId());
+        request.putQueryParameter("OrderType", OrderType.BUY.name());
+        request.putQueryParameter("BuyerAliUid", aid);
+        request.putQueryParameter("ServiceId", orderDO.getServiceId());
+        request.putQueryParameter("EndTime", DateUtil.parseIs08601DateMillis(orderDO.getBillingEndDateMillis()));
+        return request;
     }
 
     private void updateServiceInstance(UserInfoModel userInfoModel, OrderDO orderDO) {
@@ -261,20 +277,6 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         return Optional.ofNullable(serviceMetadataResult.getData())
                 .map(ServiceMetadataModel::getRetentionDays)
                 .orElse(DEFAULT_RETENTION_DAYS);
-    }
-
-    private CommonRequest buildPayOrderCallbackRequest(String orderId, String orderType, Long aliUid, String serviceId) {
-        CommonRequest request = new CommonRequest();
-        request.setSysRegionId(DEFAULT_REGION_ID);
-        request.setSysMethod(MethodType.POST);
-        request.setSysDomain(ComputeNestConstants.SERVICE_ENDPOINT);
-        request.setSysVersion(COMPUTE_NEST_SUPPLIER_API_VERSION);
-        request.setSysAction("PayOrderCallback");
-        request.putQueryParameter("OrderId", orderId);
-        request.putQueryParameter("OrderType", orderType);
-        request.putQueryParameter("AliUid", String.valueOf(aliUid));
-        request.putQueryParameter("ServiceId", serviceId);
-        return request;
     }
 
     private ServiceModel buildServiceModel(GetServiceInstanceResponseBody responseBody) {

@@ -81,5 +81,5 @@ public interface ServiceInstanceLifecycleService {
      * @param orderDO order data object
      * @throws ClientException exception
      */
-    void payOrderCallback(UserInfoModel userInfoModel,  OrderDO orderDO) throws ClientException;
+    String payOrderCallback(UserInfoModel userInfoModel,  OrderDO orderDO) throws ClientException;
 }
