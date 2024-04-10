@@ -38,7 +38,7 @@ const authHeaderInterceptor = (url: string, options: RequestConfig) => {
   const ticket = getTicket()
   let authHeader = {}
   if (ticket !== undefined){
-      authHeader = { Authorization: 'Bearer ' + ticket.token };
+    authHeader = { Authorization: 'Bearer ' + ticket.token };
   }
   return {
     url: `${url}`,
@@ -109,7 +109,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       }
     },
     avatarProps: {
-        // @ts-ignore
+      // @ts-ignore
       src: initialState?.currentUser?.avatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
@@ -148,13 +148,13 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       },
     ],
     links: isDev
-      ? [
+        ? [
           <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
             <LinkOutlined />
             <span>OpenAPI 文档</span>
           </Link>,
         ]
-      : [],
+        : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
@@ -162,22 +162,22 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     childrenRender: (children) => {
       // if (initialState?.loading) return <PageLoading />;
       return (
-        <>
-          {children}
-          {isDev && (
-            <SettingDrawer
-              disableUrlParams
-              enableDarkTheme
-              settings={updateSettings}
-              onSettingChange={(settings) => {
-                setInitialState((preInitialState) => ({
-                  ...preInitialState,
-                  settings,
-                }));
-              }}
-            />
-          )}
-        </>
+          <>
+            {children}
+            {isDev && (
+                <SettingDrawer
+                    disableUrlParams
+                    enableDarkTheme
+                    settings={updateSettings}
+                    onSettingChange={(settings) => {
+                      setInitialState((preInitialState) => ({
+                        ...preInitialState,
+                        settings,
+                      }));
+                    }}
+                />
+            )}
+          </>
       );
     },
     ...updateSettings,
@@ -192,7 +192,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  */
 export const request = {
   ...errorConfig,
-    requestInterceptors: [authHeaderInterceptor],
+  requestInterceptors: [authHeaderInterceptor],
 
 };
 

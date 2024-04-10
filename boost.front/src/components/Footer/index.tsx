@@ -63,20 +63,20 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <DefaultFooter
-      style={{
-        background: 'none',
-      }}
-      copyright={`${currentYear} ${defaultMessage}`}
-      links={[
-        {
-          key: 'supplier',
-          title: providerName ? providerName : '服务商名待填',
-          href: providerOfficialLink ? providerOfficialLink : '服务商官网链接待填',
-          blankTarget: true,
-        },
-      ]}
-    />
+      <DefaultFooter
+          style={{
+            background: 'none',
+          }}
+          copyright={`${currentYear} ${defaultMessage}`}
+          links={[
+            {
+              key: 'supplier',
+              title: providerName ? providerName : '服务商名待填',
+              href: providerOfficialLink ? providerOfficialLink : '服务商官网链接待填',
+              blankTarget: true,
+            },
+          ]}
+      />
   );
 };
 
