@@ -17,8 +17,8 @@ package org.example.process;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.dto.OrderDTO;
-import org.example.common.helper.BaseOtsHelper;
-import org.example.common.helper.OrderOtsHelper;
+import org.example.common.helper.ots.BaseOtsHelper;
+import org.example.common.helper.ots.OrderOtsHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

@@ -23,6 +23,10 @@ export default {
   'menu.form.advanced-form': '高级表单',
   'menu.list': '列表页',
   'menu.list.table-list': '服务实例',
+  'menu.list.table-document': '文档',
+  'menu.list.featured-services': '精选服务',
+  'menu.list.table-message': '消息',
+  'menu.list.commodity-list': '商品列表',
   'menu.list.order-list': '我的订单',
   'menu.list.basic-list': '标准列表',
   'menu.list.card-list': '卡片列表',
@@ -50,4 +54,9 @@ export default {
   'menu.editor.flow': '流程编辑器',
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
+  'menu.商品': '商品',
+  'menu.精选服务': '精选服务',
+  'menu.消息': '消息',
+  'menu.文档': '文档',
+
 };

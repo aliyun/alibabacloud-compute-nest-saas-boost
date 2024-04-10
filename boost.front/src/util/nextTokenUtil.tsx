@@ -13,18 +13,37 @@
 *limitations under the License.
 */
 
-export const handleGoToPage = async (page: number, currentPage:number, totalPage:number, fetchData: (page: number, flag: boolean) => Promise<void>,  setCurrentPage: (page: number) => void
+import React from "react";
+import {ActionType} from "@ant-design/pro-table/lib";
+
+export interface FetchResult<T> {
+
+  data: T[];
+  success: boolean;
+  total: number;
+}
+
+export const handleGoToPage = async (
+    page: number,
+    currentPage: number,
+    totalPage: number,
+    ListResult: (params: { pageSize: number; current: number; [key: string]: any }) => Promise<FetchResult<any> | undefined>,
+    setCurrentPage: (page: number) => void,
+    actionRef: React.MutableRefObject<ActionType | undefined>,
+    pageSize: number
+
 ) => {
-  if (page > currentPage && page <= totalPage) {
+  if (page !== currentPage && page >= 1 && page <= totalPage) {
     for (let tmpPage = currentPage + 1; tmpPage <= page; tmpPage++) {
-      await fetchData(tmpPage, false);
+      await ListResult({ current: tmpPage, pageSize: pageSize});
     }
     setCurrentPage(page);
-  } else {
-    if (page >= 1) {
-      setCurrentPage(page);
-    }
+    actionRef.current?.reload();
   }
 };
+
+
+
+
 
 
