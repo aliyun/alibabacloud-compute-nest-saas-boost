@@ -20,6 +20,7 @@ import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
+import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.CloudMonitorClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
@@ -70,6 +71,9 @@ class AdapterManagerImplTest {
 
     @Tested
     private AdapterManagerImpl adapterManager;
+
+    @Injectable
+    private AcsApiCaller acsApiCaller;
 
     private Map<String, String> headers;
 

@@ -221,7 +221,7 @@ public class OrderServiceImpl implements OrderService {
         getServiceInstanceParam.setServiceInstanceId(param.getServiceInstanceId());
         BaseResult<ServiceInstanceModel> result = serviceInstanceLifecycleService.getServiceInstance(userInfoModel, getServiceInstanceParam);
         ServiceInstanceModel serviceInstanceModel = result.getData();
-        if (serviceInstanceModel.getServiceType() == null || ServiceType.user.equals(serviceInstanceModel.getServiceType())) {
+        if (serviceInstanceModel == null || serviceInstanceModel.getServiceType() == null || ServiceType.user.equals(serviceInstanceModel.getServiceType())) {
             throw new BizException(ErrorInfo.DELETION_NOT_ALLOWED.getStatusCode(), ErrorInfo.DELETION_NOT_ALLOWED.getCode(),
                     String.format(ErrorInfo.DELETION_NOT_ALLOWED.getMessage(), param.getServiceInstanceId(), ServiceType.user));
         }
