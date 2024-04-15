@@ -83,7 +83,7 @@ const PayCallback: React.FC = () => {
             title: 'Failed',
             content: '很抱歉，支付未成功，请稍后再试。',
             onOk: () => {
-                window.location.href = '#/welcome';
+                window.location.href = '#/order';
             },
         });
     };

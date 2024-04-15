@@ -14,7 +14,7 @@ const CommodityList: React.FC = () => {
     const [isCommodityModalVisible, setIsCommodityModalVisible] = useState(false);
     const [isSpecificationModalVisible, setIsSpecificationModalVisible] = useState(false);
     const [selectedCommodity, setSelectedCommodity] = useState<API.CommodityDTO | undefined>(undefined);
-    const pageSize = 10;
+    const defaultPageSize = 10;
     const [total, setTotal] = useState<number>(0);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -115,11 +115,11 @@ const CommodityList: React.FC = () => {
                 message.error('商品新建失败');
             }
         }
+        setIsCommodityModalVisible(false);
+        setSelectedCommodity(undefined);
         setTimeout(() => {
             actionRef.current?.reload();
         }, 1500);
-        setIsCommodityModalVisible(false);
-        setSelectedCommodity(undefined);
     };
 
     const handleSpecifications = (commodity: API.CommodityDTO) => {
@@ -182,7 +182,14 @@ const CommodityList: React.FC = () => {
                               </a>
                           </Tooltip>
                       ]}
-                      request={fetchCommodities}
+                      request={async (params, sorter, filters)=>{
+                          const pageSize = params.pageSize ?? defaultPageSize;
+                          const currentPage = params.current ?? 1;
+                          return fetchCommodities({
+                              pageSize,
+                              current: currentPage
+                          });
+                      }}
                       options={{
                           search: false,
                           density: false,
@@ -227,7 +234,7 @@ const CommodityList: React.FC = () => {
             <Pagination
                 style={{marginTop: '16px', textAlign: 'right'}}
                 current={currentPage}
-                pageSize={pageSize}
+                pageSize={defaultPageSize}
                 total={total}
                 onChange={(page, pageSize) => {
                     handleGoToPage(page, currentPage, total, fetchCommodities, setCurrentPage, actionRef, pageSize);

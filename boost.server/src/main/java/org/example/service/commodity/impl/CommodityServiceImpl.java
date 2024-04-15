@@ -16,6 +16,7 @@ package org.example.service.commodity.impl;
 
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.config.OosSecretParamConfig;
 import org.example.common.constant.CommoditySpecificationOtsConstant;
 import org.example.common.constant.CommodityStatus;
 import org.example.common.dataobject.CommodityDO;
@@ -37,7 +38,6 @@ import org.example.common.param.commodity.specification.ListCommoditySpecificati
 import org.example.service.commodity.CommodityService;
 import org.example.service.commodity.CommoditySpecificationService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
 import static org.example.common.utils.UuidUtil.generateCommodityCode;
 
 @Service
@@ -63,8 +64,8 @@ public class CommodityServiceImpl implements CommodityService {
     @Resource
     private WalletHelper walletHelper;
 
-    @Value("${service.admin.aid}")
-    private String adminAid;
+    @Resource
+    private OosSecretParamConfig oosSecretParamConfig;
 
     private static final String ARRAY_REGEX = "\\s*,\\s*";
 
@@ -85,7 +86,7 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     public ListResult<CommodityDTO> listAllCommodities(UserInfoModel userInfoModel, ListAllCommoditiesParam param) {
         List<OtsFilter> matchFilters = new ArrayList<>();
-        OtsFilter commodityCodeMatchFilter = OtsFilter.createMatchFilter(CommoditySpecificationOtsConstant.OWNER_ID, adminAid);
+        OtsFilter commodityCodeMatchFilter = OtsFilter.createMatchFilter(CommoditySpecificationOtsConstant.OWNER_ID, oosSecretParamConfig.getSecretValue(OOS_SECRET_ADMIN_AID));
         matchFilters.add(commodityCodeMatchFilter);
 
         if (param.getCommodityStatus() != null) {
