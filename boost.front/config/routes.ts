@@ -13,8 +13,6 @@
 *limitations under the License.
 */
 
-import StripSpmRedirect from "@/pages/StripSpmRedirect";
-
 /**
  * @name umi 的路由配置
  * @description 只支持 path,component,routes,redirect,wrappers,name,icon 的配置
@@ -82,6 +80,13 @@ export default [
         icon: 'ShopOutlined',
         path: '/commodity',
         component: './Commodity',
+        access: 'admin'
+    },
+    {
+        name: 'parameter-management',
+        icon: 'SettingOutlined',
+        path: '/parameter',
+        component: './ParameterManagement',
         access: 'admin'
     },
 ];
