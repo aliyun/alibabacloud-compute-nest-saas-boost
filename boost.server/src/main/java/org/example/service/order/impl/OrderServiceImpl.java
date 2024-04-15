@@ -146,7 +146,8 @@ public class OrderServiceImpl implements OrderService {
     public void updateOrder(UserInfoModel userInfoModel, OrderDO orderDO) {
         try {
             updateBillingDates(orderDO);
-            serviceInstanceLifecycleService.payOrderCallback(userInfoModel, orderDO);
+            String serviceInstanceId = serviceInstanceLifecycleService.payOrderCallback(userInfoModel, orderDO);
+            orderDO.setServiceInstanceId(serviceInstanceId);
             orderOtsHelper.updateOrder(orderDO);
         } catch (Exception e) {
             handleUpdateOrderFailure(e, orderDO);

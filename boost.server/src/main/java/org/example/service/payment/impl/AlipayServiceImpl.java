@@ -90,6 +90,7 @@ public class AlipayServiceImpl implements PaymentService {
             unverifiedOrder.setTradeStatus(TradeStatus.TRADE_SUCCESS);
             unverifiedOrder.setPayPeriod(orderFromOts.getPayPeriod());
             unverifiedOrder.setPayPeriodUnit(orderFromOts.getPayPeriodUnit());
+            unverifiedOrder.setServiceId(orderFromOts.getServiceId());
             if (StringUtils.isEmpty(unverifiedOrder.getServiceInstanceId())) {
                 unverifiedOrder.setServiceInstanceId(orderFromOts.getServiceInstanceId());
             }

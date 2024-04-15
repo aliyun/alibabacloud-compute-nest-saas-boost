@@ -87,7 +87,7 @@
                 <version>2.3.0</version>
                 <configuration>
                     <to>
-                        <image>serverless:1.0.0</image>
+                        <image>aliyun-saas-boost-serverless:1.0.0</image>
                     </to>
                     <container>
                         <ports>

@@ -42,10 +42,10 @@ public class OauthConfig {
 
 
     public String getOauthClientId() {
-        return oosSecretParamConfig.getSecretValue(String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, OAUTH_CLIENT_ID));
+        return oosSecretParamConfig.getSecretValue(OAUTH_CLIENT_ID);
     }
 
     public String getOauthClientSecret() {
-        return oosSecretParamConfig.getSecretValue(String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, OAUTH_CLIENT_SECRET));
+        return oosSecretParamConfig.getSecretValue(OAUTH_CLIENT_SECRET);
     }
 }

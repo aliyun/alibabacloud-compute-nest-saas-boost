@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_OFFICIAL_PUBLIC_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_PID;
@@ -43,7 +44,8 @@ public class OosSecretParamConfig {
     private Map<String, String> secretMap;
 
     public String getSecretValue(String name) {
-        return this.secretMap.get(name);
+        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, name);
+        return this.secretMap.get(format);
     }
 
     public void init() {
@@ -54,6 +56,7 @@ public class OosSecretParamConfig {
         putSecretValue(OOS_SECRET_PRIVATE_KEY);
         putSecretValue(OAUTH_CLIENT_ID);
         putSecretValue(OAUTH_CLIENT_SECRET);
+        putSecretValue(OOS_SECRET_ADMIN_AID);
 //        this.secretMap = oosClient.getSecretParametersByPath(String.format("%s/%s", SERVICE_INSTANCE_ID, stackName));
     }
 
