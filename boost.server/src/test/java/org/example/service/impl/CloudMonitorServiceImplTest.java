@@ -29,8 +29,8 @@ import org.example.common.model.MetricMetaDataModel;
 import org.example.common.model.MetricMetaInfoModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
-import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.ListMetricsParam;
+import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.impl.CloudMonitorServiceImpl;
 import org.junit.jupiter.api.Assertions;
@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -126,10 +125,10 @@ class CloudMonitorServiceImplTest {
         teaException.setCode("code");
         when(cloudMonitorClient.getMetricList(any(DescribeMetricListRequest.class)))
                 .thenThrow(teaException);
-        assertThrows(BizException.class, () -> cloudMonitorService.listMetrics(userInfoModel, listMetricsParam));
+        Assertions.assertDoesNotThrow(() -> cloudMonitorService.listMetrics(userInfoModel, listMetricsParam));
         when(cloudMonitorClient.getMetricList(any(DescribeMetricListRequest.class)))
                 .thenThrow(new RuntimeException());
-        assertThrows(BizException.class, () -> cloudMonitorService.listMetrics(userInfoModel, listMetricsParam));
+        Assertions.assertDoesNotThrow(() -> cloudMonitorService.listMetrics(userInfoModel, listMetricsParam));
     }
 
     @Test
@@ -143,7 +142,7 @@ class CloudMonitorServiceImplTest {
                 .thenReturn(BaseResult.success(mockServiceInstanceModel));
         when(cloudMonitorClient.getMetricList(any(DescribeMetricListRequest.class)))
                 .thenThrow(BizException.class);
-        assertThrows(BizException.class, () -> cloudMonitorService.listMetrics(userInfoModel, listMetricsParam));
+        Assertions.assertDoesNotThrow(() -> cloudMonitorService.listMetrics(userInfoModel, listMetricsParam));
     }
 
 

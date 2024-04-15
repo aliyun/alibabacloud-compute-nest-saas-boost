@@ -73,7 +73,7 @@ class HttpUtilTest {
     void testRequestToObject() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("trade_status", "TRADE_SUCCESS");
-        request.setParameter("type", "ALIPAY");
+        request.setParameter("pay_channel", "ALIPAY");
         request.setParameter("notExistField", "notExistValue");
         OrderDO orderDO = new OrderDO();
         orderDO.setPayChannel(PayChannel.ALIPAY);

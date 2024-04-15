@@ -16,7 +16,6 @@
 package org.example.common.utils;
 
 import org.example.common.constant.ChargeType;
-import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.commodity.GetCommodityParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
@@ -46,7 +45,6 @@ class TokenUtilTest {
         map.put("commodityCode", "saas-boost-176625a4");
         map.put("chargeType", ChargeType.PrePaid.toString());
         map.put("payPeriodUnit", PayPeriodUnit.Month.toString());
-        map.put("payChannel", PayChannel.ALIPAY.toString());
         map.put("orderType", "new");
         map.put("specificationName", "basic");
         map.put("payPeriod", "1");
