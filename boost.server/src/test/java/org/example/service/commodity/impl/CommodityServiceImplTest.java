@@ -21,12 +21,13 @@ import mockit.Tested;
 import mockit.Verifications;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.config.OosSecretParamConfig;
 import org.example.common.dataobject.CommodityDO;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
+import org.example.common.helper.WalletHelper;
 import org.example.common.helper.ots.BaseOtsHelper;
 import org.example.common.helper.ots.CommodityOtsHelper;
-import org.example.common.helper.WalletHelper;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.CommodityBaseParam;
@@ -67,6 +68,9 @@ class CommodityServiceImplTest {
 
     @Injectable
     private WalletHelper walletHelper;
+
+    @Injectable
+    private OosSecretParamConfig oosSecretParamConfig;
 
     @Test
     void testCreateCommodity() {

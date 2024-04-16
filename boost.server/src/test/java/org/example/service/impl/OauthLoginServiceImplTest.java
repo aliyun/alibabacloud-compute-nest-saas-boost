@@ -70,6 +70,7 @@ class OauthLoginServiceImplTest {
         userInfoModel.setLoginName("aliYunLoginName");
         userInfoModel.setAid("aliYunId");
         userInfoModel.setUid("aliYunUserId");
+        userInfoModel.setAdmin(Boolean.TRUE);
         final BaseResult<UserInfoModel> expectedResult = new BaseResult<>(userInfoModel);
         expectedResult.setRequestId("id");
         final UserInfoModel userInfoModel1 = new UserInfoModel("userId", "name", "aliYunLoginName", "aliYunId", "aliYunUserId", Boolean.TRUE);

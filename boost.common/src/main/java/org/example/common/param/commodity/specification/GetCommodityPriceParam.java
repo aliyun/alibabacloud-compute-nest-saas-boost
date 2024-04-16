@@ -40,6 +40,5 @@ public class GetCommodityPriceParam extends SpiBaseParam {
     /**
      * 套餐名称
      */
-    @NotEmpty(message = "specificationName is null")
     private String specificationName;
 }

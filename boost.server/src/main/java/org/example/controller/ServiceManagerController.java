@@ -44,6 +44,7 @@ public class ServiceManagerController {
     @Resource
     private ServiceManager serviceManager;
 
+    @Deprecated
     @ApiOperation(value = "获取服务支付金额", nickname = "getServiceCost")
     @RequestMapping(path = "/getServiceCost",method = RequestMethod.GET)
     public BaseResult<Double> getServiceCost(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
