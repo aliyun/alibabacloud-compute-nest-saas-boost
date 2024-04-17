@@ -48,6 +48,13 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultListConfigParametersModel_ = {
+    code?: string;
+    data?: ListConfigParametersModel;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultLong_ = {
     code?: string;
     data?: number;
@@ -131,6 +138,12 @@ declare namespace API {
     payPeriods?: string;
     specificationName?: string;
     unitPrice?: number;
+  };
+
+  type ConfigParameterModel = {
+    id?: string;
+    name?: string;
+    type?: string;
   };
 
   type createCommodityParams = {
@@ -252,6 +265,15 @@ declare namespace API {
     maxResults?: number;
     nextToken?: string;
     specificationName?: string;
+  };
+
+  type ListConfigParametersModel = {
+    configParameterModels?: ConfigParameterModel[];
+  };
+
+  type listConfigParametersParams = {
+    encrypted?: boolean[];
+    name?: string[];
   };
 
   type listMetricsParams = {
@@ -402,7 +424,7 @@ declare namespace API {
     serviceModel?: ServiceModel;
     serviceName?: string;
     serviceType?: 'private' | 'managed';
-    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaaSBoost';
+    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaasBoost';
     status?: string;
     updateTime?: string;
   };
@@ -445,6 +467,12 @@ declare namespace API {
     payPeriods?: number[];
     specificationName?: string;
     unitPrice?: number;
+  };
+
+  type updateConfigParameterParams = {
+    encrypted?: boolean;
+    name?: string;
+    value?: string;
   };
 
   type UserInfoModel = {
