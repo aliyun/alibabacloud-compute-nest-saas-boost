@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {Tabs, Form, Input, Button, Space, Spin, Tooltip} from 'antd';
 import { EditOutlined, ReloadOutlined } from '@ant-design/icons';
-import { ProviderInfo, PaymentKeys, initialProviderInfo, initialPaymentKeys } from '@/pages/ParameterManagement/common';
+import { ProviderInfo, PaymentKeys} from '@/pages/ParameterManagement/component/interface';
+import { initialProviderInfo, initialPaymentKeys } from '@/pages/ParameterManagement/common';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 
@@ -20,27 +21,32 @@ const ProviderInfoForm: React.FC<{
         onUpdateProviderInfo(localProviderInfo);
     };
 
+    const handleCancel = () => {
+        onCancelEdit();
+        setLocalProviderInfo(providerInfo);
+    };
+
     const handleChange = (key: keyof ProviderInfo, value: string) => {
         setLocalProviderInfo({ ...localProviderInfo, [key]: value });
     };
 
     return (
         <Form>
-            <Form.Item label="服务商名称">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>服务商名称</label>}>
                 {editing ? (
                     <Input value={localProviderInfo.name} onChange={(e) => handleChange('name', e.target.value)} />
                 ) : (
                     <span>{providerInfo.name}</span>
                 )}
             </Form.Item>
-            <Form.Item label="官方链接">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方链接</label>}>
                 {editing ? (
                     <Input value={localProviderInfo.officialLink} onChange={(e) => handleChange('officialLink', e.target.value)} />
                 ) : (
-                    <a href={providerInfo.officialLink} target="_blank" rel="noopener noreferrer">{providerInfo.officialLink}</a>
+                    <a href={"https://computenest.console.aliyun.com/"} target="_blank" rel="noopener noreferrer">{providerInfo.officialLink}</a>
                 )}
             </Form.Item>
-            <Form.Item label="服务商简介">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>服务商简介</label>}>
                 {editing ? (
                     <Input.TextArea value={localProviderInfo.description} onChange={(e) => handleChange('description', e.target.value)} />
                 ) : (
@@ -56,7 +62,7 @@ const ProviderInfoForm: React.FC<{
                     }}
                 >
                     <Button type="primary" onClick={handleSave}>保存</Button>
-                    <Button onClick={onCancelEdit}>取消</Button>
+                    <Button onClick={handleCancel}>取消</Button>
                 </Space>
             ) : null}
         </Form>
@@ -76,34 +82,39 @@ const PaymentKeyForm: React.FC<{
         onUpdatePaymentKeys(localPaymentKeys);
     };
 
+    const handleCancel = () => {
+        onCancelEdit();
+        setLocalPaymentKeys(paymentKeys);
+    };
+
     const handleChange = (key: keyof PaymentKeys, value: string) => {
         setLocalPaymentKeys({ ...localPaymentKeys, [key]: value });
     };
 
     return (
         <Form>
-            <Form.Item label="官方公钥(支付宝)">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方公钥(支付宝)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.alipayPublicKey} onChange={(e) => handleChange('alipayPublicKey', e.target.value)} />
                 ) : (
                     <span>{paymentKeys.alipayPublicKey}</span>
                 )}
             </Form.Item>
-            <Form.Item label="服务商私钥(支付宝)">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>服务商私钥(支付宝)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.alipayPrivateKey} onChange={(e) => handleChange('alipayPrivateKey', e.target.value)} />
                 ) : (
                     <span>{paymentKeys.alipayPrivateKey}</span>
                 )}
             </Form.Item>
-            <Form.Item label="官方公钥(微信)">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方公钥(微信)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.wechatPublicKey} onChange={(e) => handleChange('wechatPublicKey', e.target.value)} />
                 ) : (
                     <span>{paymentKeys.wechatPublicKey}</span>
                 )}
             </Form.Item>
-            <Form.Item label="官方私钥(微信)">
+            <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方私钥(微信)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.wechatPrivateKey} onChange={(e) => handleChange('wechatPrivateKey', e.target.value)} />
                 ) : (
@@ -119,7 +130,7 @@ const PaymentKeyForm: React.FC<{
                     }}
                 >
                     <Button type="primary" onClick={handleSave}>保存</Button>
-                    <Button onClick={onCancelEdit}>取消</Button>
+                    <Button onClick={handleCancel}>取消</Button>
                 </Space>
             ) : null}
         </Form>
@@ -130,6 +141,8 @@ const ParameterManagement: React.FC = () => {
     const [activeTabKey, setActiveTabKey] = useState<string>('providerInfo');
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [editing, setEditing] = useState(false);
+    const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
+    const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
 
     const handleTabChange = (key: string) => {
         setActiveTabKey(key);
@@ -151,6 +164,16 @@ const ParameterManagement: React.FC = () => {
     const handleCancelEdit = () => {
         setEditing(false);
         console.log('Cancel edit');
+    };
+
+    const onUpdateProviderInfo = (updatedInfo: ProviderInfo) => {
+        setProviderInfo(updatedInfo);
+        console.log('Update provider info:', updatedInfo);
+    };
+
+    const onUpdatePaymentKeys = (updatedKeys: PaymentKeys) => {
+        setPaymentKeys(updatedKeys);
+        console.log('Update payment keys:', updatedKeys);
     };
 
     return (
@@ -193,16 +216,16 @@ const ParameterManagement: React.FC = () => {
                     <Tabs activeKey={activeTabKey} onChange={handleTabChange} style={{marginTop: '-24px' }}>
                         <TabPane tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>服务商个人信息管理</span>} key="providerInfo">
                             <ProviderInfoForm
-                                providerInfo={initialProviderInfo}
-                                onUpdateProviderInfo={(updatedInfo) => console.log('Update provider info:', updatedInfo)}
+                                providerInfo={providerInfo}
+                                onUpdateProviderInfo={onUpdateProviderInfo}
                                 editing={editing}
                                 onCancelEdit={handleCancelEdit}
                             />
                         </TabPane>
                         <TabPane tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付密钥管理</span>} key="paymentKeys">
                             <PaymentKeyForm
-                                paymentKeys={initialPaymentKeys}
-                                onUpdatePaymentKeys={(updatedKeys) => console.log('Update payment keys:', updatedKeys)}
+                                paymentKeys={paymentKeys}
+                                onUpdatePaymentKeys={onUpdatePaymentKeys}
                                 editing={editing}
                                 onCancelEdit={handleCancelEdit}
                             />
@@ -215,5 +238,3 @@ const ParameterManagement: React.FC = () => {
 };
 
 export default ParameterManagement;
-
-
