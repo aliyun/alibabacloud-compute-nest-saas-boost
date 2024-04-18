@@ -1,7 +1,7 @@
 export interface ProviderInfo {
-    name: string;
-    officialLink: string;
-    description: string;
+    providerName: string;
+    providerOfficialLink: string;
+    providerDescription: string;
 }
 
 export interface PaymentKeys {

@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
-import {Tabs, Form, Input, Button, Space, Spin, Tooltip} from 'antd';
+import React, {useEffect, useState} from 'react';
+import {updateConfigParameter, listConfigParameters} from "@/services/backend/parameterManager";
+import {Tabs, Form, Input, Button, Space, Spin, Tooltip, message} from 'antd';
 import {EditOutlined, EyeInvisibleOutlined, EyeOutlined, ReloadOutlined} from '@ant-design/icons';
 import { ProviderInfo, PaymentKeys} from '@/pages/ParameterManagement/component/interface';
-import { initialProviderInfo, initialPaymentKeys } from '@/pages/ParameterManagement/common';
+import {
+    initialProviderInfo,
+    initialPaymentKeys,
+    initialProviderInfoNameList,
+    initialProviderInfoEncryptedList,
+    initialPaymentKeysNameList,
+    initialPaymentKeysEncryptedList, encryptedCredentialsMap,
+
+} from '@/pages/ParameterManagement/common';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 
@@ -32,23 +41,23 @@ const ProviderInfoForm: React.FC<{
         <Form>
             <Form.Item label={<label style={{ fontWeight: 'bold' }}>服务商名称</label>}>
                 {editing ? (
-                    <Input value={localProviderInfo.name} onChange={(e) => handleChange('name', e.target.value)} />
+                    <Input value={localProviderInfo.providerName} onChange={(e) => handleChange('providerName', e.target.value)} />
                 ) : (
-                    <span>{providerInfo.name}</span>
+                    <span>{providerInfo.providerName}</span>
                 )}
             </Form.Item>
             <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方链接</label>}>
                 {editing ? (
-                    <Input value={localProviderInfo.officialLink} onChange={(e) => handleChange('officialLink', e.target.value)} />
+                    <Input value={localProviderInfo.providerOfficialLink} onChange={(e) => handleChange('providerOfficialLink', e.target.value)} />
                 ) : (
-                    <a href={"https://computenest.console.aliyun.com/"} target="_blank" rel="noopener noreferrer">{providerInfo.officialLink}</a>
+                    <a href={"https://computenest.console.aliyun.com/"} target="_blank" rel="noopener noreferrer">{providerInfo.providerOfficialLink}</a>
                 )}
             </Form.Item>
             <Form.Item label={<label style={{ fontWeight: 'bold' }}>服务商简介</label>}>
                 {editing ? (
-                    <Input.TextArea value={localProviderInfo.description} onChange={(e) => handleChange('description', e.target.value)} />
+                    <Input.TextArea value={localProviderInfo.providerDescription} onChange={(e) => handleChange('providerDescription', e.target.value)} />
                 ) : (
-                    <p>{providerInfo.description}</p>
+                    <p>{providerInfo.providerDescription}</p>
                 )}
             </Form.Item>
             {editing ? (
@@ -71,9 +80,9 @@ const PaymentKeyForm: React.FC<{
     paymentKeys: PaymentKeys,
     onUpdatePaymentKeys: (updatedKeys: PaymentKeys) => void,
     editing: boolean, // Add this prop
-    isPrivateKeysVisible: boolean,
+    privateKeysVisible: boolean,
     onCancelEdit: () => void, // Add this prop
-}> = ({ paymentKeys, onUpdatePaymentKeys, editing, isPrivateKeysVisible, onCancelEdit }) => {
+}> = ({ paymentKeys, onUpdatePaymentKeys, editing, privateKeysVisible, onCancelEdit }) => {
     const [localPaymentKeys, setLocalPaymentKeys] = useState(paymentKeys);
 
     const handleSave = () => {
@@ -96,7 +105,7 @@ const PaymentKeyForm: React.FC<{
                 {editing ? (
                     <Input value={localPaymentKeys.alipayPublicKey} onChange={(e) => handleChange('alipayPublicKey', e.target.value)} />
                 ) : (
-                    isPrivateKeysVisible ? (
+                    privateKeysVisible ? (
                         <span>{paymentKeys.alipayPublicKey}</span>
                     ) : (
                         <span>********************</span>
@@ -107,7 +116,7 @@ const PaymentKeyForm: React.FC<{
                 {editing ? (
                     <Input value={localPaymentKeys.alipayPrivateKey} onChange={(e) => handleChange('alipayPrivateKey', e.target.value)} />
                 ) : (
-                    isPrivateKeysVisible ? (
+                    privateKeysVisible ? (
                         <span>{paymentKeys.alipayPrivateKey}</span>
                     ) : (
                         <span>********************</span>
@@ -118,7 +127,7 @@ const PaymentKeyForm: React.FC<{
                 {editing ? (
                     <Input value={localPaymentKeys.wechatPublicKey} onChange={(e) => handleChange('wechatPublicKey', e.target.value)} />
                 ) : (
-                    isPrivateKeysVisible ? (
+                    privateKeysVisible ? (
                         <span>{paymentKeys.wechatPublicKey}</span>
                     ) : (
                         <span>********************</span>
@@ -129,7 +138,7 @@ const PaymentKeyForm: React.FC<{
                 {editing ? (
                     <Input value={localPaymentKeys.wechatPrivateKey} onChange={(e) => handleChange('wechatPrivateKey', e.target.value)} />
                 ) : (
-                    isPrivateKeysVisible ? (
+                    privateKeysVisible ? (
                         <span>{paymentKeys.wechatPrivateKey}</span>
                     ) : (
                         <span>********************</span>
@@ -156,9 +165,19 @@ const ParameterManagement: React.FC = () => {
     const [activeTabKey, setActiveTabKey] = useState<string>('providerInfo');
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [editing, setEditing] = useState(false);
-    const [isPrivateKeysVisible, setIsPrivateKeysVisible] = useState<boolean>(false);
+    const [privateKeysVisible, setIsPrivateKeysVisible] = useState<boolean>(false);
     const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
     const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
+
+    useEffect(() => {
+        (async () => {
+            if (activeTabKey == 'providerInfo'){
+                await loadProviderInfo();
+            } else if (activeTabKey == 'paymentKeys'){
+                await loadPaymentKeys();
+            }
+        })();
+    }, [activeTabKey]);
 
     const handleTabChange = (key: string) => {
         setActiveTabKey(key);
@@ -166,8 +185,11 @@ const ParameterManagement: React.FC = () => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        // Simulate data refresh
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (activeTabKey == 'providerInfo'){
+            await loadProviderInfo();
+        } else if (activeTabKey == 'paymentKeys'){
+            await loadPaymentKeys();
+        }
         setRefreshing(false);
     };
 
@@ -180,16 +202,111 @@ const ParameterManagement: React.FC = () => {
     };
 
     const handleTogglePrivateKeysVisibility = () => {
-        setIsPrivateKeysVisible(!isPrivateKeysVisible);
+        setIsPrivateKeysVisible(!privateKeysVisible);
+    };
+
+    const loadProviderInfo = () => {
+        listConfigParameters({
+            name: initialProviderInfoNameList,
+            encrypted: initialProviderInfoEncryptedList,
+        }).then((result) => {
+            onListProviderInfo(result)
+            console.log(result);
+        });
+    };
+
+    const loadPaymentKeys = () => {
+        listConfigParameters({
+            name: initialPaymentKeysNameList,
+            encrypted: initialPaymentKeysEncryptedList,
+        }).then((result) => {
+            onListPaymentKeys(result)
+            console.log(result);
+        });
     }
 
     const onUpdateProviderInfo = (updatedInfo: ProviderInfo) => {
-        setProviderInfo(updatedInfo);
+        const providerInfoKeys = Object.keys(updatedInfo) as Array<keyof ProviderInfo>;
+        providerInfoKeys.forEach(field => {
+            if (updatedInfo[field] !== providerInfo[field]) {
+                try {
+                    updateConfigParameter({
+                        name: updatedInfo[field],
+                        encrypted: encryptedCredentialsMap[field],
+                    }).then((result) => {
+                        setProviderInfo(updatedInfo);
+                        message.success('个人信息更新成功');
+                        console.log(result);
+                    });
+                } catch (e) {
+                    message.error('个人信息更新失败');
+                    console.log(e);
+                }
+            }
+        });
     };
 
     const onUpdatePaymentKeys = (updatedKeys: PaymentKeys) => {
-        setPaymentKeys(updatedKeys);
+        const paymentKeysKeys = Object.keys(updatedKeys) as Array<keyof PaymentKeys>;
+        paymentKeysKeys.forEach(field => {
+            if (updatedKeys[field] !== paymentKeys[field]) {
+                try {
+                    updateConfigParameter({
+                        name: updatedKeys[field],
+                        encrypted: encryptedCredentialsMap[field],
+                    }).then((result) => {
+                        setPaymentKeys(updatedKeys);
+                        message.success('支付密钥更新成功');
+                        console.log(result);
+                    });
+                } catch (e) {
+                    message.error('支付密钥更新失败');
+                }
+            }
+        });
     };
+
+    const onListProviderInfo = (result: API.BaseResult) => {
+        if (
+            result != undefined &&
+            result.data != undefined &&
+            result.data.configParameterModels != undefined &&
+            result.data.configParameterModels.length > 0
+        ) {
+            const [listProviderInfo, setListProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
+
+            result.data.configParameterModels.forEach((configParam: API.ConfigParameterModel) => {
+                const { name, id } = configParam;
+
+                if (name != undefined && name in listProviderInfo) {
+                    setListProviderInfo((prevProviderInfo) => ({
+                        ...prevProviderInfo,
+                        [name]: id,
+                    }));
+                }
+            });
+        }
+    };
+
+    const onListPaymentKeys = (result: API.BaseResult) => {
+        if (
+            result != undefined &&
+            result.data != undefined &&
+            result.data.configParameterModels != undefined &&
+            result.data.configParameterModels.length > 0
+        ) {
+            const [listPaymentKeys, setListPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
+            result.data.configParameterModels.forEach((configParam: API.ConfigParameterModel) => {
+                const { name, id } = configParam;
+                if (name != undefined && name in listPaymentKeys) {
+                    setListPaymentKeys((prevPaymentKeys) => ({
+                        ...prevPaymentKeys,
+                        [name]: id,
+                    }));
+                }
+            });
+        }
+    }
 
     return (
         <PageContainer title={'参数管理'}>
@@ -228,7 +345,7 @@ const ParameterManagement: React.FC = () => {
                             </a>
                         </Tooltip>
                         {activeTabKey == 'paymentKeys' ? (
-                            isPrivateKeysVisible ? (
+                            privateKeysVisible ? (
                                 <Tooltip key="hidePrivateKeys" title="隐藏加密参数">
                                     <a
                                         key="hidePrivateKeys"
@@ -276,7 +393,7 @@ const ParameterManagement: React.FC = () => {
                                     paymentKeys={paymentKeys}
                                     onUpdatePaymentKeys={onUpdatePaymentKeys}
                                     editing={editing}
-                                    isPrivateKeysVisible={isPrivateKeysVisible}
+                                    privateKeysVisible={privateKeysVisible}
                                     onCancelEdit={handleCancelEdit}
                                 />
                             ),
