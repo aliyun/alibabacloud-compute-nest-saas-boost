@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import {Tabs, Form, Input, Button, Space, Spin, Tooltip} from 'antd';
-import { EditOutlined, ReloadOutlined } from '@ant-design/icons';
+import {EditOutlined, EyeInvisibleOutlined, EyeOutlined, ReloadOutlined} from '@ant-design/icons';
 import { ProviderInfo, PaymentKeys} from '@/pages/ParameterManagement/component/interface';
 import { initialProviderInfo, initialPaymentKeys } from '@/pages/ParameterManagement/common';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
-
-const { TabPane } = Tabs;
 
 const ProviderInfoForm: React.FC<{
     providerInfo: ProviderInfo,
@@ -73,8 +71,9 @@ const PaymentKeyForm: React.FC<{
     paymentKeys: PaymentKeys,
     onUpdatePaymentKeys: (updatedKeys: PaymentKeys) => void,
     editing: boolean, // Add this prop
+    isPrivateKeysVisible: boolean,
     onCancelEdit: () => void, // Add this prop
-}> = ({ paymentKeys, onUpdatePaymentKeys, editing, onCancelEdit }) => {
+}> = ({ paymentKeys, onUpdatePaymentKeys, editing, isPrivateKeysVisible, onCancelEdit }) => {
     const [localPaymentKeys, setLocalPaymentKeys] = useState(paymentKeys);
 
     const handleSave = () => {
@@ -97,28 +96,44 @@ const PaymentKeyForm: React.FC<{
                 {editing ? (
                     <Input value={localPaymentKeys.alipayPublicKey} onChange={(e) => handleChange('alipayPublicKey', e.target.value)} />
                 ) : (
-                    <span>{paymentKeys.alipayPublicKey}</span>
+                    isPrivateKeysVisible ? (
+                        <span>{paymentKeys.alipayPublicKey}</span>
+                    ) : (
+                        <span>********************</span>
+                    )
                 )}
             </Form.Item>
             <Form.Item label={<label style={{ fontWeight: 'bold' }}>服务商私钥(支付宝)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.alipayPrivateKey} onChange={(e) => handleChange('alipayPrivateKey', e.target.value)} />
                 ) : (
-                    <span>{paymentKeys.alipayPrivateKey}</span>
+                    isPrivateKeysVisible ? (
+                        <span>{paymentKeys.alipayPrivateKey}</span>
+                    ) : (
+                        <span>********************</span>
+                    )
                 )}
             </Form.Item>
             <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方公钥(微信)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.wechatPublicKey} onChange={(e) => handleChange('wechatPublicKey', e.target.value)} />
                 ) : (
-                    <span>{paymentKeys.wechatPublicKey}</span>
+                    isPrivateKeysVisible ? (
+                        <span>{paymentKeys.wechatPublicKey}</span>
+                    ) : (
+                        <span>********************</span>
+                    )
                 )}
             </Form.Item>
             <Form.Item label={<label style={{ fontWeight: 'bold' }}>官方私钥(微信)</label>}>
                 {editing ? (
                     <Input value={localPaymentKeys.wechatPrivateKey} onChange={(e) => handleChange('wechatPrivateKey', e.target.value)} />
                 ) : (
-                    <span>{paymentKeys.wechatPrivateKey}</span>
+                    isPrivateKeysVisible ? (
+                        <span>{paymentKeys.wechatPrivateKey}</span>
+                    ) : (
+                        <span>********************</span>
+                    )
                 )}
             </Form.Item>
             {editing ? (
@@ -141,6 +156,7 @@ const ParameterManagement: React.FC = () => {
     const [activeTabKey, setActiveTabKey] = useState<string>('providerInfo');
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [editing, setEditing] = useState(false);
+    const [isPrivateKeysVisible, setIsPrivateKeysVisible] = useState<boolean>(false);
     const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
     const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
 
@@ -153,27 +169,26 @@ const ParameterManagement: React.FC = () => {
         // Simulate data refresh
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setRefreshing(false);
-        console.log('Data refreshed.');
     };
 
     const handleEdit = () => {
         setEditing(true);
-        console.log('Edit button clicked');
     };
 
     const handleCancelEdit = () => {
         setEditing(false);
-        console.log('Cancel edit');
     };
+
+    const handleTogglePrivateKeysVisibility = () => {
+        setIsPrivateKeysVisible(!isPrivateKeysVisible);
+    }
 
     const onUpdateProviderInfo = (updatedInfo: ProviderInfo) => {
         setProviderInfo(updatedInfo);
-        console.log('Update provider info:', updatedInfo);
     };
 
     const onUpdatePaymentKeys = (updatedKeys: PaymentKeys) => {
         setPaymentKeys(updatedKeys);
-        console.log('Update payment keys:', updatedKeys);
     };
 
     return (
@@ -212,25 +227,61 @@ const ParameterManagement: React.FC = () => {
                                 <ReloadOutlined/>
                             </a>
                         </Tooltip>
+                        {activeTabKey == 'paymentKeys' ? (
+                            isPrivateKeysVisible ? (
+                                <Tooltip key="hidePrivateKeys" title="隐藏加密参数">
+                                    <a
+                                        key="hidePrivateKeys"
+                                        onClick={() => {
+                                            handleTogglePrivateKeysVisibility();
+                                        }}
+                                        style={{ color: 'inherit' }}
+                                    >
+                                        <EyeInvisibleOutlined/>
+                                    </a>
+                                </Tooltip>
+                            ) : (
+                                <Tooltip key="showPrivateKeys" title="显示加密参数">
+                                    <a
+                                        key="showPrivateKeys"
+                                        onClick={() => {
+                                            handleTogglePrivateKeysVisibility();
+                                        }}
+                                        style={{ color: 'inherit' }}
+                                    >
+                                        <EyeOutlined/>
+                                    </a>
+                                </Tooltip>
+                            )
+                        ):null}
                     </Space>
-                    <Tabs activeKey={activeTabKey} onChange={handleTabChange} style={{marginTop: '-24px' }}>
-                        <TabPane tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>服务商个人信息管理</span>} key="providerInfo">
-                            <ProviderInfoForm
-                                providerInfo={providerInfo}
-                                onUpdateProviderInfo={onUpdateProviderInfo}
-                                editing={editing}
-                                onCancelEdit={handleCancelEdit}
-                            />
-                        </TabPane>
-                        <TabPane tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付密钥管理</span>} key="paymentKeys">
-                            <PaymentKeyForm
-                                paymentKeys={paymentKeys}
-                                onUpdatePaymentKeys={onUpdatePaymentKeys}
-                                editing={editing}
-                                onCancelEdit={handleCancelEdit}
-                            />
-                        </TabPane>
-                    </Tabs>
+                    <Tabs activeKey={activeTabKey} onChange={handleTabChange} style={{ marginTop: '-24px' }} items={[
+                        {
+                            key: 'providerInfo',
+                            label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>服务商个人信息管理</span>,
+                            children: (
+                                <ProviderInfoForm
+                                    providerInfo={providerInfo}
+                                    onUpdateProviderInfo={onUpdateProviderInfo}
+                                    editing={editing}
+                                    onCancelEdit={handleCancelEdit}
+                                />
+                            ),
+                        },
+                        {
+                            key: 'paymentKeys',
+                            label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付密钥管理</span>,
+                            children: (
+                                <PaymentKeyForm
+                                    paymentKeys={paymentKeys}
+                                    onUpdatePaymentKeys={onUpdatePaymentKeys}
+                                    editing={editing}
+                                    isPrivateKeysVisible={isPrivateKeysVisible}
+                                    onCancelEdit={handleCancelEdit}
+                                />
+                            ),
+                        },
+                    ]} />
                 </Spin>
             </ProCard>
         </PageContainer>
