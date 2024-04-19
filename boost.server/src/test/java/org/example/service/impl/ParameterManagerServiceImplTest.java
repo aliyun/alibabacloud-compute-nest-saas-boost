@@ -4,7 +4,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.example.common.BaseResult;
-import org.example.common.helper.oos.BaseOosHelper;
+import org.example.common.helper.oos.ParameterOosHelper;
 import org.example.common.model.ListConfigParametersModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
@@ -20,7 +20,7 @@ public class ParameterManagerServiceImplTest {
     private ParameterManagerServiceImpl service;
 
     @Injectable
-    private BaseOosHelper baseOosHelper;
+    private ParameterOosHelper parameterOosHelper;
 
     @Before
     public void setUp() {
@@ -34,7 +34,7 @@ public class ParameterManagerServiceImplTest {
         ListConfigParametersModel expectedResponse = new ListConfigParametersModel();
 
         new Expectations() {{
-            baseOosHelper.listConfigParameters(listConfigParametersParam);
+            parameterOosHelper.listConfigParameters(listConfigParametersParam);
             result = new BaseResult<>(expectedResponse);
         }};
 
@@ -50,7 +50,7 @@ public class ParameterManagerServiceImplTest {
         BaseResult<Void> expectedResult = new BaseResult<>();
 
         new Expectations() {{
-            baseOosHelper.updateConfigParameter(updateConfigParameterParam);
+            parameterOosHelper.updateConfigParameter(updateConfigParameterParam);
             result = expectedResult;
         }};
 
