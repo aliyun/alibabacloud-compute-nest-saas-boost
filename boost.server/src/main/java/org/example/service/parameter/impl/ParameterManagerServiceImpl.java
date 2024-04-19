@@ -18,8 +18,9 @@ package org.example.service.parameter.impl;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
+import org.example.common.ListResult;
 import org.example.common.helper.oos.ParameterOosHelper;
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
@@ -34,7 +35,7 @@ public class ParameterManagerServiceImpl implements ParameterManagerService {
     private ParameterOosHelper parameterOosHelper;
 
     @Override
-    public BaseResult<ListConfigParametersModel> listConfigParameters(UserInfoModel userInfoModel,  ListConfigParametersParam listConfigParametersParam) {
+    public ListResult<ConfigParameterModel> listConfigParameters(UserInfoModel userInfoModel, ListConfigParametersParam listConfigParametersParam) {
         return parameterOosHelper.listConfigParameters(listConfigParametersParam);
     }
 

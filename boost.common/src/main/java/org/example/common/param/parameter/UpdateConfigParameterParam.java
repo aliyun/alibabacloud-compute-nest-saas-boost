@@ -19,6 +19,4 @@ public class UpdateConfigParameterParam implements Serializable {
     private String value;
 
     private Boolean encrypted = false;
-
-    private Map<String, String> tags;
 }

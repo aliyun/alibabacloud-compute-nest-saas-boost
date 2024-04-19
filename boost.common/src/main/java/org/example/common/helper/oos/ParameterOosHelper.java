@@ -23,15 +23,14 @@ import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
+import org.example.common.ListResult;
 import org.example.common.adapter.OosClient;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
-import org.example.common.model.ListConfigParametersModel;
-
+import org.example.common.model.ConfigParameterQueryModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
 import org.example.common.utils.JsonUtil;
@@ -72,40 +71,37 @@ public class ParameterOosHelper {
         }
     }
 
-    public BaseResult<ListConfigParametersModel> listConfigParameters(ListConfigParametersParam listConfigParametersParam) {
-        List<String> names = listConfigParametersParam.getName();
-        List<Boolean> encrypteds = listConfigParametersParam.getEncrypted();
-        if (names == null || encrypteds == null || names.size() != encrypteds.size()) {
-            return BaseResult.fail("listConfigParameters: Either 'names' or 'encrypteds' is null, or their size do not match.");
+    public ListResult<ConfigParameterModel> listConfigParameters(ListConfigParametersParam listConfigParametersParam) {
+        ListResult<ConfigParameterModel> results = new ListResult<ConfigParameterModel>();
+        results.setData(new ArrayList<>());
+
+        List<ConfigParameterQueryModel> queries = listConfigParametersParam.getConfigParameterQueryModels();
+        if (queries == null || queries.isEmpty()) {
+            return (ListResult<ConfigParameterModel>) ListResult.fail("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
         }
 
-        ListConfigParametersModel listConfigParametersModel = new ListConfigParametersModel();
-        List<ConfigParameterModel> configParameterModels = new ArrayList<>();
+        for (ConfigParameterQueryModel query : queries) {
+            if (query.getEncrypted() == null || query.getName() == null || query.getName().isEmpty()) {
+                return (ListResult<ConfigParameterModel>) ListResult.fail("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+            }
 
-        IntStream.range(0, names.size())
-                .forEach(index -> {
-                    try {
-                        String nameItem = names.get(index);
-                        Boolean encryptedItem = encrypteds.get(index);
+            try {
+                ConfigParameterModel configParameterModel;
+                if (query.getEncrypted()) {
+                    GetSecretParameterResponse secretResponse = oosClient.getSecretParameter(query.getName());
+                    configParameterModel = extractSecretParameterDetails(secretResponse);
+                } else {
+                    GetParameterResponse parameterResponse = oosClient.getParameter(query.getName());
+                    configParameterModel = extractParameterDetails(parameterResponse);
+                }
+                results.getData().add(configParameterModel);
+            } catch (Exception e) {
+                log.error("Error fetching config parameter request: {}", JsonUtil.toJsonString(listConfigParametersParam), e);
+                throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+            }
+        }
 
-                        if (encryptedItem.equals(Boolean.TRUE)) {
-                            GetSecretParameterResponse response = oosClient.getSecretParameter(nameItem);
-                            ConfigParameterModel configParameterModel = extractSecretParameterDetails(response);
-                            configParameterModels.add(configParameterModel);
-                        } else if (encryptedItem.equals(Boolean.FALSE)) {
-                            GetParameterResponse response = oosClient.getParameter(nameItem);
-                            ConfigParameterModel configParameterModel = extractParameterDetails(response);
-                            configParameterModels.add(configParameterModel);
-                        } else {
-                            throw new RuntimeException("listConfigParameters fail, Either 'encrypteds' is an unexpected value.");
-                        }
-                    } catch (Exception e) {
-                        log.error("ParameterOosHelper.listConfigParameters request:{}, throw Exception", JsonUtil.toJsonString(listConfigParametersParam), e);
-                        throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
-                    }
-                });
-        listConfigParametersModel.setConfigParameterModels(configParameterModels);
-        return BaseResult.success(listConfigParametersModel);
+        return results;
     }
 
     public String getSecretParameter(String name) {
