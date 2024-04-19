@@ -21,7 +21,8 @@ import javax.annotation.Resource;
 import org.example.common.APIParameterConvert;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.ListResult;
+import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
@@ -42,8 +43,8 @@ public class ParameterManagerController {
     @AdminAPI
     @ApiOperation(value = "根据填报表批量查询参数", nickname = "listConfigParameters")
     @RequestMapping(path = "/listConfigParameters",method = RequestMethod.GET)
-    public BaseResult<ListConfigParametersModel> listConfigParameters(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                                      @APIParameterConvert ListConfigParametersParam listConfigParametersParam) {
+    public ListResult<ConfigParameterModel> listConfigParameters(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                                 @APIParameterConvert ListConfigParametersParam listConfigParametersParam) {
         return parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);
     }
 

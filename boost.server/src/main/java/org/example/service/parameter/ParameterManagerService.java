@@ -17,7 +17,8 @@ package org.example.service.parameter;
 
 import org.example.common.BaseResult;
 
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.ListResult;
+import org.example.common.model.ConfigParameterModel;
 
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
@@ -29,9 +30,9 @@ public interface ParameterManagerService {
     /**
      * List config parameters
      * @param listConfigParametersParam updateConfigParamerParam
-     * @return {@link BaseResult< ListConfigParametersModel >}
+     * @return {@link ListResult<ConfigParameterModel>}
      */
-    BaseResult<ListConfigParametersModel> listConfigParameters(UserInfoModel userInfoModel, ListConfigParametersParam listConfigParametersParam);
+    ListResult<ConfigParameterModel> listConfigParameters(UserInfoModel userInfoModel, ListConfigParametersParam listConfigParametersParam);
 
     /**
      * Update config parameters
