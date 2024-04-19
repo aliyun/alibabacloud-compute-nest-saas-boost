@@ -34,39 +34,40 @@ import org.example.common.model.ListConfigParametersModel;
 
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
+import org.example.common.utils.JsonUtil;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class BaseOosHelper {
+public class ParameterOosHelper {
 
     private final OosClient oosClient;
 
-    public BaseOosHelper(OosClient oosClient) {
+    public ParameterOosHelper(OosClient oosClient) {
         this.oosClient = oosClient;
     }
 
     public BaseResult<Void> updateConfigParameter(UpdateConfigParameterParam updateConfigParameterParam){
         try {
-            if (updateConfigParameterParam.getEncrypted() == Boolean.TRUE) {
+            if (updateConfigParameterParam.getEncrypted().equals(Boolean.TRUE)) {
                 UpdateSecretParameterResponse updateSecretParameterResponse = oosClient.updateSecretParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
                 if (updateSecretParameterResponse.getBody().getParameter().getId() != null && !updateSecretParameterResponse.getBody().getParameter().getId().isEmpty()) {
                     return BaseResult.success();
                 } else {
                     return BaseResult.fail("updateConfigParameter::updateSecretParameter fail:"+ErrorInfo.RESOURCE_NOT_FOUND);
                 }
-            } else if (updateConfigParameterParam.getEncrypted() == Boolean.FALSE) {
+            } else if (updateConfigParameterParam.getEncrypted().equals(Boolean.FALSE)) {
                 UpdateParameterResponse updateParameterResponse = oosClient.updateParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
                 if (updateParameterResponse.getBody().getParameter().getId() != null && !updateParameterResponse.getBody().getParameter().getId().isEmpty()) {
                     return BaseResult.success();
                 } else {
-                    return BaseResult.fail("updateConfigParameter::updateParameter fail:"+ErrorInfo.RESOURCE_NOT_FOUND);
+                    return BaseResult.fail("ParameterOosHelper.updateConfigParameter updateParameter failed:"+ErrorInfo.RESOURCE_NOT_FOUND);
                 }
             } else {
                 return BaseResult.fail("updateConfigParameter fail, Either 'encrypted' is an unexpected value:"+ErrorInfo.INVALID_INPUT);
             }
         } catch (Exception e) {
-            log.error("updateConfigParameter error", e);
+            log.error("ParameterOosHelper.updateConfigParameter request:{}, throw Exception", JsonUtil.toJsonString(updateConfigParameterParam), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
@@ -87,11 +88,11 @@ public class BaseOosHelper {
                         String nameItem = names.get(index);
                         Boolean encryptedItem = encrypteds.get(index);
 
-                        if (encryptedItem == Boolean.TRUE) {
+                        if (encryptedItem.equals(Boolean.TRUE)) {
                             GetSecretParameterResponse response = oosClient.getSecretParameter(nameItem);
                             ConfigParameterModel configParameterModel = extractSecretParameterDetails(response);
                             configParameterModels.add(configParameterModel);
-                        } else if (encryptedItem == Boolean.FALSE) {
+                        } else if (encryptedItem.equals(Boolean.FALSE)) {
                             GetParameterResponse response = oosClient.getParameter(nameItem);
                             ConfigParameterModel configParameterModel = extractParameterDetails(response);
                             configParameterModels.add(configParameterModel);
@@ -99,7 +100,7 @@ public class BaseOosHelper {
                             throw new RuntimeException("listConfigParameters fail, Either 'encrypteds' is an unexpected value.");
                         }
                     } catch (Exception e) {
-                        log.error("listConfigParameters error", e);
+                        log.error("ParameterOosHelper.listConfigParameters request:{}, throw Exception", JsonUtil.toJsonString(listConfigParametersParam), e);
                         throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
                     }
                 });
@@ -116,7 +117,7 @@ public class BaseOosHelper {
                     .map(GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter::getValue);
             return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
         } catch (Exception e) {
-            log.error("getSecretParameter error", e);
+            log.error("ParameterOosHelper.getSecretParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }

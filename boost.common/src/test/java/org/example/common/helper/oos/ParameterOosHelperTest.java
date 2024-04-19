@@ -22,17 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BaseOosHelperTest {
+public class ParameterOosHelperTest {
 
     @Tested
-    private BaseOosHelper baseOosHelper;
+    private ParameterOosHelper parameterOosHelper;
 
     @Injectable
     private OosClient oosClientMock;
 
     @BeforeEach
     public void setup() {
-        baseOosHelper = new BaseOosHelper(oosClientMock);
+        parameterOosHelper = new ParameterOosHelper(oosClientMock);
     }
 
     @Test
@@ -50,14 +50,14 @@ public class BaseOosHelperTest {
         updateEncryptedParam.setName("encrypted-param");
         updateEncryptedParam.setValue("secret-param-id");
         updateEncryptedParam.setEncrypted(true);
-        BaseResult<Void> encryptedResult = baseOosHelper.updateConfigParameter(updateEncryptedParam);
+        BaseResult<Void> encryptedResult = parameterOosHelper.updateConfigParameter(updateEncryptedParam);
         assertEquals("500", encryptedResult.getCode());
 
         UpdateConfigParameterParam updatePlainParam = new UpdateConfigParameterParam();
         updatePlainParam.setName("plain-param");
         updatePlainParam.setValue("plain-param-id");
         updatePlainParam.setEncrypted(false);
-        BaseResult<Void> plainResult = baseOosHelper.updateConfigParameter(updatePlainParam);
+        BaseResult<Void> plainResult = parameterOosHelper.updateConfigParameter(updatePlainParam);
         assertEquals("500", plainResult.getCode());
     }
 
@@ -82,7 +82,7 @@ public class BaseOosHelperTest {
             }
         }};
 
-        BaseResult<ListConfigParametersModel> listResult = baseOosHelper.listConfigParameters(listParams);
+        BaseResult<ListConfigParametersModel> listResult = parameterOosHelper.listConfigParameters(listParams);
         assertEquals("200", listResult.getCode());
 
         ListConfigParametersModel listConfigParametersModel = listResult.getData();
@@ -102,7 +102,7 @@ public class BaseOosHelperTest {
             responseMock.getBody(); result = responseBodyMock;
         }};
 
-        String actualParameterValue = baseOosHelper.getSecretParameter("test_name");
+        String actualParameterValue = parameterOosHelper.getSecretParameter("test_name");
         assertEquals(expectedParameterValue, actualParameterValue);
     }
 
@@ -112,7 +112,7 @@ public class BaseOosHelperTest {
             oosClientMock.getSecretParameter(anyString); result = new Exception("Some internal error");
         }};
 
-        BizException exception = assertThrows(BizException.class, () -> baseOosHelper.getSecretParameter("error_name"));
+        BizException exception = assertThrows(BizException.class, () -> parameterOosHelper.getSecretParameter("error_name"));
 
         assertEquals(ErrorInfo.RESOURCE_NOT_FOUND.getCode(), exception.getCode());
         assertEquals(ErrorInfo.RESOURCE_NOT_FOUND.getMessage(), exception.getMessage());
