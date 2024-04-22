@@ -182,6 +182,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
             }
             ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
             BeanUtils.copyProperties(responseBody, serviceInstanceModel);
+            serviceInstanceModel.setServiceType(ServiceType.to(responseBody.getServiceType()));
             serviceInstanceModel.setServiceModel(buildServiceModel(responseBody));
             if (responseBody.getSource() != null) {
                 serviceInstanceModel.setSource(CallSource.valueOf(responseBody.getSource()));
