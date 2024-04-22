@@ -2,19 +2,23 @@ package org.example.common.helper.oos;
 
 import com.aliyun.oos20190601.models.GetParameterResponse;
 import com.aliyun.oos20190601.models.GetSecretParameterResponse;
-import com.aliyun.oos20190601.models.GetSecretParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
+import com.aliyun.oos20190601.models.UpdateParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
-import java.util.Arrays;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponseBody;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponseBody.UpdateSecretParameterResponseBodyParameter;
+import java.util.ArrayList;
+import java.util.List;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
-import mockit.Tested;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.example.common.BaseResult;
+import org.example.common.ListResult;
 import org.example.common.adapter.OosClient;
-import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.model.ConfigParameterModel;
+import org.example.common.model.ConfigParameterQueryModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,97 +28,111 @@ import org.junit.jupiter.api.Test;
 
 public class ParameterOosHelperTest {
 
-    @Tested
+    @Injectable
+    private OosClient oosClient;
+
     private ParameterOosHelper parameterOosHelper;
 
-    @Injectable
-    private OosClient oosClientMock;
-
     @BeforeEach
-    public void setup() {
-        parameterOosHelper = new ParameterOosHelper(oosClientMock);
+    public void setUp() {
+        parameterOosHelper = new ParameterOosHelper(oosClient);
     }
 
     @Test
-    public void testUpdateConfigParameterSuccess(@Mocked UpdateSecretParameterResponse secretResp,
-                                                 @Mocked UpdateParameterResponse plainResp) {
-        new Expectations() {{
-            oosClientMock.updateSecretParameter(anyString, anyString);
-            result = secretResp;
+    public void testUpdateConfigParameterEncryptedTrue(@Mocked UpdateSecretParameterResponse updateSecretParameterResponse) {
+        UpdateSecretParameterResponseBody responseBody = new UpdateSecretParameterResponseBody();
+        UpdateSecretParameterResponseBodyParameter parameter = new UpdateSecretParameterResponseBodyParameter();
+        parameter.setId("test-id");
+        responseBody.setParameter(parameter);
 
-            oosClientMock.updateParameter(anyString, anyString);
-            result = plainResp;
+        new Expectations() {{
+            updateSecretParameterResponse.getBody(); result = responseBody;
         }};
 
-        UpdateConfigParameterParam updateEncryptedParam = new UpdateConfigParameterParam();
-        updateEncryptedParam.setName("encrypted-param");
-        updateEncryptedParam.setValue("secret-param-id");
-        updateEncryptedParam.setEncrypted(true);
-        BaseResult<Void> encryptedResult = parameterOosHelper.updateConfigParameter(updateEncryptedParam);
-        assertEquals("500", encryptedResult.getCode());
+        UpdateConfigParameterParam param = new UpdateConfigParameterParam();
+        param.setName("test-param");
+        param.setValue("test-value");
+        param.setEncrypted(true);
 
-        UpdateConfigParameterParam updatePlainParam = new UpdateConfigParameterParam();
-        updatePlainParam.setName("plain-param");
-        updatePlainParam.setValue("plain-param-id");
-        updatePlainParam.setEncrypted(false);
-        BaseResult<Void> plainResult = parameterOosHelper.updateConfigParameter(updatePlainParam);
-        assertEquals("500", plainResult.getCode());
+        BaseResult<Void> result = parameterOosHelper.updateConfigParameter(param);
+
+        assertEquals("OK", result.getMessage());
     }
 
     @Test
-    public void testListConfigParameters(@Mocked GetSecretParameterResponse secretResp,
-                                         @Mocked GetParameterResponse plainResp) {
-        String[] names = {"encrypted-param", "plain-param"};
-        Boolean[] encrypteds = {true, false};
-        ListConfigParametersParam listParams = new ListConfigParametersParam();
-        listParams.setName(Arrays.asList(names));
-        listParams.setEncrypted(Arrays.asList(encrypteds));
+    public void testUpdateConfigParameterEncryptedFalse(@Mocked UpdateParameterResponse updateParameterResponse) {
+        UpdateParameterResponseBody responseBody = new UpdateParameterResponseBody();
+        UpdateParameterResponseBody.UpdateParameterResponseBodyParameter parameter = new UpdateParameterResponseBody.UpdateParameterResponseBodyParameter();
+        parameter.setId("test-id");
+        responseBody.setParameter(parameter);
 
         new Expectations() {{
-            for (int i = 0; i < names.length; i++) {
-                if (encrypteds[i]) {
-                    oosClientMock.getSecretParameter(names[i]);
-                    result = secretResp;
-                } else {
-                    oosClientMock.getParameter(names[i]);
-                    result = plainResp;
-                }
-            }
+            updateParameterResponse.getBody(); result = responseBody;
         }};
 
-        BaseResult<ListConfigParametersModel> listResult = parameterOosHelper.listConfigParameters(listParams);
-        assertEquals("200", listResult.getCode());
+        UpdateConfigParameterParam param = new UpdateConfigParameterParam();
+        param.setName("test-param");
+        param.setValue("test-value");
+        param.setEncrypted(false);
 
-        ListConfigParametersModel listConfigParametersModel = listResult.getData();
-        assertEquals(names.length, listConfigParametersModel.getConfigParameterModels().size());
+        BaseResult<Void> result = parameterOosHelper.updateConfigParameter(param);
+
+        assertEquals("OK", result.getMessage());
     }
 
     @Test
-    public void testGetSecretParameter_Success(@Mocked GetSecretParameterResponse responseMock) {
-        String expectedParameterValue = "expected_secret_value";
-        GetSecretParameterResponseBody responseBodyMock = new GetSecretParameterResponseBody();
-        GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter parameterMock = new GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter();
-        parameterMock.setValue(expectedParameterValue);
-        responseBodyMock.setParameter(parameterMock);
+    public void testUpdateConfigParameterInvalidInput(@Mocked UpdateSecretParameterResponse updateSecretParameterResponse) {
+        UpdateConfigParameterParam param = new UpdateConfigParameterParam();
+        param.setName("test-param");
+        param.setValue("test-value");
+        param.setEncrypted(null); // Invalid input
 
-        new Expectations() {{
-            oosClientMock.getSecretParameter(anyString); result = responseMock;
-            responseMock.getBody(); result = responseBodyMock;
-        }};
-
-        String actualParameterValue = parameterOosHelper.getSecretParameter("test_name");
-        assertEquals(expectedParameterValue, actualParameterValue);
+        assertThrows(BizException.class, () -> parameterOosHelper.updateConfigParameter(param));
     }
 
     @Test
-    public void testGetSecretParameter_InternalError() {
+    public void testListConfigParameters(@Mocked GetParameterResponse getParameterResponse,
+                                         @Mocked GetSecretParameterResponse getSecretParameterResponse) {
+        ListConfigParametersParam listConfigParametersParam = new ListConfigParametersParam();
+        List<ConfigParameterQueryModel> queries = new ArrayList<>();
+        ConfigParameterQueryModel query1 = new ConfigParameterQueryModel();
+        query1.setEncrypted(false);
+        query1.setName("param1");
+        queries.add(query1);
+        ConfigParameterQueryModel query2 = new ConfigParameterQueryModel();
+        query2.setEncrypted(true);
+        query2.setName("param2");
+        queries.add(query2);
+        listConfigParametersParam.setConfigParameterQueryModels(queries);
+
+        ConfigParameterModel model1 = new ConfigParameterModel();
+        model1.setId("id1");
+        model1.setName("param1");
+        ConfigParameterModel model2 = new ConfigParameterModel();
+        model2.setId("id2");
+        model2.setName("param2");
+
         new Expectations() {{
-            oosClientMock.getSecretParameter(anyString); result = new Exception("Some internal error");
+            oosClient.getParameter("param1"); result = getParameterResponse;
+            oosClient.getSecretParameter("param2"); result = getSecretParameterResponse;
         }};
 
-        BizException exception = assertThrows(BizException.class, () -> parameterOosHelper.getSecretParameter("error_name"));
+        ListResult<ConfigParameterModel> result = parameterOosHelper.listConfigParameters(listConfigParametersParam);
 
-        assertEquals(ErrorInfo.RESOURCE_NOT_FOUND.getCode(), exception.getCode());
-        assertEquals(ErrorInfo.RESOURCE_NOT_FOUND.getMessage(), exception.getMessage());
+        assertEquals("OK", result.getMessage());
+        assertEquals(2, result.getData().size());
+    }
+    @Test
+    public void testGetSecretParameter(@Mocked GetSecretParameterResponse getSecretParameterResponse) {
+        String expectedValue = "secret-value";
+
+        new Expectations() {{
+            oosClient.getSecretParameter(anyString); result = getSecretParameterResponse;
+            getSecretParameterResponse.getBody().getParameter().getValue(); result = expectedValue;
+        }};
+
+        String actualValue = parameterOosHelper.getSecretParameter("test-param");
+
+        assertThat(actualValue).isEqualTo(expectedValue);
     }
 }

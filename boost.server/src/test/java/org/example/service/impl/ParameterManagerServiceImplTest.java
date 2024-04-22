@@ -4,57 +4,86 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.example.common.BaseResult;
+import org.example.common.ListResult;
 import org.example.common.helper.oos.ParameterOosHelper;
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
 import org.example.service.parameter.impl.ParameterManagerServiceImpl;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ParameterManagerServiceImplTest {
 
     @Tested
-    private ParameterManagerServiceImpl service;
+    private ParameterManagerServiceImpl parameterManagerService;
 
     @Injectable
     private ParameterOosHelper parameterOosHelper;
 
-    @Before
-    public void setUp() {
-        service = new ParameterManagerServiceImpl();
+    private final UserInfoModel userInfoModel = new UserInfoModel();
+    private final ListConfigParametersParam listConfigParametersParam = new ListConfigParametersParam();
+    private final UpdateConfigParameterParam updateConfigParameterParam = new UpdateConfigParameterParam();
+
+    @BeforeEach
+    void setUp() {
+        // Optionally set up default values for test inputs here.
     }
 
     @Test
-    public void testListConfigParameters() {
-        UserInfoModel userInfoModel = new UserInfoModel();
-        ListConfigParametersParam listConfigParametersParam = new ListConfigParametersParam();
-        ListConfigParametersModel expectedResponse = new ListConfigParametersModel();
+    void testListConfigParameters() {
+        ListResult<ConfigParameterModel> expectedListResult = new ListResult<>();
+        // Set up expected data in the result object.
 
         new Expectations() {{
             parameterOosHelper.listConfigParameters(listConfigParametersParam);
-            result = new BaseResult<>(expectedResponse);
+            result = expectedListResult;
         }};
 
-        BaseResult<ListConfigParametersModel> response = service.listConfigParameters(userInfoModel, listConfigParametersParam);
+        ListResult<ConfigParameterModel> actualListResult = parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);
 
-        assertEquals(expectedResponse, response.getData());
+        assertEquals(expectedListResult, actualListResult);
     }
 
     @Test
-    public void testUpdateConfigParameter() {
-        UserInfoModel userInfoModel = new UserInfoModel();
-        UpdateConfigParameterParam updateConfigParameterParam = new UpdateConfigParameterParam();
+    void testUpdateConfigParameter() {
         BaseResult<Void> expectedResult = new BaseResult<>();
+        // Set up expected data in the result object.
 
         new Expectations() {{
             parameterOosHelper.updateConfigParameter(updateConfigParameterParam);
             result = expectedResult;
         }};
 
-        BaseResult<Void> response = service.updateConfigParameter(userInfoModel, updateConfigParameterParam);
-        assertEquals(expectedResult, response);
+        BaseResult<Void> actualResult = parameterManagerService.updateConfigParameter(userInfoModel, updateConfigParameterParam);
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    void testListConfigParametersWithNullResponse() {
+        new Expectations() {{
+            parameterOosHelper.listConfigParameters(listConfigParametersParam);
+            result = null;
+        }};
+
+        ListResult<ConfigParameterModel> actualListResult = parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);
+
+        assertNotNull(actualListResult); // Assert that the service returns a non-null ListResult object.
+    }
+
+    @Test
+    void testUpdateConfigParameterWithNullResponse() {
+        new Expectations() {{
+            parameterOosHelper.updateConfigParameter(updateConfigParameterParam);
+            result = null;
+        }};
+
+        BaseResult<Void> actualResult = parameterManagerService.updateConfigParameter(userInfoModel, updateConfigParameterParam);
+
+        assertNotNull(actualResult); // Assert that the service returns a non-null BaseResult object.
     }
 }

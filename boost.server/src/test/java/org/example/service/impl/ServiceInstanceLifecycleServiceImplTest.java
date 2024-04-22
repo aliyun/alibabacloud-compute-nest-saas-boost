@@ -141,7 +141,7 @@ class ServiceInstanceLifecycleServiceImplTest {
         UserInfoModel userInfoModel = new UserInfoModel();
         ListServiceInstancesParam listServiceInstancesParam = new ListServiceInstancesParam();
         try {
-            BaseResult<ListServiceInstancesModel> result = serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
+            ListResult<ServiceInstanceModel> result = serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
             assert false;
         } catch (BizException bizException) {
             assertEquals(ErrorInfo.VERIFY_FAILED.getStatusCode(), bizException.getStatusCode());
