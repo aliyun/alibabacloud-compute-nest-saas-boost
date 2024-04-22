@@ -9,6 +9,7 @@ import {Button, Timeline, Typography} from "antd";
 import styles from "./components/css/message.module.css"
 import {TIME_FORMAT} from "@/constants";
 import {getMessageByTemplate, MessageItem, MessageTemplate, RefundDetail} from "@/pages/Message/components/interface";
+import {centsToYuan} from "@/util/moneyUtil";
 dayjs.extend(utc);
 
 const Message:React.FC = () => {
@@ -38,7 +39,7 @@ const Message:React.FC = () => {
                 response.data.map((item)=>{
                     console.log(MessageTemplate.PAYMENT_SUCCESS);
                     if (item.gmtPayment != undefined) {
-                        const successMessage = getMessageByTemplate("PAYMENT_SUCCESS", item.orderId, item.totalAmount ? item.totalAmount.toString() : "");
+                        const successMessage = getMessageByTemplate("PAYMENT_SUCCESS", item.orderId, item.totalAmount ? centsToYuan(item.totalAmount.toString()) : "");
                         tempMessages.push({
                             text: successMessage,
                             time: item.gmtPayment
@@ -48,9 +49,9 @@ const Message:React.FC = () => {
                         const refundDetail = parseRefundDetail(item.refundDetail);
                         let refundMessage = "";
                         if (refundDetail.refundReason == "SERVICE_INSTANCE_DELETION_REFUND") {
-                            refundMessage = getMessageByTemplate(refundDetail.refundReason,item.serviceInstanceId, item.orderId, item.refundAmount ? item.refundAmount.toString() : "");
+                            refundMessage = getMessageByTemplate(refundDetail.refundReason,item.serviceInstanceId, item.orderId, item.refundAmount ? centsToYuan(item.refundAmount.toString()) : "");
                         } else {
-                            refundMessage = getMessageByTemplate(refundDetail.refundReason, item.orderId, item.refundAmount ? item.refundAmount.toString() : "");
+                            refundMessage = getMessageByTemplate(refundDetail.refundReason, item.orderId, item.refundAmount ? centsToYuan(item.refundAmount.toString()) : "");
                         }
                         tempMessages.push({
                             text: refundMessage,
