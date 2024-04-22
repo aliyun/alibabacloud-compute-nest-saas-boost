@@ -48,6 +48,7 @@ import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.CallSource;
 import org.example.common.constant.ComputeNestConstants;
 import org.example.common.constant.OrderType;
+import org.example.common.constant.ServiceType;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
@@ -317,6 +318,9 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
                     BeanUtils.copyProperties(instanceResponseBody, serviceInstanceModel);
                     if (instanceResponseBody.getSource() != null) {
                         serviceInstanceModel.setSource(CallSource.valueOf(instanceResponseBody.getSource()));
+                    }
+                    if (instanceResponseBody.getServiceType() != null) {
+                        serviceInstanceModel.setServiceType(ServiceType.to(instanceResponseBody.getServiceType()));
                     }
                     ListOrdersParam listOrdersParam = new ListOrdersParam();
                     listOrdersParam.setServiceInstanceId(instanceResponseBody.getServiceInstanceId());
