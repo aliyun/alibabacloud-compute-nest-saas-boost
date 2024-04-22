@@ -17,9 +17,11 @@ package org.example.common.handler;
 
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.SPI;
+import org.example.common.config.OosSecretParamConfig;
 import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.helper.SpiTokenHelper;
@@ -27,7 +29,6 @@ import org.example.common.helper.TokenParseHelper;
 import org.example.common.model.JwtAuthenticationTokenModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.utils.JsonUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -49,14 +50,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
+import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
 import static org.example.common.constant.Constants.STANDARD_CONTENT_TYPE;
 
 @Slf4j
 @Component
 public class TokenAuthenticationInterceptor implements HandlerInterceptor {
 
-    @Value("${service.admin.aid}")
-    private String adminAid;
+    @Resource
+    private OosSecretParamConfig oosSecretParamConfig;
 
     @Resource
     private TokenParseHelper tokenParseHelper;
@@ -130,7 +134,13 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
 
 
     private boolean isAdminUser(UserInfoModel userInfoModel) {
-        return adminAid.equals(userInfoModel.getAid());
+
+        String secretValue = oosSecretParamConfig.getSecretValue(OOS_SECRET_ADMIN_AID);
+        if (StringUtils.isNotEmpty(secretValue) && StringUtils.isNotEmpty(userInfoModel.getAid())) {
+            log.info("Admin user check, secretValue: {}, userInfoModel: {}", secretValue, userInfoModel.getAid());
+            return secretValue.equals(userInfoModel.getAid());
+        }
+        return false;
     }
 
     private boolean setResponse(HttpServletResponse response, ErrorInfo errorInfo) {

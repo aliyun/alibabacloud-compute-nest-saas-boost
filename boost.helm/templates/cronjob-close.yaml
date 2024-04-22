@@ -24,24 +24,22 @@ spec:
             - name: serverless
               image: "{{ .Values.cronImage.repository }}"
               env:
-              - name: cronjob-type
-                value: CLOSE_FINISHED_ORDERS
-              - name: TZ
-                value: "Asia/Shanghai"
-              - name: deploy-type
-                value: k8s
-              - name: service-id
-                value: {{ .Values.env.serviceId }}
-              - name: stack-name
-                value: {{ .Values.env.stackName }}
-              - name: ots-instance-name
-                value: {{ .Values.env.otsInstanceName }}
-              - name: service.region-id
-                value: {{ .Values.env.service.regionId }}
-              - name: oauth.public-key.url
-                value: {{ .Values.env.oauth.publicKey.url }}
-              - name: oauth.auth-code.url
-                value: {{ .Values.env.oauth.authCode.url }}
-              - name: oauth.auth-server.url
-                value: {{ .Values.env.oauth.authServer.url }}                         
+                - name: cronjob-type
+                  value: CLOSE_FINISHED_ORDERS
+                - name: TZ
+                  value: "Asia/Shanghai"
+                - name: deploy_type
+                  value: k8s
+                - name: stack-name
+                  value: {{ .Values.env.stackName }}
+                - name: ots-instance-name
+                  value: {{ .Values.env.otsInstanceName }}
+                - name: service.region-id
+                  value: {{ .Values.env.service.regionId }}
+                - name: oauth.public-key.url
+                  value: {{ .Values.env.oauth.publicKey.url }}
+                - name: oauth.auth-code.url
+                  value: {{ .Values.env.oauth.authCode.url }}
+                - name: oauth.auth-server.url
+                  value: {{ .Values.env.oauth.authServer.url }}      
           restartPolicy: OnFailure

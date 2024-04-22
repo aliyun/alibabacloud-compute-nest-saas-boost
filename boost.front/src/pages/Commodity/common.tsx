@@ -1,7 +1,9 @@
 import {ProColumns} from '@ant-design/pro-table';
 import {ProForm, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
-import React from "react";
-import {message} from "antd";
+import React, {ReactNode} from "react";
+import {Button, message} from "antd";
+import {CopyOutlined} from "@ant-design/icons";
+import copy from 'copy-to-clipboard';
 
 export const commodityColumns: ProColumns<API.CommodityDTO>[] = [
     {
@@ -9,6 +11,23 @@ export const commodityColumns: ProColumns<API.CommodityDTO>[] = [
         dataIndex: 'commodityCode',
         key: 'commodityCode',
         search: false,
+        render: (dom: ReactNode, record: API.CommodityDTO, index: number) => {
+            const text = dom as string;
+            return (
+                <>
+                    {text}
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<CopyOutlined/>}
+                        onClick={() => {
+                            copy(text);
+                            message.success('商品码已复制到剪贴板');
+                        }}
+                    />
+                </>
+            );
+        }
     },
     {
         title: '商品名',

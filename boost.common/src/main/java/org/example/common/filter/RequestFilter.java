@@ -24,16 +24,40 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 @WebFilter
 public class RequestFilter implements Filter {
+
+    private static final Set<String> WRAPPED_PATHS = new HashSet<>();
+
+    static {
+        Collections.addAll(WRAPPED_PATHS,
+                "/api/spi/createOrder",
+                "/api/spi/getCommodity",
+                "/api/spi/getCommodityPrice"
+        );
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         ServletRequest requestWrapper = null;
+
         if (request instanceof HttpServletRequest) {
-            requestWrapper = new RepeatableReadHttpRequest((HttpServletRequest) request);
+            HttpServletRequest httpRequest = (HttpServletRequest) request;
+            String requestURI = httpRequest.getRequestURI();
+
+            for (String path : WRAPPED_PATHS) {
+                if (requestURI.startsWith(path)) {
+                    requestWrapper = new RepeatableReadHttpRequest(httpRequest);
+                    break;
+                }
+            }
         }
+
         if (null == requestWrapper) {
             chain.doFilter(request, response);
         } else {

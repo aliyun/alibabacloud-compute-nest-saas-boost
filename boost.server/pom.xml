@@ -82,7 +82,7 @@
                 <version>2.3.0</version>
                 <configuration>
                     <to>
-                        <image>serverb:1.0.0</image>
+                        <image>aliyun-saas-boost-server:1.0.0</image>
                     </to>
                     <container>
                         <ports>

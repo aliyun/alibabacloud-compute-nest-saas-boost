@@ -2,30 +2,30 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 env:
-  ramRoleName: "SaaSBoostEcsRole-a9a41909-4a6b-491f-8fa6-667890dce3bd"
-  regionId: "cn-wulanchabu"
-  clusterId: "c91050083eb9e4362b1bcd0be3bd743c5"
-  serviceId: "service-3a4a1d77808c491f89ef"
-  stackName: saas-boost-pj91
-  otsInstanceName: saasboostpj91
+  ramRoleName: "SaaSBoostAckRole-c4f9fb70-ca64-498b-8a91-823c2f98493b"
+  regionId: "cn-beijing"
+  clusterId: "cd0d29c4626a84e33a0b7c1e8b957a65e"
+  stackName: "saas-boost-pj91"
+  otsInstanceName: "saashelmnfts"
   service:
     regionId: "cn-hangzhou"
   oauth:
     publicKey:
-      url: https://oauth.aliyun.com/v1/keys
+      url: "https://oauth.aliyun.com/v1/keys"
     authCode:
-      url: https://signin.aliyun.com/oauth2/v1/auth
+      url: "https://signin.aliyun.com/oauth2/v1/auth"
     authServer:
-      url: https://oauth.aliyun.com/v1/token
+      url: "https://oauth.aliyun.com/v1/token"
 replicaCount: 1
 
+
 image:
-  repository: registry.cn-hangzhou.aliyuncs.com/application-management/servera:1.0.0
+  repository: aliyun-computenest-opensource-registry.cn-hangzhou.cr.aliyuncs.com/default/aliyun-saas-boost-server:0.01
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0.0.snapshot"
 cronImage:
-  repository: registry.cn-hangzhou.aliyuncs.com/compute-nest-saas-boost/serverless
+  repository: aliyun-computenest-opensource-registry.cn-hangzhou.cr.aliyuncs.com/default/aliyun-saas-boost-serverless:0.01
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0.0.snapshot"

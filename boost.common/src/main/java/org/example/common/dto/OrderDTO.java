@@ -133,4 +133,9 @@ public class OrderDTO {
      * payment form.
      */
     private String paymentForm;
+
+    /**
+     * service id.
+     */
+    private String serviceId;
 }
