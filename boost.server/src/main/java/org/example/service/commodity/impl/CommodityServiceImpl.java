@@ -146,6 +146,7 @@ public class CommodityServiceImpl implements CommodityService {
                 if (payPeriodsStr != null && payPeriodsStr.length() > 2 && !payPeriodsStr.trim().isEmpty()) {
                     List<Integer> payPeriods = Arrays.stream(payPeriodsStr.substring(1, payPeriodsStr.length() - 1).split(ARRAY_REGEX))
                             .filter(str -> !str.isEmpty())
+                            .sorted()
                             .map(Integer::parseInt)
                             .collect(Collectors.toList());
                     for (Integer payPeriod : payPeriods) {
