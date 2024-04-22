@@ -18,8 +18,9 @@ package org.example.service.parameter.impl;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
-import org.example.common.helper.oos.BaseOosHelper;
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.ListResult;
+import org.example.common.helper.oos.ParameterOosHelper;
+import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
@@ -31,16 +32,16 @@ import org.springframework.stereotype.Service;
 public class ParameterManagerServiceImpl implements ParameterManagerService {
 
     @Resource
-    private BaseOosHelper baseOosHelper;
+    private ParameterOosHelper parameterOosHelper;
 
     @Override
-    public BaseResult<ListConfigParametersModel> listConfigParameters(UserInfoModel userInfoModel,  ListConfigParametersParam listConfigParametersParam) {
-        return baseOosHelper.listConfigParameters(listConfigParametersParam);
+    public ListResult<ConfigParameterModel> listConfigParameters(UserInfoModel userInfoModel, ListConfigParametersParam listConfigParametersParam) {
+        return parameterOosHelper.listConfigParameters(listConfigParametersParam);
     }
 
     @Override
     public BaseResult<Void> updateConfigParameter(UserInfoModel userInfoModel, UpdateConfigParameterParam updateConfigParameterParam) {
-        return baseOosHelper.updateConfigParameter(updateConfigParameterParam);
+        return parameterOosHelper.updateConfigParameter(updateConfigParameterParam);
     }
 }
 

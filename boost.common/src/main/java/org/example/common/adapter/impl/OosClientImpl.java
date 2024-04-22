@@ -30,6 +30,7 @@ import org.example.common.adapter.OosClient;
 import org.example.common.config.AliyunConfig;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
+import org.example.common.utils.JsonUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +52,7 @@ public class OosClientImpl implements OosClient {
                     .setWithDecryption(Boolean.TRUE);
             return client.getSecretParameter(getSecretParameterRequest);
         } catch (Exception e) {
-            log.error("getSecretParameter error", e);
+            log.error("oosClient.getSecretParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
@@ -65,7 +66,7 @@ public class OosClientImpl implements OosClient {
                     .setValue(value);
             return client.updateSecretParameter(updateSecretParameterRequest);
         } catch (Exception e) {
-            log.error("updateSecretParameter error", e);
+            log.error("oosClient.updateSecretParameter request:{}{}, throw Exception", JsonUtil.toJsonString(name), JsonUtil.toJsonString(value), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
@@ -78,7 +79,7 @@ public class OosClientImpl implements OosClient {
                     .setName(name);
             return client.getParameter(getParameterRequest);
         } catch (Exception e) {
-            log.error("getParameter error", e);
+            log.error("oosClient.getParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
@@ -92,7 +93,7 @@ public class OosClientImpl implements OosClient {
                     .setValue(value);
             return client.updateParameter(updateParameterRequest);
         } catch (Exception e) {
-            log.error("updateParameter error", e);
+            log.error("oosClient.updateParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }

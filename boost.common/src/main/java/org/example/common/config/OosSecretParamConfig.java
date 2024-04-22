@@ -15,8 +15,7 @@
 
 package org.example.common.config;
 
-import org.example.common.adapter.OosClient;
-import org.example.common.helper.oos.BaseOosHelper;
+import org.example.common.helper.oos.ParameterOosHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,7 +38,7 @@ public class OosSecretParamConfig {
     private String stackName;
 
     @Resource
-    private BaseOosHelper baseOosHelper;
+    private ParameterOosHelper parameterOosHelper;
 
     private Map<String, String> secretMap;
 
@@ -60,6 +59,6 @@ public class OosSecretParamConfig {
 
     private void putSecretValue(String parameterName) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
-        secretMap.put(format, baseOosHelper.getSecretParameter(format));
+        secretMap.put(format, parameterOosHelper.getSecretParameter(format));
     }
 }
