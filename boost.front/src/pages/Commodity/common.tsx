@@ -149,7 +149,7 @@ export const specificationColumns: ProColumns<API.CommoditySpecificationDTO>[] =
         title: '支持的售卖周期',
         dataIndex: 'payPeriods',
         key: 'payPeriods',
-        valueType: 'text', // 如果是数字可以选择 'digit' 或者根据实际的格式选择其他的 valueType
+        valueType: 'text',
         search: false
 
     },
@@ -158,14 +158,14 @@ export const specificationColumns: ProColumns<API.CommoditySpecificationDTO>[] =
         title: '单价',
         dataIndex: 'unitPrice',
         key: 'unitPrice',
-        valueType: 'money', // 假设 unitPrice 是金额，可以使用 'money' 类型
+        valueType: 'money',
         search: false,
     },
     {
         title: '币种',
         dataIndex: 'currency',
         key: 'currency',
-        valueType: 'text', // 根据数据的实际类型选择 valueType
+        valueType: 'text',
         search: false,
     },
 ];

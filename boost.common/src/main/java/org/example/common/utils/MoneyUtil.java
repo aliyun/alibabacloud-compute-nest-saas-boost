@@ -69,7 +69,7 @@ public class MoneyUtil {
     }
 
     public static BigDecimal divide(BigDecimal value, BigDecimal divider){
-        return value.divide(divider, 2, BigDecimal.ROUND_HALF_UP);
+        return value.divide(divider, 8, BigDecimal.ROUND_HALF_DOWN);
     }
 
     // Comparison

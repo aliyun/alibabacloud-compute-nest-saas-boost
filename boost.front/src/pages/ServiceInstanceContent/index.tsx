@@ -31,6 +31,7 @@ import {ServiceInstanceContentProps} from "@/pages/ServiceInstanceContent/compon
 import {CallSource, CLOUD_MARKET_ORDER_URL, COMPUTE_NEST_URL} from "@/constants";
 import styles from "@/pages/Service/component/css/service.module.css";
 import {DEFAULT_PAY_PERIOD_UNIT, showErrorModal} from "@/global";
+import {centsToYuan} from "@/util/moneyUtil";
 
 dayjs.extend(utc);
 const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
@@ -198,8 +199,8 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
 
     if (data !== undefined) {
-        const showRefundAndDeleteButtons = data.serviceType === 'managed';
-
+        const showRefundAndDeleteButtons = data.serviceType == 'managed';
+        console.log(data.serviceType);
         const {outputs, parameters} = processServiceInstanceData(data);
         console.log(CallSource[CallSource.Market]);
         let renewalAndDeleteVisible = false;
@@ -222,7 +223,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                     footer={null}
                                     title="退款金额"
                                 >
-                                    <Paragraph>您当前服务实例可退金额为：<span style={{color: "red"}}>{refundAmount}</span></Paragraph>
+                                    <Paragraph>您当前服务实例可退金额为：<span style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
                                     <div style={{marginTop: 16, textAlign: 'right'}}>
                                         <Button style={{width: '100px'}} type="primary"
                                                 onClick={confirmDeleteServiceInstance}>
