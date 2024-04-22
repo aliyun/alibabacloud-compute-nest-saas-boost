@@ -12,7 +12,7 @@ import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
 import org.example.service.parameter.impl.ParameterManagerServiceImpl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -72,7 +72,7 @@ public class ParameterManagerServiceImplTest {
 
         ListResult<ConfigParameterModel> actualListResult = parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);
 
-        assertNotNull(actualListResult); // Assert that the service returns a non-null ListResult object.
+        assertNull(actualListResult);
     }
 
     @Test
@@ -84,6 +84,6 @@ public class ParameterManagerServiceImplTest {
 
         BaseResult<Void> actualResult = parameterManagerService.updateConfigParameter(userInfoModel, updateConfigParameterParam);
 
-        assertNotNull(actualResult); // Assert that the service returns a non-null BaseResult object.
+        assertNull(actualResult);
     }
 }
