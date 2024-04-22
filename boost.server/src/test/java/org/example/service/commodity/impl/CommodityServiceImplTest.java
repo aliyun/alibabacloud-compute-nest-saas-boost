@@ -227,7 +227,7 @@ class CommodityServiceImplTest {
         CommoditySpecificationDTO specificationDTO = new CommoditySpecificationDTO();
         specificationDTO.setCommodityCode("COMMODITY1");
         specificationDTO.setSpecificationName("J");
-        specificationDTO.setPayPeriods("[1,2,3]");
+        specificationDTO.setPayPeriods("[3,2,1]");
         specificationDTO.setPayPeriodUnit("Month");
         ArrayList<CommoditySpecificationDTO> commoditySpecificationList = new ArrayList<>();
         commoditySpecificationList.add(specificationDTO);
