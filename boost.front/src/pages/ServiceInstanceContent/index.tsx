@@ -198,8 +198,8 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
 
     if (data !== undefined) {
-        const showRefundAndDeleteButtons = data.serviceType === 'managed';
-
+        const showRefundAndDeleteButtons = data.serviceType == 'managed';
+        console.log(data.serviceType);
         const {outputs, parameters} = processServiceInstanceData(data);
         console.log(CallSource[CallSource.Market]);
         let renewalAndDeleteVisible = false;
