@@ -38,7 +38,6 @@ import org.example.common.constant.CallSource;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
-import org.example.common.model.ListServiceInstancesModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
@@ -121,7 +120,7 @@ class ServiceInstanceLifecycleServiceImplTest {
         UserInfoModel userInfoModel = new UserInfoModel();
         ListServiceInstancesParam listServiceInstancesParam = new ListServiceInstancesParam();
         try {
-            BaseResult<ListServiceInstancesModel> result = serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
+            ListResult<ServiceInstanceModel> result = serviceInstanceLifecycleService.listServiceInstances(userInfoModel, listServiceInstancesParam);
             assert false;
         } catch (BizException bizException) {
             assertEquals(ErrorInfo.VERIFY_FAILED.getStatusCode(), bizException.getStatusCode());

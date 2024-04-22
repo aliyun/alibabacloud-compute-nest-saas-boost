@@ -28,9 +28,9 @@ import static org.mockito.Mockito.when;
 
 class AliPaymentControllerTest {
     @Mock
-    PaymentServiceManager alipayService;
+    private PaymentServiceManager alipayService;
     @InjectMocks
-    PaymentController paymentController;
+    private PaymentController paymentController;
 
     @BeforeEach
     void setUp() {

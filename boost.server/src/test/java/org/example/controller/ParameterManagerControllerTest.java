@@ -1,10 +1,12 @@
 package org.example.controller;
 
+import java.util.ArrayList;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.example.common.BaseResult;
-import org.example.common.model.ListConfigParametersModel;
+import org.example.common.ListResult;
+import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
@@ -31,15 +33,17 @@ public class ParameterManagerControllerTest {
     public void testListConfigParameters() {
         UserInfoModel userInfoModel = new UserInfoModel();
         ListConfigParametersParam listConfigParametersParam = new ListConfigParametersParam();
-        ListConfigParametersModel expectedResponse = new ListConfigParametersModel();
-
+        ConfigParameterModel expectedModel = new ConfigParameterModel();
+        ListResult<ConfigParameterModel> expectedResponse = new ListResult<ConfigParameterModel>();
+        expectedResponse.setData(new ArrayList<>());
+        expectedResponse.getData().add(expectedModel);
         new Expectations() {{
             parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);
-            result = new BaseResult<>(expectedResponse);
+            result = expectedResponse;
         }};
 
-        BaseResult<ListConfigParametersModel> response = controller.listConfigParameters(userInfoModel, listConfigParametersParam);
-        assertEquals(expectedResponse, response.getData());
+        ListResult<ConfigParameterModel> response = controller.listConfigParameters(userInfoModel, listConfigParametersParam);
+        assertEquals(expectedResponse.getData(), response.getData());
     }
 
     @Test
