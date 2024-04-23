@@ -1,22 +1,22 @@
 import { ProviderInfo, PaymentKeys} from '@/pages/ParameterManagement/component/interface';
 
 export const initialProviderInfo: ProviderInfo = {
-    providerName: '',
-    providerOfficialLink: '',
-    providerDescription: '',
+    ProviderName: '',
+    ProviderOfficialLink: '',
+    ProviderDescription: '',
 };
 
 export const initialPaymentKeys: PaymentKeys = {
-    alipayPublicKey: '',
-    alipayPrivateKey: '',
-    wechatPublicKey: '',
-    wechatPrivateKey: '',
+    AlipayOfficialPublicKey: '',
+    AlipayPrivateKey: '',
+    WechatOfficialPublicKey: '',
+    WechatPrivateKey: '',
 };
 
 export const initialProviderInfoNameList = [
-    'providerName',
-    'providerOfficialLink',
-    'providerDescription',
+    'ProviderName',
+    'ProviderOfficialLink',
+    'ProviderDescription',
 ];
 export const initialProviderInfoEncryptedList = [
     false,
@@ -24,10 +24,10 @@ export const initialProviderInfoEncryptedList = [
     false,
 ];
 export const initialPaymentKeysNameList = [
-    'alipayPublicKey',
-    'alipayPrivateKey',
-    'wechatPublicKey',
-    'wechatPrivateKey',
+    'AlipayOfficialPublicKey',
+    'AlipayPrivateKey',
+    'WechatOfficialPublicKey',
+    'WechatPrivateKey',
 ];
 export const initialPaymentKeysEncryptedList = [
     true,
@@ -37,11 +37,11 @@ export const initialPaymentKeysEncryptedList = [
 ];
 
 export const encryptedCredentialsMap = {
-    'providerName': false,
-    'providerOfficialLink': false,
-    'providerDescription': false,
-    'alipayPublicKey': true,
-    'alipayPrivateKey': true,
-    'wechatPublicKey': true,
-    'wechatPrivateKey': true,
+    'ProviderName': false,
+    'ProviderOfficialLink': false,
+    'ProviderDescription': false,
+    'AlipayOfficialPublicKey': true,
+    'AlipayPrivateKey': true,
+    'WechatOfficialPublicKey': true,
+    'WechatPrivateKey': true,
 }

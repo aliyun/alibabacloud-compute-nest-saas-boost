@@ -15,9 +15,6 @@ import {
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import {ProFormText, ProForm, ProFormTextArea} from '@ant-design/pro-form';
-import ConfigParameterQueryModel = API.ConfigParameterQueryModel;
-import ListConfigParametersParam = API.ListConfigParametersParam;
-import ListResultConfigParameterModel_ = API.ListResultConfigParameterModel_;
 
 const ActionButtons: React.FC<{ onSave: () => void; onCancel: () => void }> = ({ onSave, onCancel }) => (
     <Row justify="end" style={{ marginTop: '0px', marginBottom: '24px' }}>
@@ -75,9 +72,9 @@ const ProviderInfoForm: React.FC<{
                 ),
             }}
         >
-            <ProFormText {...getFieldProps('providerName', '服务商名称', '请输入服务商名称')} />
-            <ProFormText {...getFieldProps('providerOfficialLink', '官方链接', '请输入服务商官方链接')} />
-            <ProFormTextArea {...getFieldProps('providerDescription', '服务商简介', '请输入服务商简介')} />
+            <ProFormText {...getFieldProps('ProviderName', '服务商名称', '请输入服务商名称')} />
+            <ProFormText {...getFieldProps('ProviderOfficialLink', '官方链接', '请输入服务商官方链接')} />
+            <ProFormTextArea {...getFieldProps('ProviderDescription', '服务商简介', '请输入服务商简介')} />
 
             {editing && <ActionButtons onSave={handleSave} onCancel={handleCancel} />}
         </ProForm>
@@ -135,10 +132,10 @@ const PaymentKeyForm: React.FC<{
                 ),
             }}
         >
-            <ProFormText {...getFieldProps('alipayPublicKey', '官方公钥(支付宝)', '请输入官方公钥(支付宝)')} />
-            <ProFormText {...getFieldProps('alipayPrivateKey', '服务商私钥(支付宝)', '请输入服务商私钥(支付宝)')} />
-            <ProFormText {...getFieldProps('wechatPublicKey', '官方公钥(微信)', '请输入官方公钥(微信)')} />
-            <ProFormText {...getFieldProps('wechatPrivateKey', '服务商私钥(微信)', '请输入服务商私钥(微信)')} />
+            <ProFormText {...getFieldProps('AlipayOfficialPublicKey', '官方公钥(支付宝)', '请输入官方公钥(支付宝)')} />
+            <ProFormText {...getFieldProps('AlipayPrivateKey', '服务商私钥(支付宝)', '请输入服务商私钥(支付宝)')} />
+            <ProFormText {...getFieldProps('WechatOfficialPublicKey', '官方公钥(微信)', '请输入官方公钥(微信)')} />
+            <ProFormText {...getFieldProps('WechatPrivateKey', '服务商私钥(微信)', '请输入服务商私钥(微信)')} />
 
             {editing && <ActionButtons onSave={handleSave} onCancel={handleCancel} />}
         </ProForm>
@@ -154,16 +151,16 @@ const ParameterManagement: React.FC = () => {
     const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
 
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
-        const configParameterQueryModels: ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
+        const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
             name,
             encrypted: encrypted[index],
         }));
 
-        const listParams: ListConfigParametersParam = {
+        const listParams: API.ListConfigParametersParam = {
             configParameterQueryModels,
         };
 
-        const result: ListResultConfigParameterModel_ = await listConfigParameters(listParams);
+        const result: API.ListResultConfigParameterModel_ = await listConfigParameters(listParams);
 
         if (
             result.data && result.data.length > 0

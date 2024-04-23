@@ -2,13 +2,13 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 根据填报表批量查询参数 GET /api/listConfigParameters */
+/** 根据填报表批量查询参数 POST /api/listConfigParameters */
 export async function listConfigParameters(
   body: API.ListConfigParametersParam,
   options?: { [key: string]: any },
 ) {
   return request<API.ListResultConfigParameterModel_>('/api/listConfigParameters', {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },

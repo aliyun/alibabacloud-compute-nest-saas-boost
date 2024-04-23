@@ -1,12 +1,12 @@
 export interface ProviderInfo {
-    providerName: string;
-    providerOfficialLink: string;
-    providerDescription: string;
+    ProviderName: string;
+    ProviderOfficialLink: string;
+    ProviderDescription: string;
 }
 
 export interface PaymentKeys {
-    alipayPublicKey: string;
-    alipayPrivateKey: string;
-    wechatPublicKey: string;
-    wechatPrivateKey: string;
+    AlipayOfficialPublicKey: string;
+    AlipayPrivateKey: string;
+    WechatOfficialPublicKey: string;
+    WechatPrivateKey: string;
 }

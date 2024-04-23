@@ -15,17 +15,14 @@
 
 package org.example.common.config;
 
+import javax.annotation.Resource;
 import lombok.Data;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_PID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_OFFICIAL_PUBLIC_KEY;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_PID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_PRIVATE_KEY;
-import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
 
 @Data
 @Component
@@ -55,11 +52,11 @@ public class AlipayConfig {
     }
 
     public String getPrivateKey() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_PRIVATE_KEY);
+        return oosSecretParamConfig.getSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
     }
 
     public String getOfficialPublicKey() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_OFFICIAL_PUBLIC_KEY);
+        return oosSecretParamConfig.getSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
     }
 }
 

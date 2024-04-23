@@ -16,6 +16,7 @@
 package org.example.common.helper.oos;
 
 import com.aliyun.oos20190601.models.GetParameterResponse;
+import com.aliyun.oos20190601.models.GetParameterResponseBody;
 import com.aliyun.oos20190601.models.GetSecretParameterResponse;
 import com.aliyun.oos20190601.models.GetSecretParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
@@ -132,6 +133,21 @@ public class ParameterOosHelper {
             return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
         } catch (Exception e) {
             log.error("ParameterOosHelper.getSecretParameter request:{}, throw Exception",
+                    JsonUtil.toJsonString(name), e);
+            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+        }
+    }
+
+    public String getParameter(String name) {
+        try {
+            GetParameterResponse response = oosClient.getParameter(name);
+            Optional<String> optionalValue = Optional.ofNullable(response)
+                    .map(GetParameterResponse::getBody)
+                    .map(GetParameterResponseBody::getParameter)
+                    .map(GetParameterResponseBody.GetParameterResponseBodyParameter::getValue);
+            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
+        } catch (Exception e) {
+            log.error("ParameterOosHelper.getParameter request:{}, throw Exception",
                     JsonUtil.toJsonString(name), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
