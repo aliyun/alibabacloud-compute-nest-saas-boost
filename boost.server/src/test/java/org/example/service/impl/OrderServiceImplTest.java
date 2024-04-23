@@ -18,18 +18,21 @@ package org.example.service.impl;
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.constant.ServiceType;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
 import org.example.common.helper.WalletHelper;
 import org.example.common.helper.ots.OrderOtsHelper;
+import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.param.order.ListOrdersParam;
 import org.example.common.param.order.RefundOrderParam;
 import org.example.common.param.service.GetServiceMetadataParam;
+import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.impl.OrderServiceImpl;
@@ -88,54 +91,6 @@ class OrderServiceImplTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
     }
-
-//    @Test
-//    void testCreateOrder() throws AlipayApiException {
-//        when(alipayService.createTransaction(any(), anyString(), anyString())).thenReturn("createTransactionResponse");
-//        CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
-//        response.setStatusCode(HttpStatus.OK.value());
-//        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), any())).thenReturn(response);
-//        when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Long>("code", "message", Long.valueOf(0), "requestId"));
-//        List<OrderDTO> orderList = new ArrayList<>();
-//        orderList.add(new OrderDTO());
-//        ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
-//        when(orderOtsHelper.listOrders(anyList(), anyList(), anyList(), anyString(), anyList())).thenReturn(orderDtoListResult);
-//        CreateOrderParam createOrderParam = new CreateOrderParam();
-//        createOrderParam.setType(PayChannel.ALIPAY);
-//        createOrderParam.setProductComponents("{\n" +
-//                "  \"RegionId\":\"cn-hangzhou\",\n" +
-//                "  \"SpecificationName\":\"低配版(Entry Level Package)\",\n" +
-//                "  \"PayPeriod\":1,\n \"PayPeriodUnit\":\"Month\"\n" +
-//                "}");
-//        createOrderParam.setProductName(ProductName.SERVICE_INSTANCE);
-//        BaseResult<String> result = orderServiceImpl.createOrder(new UserInfoModel("sub", "name", "loginName", "123", "123"), createOrderParam);
-//        Assertions.assertTrue(result.getData().equals("createTransactionResponse"));
-//    }
-
-//    @Test
-//    void testCreateOrderWithExistedServiceInstance() throws AlipayApiException {
-//        when(alipayService.createTransaction(any(), anyString(), anyString())).thenReturn("createTransactionResponse");
-//        CreateServiceInstanceResponse response = new CreateServiceInstanceResponse();
-//        response.setStatusCode(HttpStatus.OK.value());
-//        when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), any())).thenReturn(response);
-//        when(serviceManager.getServiceCost(any(), any(GetServiceCostParam.class))).thenReturn(new BaseResult<Long>("code", "message", Long.valueOf(0), "requestId"));
-//        List<OrderDTO> orderList = new ArrayList<>();
-//        orderList.add(new OrderDTO());
-//        ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
-//        when(orderOtsHelper.listOrders(anyList(), any(), anyList(), any(), anyList())).thenReturn(orderDtoListResult);
-//
-//        CreateOrderParam createOrderParam = new CreateOrderParam();
-//        createOrderParam.setType(PayChannel.ALIPAY);
-//        createOrderParam.setProductComponents("{\n" +
-//                "  \"RegionId\":\"cn-hangzhou\",\n" +
-//                "  \"SpecificationName\":\"低配版(Entry Level Package)\",\n" +
-//                "  \"PayPeriod\":1,\n \"PayPeriodUnit\":\"Month\",\n" +
-//                "  \"ServiceInstanceId\":\"si-123\"\n" +
-//                "}");
-//        createOrderParam.setProductName(ProductName.SERVICE_INSTANCE);
-//        BaseResult<String> result = orderServiceImpl.createOrder(new UserInfoModel("sub", "name", "loginName", "123", "123"), createOrderParam);
-//        Assertions.assertTrue(result.getData().equals("createTransactionResponse"));
-//    }
 
     @Test
     void testGetOrder() {
@@ -259,6 +214,12 @@ class OrderServiceImplTest {
         OrderDTO orderDTO = createMockOrderDTO();
         List<OrderDTO> orderList = createMockOrderList();
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
+        ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
+        serviceInstanceModel.setServiceType(ServiceType.managed);
+        GetServiceInstanceParam getServiceInstanceParam = new GetServiceInstanceParam();
+        getServiceInstanceParam.setServiceInstanceId("si-123");
+
+        when(serviceInstanceLifecycleService.getServiceInstance(any(), any(GetServiceInstanceParam.class))).thenReturn(BaseResult.success(serviceInstanceModel));
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(any(), anyString(), anyString(), anyLong(), any())).thenReturn(Long.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
@@ -277,6 +238,12 @@ class OrderServiceImplTest {
         OrderDTO orderDTO = createMockOrderDTO();
         List<OrderDTO> orderList = createMockOrderList();
         ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
+        ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
+        serviceInstanceModel.setServiceType(ServiceType.managed);
+        GetServiceInstanceParam getServiceInstanceParam = new GetServiceInstanceParam();
+        getServiceInstanceParam.setServiceInstanceId("si-123");
+        when(serviceInstanceLifecycleService.getServiceInstance(any(), any(GetServiceInstanceParam.class))).thenReturn(BaseResult.success(serviceInstanceModel));
+
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
         when(walletHelper.getRefundAmount(any(), anyString(), anyString(), anyLong(), any())).thenReturn(Long.valueOf(0));
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);

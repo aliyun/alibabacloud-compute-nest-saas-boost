@@ -33,6 +33,7 @@ import mockit.Tested;
 import mockit.Verifications;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.CallSource;
 import org.example.common.errorinfo.ErrorInfo;
@@ -42,7 +43,9 @@ import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.service.base.ServiceManager;
 import org.example.service.base.impl.ServiceInstanceLifecycleServiceImpl;
+import org.example.service.order.OrderService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -65,6 +68,15 @@ class ServiceInstanceLifecycleServiceImplTest {
 
     @Injectable
     private ComputeNestSupplierClient computeNestSupplierClient;
+
+    @Injectable
+    private OrderService orderService;
+
+    @Injectable
+    private AcsApiCaller acsApiCaller;
+
+    @Injectable
+    private ServiceManager serviceManager;
 
     private ListServiceInstancesResponseBody createListServiceInstancesResponseBody() {
         ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos serviceInfos = new ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos().setName("serviceInfoName-2").setShortDescription("description");

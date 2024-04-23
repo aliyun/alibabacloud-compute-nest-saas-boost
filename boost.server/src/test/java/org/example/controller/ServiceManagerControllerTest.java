@@ -15,30 +15,44 @@
 
 package org.example.controller;
 
-import mockit.Injectable;
 import org.example.common.BaseResult;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.service.base.ServiceManager;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ServiceManagerControllerTest {
 
-    @InjectMocks
-    ServiceManagerController serviceManagerController;
-
-    @Injectable
+    @Mock
     private ServiceManager serviceManager;
 
+    @InjectMocks
+    private ServiceManagerController serviceUnderTest;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
     @Test
-    void testGetServiceCost() {
-        when(serviceManager.getServiceCost(any(), any())).thenReturn(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"));
-        BaseResult<Double> result = serviceManagerController.getServiceCost(new UserInfoModel("sub", "name", "loginName", "aid", "uid", Boolean.TRUE), new GetServiceCostParam());
-        Assertions.assertEquals(new BaseResult<Double>("code", "message", Double.valueOf(0), "requestId"), result);
+    public void testGetServiceCost() {
+        UserInfoModel userInfo = new UserInfoModel();
+        GetServiceCostParam param = new GetServiceCostParam();
+        BaseResult<Double> expectedResult = new BaseResult<>();
+        expectedResult.setData(100.0);
+
+        when(serviceManager.getServiceCost(userInfo, param))
+                .thenReturn(expectedResult);
+        BaseResult<Double> result = serviceUnderTest.getServiceCost(userInfo, param);
+        assertEquals(expectedResult, result);
+        verify(serviceManager).getServiceCost(userInfo, param);
     }
 }

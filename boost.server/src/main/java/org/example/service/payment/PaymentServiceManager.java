@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
+import org.example.common.filter.RepeatableReadHttpRequest;
 import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.model.PaymentOrderModel;
 import org.example.common.model.UserInfoModel;
@@ -68,6 +69,7 @@ public class PaymentServiceManager {
 
     public String verifyTradeCallback(HttpServletRequest request) {
         PaymentOrderModel payOrderModel = HttpUtil.requestToObject(request, PaymentOrderModel.class);
+        log.info("verifyTradeCallback, payOrderModel:{}", payOrderModel);
         OrderDO unverifiedOrder = new OrderDO();
         BeanUtils.copyProperties(payOrderModel, unverifiedOrder);
         BigDecimal totalAmountYuan = new BigDecimal(payOrderModel.getTotalAmount());
@@ -82,6 +84,7 @@ public class PaymentServiceManager {
             unverifiedOrder.setReceiptAmount(MoneyUtil.toCents(receiptAmountYuan));
         }
         unverifiedOrder.setOrderId(payOrderModel.getOutTradeNo());
+
         Map<String, String> map = HttpUtil.requestToMap(request);
         String orderId = map.get(AliPayConstants.OUT_TRADE_NO);
         return getPayChannelService(orderId).verifyTradeCallback(unverifiedOrder, map);

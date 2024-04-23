@@ -58,6 +58,7 @@ public class AliyunConfig {
 
     @PostConstruct
     public void init() throws CredentialException {
+        log.info("deployType: {}", deployType);
         if (DeployType.LOCAL.getDeployType().equals(deployType)) {
             return;
         }
