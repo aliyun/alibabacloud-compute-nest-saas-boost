@@ -1,17 +1,17 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.common.helper.oos;
 
@@ -19,7 +19,11 @@ import com.aliyun.oos20190601.models.GetParameterResponse;
 import com.aliyun.oos20190601.models.GetSecretParameterResponse;
 import com.aliyun.oos20190601.models.GetSecretParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
+import com.aliyun.oos20190601.models.UpdateParameterResponseBody;
+import com.aliyun.oos20190601.models.UpdateParameterResponseBody.UpdateParameterResponseBodyParameter;
 import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponseBody;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponseBody.UpdateSecretParameterResponseBodyParameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,22 +52,31 @@ public class ParameterOosHelper {
 
     public BaseResult<Void> updateConfigParameter(UpdateConfigParameterParam updateConfigParameterParam){
         try {
+
             if (updateConfigParameterParam.getEncrypted().equals(Boolean.TRUE)) {
                 UpdateSecretParameterResponse updateSecretParameterResponse = oosClient.updateSecretParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
-                if (updateSecretParameterResponse.getBody().getParameter().getId() != null && !updateSecretParameterResponse.getBody().getParameter().getId().isEmpty()) {
+
+                Optional<String> parameterIdOptional = Optional.ofNullable(updateSecretParameterResponse.getBody())
+                        .map(UpdateSecretParameterResponseBody::getParameter)
+                        .map(UpdateSecretParameterResponseBodyParameter::getId);
+
+                if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
                     return BaseResult.success();
                 } else {
-                    return BaseResult.fail("updateConfigParameter::updateSecretParameter fail:"+ErrorInfo.RESOURCE_NOT_FOUND);
-                }
-            } else if (updateConfigParameterParam.getEncrypted().equals(Boolean.FALSE)) {
-                UpdateParameterResponse updateParameterResponse = oosClient.updateParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
-                if (updateParameterResponse.getBody().getParameter().getId() != null && !updateParameterResponse.getBody().getParameter().getId().isEmpty()) {
-                    return BaseResult.success();
-                } else {
-                    return BaseResult.fail("ParameterOosHelper.updateConfigParameter updateParameter failed:"+ErrorInfo.RESOURCE_NOT_FOUND);
+                    return BaseResult.fail("updateConfigParameter::updateSecretParameter fail:");
                 }
             } else {
-                return BaseResult.fail("updateConfigParameter fail, Either 'encrypted' is an unexpected value:"+ErrorInfo.INVALID_INPUT);
+                UpdateParameterResponse updateParameterResponse = oosClient.updateParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+
+                Optional<String> parameterIdOptional = Optional.ofNullable(updateParameterResponse.getBody())
+                        .map(UpdateParameterResponseBody::getParameter)
+                        .map(UpdateParameterResponseBodyParameter::getId);
+
+                if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
+                    return BaseResult.success();
+                } else {
+                    return BaseResult.fail("ParameterOosHelper.updateConfigParameter updateParameter failed:");
+                }
             }
         } catch (Exception e) {
             log.error("ParameterOosHelper.updateConfigParameter request:{}, throw Exception", JsonUtil.toJsonString(updateConfigParameterParam), e);
