@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {message, Modal, Pagination, Tooltip} from 'antd';
+import {Form, message, Modal, Pagination, Tooltip} from 'antd';
 import SpecificationModal from "@/pages/Commodity/SpeicificationModal";
 import {commodityColumns, CommodityForm} from "@/pages/Commodity/common";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
@@ -182,7 +182,7 @@ const CommodityList: React.FC = () => {
                               </a>
                           </Tooltip>
                       ]}
-                      request={async (params, sorter, filters)=>{
+                      request={async (params, sorter, filters) => {
                           const pageSize = params.pageSize ?? defaultPageSize;
                           const currentPage = params.current ?? 1;
                           return fetchCommodities({
@@ -207,11 +207,16 @@ const CommodityList: React.FC = () => {
                     setIsCommodityModalVisible(false);
                     setSelectedCommodity(undefined);
                 }}
+
                 footer={null}
             >
                 {isCommodityModalVisible && (
                     <CommodityForm commodity={selectedCommodity} onSubmit={handleSaveCommodity}
                                    key={selectedCommodity ? selectedCommodity.commodityCode : 'new'}
+                                   onCancel={() => {
+                                       setIsCommodityModalVisible(false);
+                                       setSelectedCommodity(undefined);
+                                   }}
                     />
                 )}
             </Modal>
