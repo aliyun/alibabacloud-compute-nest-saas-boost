@@ -41,8 +41,8 @@ const ProviderInfoForm: React.FC<{
     };
 
     const handleCancel = () => {
-        onCancelEdit();
         setLocalProviderInfo(providerInfo);
+        onCancelEdit();
     };
 
     const handleChange = (key: keyof ProviderInfo, value: string) => {
@@ -51,8 +51,8 @@ const ProviderInfoForm: React.FC<{
 
     const getFieldProps = (key: keyof ProviderInfo, label: string, placeholder: string) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
-        initialValue: localProviderInfo[key],
         placeholder: placeholder,
+        value: localProviderInfo[key],
         fieldProps: {
             disabled: !editing,
             onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -65,6 +65,12 @@ const ProviderInfoForm: React.FC<{
         <ProForm
             layout="vertical"
             colon={false}
+            submitter={{
+                render: (_, dom) => (
+                    <>
+                    </>
+                ),
+            }}
         >
             <ProFormText {...getFieldProps('providerName', '服务商名称', '请输入服务商名称')} />
             <ProFormText {...getFieldProps('providerOfficialLink', '官方链接', '请输入服务商官方链接')} />
@@ -90,8 +96,8 @@ const PaymentKeyForm: React.FC<{
     };
 
     const handleCancel = () => {
-        onCancelEdit();
         setLocalPaymentKeys(paymentKeys);
+        onCancelEdit();
     };
 
     const handleChange = (key: keyof PaymentKeys, value: string) => {
@@ -105,7 +111,7 @@ const PaymentKeyForm: React.FC<{
     ) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
-        initialValue: localPaymentKeys[key],
+        value: localPaymentKeys[key],
         fieldProps: {
             disabled: !editing,
             type: editing && privateKeysVisible ? 'text' : 'password',
@@ -119,6 +125,12 @@ const PaymentKeyForm: React.FC<{
         <ProForm
             layout="vertical"
             colon={false}
+            submitter={{
+                render: (_, dom) => (
+                    <>
+                    </>
+                ),
+            }}
         >
             <ProFormText {...getFieldProps('alipayPublicKey', '官方公钥(支付宝)', '请输入官方公钥(支付宝)')} />
             <ProFormText {...getFieldProps('alipayPrivateKey', '服务商私钥(支付宝)', '请输入服务商私钥(支付宝)')} />
@@ -140,6 +152,10 @@ const ParameterManagement: React.FC = () => {
 
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
         const result = await listConfigParameters({ name: parameterNames, encrypted });
+        console.log(result);
+        console.log(parameterNames);
+        console.log(encrypted);
+        console.log(result.data[0]);
         if (
             result.data && result.data.configParameterModels
         ) {
@@ -179,8 +195,10 @@ const ParameterManagement: React.FC = () => {
     const fetchData = async () =>  {
         if (activeTabKey === 'providerInfo') {
             await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
+            console.info('providerInfo', providerInfo);
         } else if (activeTabKey === 'paymentKeys') {
             await loadConfigParameters(initialPaymentKeysNameList, initialPaymentKeysEncryptedList);
+            console.info('paymentKeys', paymentKeys);
         }
     }
 

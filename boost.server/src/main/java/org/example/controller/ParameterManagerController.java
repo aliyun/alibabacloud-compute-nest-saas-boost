@@ -18,6 +18,7 @@ package org.example.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import org.example.common.APIParameterConvert;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
@@ -28,6 +29,7 @@ import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
 import org.example.service.parameter.ParameterManagerService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,7 +46,7 @@ public class ParameterManagerController {
     @ApiOperation(value = "根据填报表批量查询参数", nickname = "listConfigParameters")
     @RequestMapping(path = "/listConfigParameters",method = RequestMethod.GET)
     public ListResult<ConfigParameterModel> listConfigParameters(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                                 @APIParameterConvert ListConfigParametersParam listConfigParametersParam) {
+                                                                 @Valid @RequestBody ListConfigParametersParam listConfigParametersParam) {
         return parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);
     }
 
@@ -52,7 +54,7 @@ public class ParameterManagerController {
     @ApiOperation(value = "根据输入的参数名更新参数", nickname = "updateConfigParameter")
     @RequestMapping(path = "/updateConfigParameter",method = RequestMethod.POST)
     public BaseResult<Void> updateConfigParameter(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                  @APIParameterConvert UpdateConfigParameterParam updateConfigParameterParam) {
+                                                  @Valid @RequestBody UpdateConfigParameterParam updateConfigParameterParam) {
         return parameterManagerService.updateConfigParameter(userInfoModel, updateConfigParameterParam);
     }
 }
