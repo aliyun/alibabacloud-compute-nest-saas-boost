@@ -62,13 +62,6 @@ declare namespace API {
     requestId?: string;
   };
 
-  type BaseResultListConfigParametersModel_ = {
-    code?: string;
-    data?: ListConfigParametersModel;
-    message?: string;
-    requestId?: string;
-  };
-
   type BaseResultLong_ = {
     code?: string;
     data?: number;
@@ -161,6 +154,11 @@ declare namespace API {
     id?: string;
     name?: string;
     type?: string;
+  };
+
+  type ConfigParameterQueryModel = {
+    encrypted?: boolean;
+    name?: string;
   };
 
   type createCommodityParams = {
@@ -300,13 +298,8 @@ declare namespace API {
     specificationName?: string;
   };
 
-  type ListConfigParametersModel = {
-    configParameterModels?: ConfigParameterModel[];
-  };
-
-  type listConfigParametersParams = {
-    encrypted?: boolean[];
-    name?: string[];
+  type ListConfigParametersParam = {
+    configParameterQueryModels?: ConfigParameterQueryModel[];
   };
 
   type listMetricsParams = {
@@ -347,6 +340,15 @@ declare namespace API {
     code?: string;
     count?: number;
     data?: CommoditySpecificationDTO[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
+  };
+
+  type ListResultConfigParameterModel_ = {
+    code?: string;
+    count?: number;
+    data?: ConfigParameterModel[];
     message?: string;
     nextToken?: string;
     requestId?: string;
@@ -516,7 +518,7 @@ declare namespace API {
     unitPrice?: number;
   };
 
-  type updateConfigParameterParams = {
+  type UpdateConfigParameterParam = {
     encrypted?: boolean;
     name?: string;
     value?: string;
