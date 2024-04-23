@@ -15,8 +15,9 @@ import {
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import {ProFormText, ProForm, ProFormTextArea} from '@ant-design/pro-form';
-import { ListConfigParametersParam, ListResultConfigParameterModel_, ConfigParameterQueryModel } from './path/to/types'; // 替换为实际路径
-
+import ConfigParameterQueryModel = API.ConfigParameterQueryModel;
+import ListConfigParametersParam = API.ListConfigParametersParam;
+import ListResultConfigParameterModel_ = API.ListResultConfigParameterModel_;
 
 const ActionButtons: React.FC<{ onSave: () => void; onCancel: () => void }> = ({ onSave, onCancel }) => (
     <Row justify="end" style={{ marginTop: '0px', marginBottom: '24px' }}>
@@ -170,7 +171,7 @@ const ParameterManagement: React.FC = () => {
             const configParams = result.data.reduce(
                 (acc, configParam) => ({
                     ...acc,
-                    [configParam.name as string]: configParam.value,
+                    [configParam.name as string]: configParam.id,
                 }),
                 {}
             );
