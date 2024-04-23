@@ -24,6 +24,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                 response = await updateCommoditySpecification({
                     ...values,
                     commodityCode: commodity.commodityCode,
+                    unitPrice: yuanToCents(values.unitPrice),
                     specificationName: currentSpecification.specificationName,
                 });
             } else {
@@ -105,7 +106,10 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
             <Modal
                 title={currentSpecification ? "编辑套餐" : "新建套餐"}
                 open={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                    setCurrentSpecification(undefined);
+                }}
                 footer={null}
             >
                 <SpecificationForm
@@ -115,6 +119,10 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                         payPeriods: currentSpecification?.payPeriods ? JSON.parse(currentSpecification.payPeriods) : [],
                     }}
                     onSubmit={handleSaveSpecification}
+                    onCancel={() => {
+                        setIsModalVisible(false);
+                        setCurrentSpecification(undefined);
+                    }}
                 />
             </Modal>
             <ProTable
