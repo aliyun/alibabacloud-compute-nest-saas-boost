@@ -1,17 +1,17 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.common.helper.oos;
 
@@ -43,7 +43,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class ParameterOosHelper {
-
     private final OosClient oosClient;
 
     public ParameterOosHelper(OosClient oosClient) {
@@ -54,7 +53,8 @@ public class ParameterOosHelper {
         try {
 
             if (updateConfigParameterParam.getEncrypted().equals(Boolean.TRUE)) {
-                UpdateSecretParameterResponse updateSecretParameterResponse = oosClient.updateSecretParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                UpdateSecretParameterResponse updateSecretParameterResponse = oosClient.updateSecretParameter
+                        (updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
 
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateSecretParameterResponse.getBody())
                         .map(UpdateSecretParameterResponseBody::getParameter)
@@ -66,7 +66,8 @@ public class ParameterOosHelper {
                     return BaseResult.fail("updateConfigParameter::updateSecretParameter fail:");
                 }
             } else {
-                UpdateParameterResponse updateParameterResponse = oosClient.updateParameter(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                UpdateParameterResponse updateParameterResponse = oosClient.updateParameter
+                        (updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
 
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateParameterResponse.getBody())
                         .map(UpdateParameterResponseBody::getParameter)
@@ -79,7 +80,8 @@ public class ParameterOosHelper {
                 }
             }
         } catch (Exception e) {
-            log.error("ParameterOosHelper.updateConfigParameter request:{}, throw Exception", JsonUtil.toJsonString(updateConfigParameterParam), e);
+            log.error("ParameterOosHelper.updateConfigParameter request:{}, throw Exception",
+                    JsonUtil.toJsonString(updateConfigParameterParam), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
@@ -90,12 +92,14 @@ public class ParameterOosHelper {
 
         List<ConfigParameterQueryModel> queries = listConfigParametersParam.getConfigParameterQueryModels();
         if (queries == null || queries.isEmpty()) {
-            return (ListResult<ConfigParameterModel>) ListResult.fail("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+            return (ListResult<ConfigParameterModel>) ListResult.fail
+                    ("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
         }
 
         for (ConfigParameterQueryModel query : queries) {
             if (query.getEncrypted() == null || query.getName() == null || query.getName().isEmpty()) {
-                return (ListResult<ConfigParameterModel>) ListResult.fail("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+                return (ListResult<ConfigParameterModel>) ListResult.fail
+                        ("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
             }
 
             try {
@@ -109,7 +113,8 @@ public class ParameterOosHelper {
                 }
                 results.getData().add(configParameterModel);
             } catch (Exception e) {
-                log.error("Error fetching config parameter request: {}", JsonUtil.toJsonString(listConfigParametersParam), e);
+                log.error("Error fetching config parameter request: {}",
+                        JsonUtil.toJsonString(listConfigParametersParam), e);
                 throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
             }
         }
@@ -126,7 +131,8 @@ public class ParameterOosHelper {
                     .map(GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter::getValue);
             return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
         } catch (Exception e) {
-            log.error("ParameterOosHelper.getSecretParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
+            log.error("ParameterOosHelper.getSecretParameter request:{}, throw Exception",
+                    JsonUtil.toJsonString(name), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
