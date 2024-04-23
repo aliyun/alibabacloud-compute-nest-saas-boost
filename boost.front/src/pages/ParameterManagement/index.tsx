@@ -15,6 +15,8 @@ import {
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import {ProFormText, ProForm, ProFormTextArea} from '@ant-design/pro-form';
+import { ListConfigParametersParam, ListResultConfigParameterModel_, ConfigParameterQueryModel } from './path/to/types'; // 替换为实际路径
+
 
 const ActionButtons: React.FC<{ onSave: () => void; onCancel: () => void }> = ({ onSave, onCancel }) => (
     <Row justify="end" style={{ marginTop: '0px', marginBottom: '24px' }}>
@@ -151,30 +153,33 @@ const ParameterManagement: React.FC = () => {
     const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
 
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
-        const result = await listConfigParameters({ name: parameterNames, encrypted });
-        console.log(result);
-        console.log(parameterNames);
-        console.log(encrypted);
-        console.log(result.data[0]);
+        const configParameterQueryModels: ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
+            name,
+            encrypted: encrypted[index],
+        }));
+
+        const listParams: ListConfigParametersParam = {
+            configParameterQueryModels,
+        };
+
+        const result: ListResultConfigParameterModel_ = await listConfigParameters(listParams);
+
         if (
-            result.data && result.data.configParameterModels
+            result.data && result.data.length > 0
         ) {
-            if (result.data.configParameterModels.length > 0) {
-                const configParams = result.data.configParameterModels.reduce(
-                    (acc, configParam) => ({
-                        ...acc,
-                        [configParam.name as string]: configParam.id,
-                    }),
-                    {}
-                );
+            const configParams = result.data.reduce(
+                (acc, configParam) => ({
+                    ...acc,
+                    [configParam.name as string]: configParam.value,
+                }),
+                {}
+            );
 
-                if (parameterNames === initialProviderInfoNameList) {
-                    setProviderInfo(configParams as ProviderInfo);
-                } else if (parameterNames === initialPaymentKeysNameList) {
-                    setPaymentKeys(configParams as PaymentKeys);
-                }
+            if (parameterNames === initialProviderInfoNameList) {
+                setProviderInfo(configParams as ProviderInfo);
+            } else if (parameterNames === initialPaymentKeysNameList) {
+                setPaymentKeys(configParams as PaymentKeys);
             }
-
         }
     };
 
