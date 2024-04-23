@@ -1,7 +1,7 @@
 import {ProColumns} from '@ant-design/pro-table';
 import {ProForm, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import React, {ReactNode} from "react";
-import {Button, message} from "antd";
+import {Button, message, Space} from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import copy from 'copy-to-clipboard';
 
@@ -66,15 +66,34 @@ export const commodityColumns: ProColumns<API.CommodityDTO>[] = [
 export interface CommodityFormProps {
     commodity: API.CommodityDTO | undefined;
     onSubmit: (values: API.CommodityDTO) => Promise<void>;
+
+    onCancel: () => void
 }
 
-export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit}) => {
+export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit, onCancel}) => {
     return (
         <ProForm<API.CommodityDTO>
             onFinish={onSubmit}
             onFinishFailed={(errorInfo) => {
                 console.log(errorInfo);
                 message.error('Failed to submit commodity');
+            }}
+            submitter={{
+                render: (_, dom) => (
+                    <>
+                        <Space size={"small"}>
+                            <Button
+                                onClick={() => {
+                                    onCancel();
+                                }}
+                            >
+                                取消
+                            </Button>
+                            {dom[1]}
+                        </Space>
+
+                    </>
+                ),
             }}
             initialValues={commodity || {}}
         >
@@ -180,68 +199,91 @@ interface SpecificationFormProps {
     initialValues?: API.CommoditySpecificationDTO | undefined;
     onSubmit: (values: API.CreateCommoditySpecificationParam | API.UpdateCommoditySpecificationParam) => Promise<void>;
 
+    onCancel: () => void
+
 }
 
 export const SpecificationForm: React.FC<SpecificationFormProps> = ({
                                                                         initialValues,
                                                                         onSubmit,
-                                                                    }) => (
-    <ProForm<API.CreateCommoditySpecificationParam>
-        onFinish={onSubmit}
-        onFinishFailed={(errorInfo) => {
-            console.log(errorInfo);
-        }}
-        initialValues={initialValues}
+                                                                        onCancel
+                                                                    }) => {
 
-    >
-        {<ProFormText
-            name="specificationName"
-            label="套餐名"
-            rules={[{required: true, message: 'Please input specification name!'}]}
-            disabled={initialValues != undefined && initialValues?.commodityCode != undefined}
-        />}
-        <ProFormDigit
-            name="unitPrice"
-            label="单价"
-            fieldProps={{precision: 2}}
-            min={0}
-            rules={[{required: true, message: 'Please input unit price!'}]}
-        />
-        <ProFormSelect
-            name="payPeriodUnit"
-            label="单位购买周期"
-            options={[
-                {label: '月', value: 'Month'},
-                {label: '日', value: 'Day'},
-                {label: '年', value: 'Year'}
-            ]}
-            rules={[{required: true, message: 'Please select pay period unit!'}]}
-        />
-        <ProFormSelect
-            name="payPeriods"
-            label="允许购买的周期"
-            mode="multiple"
-            options={Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}))}
-            fieldProps={{
-                optionFilterProp: "children",
-                filterOption: (input, option) => {
-                    const childrenString = typeof option?.children === 'string' ? option.children : '';
-                    return childrenString.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-                }
+
+    return (
+        <ProForm<API.CreateCommoditySpecificationParam>
+            onFinish={onSubmit}
+            onFinishFailed={(errorInfo) => {
+                console.log(errorInfo);
             }}
-            rules={[{required: true, message: 'Please select pay periods!'}]}
-        />
-        <ProFormSelect
-            name="currency"
-            label="Currency"
-            hidden={true}
-            initialValue={"CNY"}
-            fieldProps={{
-                defaultValue: "CNY"
+            submitter={{
+                render: (_, dom) => (
+                    <>
+                        <Space size={"small"}>
+                            <Button
+                                onClick={() => {
+                                    onCancel();
+                                }}
+                            >
+                                取消
+                            </Button>
+                            {dom[1]}
+                        </Space>
+
+                    </>
+                ),
             }}
-            options={[
-                {label: 'CNY', value: 'CNY'}
-            ]}
-        />
-    </ProForm>
-)
+            initialValues={initialValues}
+        >
+            {<ProFormText
+                name="specificationName"
+                label="套餐名"
+                rules={[{required: true, message: 'Please input specification name!'}]}
+                disabled={initialValues != undefined && initialValues?.commodityCode != undefined}
+            />}
+            <ProFormDigit
+                name="unitPrice"
+                label="单价"
+                fieldProps={{precision: 2}}
+                min={0}
+                rules={[{required: true, message: 'Please input unit price!'}]}
+            />
+            <ProFormSelect
+                name="payPeriodUnit"
+                label="单位购买周期"
+                options={[
+                    {label: '月', value: 'Month'},
+                    {label: '日', value: 'Day'},
+                    {label: '年', value: 'Year'}
+                ]}
+                rules={[{required: true, message: 'Please select pay period unit!'}]}
+            />
+            <ProFormSelect
+                name="payPeriods"
+                label="允许购买的周期"
+                mode="multiple"
+                options={Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}))}
+                fieldProps={{
+                    optionFilterProp: "children",
+                    filterOption: (input, option) => {
+                        const childrenString = typeof option?.children === 'string' ? option.children : '';
+                        return childrenString.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                    }
+                }}
+                rules={[{required: true, message: 'Please select pay periods!'}]}
+            />
+            <ProFormSelect
+                name="currency"
+                label="Currency"
+                hidden={true}
+                initialValue={"CNY"}
+                fieldProps={{
+                    defaultValue: "CNY"
+                }}
+                options={[
+                    {label: 'CNY', value: 'CNY'}
+                ]}
+            />
+        </ProForm>
+    );
+}
