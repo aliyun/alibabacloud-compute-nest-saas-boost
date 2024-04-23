@@ -98,6 +98,21 @@ public interface AliPayConstants {
     String VERIFY_FAIL_RESULT = "failure";
 
     /**
+     * Provider name
+     */
+    String OOS_PARAMETER_PROVIDER_NAME = "ProviderName";
+
+    /**
+     * Provider official link
+     */
+    String OOS_PARAMETER_PROVIDER_OFFICIAL_LINK = "ProviderOfficialLink";
+
+    /**
+     * Provider description
+     */
+    String OOS_PARAMETER_PROVIDER_DESCRIPTION = "ProviderDescription";
+
+    /**
      * Alipay Application ID is the unique identifier for your registered application.
      */
     String OOS_SECRET_APP_ID = "AlipayAppId";
@@ -110,12 +125,22 @@ public interface AliPayConstants {
     /**
      * Alipay app private key
      */
-    String OOS_SECRET_PRIVATE_KEY = "AlipayPrivateKey";
+    String OOS_SECRET_ALIPAY_PRIVATE_KEY = "AlipayPrivateKey";
 
     /**
      * Alipay official public key
      */
-    String OOS_SECRET_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+    String OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+
+    /**
+     * WeChat app private key
+     */
+    String OOS_SECRET_WECHAT_PRIVATE_KEY = "WechatPrivateKey";
+
+    /**
+     * WeChat official public key
+     */
+    String OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY = "WechatOfficialPublicKey";
 
     String OOS_SECRET_ADMIN_AID = "AdminAid";
 }

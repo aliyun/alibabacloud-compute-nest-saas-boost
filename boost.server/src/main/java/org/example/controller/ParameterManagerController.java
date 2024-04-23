@@ -44,7 +44,7 @@ public class ParameterManagerController {
 
     @AdminAPI
     @ApiOperation(value = "根据填报表批量查询参数", nickname = "listConfigParameters")
-    @RequestMapping(path = "/listConfigParameters",method = RequestMethod.GET)
+    @RequestMapping(path = "/listConfigParameters",method = RequestMethod.POST)
     public ListResult<ConfigParameterModel> listConfigParameters(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                                                  @Valid @RequestBody ListConfigParametersParam listConfigParametersParam) {
         return parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);

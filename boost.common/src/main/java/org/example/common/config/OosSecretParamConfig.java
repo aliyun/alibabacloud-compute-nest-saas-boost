@@ -15,22 +15,25 @@
 
 package org.example.common.config;
 
-import org.example.common.helper.oos.ParameterOosHelper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
-
+import javax.annotation.Resource;
+import static org.example.common.constant.AliPayConstants.OOS_PARAMETER_PROVIDER_DESCRIPTION;
+import static org.example.common.constant.AliPayConstants.OOS_PARAMETER_PROVIDER_NAME;
+import static org.example.common.constant.AliPayConstants.OOS_PARAMETER_PROVIDER_OFFICIAL_LINK;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_OFFICIAL_PUBLIC_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_PID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_PRIVATE_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_WECHAT_PRIVATE_KEY;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_ID;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_SECRET;
 import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
+import org.example.common.helper.oos.ParameterOosHelper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OosSecretParamConfig {
@@ -48,20 +51,34 @@ public class OosSecretParamConfig {
         return this.secretMap.get(format);
     }
 
+    public String getValue(String name) {
+        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, name);
+        return this.secretMap.get(format);
+    }
+
     public void init() {
         secretMap = new HashMap<>(10, 0.75F);
         putSecretValue(OOS_SECRET_APP_ID);
         putSecretValue(OOS_SECRET_PID);
-        putSecretValue(OOS_SECRET_OFFICIAL_PUBLIC_KEY);
-        putSecretValue(OOS_SECRET_PRIVATE_KEY);
+        putSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
+        putSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
         putSecretValue(OAUTH_CLIENT_ID);
         putSecretValue(OAUTH_CLIENT_SECRET);
-        putSecretValue(OOS_SECRET_ADMIN_AID);
+        putValue(OOS_PARAMETER_PROVIDER_NAME);
+        putValue(OOS_PARAMETER_PROVIDER_DESCRIPTION);
+        putValue(OOS_PARAMETER_PROVIDER_OFFICIAL_LINK);
+        putSecretValue(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
+        putSecretValue(OOS_SECRET_WECHAT_PRIVATE_KEY);
 //        this.secretMap = oosClient.getSecretParametersByPath(String.format("%s/%s", SERVICE_INSTANCE_ID, stackName));
     }
 
     private void putSecretValue(String parameterName) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
         secretMap.put(format, parameterOosHelper.getSecretParameter(format));
+    }
+
+    private void putValue(String parameterName) {
+        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
+        secretMap.put(format, parameterOosHelper.getParameter(format));
     }
 }
