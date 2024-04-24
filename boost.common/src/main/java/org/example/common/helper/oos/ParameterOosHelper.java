@@ -90,19 +90,19 @@ public class ParameterOosHelper {
     }
 
     public ListResult<ConfigParameterModel> listConfigParameters(ListConfigParametersParam listConfigParametersParam) {
-        ListResult<ConfigParameterModel> results = new ListResult<ConfigParameterModel>();
+        ListResult<ConfigParameterModel> results = new ListResult<>();
         results.setData(new ArrayList<>());
 
         List<ConfigParameterQueryModel> queries = listConfigParametersParam.getConfigParameterQueryModels();
         if (queries == null || queries.isEmpty()) {
-            return (ListResult<ConfigParameterModel>) ListResult.fail
-                    ("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+            results.setMessage("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+            return results;
         }
 
         for (ConfigParameterQueryModel query : queries) {
             if (query.getEncrypted() == null || query.getName() == null || query.getName().isEmpty()) {
-                return (ListResult<ConfigParameterModel>) ListResult.fail
-                        ("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+                results.setMessage("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
+                return results;
             }
 
             try {
@@ -116,8 +116,8 @@ public class ParameterOosHelper {
                     if (optionalValue.isPresent() && !optionalValue.get().isEmpty()) {
                         configParameterModel = extractSecretParameterDetails(secretResponse);
                     } else {
-                        return (ListResult<ConfigParameterModel>) ListResult.fail
-                                ("The parameter in the response is an empty dictionary.");
+                        results.setMessage("The parameter in the response is an empty dictionary.");
+                        return results;
                     }
                 } else {
                     GetParameterResponse parameterResponse = oosClient.getParameter(query.getName());
@@ -128,14 +128,13 @@ public class ParameterOosHelper {
                     if (optionalValue.isPresent() && !optionalValue.get().isEmpty()) {
                         configParameterModel = extractParameterDetails(parameterResponse);
                     } else {
-                        return (ListResult<ConfigParameterModel>) ListResult.fail
-                                ("The parameter in the response is an empty dictionary.");
+                        results.setMessage("The parameter in the response is an empty dictionary.");
+                        return results;
                     }
                 }
                 results.getData().add(configParameterModel);
             } catch (Exception e) {
-                log.error("Error fetching config parameter request: {}",
-                        JsonUtil.toJsonString(listConfigParametersParam), e);
+                log.error("Error fetching config parameter request: {}", JsonUtil.toJsonString(listConfigParametersParam), e);
                 throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
             }
         }

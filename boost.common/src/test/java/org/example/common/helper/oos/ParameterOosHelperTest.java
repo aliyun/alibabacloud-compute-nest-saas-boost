@@ -91,36 +91,49 @@ public class ParameterOosHelperTest {
     }
 
     @Test
-    public void testListConfigParameters(@Mocked GetParameterResponse getParameterResponse,
-                                         @Mocked GetSecretParameterResponse getSecretParameterResponse) {
+    public void testListConfigParameters(@Mocked GetParameterResponse getParameterResponse) {
         ListConfigParametersParam listConfigParametersParam = new ListConfigParametersParam();
         List<ConfigParameterQueryModel> queries = new ArrayList<>();
         ConfigParameterQueryModel query1 = new ConfigParameterQueryModel();
         query1.setEncrypted(false);
         query1.setName("param1");
         queries.add(query1);
+        listConfigParametersParam.setConfigParameterQueryModels(queries);
+
+        ConfigParameterModel model1 = new ConfigParameterModel();
+        model1.setValue("id1");
+        model1.setName("param1");
+
+        new Expectations() {{
+            oosClient.getParameter("param1"); result = getParameterResponse;
+        }};
+
+        ListResult<ConfigParameterModel> result = parameterOosHelper.listConfigParameters(listConfigParametersParam);
+
+        assertEquals("The parameter in the response is an empty dictionary.", result.getMessage());
+    }
+
+    @Test
+    public void testListConfigSecretParameters(@Mocked GetSecretParameterResponse getSecretParameterResponse) {
+        ListConfigParametersParam listConfigParametersParam = new ListConfigParametersParam();
+        List<ConfigParameterQueryModel> queries = new ArrayList<>();
         ConfigParameterQueryModel query2 = new ConfigParameterQueryModel();
         query2.setEncrypted(true);
         query2.setName("param2");
         queries.add(query2);
         listConfigParametersParam.setConfigParameterQueryModels(queries);
 
-        ConfigParameterModel model1 = new ConfigParameterModel();
-        model1.setValue("id1");
-        model1.setName("param1");
         ConfigParameterModel model2 = new ConfigParameterModel();
         model2.setValue("id2");
         model2.setName("param2");
 
         new Expectations() {{
-            oosClient.getParameter("param1"); result = getParameterResponse;
             oosClient.getSecretParameter("param2"); result = getSecretParameterResponse;
         }};
 
         ListResult<ConfigParameterModel> result = parameterOosHelper.listConfigParameters(listConfigParametersParam);
 
-        assertEquals("OK", result.getMessage());
-        assertEquals(2, result.getData().size());
+        assertEquals("The parameter in the response is an empty dictionary.", result.getMessage());
     }
     @Test
     public void testGetSecretParameter(@Mocked GetSecretParameterResponse getSecretParameterResponse) {
