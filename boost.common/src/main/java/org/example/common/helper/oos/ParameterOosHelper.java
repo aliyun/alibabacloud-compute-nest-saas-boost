@@ -17,8 +17,10 @@ package org.example.common.helper.oos;
 
 import com.aliyun.oos20190601.models.GetParameterResponse;
 import com.aliyun.oos20190601.models.GetParameterResponseBody;
+import com.aliyun.oos20190601.models.GetParameterResponseBody.GetParameterResponseBodyParameter;
 import com.aliyun.oos20190601.models.GetSecretParameterResponse;
 import com.aliyun.oos20190601.models.GetSecretParameterResponseBody;
+import com.aliyun.oos20190601.models.GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
 import com.aliyun.oos20190601.models.UpdateParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateParameterResponseBody.UpdateParameterResponseBodyParameter;
@@ -64,7 +66,7 @@ public class ParameterOosHelper {
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
                     return BaseResult.success();
                 } else {
-                    return BaseResult.fail("updateConfigParameter::updateSecretParameter fail:");
+                    return BaseResult.fail("The parameter in the response is an empty dictionary.");
                 }
             } else {
                 UpdateParameterResponse updateParameterResponse = oosClient.updateParameter
@@ -77,7 +79,7 @@ public class ParameterOosHelper {
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
                     return BaseResult.success();
                 } else {
-                    return BaseResult.fail("ParameterOosHelper.updateConfigParameter updateParameter failed:");
+                    return BaseResult.fail("The parameter in the response is an empty dictionary.");
                 }
             }
         } catch (Exception e) {
@@ -107,10 +109,28 @@ public class ParameterOosHelper {
                 ConfigParameterModel configParameterModel;
                 if (query.getEncrypted()) {
                     GetSecretParameterResponse secretResponse = oosClient.getSecretParameter(query.getName());
-                    configParameterModel = extractSecretParameterDetails(secretResponse);
+                    Optional<String> optionalValue = Optional.ofNullable(secretResponse)
+                            .map(GetSecretParameterResponse::getBody)
+                            .map(GetSecretParameterResponseBody::getParameter)
+                            .map(GetSecretParameterResponseBodyParameter::getValue);
+                    if (optionalValue.isPresent() && !optionalValue.get().isEmpty()) {
+                        configParameterModel = extractSecretParameterDetails(secretResponse);
+                    } else {
+                        return (ListResult<ConfigParameterModel>) ListResult.fail
+                                ("The parameter in the response is an empty dictionary.");
+                    }
                 } else {
                     GetParameterResponse parameterResponse = oosClient.getParameter(query.getName());
-                    configParameterModel = extractParameterDetails(parameterResponse);
+                    Optional<String> optionalValue = Optional.ofNullable(parameterResponse)
+                            .map(GetParameterResponse::getBody)
+                            .map(GetParameterResponseBody::getParameter)
+                            .map(GetParameterResponseBodyParameter::getValue);
+                    if (optionalValue.isPresent() && !optionalValue.get().isEmpty()) {
+                        configParameterModel = extractParameterDetails(parameterResponse);
+                    } else {
+                        return (ListResult<ConfigParameterModel>) ListResult.fail
+                                ("The parameter in the response is an empty dictionary.");
+                    }
                 }
                 results.getData().add(configParameterModel);
             } catch (Exception e) {
@@ -119,7 +139,6 @@ public class ParameterOosHelper {
                 throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
             }
         }
-
         return results;
     }
 
@@ -158,7 +177,7 @@ public class ParameterOosHelper {
         ConfigParameterModel configParameterModel = new ConfigParameterModel();
         configParameterModel.setName(getSecretParameterResponse.getBody().getParameter().getName());
         configParameterModel.setType(getSecretParameterResponse.getBody().getParameter().getType());
-        configParameterModel.setId(getSecretParameterResponse.getBody().getParameter().getId());
+        configParameterModel.setValue(getSecretParameterResponse.getBody().getParameter().getValue());
         return configParameterModel;
     }
 
@@ -166,7 +185,7 @@ public class ParameterOosHelper {
         ConfigParameterModel configParameterModel = new ConfigParameterModel();
         configParameterModel.setName(getParameterResponse.getBody().getParameter().getName());
         configParameterModel.setType(getParameterResponse.getBody().getParameter().getType());
-        configParameterModel.setId(getParameterResponse.getBody().getParameter().getId());
+        configParameterModel.setValue(getParameterResponse.getBody().getParameter().getValue());
         return configParameterModel;
     }
 }

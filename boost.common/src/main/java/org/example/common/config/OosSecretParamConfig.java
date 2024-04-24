@@ -63,6 +63,7 @@ public class OosSecretParamConfig {
         putSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
         putSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
         putSecretValue(OAUTH_CLIENT_ID);
+        putSecretValue(OOS_SECRET_ADMIN_AID);
         putSecretValue(OAUTH_CLIENT_SECRET);
         putValue(OOS_PARAMETER_PROVIDER_NAME);
         putValue(OOS_PARAMETER_PROVIDER_DESCRIPTION);

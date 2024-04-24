@@ -134,9 +134,9 @@ declare namespace API {
   };
 
   type ConfigParameterModel = {
-    id?: string;
     name?: string;
     type?: string;
+    value?: string;
   };
 
   type ConfigParameterQueryModel = {

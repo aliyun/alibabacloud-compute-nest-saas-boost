@@ -106,10 +106,10 @@ public class ParameterOosHelperTest {
         listConfigParametersParam.setConfigParameterQueryModels(queries);
 
         ConfigParameterModel model1 = new ConfigParameterModel();
-        model1.setId("id1");
+        model1.setValue("id1");
         model1.setName("param1");
         ConfigParameterModel model2 = new ConfigParameterModel();
-        model2.setId("id2");
+        model2.setValue("id2");
         model2.setName("param2");
 
         new Expectations() {{
