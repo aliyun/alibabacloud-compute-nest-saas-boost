@@ -60,4 +60,3 @@ public class ParameterManagerServiceImpl implements ParameterManagerService {
         return parameterOosHelper.updateConfigParameter(updateConfigParameterParam);
     }
 }
-

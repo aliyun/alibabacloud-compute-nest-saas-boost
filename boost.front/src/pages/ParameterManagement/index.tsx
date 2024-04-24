@@ -55,9 +55,7 @@ const ProviderInfoForm: React.FC<{
     const getFieldProps = (key: keyof ProviderInfo, label: string, placeholder: string) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
-        value: localProviderInfo[key] === 'waitToConfig'
-            ? placeholder
-            : localProviderInfo[key],
+        value: localProviderInfo[key],
         fieldProps: {
             disabled: !editing,
             onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -71,10 +69,7 @@ const ProviderInfoForm: React.FC<{
             layout="vertical"
             colon={false}
             submitter={{
-                render: (_, dom) => (
-                    <>
-                    </>
-                ),
+                render: (_) => (<></>),
             }}
         >
             <ProFormText {...getFieldProps('ProviderName', '服务商名称', '请输入服务商名称')} />
@@ -119,9 +114,7 @@ const PaymentKeyForm: React.FC<{
     ) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
-        value: localPaymentKeys[key] === 'waitToConfig'
-            ? placeholder
-            : localPaymentKeys[key],
+        value: localPaymentKeys[key],
         fieldProps: {
             disabled: !editing,
             type: editing && privateKeysVisible ? 'text' : 'password',
@@ -136,10 +129,7 @@ const PaymentKeyForm: React.FC<{
             layout="vertical"
             colon={false}
             submitter={{
-                render: (_, dom) => (
-                    <>
-                    </>
-                ),
+                render: (_) => (<></>),
             }}
         >
             <ProFormText {...getFieldProps('AlipayOfficialPublicKey', '官方公钥(支付宝)', '请输入官方公钥(支付宝)')} />
@@ -176,7 +166,7 @@ const ParameterManagement: React.FC = () => {
             const configParams = result.data.reduce(
                 (acc, configParam) => ({
                     ...acc,
-                    [configParam.name as string]: configParam.value,
+                    [configParam.name as string]: configParam.value === 'waitToConfig'? '' : configParam.value,
                 }),
                 {}
             );
