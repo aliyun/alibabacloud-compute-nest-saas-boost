@@ -35,6 +35,9 @@ const ProviderInfoForm: React.FC<{
 }> = ({ providerInfo, onUpdateProviderInfo, editing, onCancelEdit }) => {
     const [localProviderInfo, setLocalProviderInfo] = useState(providerInfo);
 
+    useEffect(() => {
+        setLocalProviderInfo(providerInfo);
+    }, [providerInfo]);
     const handleSave = () => {
         onCancelEdit();
         onUpdateProviderInfo(localProviderInfo);
@@ -52,7 +55,9 @@ const ProviderInfoForm: React.FC<{
     const getFieldProps = (key: keyof ProviderInfo, label: string, placeholder: string) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
-        value: localProviderInfo[key],
+        value: localProviderInfo[key] === 'waitToConfig'
+            ? placeholder
+            : localProviderInfo[key],
         fieldProps: {
             disabled: !editing,
             onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -90,6 +95,9 @@ const PaymentKeyForm: React.FC<{
 }> = ({ paymentKeys, onUpdatePaymentKeys, editing, privateKeysVisible, onCancelEdit }) => {
     const [localPaymentKeys, setLocalPaymentKeys] = useState(paymentKeys);
 
+    useEffect(() => {
+        setLocalPaymentKeys(paymentKeys);
+    }, [paymentKeys]);
     const handleSave = () => {
         onCancelEdit();
         onUpdatePaymentKeys(localPaymentKeys);
@@ -111,7 +119,9 @@ const PaymentKeyForm: React.FC<{
     ) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
-        value: localPaymentKeys[key],
+        value: localPaymentKeys[key] === 'waitToConfig'
+            ? placeholder
+            : localPaymentKeys[key],
         fieldProps: {
             disabled: !editing,
             type: editing && privateKeysVisible ? 'text' : 'password',
@@ -149,7 +159,6 @@ const ParameterManagement: React.FC = () => {
     const [privateKeysVisible, setIsPrivateKeysVisible] = useState(false);
     const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
     const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
-
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
         const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
             name,
@@ -161,18 +170,16 @@ const ParameterManagement: React.FC = () => {
         };
 
         const result: API.ListResultConfigParameterModel_ = await listConfigParameters(listParams);
-
         if (
             result.data && result.data.length > 0
         ) {
             const configParams = result.data.reduce(
                 (acc, configParam) => ({
                     ...acc,
-                    [configParam.name as string]: configParam.id,
+                    [configParam.name as string]: configParam.value,
                 }),
                 {}
             );
-
             if (parameterNames === initialProviderInfoNameList) {
                 setProviderInfo(configParams as ProviderInfo);
             } else if (parameterNames === initialPaymentKeysNameList) {
@@ -198,10 +205,8 @@ const ParameterManagement: React.FC = () => {
     const fetchData = async () =>  {
         if (activeTabKey === 'providerInfo') {
             await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
-            console.info('providerInfo', providerInfo);
         } else if (activeTabKey === 'paymentKeys') {
             await loadConfigParameters(initialPaymentKeysNameList, initialPaymentKeysEncryptedList);
-            console.info('paymentKeys', paymentKeys);
         }
     }
 
@@ -211,9 +216,11 @@ const ParameterManagement: React.FC = () => {
             if (updatedInfo[field] !== providerInfo[field]) {
                 try {
                     updateConfigParameter({
-                        name: updatedInfo[field],
+                        name: field.valueOf(),
+                        value: updatedInfo[field],
                         encrypted: encryptedCredentialsMap[field],
                     }).then((result) => {
+                        console.log(result);
                         setProviderInfo(updatedInfo);
                         message.success('个人信息更新成功');
                         console.log(result);
@@ -232,7 +239,8 @@ const ParameterManagement: React.FC = () => {
             if (updatedKeys[field] !== paymentKeys[field]) {
                 try {
                     updateConfigParameter({
-                        name: updatedKeys[field],
+                        name: field.valueOf(),
+                        value: updatedKeys[field],
                         encrypted: encryptedCredentialsMap[field],
                     }).then((result) => {
                         setPaymentKeys(updatedKeys);

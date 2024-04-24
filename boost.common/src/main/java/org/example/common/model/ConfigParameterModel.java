@@ -11,7 +11,7 @@ public class ConfigParameterModel {
     
     private String name;
 
-    private String id;
+    private String value;
 
     private String type;
 
