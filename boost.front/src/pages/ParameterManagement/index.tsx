@@ -239,7 +239,7 @@ const ParameterManagement: React.FC = () => {
                                 ),
                             },
                             {
-                                key: 'alipayPaymentKeys',
+                                key: 'wechatPaymentKeys',
                                 label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>微信参数管理</span>,
                                 children: (
                                     <WechatPaymentKeyForm
