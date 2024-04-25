@@ -27,6 +27,8 @@ const loginPath = '/user/login';
 import {redirectLogin, getTicket} from "@/session";
 import {getUserInfo} from "@/services/backend/user";
 import logoicon from '../public/logo.svg'
+import { Provider } from 'react-redux';
+import { store } from './store';
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -178,3 +180,7 @@ export const request = {
     requestInterceptors: [authHeaderInterceptor],
 
 };
+
+export function rootContainer(container: React.ReactNode) {
+  return <Provider store={store}>{container}</Provider>;
+}

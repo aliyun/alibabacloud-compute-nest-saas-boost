@@ -4,9 +4,15 @@ export interface ProviderInfo {
     ProviderDescription: string;
 }
 
-export interface PaymentKeys {
+export interface AlipayPaymentKeys {
+    AlipayAppId: string;
+    AlipayPid: string;
     AlipayOfficialPublicKey: string;
     AlipayPrivateKey: string;
+}
+export interface WechatPaymentKeys {
+    WechatAppId: string;
+    WechatPid: string;
     WechatOfficialPublicKey: string;
     WechatPrivateKey: string;
 }

@@ -18,7 +18,7 @@ import ProCard from '@ant-design/pro-card';
 import {Avatar, Col, message, Row, Typography} from "antd";
 import styles from "./component/css/service.module.css";
 import {PageContainer} from "@ant-design/pro-layout";
-import {companyDescription, companyTitle, companyWebsiteUrl, serviceColumns, ServiceModel} from './common';
+import {serviceColumns, ServiceModel} from './common';
 import profileImage from '../../../public/logo.png'
 import {GlobalOutlined} from "@ant-design/icons";
 import {FetchResult} from "@/util/nextTokenUtil";
@@ -26,10 +26,17 @@ import {listAllCommodities} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {getServiceMetadata} from "@/services/backend/serviceManager";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
+import { useSelector } from 'react-redux';
+import {RootState} from "@/store/state";
 
 const {Paragraph} = Typography;
 
 const ServicePage: React.FC = () => {
+    const providerInfo = useSelector((state: RootState) => ({
+        name: state.providerInfo.providerName,
+        link: state.providerInfo.providerOfficialLink,
+        description: state.providerInfo.providerDescription,
+    }));
     const actionRef = useRef<ActionType>();
     const fetchServices = async (params: {
         pageSize: number;
@@ -90,7 +97,7 @@ const ServicePage: React.FC = () => {
         title: '操作',
         dataIndex: 'action',
         valueType: 'option',
-        render: (text, record, _, action) => [
+        render: (text, record, _) => [
 
             record.serviceStatus === 'Online' && record.serviceId !== undefined && record.version !== undefined &&
             <a onClick={() => handleUpdateCommodityStatus(record.serviceId, record.version)}>前往购买</a>
@@ -112,16 +119,14 @@ const ServicePage: React.FC = () => {
                             <Avatar size={64} src={profileImage} shape="circle" className={styles.supplierImage}/>
                         </Col>
                         <Col flex="auto" className={styles.imageTitleGap}>
-                            <div className={styles.supplierTitle}>{companyTitle}</div>
-
-                            <a href={companyWebsiteUrl} target="_blank" rel="noopener noreferrer"
+                            <div className={styles.supplierTitle}>{providerInfo.name}</div> {/* 使用 providerInfo.name */}
+                            <a href={providerInfo.link} target="_blank" rel="noopener noreferrer" // 使用 providerInfo.link
                                className={styles.supplierDetails}><GlobalOutlined
-                                className={styles.globalOutlined}/>{companyWebsiteUrl}</a>
-
+                                className={styles.globalOutlined}/>{providerInfo.link}</a>
                         </Col>
                     </Row>
                     <Paragraph/>
-                    <Paragraph className={styles.supplierDescription}>{companyDescription}</Paragraph>
+                    <Paragraph className={styles.supplierDescription}>{providerInfo.description}</Paragraph> {/* 使用 providerInfo.description */}
                     <Paragraph/>
                 </div>
             </ProCard>
