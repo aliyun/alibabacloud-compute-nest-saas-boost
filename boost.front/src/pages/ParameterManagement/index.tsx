@@ -1,146 +1,28 @@
 import React, {useEffect, useState} from 'react';
 import {updateConfigParameter, listConfigParameters} from "@/services/backend/parameterManager";
-import {Tabs, Button, Space, Spin, Tooltip, message, Row, Col} from 'antd';
+import {Tabs, Space, Spin, Tooltip, message} from 'antd';
 import {EditOutlined, EyeInvisibleOutlined, EyeOutlined, ReloadOutlined} from '@ant-design/icons';
-import { ProviderInfo, PaymentKeys} from '@/pages/ParameterManagement/component/interface';
+import { ProviderInfo, AlipayPaymentKeys, WechatPaymentKeys} from '@/pages/Parameter/component/interface';
 import {
     initialProviderInfo,
-    initialPaymentKeys,
+    initialAlipayPaymentKeys,
+    initialWechatPaymentKeys,
     initialProviderInfoNameList,
     initialProviderInfoEncryptedList,
     initialPaymentKeysNameList,
     initialPaymentKeysEncryptedList, encryptedCredentialsMap,
-
-} from '@/pages/ParameterManagement/common';
+} from '@/pages/Parameter/common';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
-import {ProFormText, ProForm, ProFormTextArea} from '@ant-design/pro-form';
-
-const ActionButtons: React.FC<{ onSave: () => void; onCancel: () => void }> = ({ onSave, onCancel }) => (
-    <Row justify="end" style={{ marginTop: '0px', marginBottom: '24px' }}>
-        <Col>
-            <Button type="primary" onClick={onSave}>
-                保存
-            </Button>
-            <Button onClick={onCancel}>取消</Button>
-        </Col>
-    </Row>
-);
-
-const ProviderInfoForm: React.FC<{
-    providerInfo: ProviderInfo,
-    onUpdateProviderInfo: (updatedInfo: ProviderInfo) => void,
-    editing: boolean,
-    onCancelEdit: () => void,
-}> = ({ providerInfo, onUpdateProviderInfo, editing, onCancelEdit }) => {
-    const [localProviderInfo, setLocalProviderInfo] = useState(providerInfo);
-
-    useEffect(() => {
-        setLocalProviderInfo(providerInfo);
-    }, [providerInfo]);
-    const handleSave = () => {
-        onCancelEdit();
-        onUpdateProviderInfo(localProviderInfo);
-    };
-
-    const handleCancel = () => {
-        setLocalProviderInfo(providerInfo);
-        onCancelEdit();
-    };
-
-    const handleChange = (key: keyof ProviderInfo, value: string) => {
-        setLocalProviderInfo({ ...localProviderInfo, [key]: value });
-    };
-
-    const getFieldProps = (key: keyof ProviderInfo, label: string, placeholder: string) => ({
-        label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
-        placeholder: placeholder,
-        value: localProviderInfo[key],
-        fieldProps: {
-            disabled: !editing,
-            onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-                handleChange(key, e.target.value);
-            },
-        },
-    });
-
-    return (
-        <ProForm
-            layout="vertical"
-            colon={false}
-            submitter={{
-                render: (_) => (<></>),
-            }}
-        >
-            <ProFormText {...getFieldProps('ProviderName', '服务商名称', '请输入服务商名称')} />
-            <ProFormText {...getFieldProps('ProviderOfficialLink', '官方链接', '请输入服务商官方链接')} />
-            <ProFormTextArea {...getFieldProps('ProviderDescription', '服务商简介', '请输入服务商简介')} />
-
-            {editing && <ActionButtons onSave={handleSave} onCancel={handleCancel} />}
-        </ProForm>
-    );
-};
-
-const PaymentKeyForm: React.FC<{
-    paymentKeys: PaymentKeys,
-    onUpdatePaymentKeys: (updatedKeys: PaymentKeys) => void,
-    editing: boolean, // Add this prop
-    privateKeysVisible: boolean,
-    onCancelEdit: () => void, // Add this prop
-}> = ({ paymentKeys, onUpdatePaymentKeys, editing, privateKeysVisible, onCancelEdit }) => {
-    const [localPaymentKeys, setLocalPaymentKeys] = useState(paymentKeys);
-
-    useEffect(() => {
-        setLocalPaymentKeys(paymentKeys);
-    }, [paymentKeys]);
-    const handleSave = () => {
-        onCancelEdit();
-        onUpdatePaymentKeys(localPaymentKeys);
-    };
-
-    const handleCancel = () => {
-        setLocalPaymentKeys(paymentKeys);
-        onCancelEdit();
-    };
-
-    const handleChange = (key: keyof PaymentKeys, value: string) => {
-        setLocalPaymentKeys({ ...localPaymentKeys, [key]: value });
-    };
-
-    const getFieldProps = (
-        key: keyof PaymentKeys,
-        label: string,
-        placeholder: string,
-    ) => ({
-        label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
-        placeholder: placeholder,
-        value: localPaymentKeys[key],
-        fieldProps: {
-            disabled: !editing,
-            type: editing && privateKeysVisible ? 'text' : 'password',
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                handleChange(key, e.target.value);
-            },
-        },
-    });
-
-    return (
-        <ProForm
-            layout="vertical"
-            colon={false}
-            submitter={{
-                render: (_) => (<></>),
-            }}
-        >
-            <ProFormText {...getFieldProps('AlipayOfficialPublicKey', '官方公钥(支付宝)', '请输入官方公钥(支付宝)')} />
-            <ProFormText {...getFieldProps('AlipayPrivateKey', '服务商私钥(支付宝)', '请输入服务商私钥(支付宝)')} />
-            <ProFormText {...getFieldProps('WechatOfficialPublicKey', '官方公钥(微信)', '请输入官方公钥(微信)')} />
-            <ProFormText {...getFieldProps('WechatPrivateKey', '服务商私钥(微信)', '请输入服务商私钥(微信)')} />
-
-            {editing && <ActionButtons onSave={handleSave} onCancel={handleCancel} />}
-        </ProForm>
-    );
-};
+import { useDispatch } from 'react-redux';
+import {
+    setProviderName,
+    setProviderOfficialLink,
+    setProviderDescription,
+} from "@/store/providerInfo/actions";
+import {ProviderInfoForm} from '@/pages/Parameter/ProviderInfo'
+import {AlipayPaymentKeyForm} from "@/pages/Parameter/Alipay";
+import {WechatPaymentKeyForm} from "@/pages/Parameter/Wechat";
 
 const ParameterManagement: React.FC = () => {
     const [activeTabKey, setActiveTabKey] = useState<string>('providerInfo');
@@ -148,7 +30,8 @@ const ParameterManagement: React.FC = () => {
     const [editing, setEditing] = useState(false);
     const [privateKeysVisible, setIsPrivateKeysVisible] = useState(false);
     const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
-    const [paymentKeys, setPaymentKeys] = useState<PaymentKeys>(initialPaymentKeys);
+    const [alipayPaymentKeys, setAlipayPaymentKeys] = useState<AlipayPaymentKeys>(initialAlipayPaymentKeys);
+    const [wechatPaymentKeys, setWechatPaymentKeys] = useState<WechatPaymentKeys>(initialWechatPaymentKeys);
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
         const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
             name,
@@ -172,11 +55,29 @@ const ParameterManagement: React.FC = () => {
             );
             if (parameterNames === initialProviderInfoNameList) {
                 setProviderInfo(configParams as ProviderInfo);
-            } else if (parameterNames === initialPaymentKeysNameList) {
-                setPaymentKeys(configParams as PaymentKeys);
+            } else if (parameterNames === initialPaymentKeysNameList.alipay) {
+                setAlipayPaymentKeys(configParams as AlipayPaymentKeys);
+            } else if (parameterNames === initialPaymentKeysNameList.wechat) {
+                setWechatPaymentKeys(configParams as WechatPaymentKeys);
             }
         }
     };
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (providerInfo.ProviderName) {
+            dispatch(setProviderName(providerInfo.ProviderName));
+        }
+
+        if (providerInfo.ProviderOfficialLink) {
+            dispatch(setProviderOfficialLink(providerInfo.ProviderOfficialLink));
+        }
+
+        if (providerInfo.ProviderDescription) {
+            dispatch(setProviderDescription(providerInfo.ProviderDescription));
+        }
+    }, [providerInfo, dispatch]);
 
     useEffect(() => {
         fetchData();
@@ -195,8 +96,10 @@ const ParameterManagement: React.FC = () => {
     const fetchData = async () =>  {
         if (activeTabKey === 'providerInfo') {
             await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
-        } else if (activeTabKey === 'paymentKeys') {
-            await loadConfigParameters(initialPaymentKeysNameList, initialPaymentKeysEncryptedList);
+        } else if (activeTabKey === 'alipayPaymentKeys') {
+            await loadConfigParameters(initialPaymentKeysNameList.alipay, initialPaymentKeysEncryptedList.alipay);
+        } else if (activeTabKey === 'wechatPaymentKeys') {
+            await loadConfigParameters(initialPaymentKeysNameList.wechat, initialPaymentKeysEncryptedList.wechat);
         }
     }
 
@@ -223,26 +126,48 @@ const ParameterManagement: React.FC = () => {
         });
     };
 
-    const onUpdatePaymentKeys = (updatedKeys: PaymentKeys) => {
-        const paymentKeysKeys = Object.keys(updatedKeys) as Array<keyof PaymentKeys>;
-        paymentKeysKeys.forEach((field) => {
-            if (updatedKeys[field] !== paymentKeys[field]) {
+    const onUpdateAlipayPaymentKeys = (updatedKeys: AlipayPaymentKeys) => {
+        const alipayKeys = Object.keys(updatedKeys) as Array<keyof AlipayPaymentKeys>;
+        alipayKeys.forEach((field) => {
+            if (updatedKeys[field] !== alipayPaymentKeys[field]) {
                 try {
                     updateConfigParameter({
                         name: field.valueOf(),
                         value: updatedKeys[field],
                         encrypted: encryptedCredentialsMap[field],
                     }).then((result) => {
-                        setPaymentKeys(updatedKeys);
-                        message.success('支付密钥更新成功');
+                        setAlipayPaymentKeys(updatedKeys);
+                        message.success('支付宝参数更新成功');
                         console.log(result);
                     });
                 } catch (e) {
-                    message.error('支付密钥更新失败');
+                    message.error('支付宝参数更新失败');
                 }
             }
         });
     };
+
+    const onUpdateWechatPaymentKeys = (updatedKeys: WechatPaymentKeys) => {
+        const wechatKeys = Object.keys(updatedKeys) as Array<keyof WechatPaymentKeys>;
+        wechatKeys.forEach((field) => {
+            if (updatedKeys[field] !== wechatPaymentKeys[field]) {
+                try {
+                    updateConfigParameter({
+                        name: field.valueOf(),
+                        value: updatedKeys[field],
+                        encrypted: encryptedCredentialsMap[field],
+                    }).then((result) => {
+                        setWechatPaymentKeys(updatedKeys); // 假设这是一个 useState 的 setter 函数
+                        message.success('微信参数更新成功');
+                        console.log(result);
+                    });
+                } catch (e) {
+                    message.error('微信参数更新失败');
+                }
+            }
+        });
+    };
+
 
     return (
         <PageContainer title="参数管理">
@@ -301,12 +226,25 @@ const ParameterManagement: React.FC = () => {
                                 ),
                             },
                             {
-                                key: 'paymentKeys',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付密钥管理</span>,
+                                key: 'alipayPaymentKeys',
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝参数管理</span>,
                                 children: (
-                                    <PaymentKeyForm
-                                        paymentKeys={paymentKeys}
-                                        onUpdatePaymentKeys={onUpdatePaymentKeys}
+                                    <AlipayPaymentKeyForm
+                                        alipayPaymentKeys={alipayPaymentKeys}
+                                        onUpdateAlipayPaymentKeys={onUpdateAlipayPaymentKeys}
+                                        editing={editing}
+                                        privateKeysVisible={privateKeysVisible}
+                                        onCancelEdit={handleCancelEdit}
+                                    />
+                                ),
+                            },
+                            {
+                                key: 'alipayPaymentKeys',
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>微信参数管理</span>,
+                                children: (
+                                    <WechatPaymentKeyForm
+                                        wechatPaymentKeys={wechatPaymentKeys}
+                                        onUpdateWechatPaymentKeys={onUpdateWechatPaymentKeys}
                                         editing={editing}
                                         privateKeysVisible={privateKeysVisible}
                                         onCancelEdit={handleCancelEdit}
