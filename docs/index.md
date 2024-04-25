@@ -1,5 +1,38 @@
 # SaaS Boost使用与开发文档
 
+## 概念解释
+
+**计算巢服务**：云资源与软件或应用的编排集合。一旦服务被发布和上线，终端用户就可以基于这些服务创建实例，以此来获取服务提供商的具体服务内容。
+
+**计算巢服务ID**：唯一标识一个计算巢服务。
+
+**服务商**：软件提供者，希望对软件进行商业化。
+
+**用户**：希望使用服务商的软件的人群。
+
+**计算巢SaaS Boost**：计算巢出品的一款开源框架。计算巢提供了该框架的一键部署方案，可帮助服务商快速将其软件实现商业化。
+
+**计算巢SaaS Boost实例**：通过计算巢一键部署方案创建的模版应用，服务商可直接访问Web界面构建其软件商城，并分享该界面给用户，实现软件的售卖。计算巢SaaS Boost实例也是通过计算巢进行部署的。
+
+**SaaS Boost商品**：服务商通过访问其Web界面，手动生成的一个商品，该商品具有一个唯一的商品码，用于关联服务商待售卖的软件（计算巢服务）。
+
+**SaaS Boost公网访问地址**：该SaaS Boost实例绑定的公网IP或域名，用于服务商和用户进行公网访问。也用于与计算巢进行API交互。
+
+**SaaS Boost套餐**：每一个商品可配置不同套餐，比如低配版，基础版，高配版，每个套餐具备不同的价格。
+
+**计算巢服务套餐**：计算巢服务侧的套餐，可对不同套餐进行参数管理。
+
+## 介绍
+
+计算巢SaaS Boost是由阿里云推出的一款开源的支付和订阅管理框架，旨在帮助软件开发者基于计算巢快速构建、部署、扩展和售卖软件（**同时支持私有化部署和全托管模式**）， 打通软件的商业化之路。它提供了一组开箱即用的功能和组件，使用户聚焦于业务逻辑的开发，而极大地降低软件上云应用的复杂性和成本。 计算巢SaaS Boost提供了许多功能，包括：
+
+1. 售卖能力：通过实现计算巢服务和SaaS Boost商品的双向绑定可快速实现软件软件售卖。支持国内支付宝支付。
+2. 计算巢能力：SaaS Boost底层为阿里云计算巢，可加速软件服务商在云上的部署、交付和管理服务, 实现一周上云。
+3. 多租户架构：SaaS Boost为多租户应用程序提供了强大的多租户数据隔离和管理功能，使得开发者可以轻松地构建和管理多个租户的数据。
+4. 持续集成和持续交付（CI/CD）能力：计算巢SaaS Boost提供了云效流水线，支持CI/CD能力，使开发者能够实现自动化的代码构建、测试和部署。可快速迭代和交付新功能，提高开发效率和产品质量。
+5. 套餐管理：SaaS Boost提供了多套餐配置，允许开发者灵活地定义和管理不同套餐，并处理套餐的计费和配额。
+6. SaaS应用程序监控：SaaS Boost提供了监控功能，帮助开发者跟踪和分析应用程序的性能和运行状况，并及时发现和解决问题。
+
 ## SaaS Boost快速部署
 
 ### 前提条件
@@ -31,13 +64,12 @@
 
 ### 参数说明
 
+#### ECS模版部署参数
+
 | 参数组       | 参数项                     | 说明                                                                         |
 |-----------|-------------------------|----------------------------------------------------------------------------|
 | 服务实例      | 服务实例名称                  | 长度不超过64个字符，必须以英文字母开头，可包含数字、英文字母、短划线（-）和下划线（_）                              |
 |           | 地域                      | 服务实例部署的地域                                                                  |
-| 待部署的计算巢服务 | 计算巢服务Id                 | 待部署的用户企业的计算巢服务Id                                                           |
-| OAuth配置   | OAuthClientId           | 阿里云OAuth认证Client Id                                                        |
-|           | OAuthClientSecret       | 阿里云OAuth认证 Client Secret                                                   |
 | 支付宝（沙箱）配置 | AlipayAppId             | 支付宝（沙箱）应用ID                                                                |
 |           | AlipayPid               | 支付宝（沙箱）应用商家Id                                                              |
 |           | AlipayPrivateKey        | 支付宝（沙箱）应用私钥                                                                |
@@ -53,246 +85,271 @@
 |           | 专有网络VPC实例Id             | 选择当前可用区下的VPC实例                                                             |
 |           | 交换机实例Id                 | 选择当前VPC支持的交换机                                                              |
 
+#### ACK模版部署参数
+
+| 参数组 | 参数项                     | 说明                                                                        |
+|---|-------------------------|---------------------------------------------------------------------------|
+| 服务实例 | 服务实例名称                  | 长度不超过64个字符，必须以英文字母开头，可包含数字、英文字母、短划线（-）和下划线（_）                             |
+|   | 地域                      | 服务实例部署的地域                                                                 |
+| 支付宝（沙箱）配置 | AlipayAppId             | 支付宝（沙箱）应用ID                                                               |
+|   | AlipayPid               | 支付宝（沙箱）应用商家Id                                                             |
+|   | AlipayPrivateKey        | 支付宝（沙箱）应用私钥                                                               |
+|   | AlipayOfficialPublicKey | 支付宝官方应用公钥                                                                 |
+| ACK集群配置  | 集群ID                    | 阿里云上购买的ACK集群                                                              |
+|   | POD安全角色应用               | 用于给POD分配合适的RAM角色，避免越权                                                     |
+| 镜像配置 | 服务端镜像                   | 前后端一起打包的镜像。包含boost.server和bootst.front                                    |
+|   | 定时任务镜像                  | boost.serverless                                                          |
+
+#### ECS和ACK模式部署区别说明
+ECS模式是主服务部署到一台ECS机器上，定时任务以函数计算的方式发布到阿里云FC处，该模式自带了云效流水线，服务商修改完代码后可直接实现CI/CD。
+ACK模式通过Helm部署到对应的ACK集群中。不具备流水线，需要用户自己打包服务端镜像：即主服务，包含Boost.server和boost.front代码，打包Job镜像，即Boost.serverless并自己管理。
+
 ### 部署流程
 
 部署计算巢SaaS Boost的流程如下：
 
-#### 1. **Fork当前仓库**
+#### 1. **创建计算巢服务**
+
+1. **配置您的SaaS应用（计算巢Service）**：
+    - 创建您的计算巢Service。见文档下方 开发者指南-快速创建服务。更详细的信息见官方文档[快速创建服务](#快速创建服务)
+
+#### 2. **Fork当前仓库**
 
 Fork当前仓库到您的个人仓库
 
-#### 2. **创建支付宝沙箱账号**
+#### 3. **创建支付宝沙箱账号**
 
 指引图片中被红框框住的参数在创建服务实例中会被使用到。创建支付宝沙箱账号和创建计算巢服务实例步骤可颠倒顺序。
 
 1. 按照[支付宝沙箱文档](https://open.alipay.com/develop/sandbox/app)中的说明，创建支付宝沙箱账号。其中应用网关地址和授权回调地址待创建好服务实例后回填。
-   <br>
+
    <img src="./1.png" alt="Image" width="500" height="500">
-   <br>
 
 2. 保留支付宝沙箱应用的私钥和支付宝的官方公钥
-   <br>
+
    <img src="./2.png" alt="Image" width="500" height="500">
-   <br>
 
-#### 3. **创建计算巢服务实例**
+#### 4. **创建计算巢服务实例**
 
-1. 访问[计算巢控制台](https://computenest.console.aliyun.com/)选择SaaS Boost一键部署服务
-2. 安装提示填写部署参数
-    1. 选择要部署的服务。目前仅支持示例服务。
-    2. 选择部署地域
-    3. 填入支付宝沙箱信息（可跳过）
-       <br>
-       <img src="./7.png" alt="Image" width="700" height="700">
-       <br>
+1. 访问[计算巢控制台](https://computenest.console.aliyun.com/)选择[SaaS Boost一键部署服务](https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=service-fd1aec438c974828bb7b)
+2. 按照提示填写部署参数
 
-    4. 在流水线配置中，创建您的企业。根据前文fork的仓库信息创建Git连接凭证，填入前文fork的仓库地址。
-       <br>
-       <img src="./8.png" alt="Image" width="900" height="900">
-       <br>
+   1. 选择要部署的服务。
+   2. 选择部署地域
+   3. 填入支付宝沙箱信息（可跳过）<img src="./7.png" alt="Image">
+   4. 在流水线配置中，创建您的企业。根据前文fork的仓库信息创建Git连接凭证，填入前文fork的仓库地址。 
+   
+      1. 创建云效企业
+            <img src="./8.png" alt="Image">
+   
+      2. 进入流水线
+        <img src="./pipeline-1.png" alt="Image">
 
-    5. 选择付费类型和想要部署的Ecs实例规格及部署可用区
-       <br>
-       <img src="./9.png" alt="Image" width=800" height="600">
-       <br>
+      3. 点击【全局设置】并进入
+          <img src="./pipeline-2.png" alt="Image">
+ 
+      4. 选择右上角Github服务连接并新建
+          <img src="./pipeline-3.png" alt="Image">
 
-    6. 选择/新建专有网络(VPC)和交换机(VSW)
-       <br>
-       <img src="./10.png" alt="Image" width=1000" height="200">
-       <br>
+      5. Github处授权
+
+        <img src="./pipeline-4.png" alt="Image">
+   
+   5. 选择付费类型和想要部署的Ecs实例规格及部署可用区
+           <img src="./9.png" alt="Image">
+   6. 选择/新建专有网络(VPC)和交换机(VSW)
+      为了减少参数的填写和理解，建议选择新建。
+      <img src="./10.png" alt="Image">
 
 3. 确认同意服务协议并点击**立即创建**
-   进入部署阶段。
-   <br>       
-   <img src="./11.png" alt="Image" width=1000" height="1000">
-   <br>
+   进入部署阶段。等待资源创建完成和流水线执行完成。
+   <img src="./11.png" alt="Image">
 
-4. 服务实例创建好后回填参数
+4. 服务实例创建好后回填参数(可跳过)
     1. 在部署的实例信息中将AlipayNotifyUrl和AlipayReturnUrl分别回填到支付宝沙箱应用配置中的应用网关地址和授权回调地址(
        步骤2.1)
-       <br>
-       <img src="./12.png" alt="Image" width=1000" height="1000">
-       <br>
 
+       <img src="./12.png" alt="Image">
+   2. 等待流水线执行完成，可按下图方式访问流水线，查看流水线执行进度
+   ![img.png](pipeline-6.png)
+   3. 流水线运行成功
+![img.png](pipeline-5.png)
 #### 5. **访问计算巢SaaS Boost服务**
 
 点击部署好的服务实例详情页的Endpoint即可访问示例SaaS Boost界面。
-<br>
+
 ![image.png](./13.png)
-<br>
 
 ### 使用
 
-一旦计算巢SaaS Boost部署完成，您就可以开始使用它来开发、部署和销售您的软件应用程序。以下是一些关键的使用说明：
+一旦计算巢SaaS Boost部署完成（如为ECS部署方式还需等待流水线执行完成），您就可以开始使用它来开发、部署和销售您的软件应用程序。以下是一些关键的使用说明：
 
-1. **配置您的SaaS应用（计算巢Service）**：
-    - 上传部署物或使用快速ROS模版搭建您服务的计算巢Service。见文档[快速开始]
+1. 配置/修改服务的套餐（可选）
+    - 上传[部署物](https://help.aliyun.com/zh/compute-nest/deployment-object-management/?spm=a2c4g.11174283.0.i2)或使用[快速ROS模版](https://help.aliyun.com/zh/ros/use-cases/?spm=a2c4g.11174283.0.0.5c3848aezYq1dI)搭建您服务的计算巢Service。
     - 在application.properties文件中配置套餐
     - 重新运行流水线，完成SaaS应用的部署。
 
-2. **支付宝沙箱测试**：在正式售卖前，请利用支付宝沙箱APP测试售卖能力。
-    1.
-    如果在创建计算巢服务实例处选择跳过配置支付宝信息。则在使用前需要进行配置。见[对支付宝服务的配置进行修改](#对支付宝服务的配置进行修改)
+2. **支付宝沙箱测试（必选）**：在正式售卖前，请利用支付宝沙箱APP测试售卖能力。
+    1. 如果在创建计算巢服务实例处选择跳过配置支付宝信息。则在使用前需要进行配置。见"对支付宝服务的配置进行修改"一节
     2. 在支付宝沙箱工具中下载支付宝客户端沙箱版安卓APP
-       <br>
-       <img src="./14.png" alt="Image" width=700" height="700">
-       <br>
 
-    3. 选择想要创建的服务实例套餐
-       <br>
-       <img src="./15.png" alt="Image" width=700" height="700">
-       <br>
+       <img src="./14.png" alt="Image">
+
+    3. 在精选服务界面选择想要购买的软件商品
+
+        ![img.png](service-1.png)
 
     4. 使用沙箱应用中提供的账号密码进行支付测试。
 
     5. 查看已部署的服务实例详情
-       <br>
+
        ![image.png](./16.png)
-       <br>
 
     6. 查看已部署服务实例监控
-       <br/>
+
        ![image.png](./17.png)
 
     7. 查看历史订单
-       <br/>
+
        ![image.png](./18.png)
 
 3. 在通过沙箱测试后，务必再次使用正式的支付宝账号进行售卖测试。
+    1. 访问[支付宝开发者控制台](https://open.alipay.com/develop/manage)
+    2. 创建网页/移动应用
+    3. 按照提示填写应用名称，商家账号和图标
+    4. 依次配置如下参数
+   ![img.png](alipay-config-1.png)
+       1. 选择接口加密。方式选择密钥加密
+       2. 下载官方密钥生成工具。点击生成密钥即可。
+       3. 将得到的公钥上传
+       4. 下载支付宝公钥
+       5. 设置接口加密方式为AES
+       6. 设置应用网关地址，即支付后支付宝校验的回调地址，对应服务实例详情处: AlipayNotifyUrl
+       7. 设置授权回调地址，即支付后支付宝重定向的页面，对应服务实例详情处：AlipayReturnUrl
+       8. 将boost.common包中激活的application-*.properties配置的沙箱支付宝网关地址修改为如图所示的正式版网关地址。将配置文件中的支付宝沙箱官方公钥替换为正式版公钥。
+       9. 将您自己的应用私钥和支付宝应用公钥在OOS参数仓库进行修改。详见开发者指南-对OAuth服务的配置进行修改
+       10. 重新运行流水线
+   5. 进行正式支付宝的购买测试
 
 ## 开发者指南
+
+### Saas Boost 商品与套餐管理指南
+
+本文档旨在指导如何在Saas Boost平台上适当地管理和定价商品，以及如何保持商品与计算巢(Calculating Nest)服务和套餐之间的一致性。
+
+#### 商品与服务的关联
+
+在Saas Boost平台上创建的每个商品应对应计算巢中的单个服务。商家可基于此服务为商品设定一个基础价格。
+
+#### 创建商品
+
+1. 登录到Saas Boost。
+2. 导航至**商品管理**页面。
+3. 点击**新增商品**按钮进入创建界面。
+4. 输入服务相关信息，并在`服务ID`字段中填写对应的计算巢服务ID。
+5. 完整填写商品信息，包括名称、描述和基础定价。
+6. 点击提交，完成商品创建。
+   ![image.png](./commodity-1.png)
+
+#### 计算巢侧的套餐
+此处的套餐用于管理部署的软硬件参数。
+通过套餐设置功能，服务商可以将服务中的部分或全部参数配置为套餐，以供用户选择，避免用户在一个服务中配置较多参数导致的用户学习成本太高或者选配出错。
+
+服务商可以配置多个套餐，给用户提供不同场景的最佳配置实践。
+
+在创建服务实例时，必须选择一个套餐，再配置套餐外的参数即可创建服务实例。
+更详细的信息见计算巢官方文档：[配置套餐](https://help.aliyun.com/zh/compute-nest/create-package-settings-for-a-service)
+
+#### Saas Boost侧的套餐
+此处的套餐用于管理计算巢套餐的价格。
+在Saas Boost中为商品设定的每个套餐应对应计算巢中的相应服务套餐。每个套餐的名称必须与计算巢中的套餐名称完全一致。在这个过程中，开发者应该先在计算巢中进行[套餐配置](https://help.aliyun.com/zh/compute-nest/create-package-settings-for-a-service?spm=a2c4g.11174283.0.i5)，而后在SaaS Boost中对上述配置的套餐定制价格。
+
+
+#### 套餐命名统一
+
+为保证用户体验的一致性，请确保计算巢中的套餐名称与Saas Boost上的套餐名称相匹配。
+
+#### 添加SaaS Boost套餐与定价
+
+1. 选择已创建好的商品，并进入其套餐管理界面。
+2. 点击**新增套餐**，进入套餐详细配置页面。
+3. 在`套餐名`字段中准确输入计算巢中对应套餐的名称。
+4. 根据套餐配置设定一个定价。
+5. 确认信息无误后保存新套餐。
+   计算巢处套餐配置示例如下所示：
+   ![image.png](./commodity-2.png)
+   SaaS Boost处套餐示例如下所示：
+   ![image.png](./commodity-3.png)
+
+
+#### 注意要点
+
+- 保持Saas Boost上的套餐名称与计算巢中套餐的名称保持严格一致。
+- 定价时要考虑对应计算巢服务套餐的具体配置。
+- 定期审核和更新Saas Boost与计算巢之间的套餐对应关系，以保持数据的最新性和准确性。
+
+遵循这些指导原则，商家可以保证Saas Boost平台上的商品与计算巢中服务和套餐的适当整合和价格一致性。
 
 ### 快速创建服务
 
 如果您还没有为您即将售卖的软件创建计算巢服务。请基于以下文档快速创建计算巢服务。
 
-1. 登录到计算巢控制台，选择"新建服务"
-   <br/>
+1. 登录到[计算巢控制台](https://computenest.console.aliyun.com/)，选择[新建服务](https://computenest.console.aliyun.com/service/create/)
+
    ![img.png](./service-creation-1.png)
 2. 仿照下图配置，选择托管版服务和Spring Boot服务。
-   <br/>
+
    ![img.png](./service-creation-2.png)
 3. 填写配置参数
-   <br/>
 
    ![img.png](./service-creation-3.png)
-
 4. 点击"创建服务"，等待服务创建成功。
 5. 后续当您想对您软件部署物进行修改时，可对该服务进行编辑，重新选择部署物。
-   <br/>
 
    ![img.png](./service-creation-4.png)
 
 ### 修改配置参数
 
-在创建SaaS Boost一键部署实例时，我们配置了一些加密参数。如认证服务-OAuth的Client Id和Client
-Secret，以及支付宝的处的私钥，应用网关地址和授权回调地址。
-<br>
+在创建SaaS Boost一键部署实例时，我们配置了一些加密参数。如支付宝处的私钥，公钥，应用网关地址和授权回调地址。
+
 当您需要对这些修改时请遵循一下操作：
 
-#### 对OAuth 服务的配置进行修改
-
-1. 打开部署的服务实例详情页面，复制OAuth 服务的Client Id和Client Secret。如红框所示。
-   <br>
-   ![image.png](./service-config-1.png)
-   <br>
-2. 在阿里云控制台，访问运维编排-OOS工作台。点击参数仓库。
-   <br>
-   <img src="./service-config-2.png" alt="Image" width=700" height="700">
-   <br>
-
-3. 选择地域为服务实例部署地域，点击加密参数栏，在搜索框中搜索OOS加密参数名
-   <br>
-   <img src="./service-config-3.png" alt="Image" width=700" height="700">
-   <br>
-
-4. 点击进入加密参数编辑界面进行修改和保存即可。
 
 #### 对支付宝服务的配置进行修改
 
 支付宝的配置项包括支付宝公钥、支付宝私钥、支付宝网关地址、授权回调地址。
 
-1. 对支付宝配置修改的前述步骤与OAuth配置的步骤（1-4）一致。
+1. 打开部署的服务实例详情页面，复制支付宝的同步通知URL和支付宝的异步通知URL。如红框所示。
+   ![image.png](./alipay-config-1.png)
 
-2. 需要登录到支付宝（沙箱）控制台。对应用网关地址，授权回调地址和应用公钥进行修改和设置。
-   <br>
-   <img src="./service-config-4.png" alt="Image" width=700" height="700">
-   <br>
+2. 在阿里云控制台，访问[运维编排-OOS工作台](https://oos.console.aliyun.com/cn-beijing/parameter/welcome)。点击参数仓库。
+   ![image.png](./alipay-config-2.png)
 
-### 套餐管理
+3. 选择地域为服务实例部署地域，点击加密参数栏，在搜索框中搜索OOS加密参数名
 
-通过套餐设置功能，服务商可以将服务中的部分或全部参数配置为套餐，以供用户选择，避免用户在一个服务中配置较多参数导致的用户学习成本太高或者选配出错。
-<br>
-服务商可以配置多个套餐，给用户提供不同场景的最佳配置实践。
-<br>
-在创建服务实例时，必须选择一个套餐，再配置套餐外的参数即可创建服务实例。
-<br>
+    ![img.png](alipay-config-3.png)
 
-#### 如何配置套餐
+4. 需要登录到支付宝（沙箱）[控制台](https://open.alipay.com/develop/sandbox/app)。对应用网关地址，授权回调地址和应用公钥进行修改和设置。
 
-在计算巢SaaS Boost中，基于计算巢的套餐功能，做了一些降低用户学习成本的功能。
+   <img src="./service-config-4.png" alt="Image">
 
-##### 不需要套餐管理的服务
+5. 在对OOS[参数仓库](https://oos.console.aliyun.com/cn-huhehaote/parameter?tableType=secret)加密参数修改完后。需要在支付宝处回填参数。同"服务实例创建的第四步"
 
-如果您的服务不需要套餐管理，在计算巢控制台处则无需配置套餐。只需要在SaaS
-Boost的boost.common路径下的[application-*.properties](./../boost.common/src/main/resources/application-test.properties)
-配置文件中，对该服务进行定价即可，即修改如下部分：
+## 定时任务访问
 
-```yaml
-nest.service-configs[0].specifications[0].month-price=自定义
-nest.service-configs[0].specifications[0].year-price=自定义
-```
+SaaS Boost的定时任务包括超时订单关闭，订单的退款处理，已完成的订单的状态修改等
+如果为ECS部署，则参照下图访问
+![img.png](job-1.png)
+如果为ACK部署方式，则请访问ACK的Job查看
 
-在这种情况中，该服务模版暴露的所有的参数都需要用户亲自进行填写。
 
-##### 需要套餐管理的服务
+## 常见错误及解决
+1. 流水线运行错误。
+    流水线包含npm build，Java build。在build完后，Fc的jar包会上传到OSS仓库。Server的jar包会上传到计算巢制品仓库。上传之后会进行实际的部署，其中FC的部署
+    为直接替换OSS中zip包的方式，Server的部署为执行当前项目下的deploy.sh脚本。在熟悉了整体流水线的运行步骤后，通过结合流水线给出的错误日志，即可定位到常见的开发问题。
+    如果觉得在云端难以解决，可将错误环境克隆到本地。    示例如下：
+   <img src="./error-1.png" alt="Image">
 
-如图所示：
-<br>
-![image.png](./service-config-5.png)
-<br>
-当您的套餐包含多个需要填写的参数时，建议您通过图中的方法，将套餐与某些参数关联，如ECS实例类型。这有助于降低用户填写参数的难度，使他们能够更快地完成购买和使用软件。如果您使用了计算巢的套餐功能，请在boost.common路径下的application-*
-.properties文件中，为价格和套餐名进行配置。
-<br>
-在对套餐名进行配置时，请确保配置文件中的specification-name和控制台的名字完全一致。
-<br>
-
-示例如下：
-
-```yaml
-nest.service-configs[0].specifications[1].specification-name=Entry Level Package
-nest.service-configs[0].specifications[1].month-price=20.0
-nest.service-configs[0].specifications[1].year-price=200.0
-nest.service-configs[0].specifications[2].specification-name=Standard Package
-nest.service-configs[0].specifications[2].month-price=30.0
-nest.service-configs[0].specifications[2].year-price=300.0
-```
-
-##### 自定义参数
-
-<br>
-![image.png](./service-config-6.png)
-<br>
-如果您希望让用户对某些参数重新填写时,比如上图的ECS实例密码，SaaS Boost也提供了DIY功能，可以通过简单的前端配置，即可实现对默认参数的重填。
-配置文件路径为：[index.tsx](./../boost.front/src/index.tsx)中。示例如下：
-
-```tsx
-export const CustomParameters: ParameterTypeInterfaceArray = {
-
-    InstancePassword: {
-        Type: 'String',
-        NoEcho: true,
-        Label: {
-            en: 'Instance Password',
-            'zh-cn': '实例密码',
-        },
-        Default: '123456aA',
-        AllowedPattern: "[0-9A-Za-z_\\-&:;''<>,=%`~!@#\\(\\)\\$\\^\\*\\+\\|\\{\\}\\[\\]\\.\\?\\/]+$"
-    },
-};
-```
-
-更多信息见[ParameterTypeInterfaceArray接口](../boost.front/src/pages/ServiceInstanceList/components/interface/ServiceMetadataInterface.tsx)。
-<br>
-通过这样的方式即可实现参数的DIY配置。需要注意的是，自己DIY的参数需要与您的计算巢服务模版中的名称和类型一致。
-更详细的信息见计算巢官方文档：[配置套餐](https://help.aliyun.com/zh/compute-nest/create-package-settings-for-a-service)
+2. 服务实例部署失败
+    该类情况多见于创建服务实例的用户的权限不够，或是选择部署的Ecs实例在当前可用区售罄了。
+    更详细的信息可在服务实例详情部署日志处查看。
