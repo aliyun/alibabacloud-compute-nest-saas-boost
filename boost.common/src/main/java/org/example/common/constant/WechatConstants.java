@@ -15,45 +15,45 @@
 
 package org.example.common.constant;
 
-public interface AliPayConstants {
+public interface WechatConstants {
 
     /**
-     *  Alipay out trade number.
+     *  Wechat out trade number.
      */
     String OUT_TRADE_NO = "out_trade_no";
 
     /**
-     *  Alipay trade number.
+     *  Wechat trade number.
      */
     String TRADE_NO = "trade_no";
 
     /**
-     *  Alipay trade total amount.
+     *  Wechat trade total amount.
      */
     String TOTAL_AMOUNT = "total_amount";
 
     /**
-     *  Alipay trade refund amount.
+     *  Wechat trade refund amount.
      */
     String REFUND_AMOUNT = "refund_amount";
 
     /**
-     *  Alipay trade refund request id.
+     *  Wechat trade refund request id.
      */
     String REFUND_REQUEST_ID = "out_request_no";
 
     /**
-     *  Alipay trade subject.
+     *  Wechat trade subject.
      */
     String SUBJECT = "subject";
 
     /**
-     *  Alipay product code.
+     *  Wechat product code.
      */
     String PRODUCT_CODE_PREFIX = "product_code";
 
     /**
-     * Alipay trade status prefix.
+     * Wechat trade status prefix.
      */
     String TRADE_STATUS = "trade_status";
 
@@ -63,17 +63,17 @@ public interface AliPayConstants {
     String SIGN = "sign";
 
     /**
-     *  Alipay Seller Id.
+     *  Wechat Seller Id.
      */
     String SELLER_ID = "seller_id";
 
     /**
-     *  Alipay app id.
+     *  Wechat app id.
      */
     String APP_ID = "app_id";
 
     /**
-     *  Payment sales product code, currently Alipay only supports FAST_INSTANT_TRADE_PAY.
+     *  Payment sales product code, currently Wechat only supports FAST_INSTANT_TRADE_PAY.
      */
     String PRODUCT_CODE_PC_WEB = "FAST_INSTANT_TRADE_PAY";
 
@@ -98,24 +98,24 @@ public interface AliPayConstants {
     String VERIFY_FAIL_RESULT = "failure";
 
     /**
-     * Alipay Application ID is the unique identifier for your registered application.
+     * Wechat Application ID is the unique identifier for your registered application.
      */
-    String OOS_SECRET_ALIPAY_APP_ID = "AlipayAppId";
+    String OOS_SECRET_WECHAT_APP_ID = "WechatAppId";
 
     /**
-     * Alipay merchant account
+     * Wechat merchant account
      */
-    String OOS_SECRET_ALIPAY_PID = "AlipayPid";
+    String OOS_SECRET_WECHAT_PID = "WechatPid";
 
     /**
-     * Alipay app private key
+     * Wechat app private key
      */
-    String OOS_SECRET_ALIPAY_PRIVATE_KEY = "AlipayPrivateKey";
+    String OOS_SECRET_WECHAT_PRIVATE_KEY = "WechatPrivateKey";
 
     /**
-     * Alipay official public key
+     * Wechat official public key
      */
-    String OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+    String OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY = "WechatOfficialPublicKey";
 
     String OOS_SECRET_ADMIN_AID = "AdminAid";
 }
