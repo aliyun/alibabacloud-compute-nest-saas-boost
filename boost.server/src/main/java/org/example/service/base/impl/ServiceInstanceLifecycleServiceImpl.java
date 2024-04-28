@@ -233,9 +233,8 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
             CommonRequest commonRequest = buildPayOrderCallbackRequest(orderDO, userInfoModel.getAid());
             CommonResponse commonResponse = acsApiCaller.getCommonResponse(commonRequest);
             if (commonResponse.getHttpStatus() == HttpStatus.SC_OK && StringUtils.isNotEmpty(commonResponse.getData())) {
-                ServiceInstanceModel serviceInstanceModel = JsonUtil.parseObject(commonResponse.getData(), ServiceInstanceModel.class);
-                orderDO.setServiceInstanceId(serviceInstanceModel.getServiceInstanceId());
-                log.info("paOrderCallback success, orderId = {}, serviceInstanceId = {}", orderDO.getOrderId(), serviceInstanceModel.getServiceInstanceId());
+                ServiceInstanceModel serviceInstanceModel = JsonUtil.parseObjectUpperCamelCase(commonResponse.getData(), ServiceInstanceModel.class);
+                log.info("payOrderCallback success, orderId = {}, serviceInstanceId = {}", orderDO.getOrderId(), serviceInstanceModel.getServiceInstanceId());
                 return serviceInstanceModel.getServiceInstanceId();
             } else {
                 throw new BizException(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getStatusCode(), ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getCode(),
