@@ -15,7 +15,9 @@
 
 package org.example.common.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
@@ -45,6 +47,8 @@ public class OosSecretParamConfig {
 
     private Map<String, String> secretMap;
 
+    private List<String> modifiableSecretValueList;
+
     public String getSecretValue(String name) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, name);
         return this.secretMap.get(format);
@@ -63,10 +67,31 @@ public class OosSecretParamConfig {
         putSecretValue(OOS_SECRET_WECHAT_PID);
         putSecretValue(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
         putSecretValue(OOS_SECRET_WECHAT_PRIVATE_KEY);
+
+        modifiableSecretValueList = new ArrayList<>();
+        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_APP_ID);
+        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_PID);
+        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
+        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_PRIVATE_KEY);
+        modifiableSecretValueList.add(OOS_SECRET_WECHAT_APP_ID);
+        modifiableSecretValueList.add(OOS_SECRET_WECHAT_PID);
+        modifiableSecretValueList.add(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
+        modifiableSecretValueList.add(OOS_SECRET_WECHAT_PRIVATE_KEY);
     }
 
     private void putSecretValue(String parameterName) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
         secretMap.put(format, parameterOosHelper.getSecretParameter(format));
+    }
+
+    public void updateOosSecretParamConfig(String parameterName, String value) {
+        String[] parts = parameterName.split("-");
+        String parameterNameExtracted = parts[parts.length - 1];
+        System.out.println(parameterNameExtracted);
+
+        if (modifiableSecretValueList.contains(parameterNameExtracted)) {
+            String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterNameExtracted);
+            secretMap.put(format, value);
+        }
     }
 }
