@@ -192,7 +192,7 @@ const ParameterManagement: React.FC = () => {
                                 <ReloadOutlined />
                             </a>
                         </Tooltip>
-                        {activeTabKey === 'paymentKeys' ? (
+                        {activeTabKey === 'alipayPaymentKeys' || activeTabKey === 'wechatPaymentKeys' ? (
                             privateKeysVisible ? (
                                 <Tooltip key="hidePrivateKeys" title="隐藏加密参数">
                                     <a key="hidePrivateKeys" onClick={handleTogglePrivateKeysVisibility} style={{ color: 'inherit' }}>

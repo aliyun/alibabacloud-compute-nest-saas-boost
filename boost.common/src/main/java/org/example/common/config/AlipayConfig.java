@@ -19,8 +19,8 @@ import javax.annotation.Resource;
 import lombok.Data;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_PID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_APP_ID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -44,11 +44,11 @@ public class AlipayConfig {
     private String stackName;
 
     public String getAppId() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_APP_ID);
+        return oosSecretParamConfig.getSecretValue(OOS_SECRET_ALIPAY_APP_ID);
     }
 
     public String getPid() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_PID);
+        return oosSecretParamConfig.getSecretValue(OOS_SECRET_ALIPAY_PID);
     }
 
     public String getPrivateKey() {

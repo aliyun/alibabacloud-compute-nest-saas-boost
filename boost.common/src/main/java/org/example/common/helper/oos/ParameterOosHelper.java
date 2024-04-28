@@ -30,10 +30,14 @@ import com.aliyun.oos20190601.models.UpdateSecretParameterResponseBody.UpdateSec
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.OosClient;
+import org.example.common.config.AlipayConfig;
+import org.example.common.config.OosSecretParamConfig;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
@@ -47,6 +51,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ParameterOosHelper {
     private final OosClient oosClient;
+
+    @Resource
+    private BaseAlipayClient baseAlipayClient;
+
+    @Resource
+    private AlipayConfig alipayConfig;
+
+    @Resource
+    private OosSecretParamConfig oosSecretParamConfig;
 
     public ParameterOosHelper(OosClient oosClient) {
         this.oosClient = oosClient;
@@ -62,10 +75,16 @@ public class ParameterOosHelper {
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateSecretParameterResponse.getBody())
                         .map(UpdateSecretParameterResponseBody::getParameter)
                         .map(UpdateSecretParameterResponseBodyParameter::getId);
-
+                System.out.print("111");
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
+                    System.out.print("222");
+                    System.out.print("parameterIdOptional:"+parameterIdOptional);
+                    System.out.print(updateConfigParameterParam);
+                    oosSecretParamConfig.init();
+                    baseAlipayClient.createClient(alipayConfig);
                     return BaseResult.success();
                 } else {
+                    System.out.print("fail111");
                     return BaseResult.fail("The parameter in the response is an empty dictionary.");
                 }
             } else {
@@ -75,10 +94,12 @@ public class ParameterOosHelper {
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateParameterResponse.getBody())
                         .map(UpdateParameterResponseBody::getParameter)
                         .map(UpdateParameterResponseBodyParameter::getId);
-
+                System.out.print("333");
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
+                    System.out.print("444");
                     return BaseResult.success();
                 } else {
+                    System.out.print("fail222");
                     return BaseResult.fail("The parameter in the response is an empty dictionary.");
                 }
             }

@@ -51,8 +51,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
-import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
 import static org.example.common.constant.Constants.STANDARD_CONTENT_TYPE;
 
 @Slf4j
