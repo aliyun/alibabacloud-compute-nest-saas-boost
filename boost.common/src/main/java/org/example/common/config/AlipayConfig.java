@@ -58,5 +58,9 @@ public class AlipayConfig {
     public String getOfficialPublicKey() {
         return oosSecretParamConfig.getSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
     }
+
+    public void updateOosSecretParamConfig(String parameterName, String value) {
+        oosSecretParamConfig.updateOosSecretParamConfig(parameterName, value);
+    }
 }
 

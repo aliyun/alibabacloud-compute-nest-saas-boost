@@ -75,16 +75,12 @@ public class ParameterOosHelper {
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateSecretParameterResponse.getBody())
                         .map(UpdateSecretParameterResponseBody::getParameter)
                         .map(UpdateSecretParameterResponseBodyParameter::getId);
-                System.out.print("111");
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
-                    System.out.print("222");
-                    System.out.print("parameterIdOptional:"+parameterIdOptional);
-                    System.out.print(updateConfigParameterParam);
-                    oosSecretParamConfig.init();
-                    baseAlipayClient.createClient(alipayConfig);
+                    System.out.println("name:"+updateConfigParameterParam.getName());
+                    System.out.println("value:"+updateConfigParameterParam.getValue());
+                    baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
                     return BaseResult.success();
                 } else {
-                    System.out.print("fail111");
                     return BaseResult.fail("The parameter in the response is an empty dictionary.");
                 }
             } else {
@@ -94,12 +90,9 @@ public class ParameterOosHelper {
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateParameterResponse.getBody())
                         .map(UpdateParameterResponseBody::getParameter)
                         .map(UpdateParameterResponseBodyParameter::getId);
-                System.out.print("333");
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
-                    System.out.print("444");
                     return BaseResult.success();
                 } else {
-                    System.out.print("fail222");
                     return BaseResult.fail("The parameter in the response is an empty dictionary.");
                 }
             }
