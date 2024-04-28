@@ -68,10 +68,6 @@ public class RefundOrderTask implements Runnable {
                 OrderDO orderDO = new OrderDO();
                 orderDO.setTradeStatus(TradeStatus.REFUNDED);
                 orderDO.setOrderId(orderId);
-                Boolean alipaySuccess = Boolean.TRUE;
-                if (payChannel != null && payChannel != PayChannel.PAY_POST && refundAmount > 0) {
-                    alipaySuccess = baseAlipayClient.refundOrder(orderId, MoneyUtil.fromCents(refundAmount), refundId);
-                }
                 OrderDTO order = orderOtsHelper.getOrder(orderId, null);
                 Long currentLocalDateTimeMillis = DateUtil.getCurrentLocalDateTimeMillis();
                 if (shouldDeleteServiceInstance(currentLocalDateTimeMillis, order)) {
@@ -81,6 +77,10 @@ public class RefundOrderTask implements Runnable {
                     log.info("Delete service instance status code = {}", deleteServiceInstancesResponse.getStatusCode());
                 }
                 Boolean updateOrder = orderOtsHelper.updateOrder(orderDO);
+                Boolean alipaySuccess = Boolean.TRUE;
+                if (payChannel != null && payChannel != PayChannel.PAY_POST && refundAmount > 0) {
+                    alipaySuccess = baseAlipayClient.refundOrder(orderId, MoneyUtil.fromCents(refundAmount), refundId);
+                }
                 log.info("Alipay refund {}. Update order {}.", alipaySuccess, updateOrder);
                 log.info("Order refund success. order id = {}.", orderDO.getOrderId());
                 success = order.getTradeStatus() == TradeStatus.REFUNDED;

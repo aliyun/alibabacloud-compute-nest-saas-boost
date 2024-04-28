@@ -244,7 +244,8 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         } else {
             updateServiceInstance(userInfoModel, orderDO);
         }
-        return null;
+        throw new ClientException("PayOrderCallback error");
+//        return null;
     }
 
     private CommonRequest buildPayOrderCallbackRequest(OrderDO orderDO, String aid) {

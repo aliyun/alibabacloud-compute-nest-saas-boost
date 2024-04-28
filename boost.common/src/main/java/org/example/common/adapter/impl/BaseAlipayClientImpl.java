@@ -1,17 +1,17 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.common.adapter.impl;
 
@@ -36,9 +36,12 @@ import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.utils.DateUtil;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
 import java.util.Optional;
 
 import static org.example.common.constant.AliPayConstants.OUT_TRADE_NO;
@@ -56,17 +59,20 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
     private static final Integer CLOSE_TRANSACTION_TIME = 15;
 
     @Override
+    @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public AlipayTradeQueryResponse queryOutTrade(String outTradeNumber) {
         AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
         request.setBizContent(new JSONObject().fluentPut(OUT_TRADE_NO, outTradeNumber).toString());
         try {
             return alipayClient.execute(request);
         } catch (AlipayApiException e) {
-            throw new BizException(ErrorInfo.ENTITY_NOT_EXIST, e);
+            throw new BizException(ErrorInfo.ENTITY_NOT_EXIST.getStatusCode(), ErrorInfo.ENTITY_NOT_EXIST.getCode(),
+                    String.format(ErrorInfo.ENTITY_NOT_EXIST.getMessage(), outTradeNumber), e);
         }
     }
 
     @Override
+    @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public boolean verifySignature(String sign, String content) {
         try {
             return AlipaySignature.rsaCheck(content, sign, alipayConfig.getOfficialPublicKey(),
@@ -77,6 +83,7 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
     }
 
     @Override
+    @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo) {
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setNotifyUrl(alipayConfig.getNotifyUrl());
@@ -94,6 +101,7 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
     }
 
     @Override
+    @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundRequestId) {
         Double formatRefundAmount = Double.parseDouble(String.format("%.2f", refundAmount));
         JSONObject bizContent = new JSONObject().fluentPut(OUT_TRADE_NO, orderId)
@@ -107,12 +115,13 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
                 return Boolean.TRUE;
             }
         } catch (AlipayApiException e) {
-            log.error("Refund failed.", e);
+            log.error("Refund failed. Order Id = {}, refund request id = {}", orderId, refundRequestId, e);
         }
         return Boolean.FALSE;
     }
 
     @Override
+    @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public Boolean closeOrder(String orderId) {
         AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
         JSONObject bizContent = new JSONObject();
@@ -121,7 +130,7 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
         AlipayTradeCloseResponse response;
         try {
             response = alipayClient.execute(request);
-            if(response.isSuccess()){
+            if (response.isSuccess()) {
                 return Boolean.TRUE;
             }
         } catch (AlipayApiException e) {
