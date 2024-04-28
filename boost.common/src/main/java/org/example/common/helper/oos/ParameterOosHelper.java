@@ -36,8 +36,6 @@ import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.OosClient;
-import org.example.common.config.AlipayConfig;
-import org.example.common.config.OosSecretParamConfig;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
@@ -55,12 +53,6 @@ public class ParameterOosHelper {
     @Resource
     private BaseAlipayClient baseAlipayClient;
 
-    @Resource
-    private AlipayConfig alipayConfig;
-
-    @Resource
-    private OosSecretParamConfig oosSecretParamConfig;
-
     public ParameterOosHelper(OosClient oosClient) {
         this.oosClient = oosClient;
     }
@@ -76,8 +68,6 @@ public class ParameterOosHelper {
                         .map(UpdateSecretParameterResponseBody::getParameter)
                         .map(UpdateSecretParameterResponseBodyParameter::getId);
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
-                    System.out.println("name:"+updateConfigParameterParam.getName());
-                    System.out.println("value:"+updateConfigParameterParam.getValue());
                     baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
                     return BaseResult.success();
                 } else {

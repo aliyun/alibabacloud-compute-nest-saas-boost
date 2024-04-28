@@ -5,6 +5,7 @@ import com.aliyun.oos20190601.models.GetSecretParameterResponse;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
 import com.aliyun.oos20190601.models.UpdateParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
+import com.aliyun.oos20190601.models.UpdateSecretParameterResponseBody;
 import java.util.ArrayList;
 import java.util.List;
 import mockit.Expectations;
@@ -16,7 +17,6 @@ import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.OosClient;
-import org.example.common.config.AlipayConfig;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.ConfigParameterQueryModel;
@@ -38,42 +38,39 @@ public class ParameterOosHelperTest {
     @Injectable
     private BaseAlipayClient baseAlipayClient;
 
-    @Injectable
-    private AlipayConfig alipayConfig;
-
     @BeforeEach
     public void setUp() {
         parameterOosHelper = new ParameterOosHelper(oosClient);
     }
 
-//    @Test
-//    public void testUpdateConfigParameterEncryptedTrue() throws Exception {
-//        UpdateSecretParameterResponse mockResponse = new UpdateSecretParameterResponse();
-//        UpdateSecretParameterResponseBody mockResponseBody = new UpdateSecretParameterResponseBody();
-//        UpdateSecretParameterResponseBodyParameter mockResponseBodyParameter = new UpdateSecretParameterResponseBodyParameter();
-//
-//        // Assuming the ID is some non-empty string to denote a successful operation
-//        final String parameterId = "test-id";
-//        mockResponseBodyParameter.setId(parameterId);
-//        mockResponseBody.setParameter(mockResponseBodyParameter);
-//        mockResponse.setBody(mockResponseBody);
-//
-//        UpdateConfigParameterParam param = new UpdateConfigParameterParam();
-//        param.setName("test-param");
-//        param.setValue("test-value");
-//        param.setEncrypted(true);
-//
-//        new Expectations() {{
-//            oosClient.updateSecretParameter(param.getName(), param.getValue());
-//            result = mockResponse;
-//
-//            baseAlipayClient.updateClient(alipayConfig);
-//        }};
-//
-//        BaseResult<Void> result = parameterOosHelper.updateConfigParameter(param);
-//
-//        assertEquals("200", result.getCode());
-//    }
+    @Test
+    public void testUpdateConfigParameterEncryptedTrue() throws Exception {
+        UpdateSecretParameterResponse mockResponse = new UpdateSecretParameterResponse();
+        UpdateSecretParameterResponseBody mockResponseBody = new UpdateSecretParameterResponseBody();
+        UpdateSecretParameterResponseBody.UpdateSecretParameterResponseBodyParameter mockResponseBodyParameter = new UpdateSecretParameterResponseBody.UpdateSecretParameterResponseBodyParameter();
+
+        // Assuming the ID is some non-empty string to denote a successful operation
+        final String parameterId = "test-id";
+        mockResponseBodyParameter.setId(parameterId);
+        mockResponseBody.setParameter(mockResponseBodyParameter);
+        mockResponse.setBody(mockResponseBody);
+
+        UpdateConfigParameterParam param = new UpdateConfigParameterParam();
+        param.setName("test-param");
+        param.setValue("test-value");
+        param.setEncrypted(true);
+
+        new Expectations() {{
+            oosClient.updateSecretParameter(param.getName(), param.getValue());
+            result = mockResponse;
+
+            baseAlipayClient.updateClient("test-param", "test-value");
+        }};
+
+        BaseResult<Void> result = parameterOosHelper.updateConfigParameter(param);
+
+        assertEquals("200", result.getCode());
+    }
 
     @Test
     public void testUpdateConfigParameterEncryptedFalse(@Mocked UpdateParameterResponse updateParameterResponse) {
