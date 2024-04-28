@@ -12,10 +12,14 @@ import java.util.List;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
+import mockit.Tested;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.OosClient;
+import org.example.common.config.AlipayConfig;
+import org.example.common.config.OosSecretParamConfig;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
 import org.example.common.model.ConfigParameterQueryModel;
@@ -28,10 +32,20 @@ import org.junit.jupiter.api.Test;
 
 public class ParameterOosHelperTest {
 
+    @Tested
+    private ParameterOosHelper parameterOosHelper;
+
     @Injectable
     private OosClient oosClient;
 
-    private ParameterOosHelper parameterOosHelper;
+    @Injectable
+    private BaseAlipayClient baseAlipayClient;
+
+    @Injectable
+    private AlipayConfig alipayConfig;
+
+    @Injectable
+    private OosSecretParamConfig oosSecretParamConfig;
 
     @BeforeEach
     public void setUp() {
@@ -39,24 +53,34 @@ public class ParameterOosHelperTest {
     }
 
     @Test
-    public void testUpdateConfigParameterEncryptedTrue(@Mocked UpdateSecretParameterResponse updateSecretParameterResponse) {
-        UpdateSecretParameterResponseBody responseBody = new UpdateSecretParameterResponseBody();
-        UpdateSecretParameterResponseBodyParameter parameter = new UpdateSecretParameterResponseBodyParameter();
-        parameter.setId("test-id");
-        responseBody.setParameter(parameter);
+    public void testUpdateConfigParameterEncryptedTrue() throws Exception {
+        UpdateSecretParameterResponse mockResponse = new UpdateSecretParameterResponse();
+        UpdateSecretParameterResponseBody mockResponseBody = new UpdateSecretParameterResponseBody();
+        UpdateSecretParameterResponseBodyParameter mockResponseBodyParameter = new UpdateSecretParameterResponseBodyParameter();
 
-        new Expectations() {{
-            updateSecretParameterResponse.getBody(); result = responseBody;
-        }};
+        // Assuming the ID is some non-empty string to denote a successful operation
+        final String parameterId = "test-id";
+        mockResponseBodyParameter.setId(parameterId);
+        mockResponseBody.setParameter(mockResponseBodyParameter);
+        mockResponse.setBody(mockResponseBody);
 
         UpdateConfigParameterParam param = new UpdateConfigParameterParam();
         param.setName("test-param");
         param.setValue("test-value");
         param.setEncrypted(true);
 
+        new Expectations() {{
+            oosClient.updateSecretParameter(param.getName(), param.getValue());
+            result = mockResponse;
+
+            // If the init() call or other subsequent calls have side effects or return values, make sure to mock them appropriately
+            oosSecretParamConfig.init();
+            baseAlipayClient.createClient(alipayConfig);
+        }};
+
         BaseResult<Void> result = parameterOosHelper.updateConfigParameter(param);
 
-        assertEquals("OK", result.getMessage());
+        assertEquals("200", result.getCode());
     }
 
     @Test
