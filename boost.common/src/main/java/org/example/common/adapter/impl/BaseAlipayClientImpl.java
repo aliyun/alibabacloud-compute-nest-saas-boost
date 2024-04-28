@@ -155,8 +155,6 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
     @Override
     public void updateClient(String parameterName, String value) throws Exception {
         this.alipayConfig.updateOosSecretParamConfig(parameterName, value);
-        System.out.println("updateClient:"+alipayConfig.getAppId());
-        System.out.println("updateClient:"+alipayConfig.getPid());
         alipayClient = new DefaultAlipayClient(
                 alipayConfig.getGateway(),
                 alipayConfig.getAppId(),
