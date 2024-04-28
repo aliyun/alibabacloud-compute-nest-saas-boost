@@ -198,6 +198,7 @@ public class OrderServiceImpl implements OrderService {
         } else {
             String refundId = UuidUtil.generateRefundId();
             alipayService.refundOrder(orderDO.getOrderId(), MoneyUtil.fromCents(orderDO.getReceiptAmount()), refundId);
+            orderDO.setRefundAmount(orderDO.getReceiptAmount());
             orderDO.setTradeStatus(TradeStatus.REFUNDED);
         }
         orderOtsHelper.updateOrder(orderDO);
