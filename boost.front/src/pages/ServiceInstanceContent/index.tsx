@@ -177,6 +177,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             }
             const {PayPeriod, type} = await form?.current?.getFieldFormatValue();
             if (order != null && order.specificationName && order.serviceInstanceId) {
+
                 const productComponents = {
                     SpecificationName: order.specificationName,
                     PayPeriod: PayPeriod,
@@ -236,48 +237,48 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             </div>
                         )}
                     </div>
-                    {source != CallSource[CallSource.Market] && <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <ModalForm
-                        title="续费"
-                        size={'large'}
-                        trigger={<Button hidden={renewalAndDeleteVisible}>续费</Button>}
-                        formRef={form}
-                        modalProps={{
-                            destroyOnClose: true,
-                        }}
-                        onFinish={async (values) => {
-                            await renewalServiceInstance();
-                            return true;
-                        }}
-                    >
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                                {/*<PayPeriodFormItem onChange={handleOptionChange}/>*/}
-                                <ProFormDigit
-                                    label="包月时间"
-                                    name="PayPeriod"
-                                    key={"PayPeriod"}
-                                    min={1}
-                                    initialValue={1}
-                                    fieldProps={{precision: 0, defaultValue: 1, onChange: (value) => {
-                                            if(value){
-                                                setSelectedMonths(value);
-                                            }}}}
-                                    required={true}
+                {/* Temporarily cancel renewal   {source != CallSource[CallSource.Market] && <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>*/}
+                {/*    <ModalForm*/}
+                {/*        title="续费"*/}
+                {/*        size={'large'}*/}
+                {/*        trigger={<Button hidden={renewalAndDeleteVisible}>续费</Button>}*/}
+                {/*        formRef={form}*/}
+                {/*        modalProps={{*/}
+                {/*            destroyOnClose: true,*/}
+                {/*        }}*/}
+                {/*        onFinish={async (values) => {*/}
+                {/*            await renewalServiceInstance();*/}
+                {/*            return true;*/}
+                {/*        }}*/}
+                {/*    >*/}
+                {/*        <div style={{display: 'flex', flexDirection: 'column'}}>*/}
+                {/*                /!*<PayPeriodFormItem onChange={handleOptionChange}/>*!/*/}
+                {/*                <ProFormDigit*/}
+                {/*                    label="包月时间"*/}
+                {/*                    name="PayPeriod"*/}
+                {/*                    key={"PayPeriod"}*/}
+                {/*                    min={1}*/}
+                {/*                    initialValue={1}*/}
+                {/*                    fieldProps={{precision: 0, defaultValue: 1, onChange: (value) => {*/}
+                {/*                            if(value){*/}
+                {/*                                setSelectedMonths(value);*/}
+                {/*                            }}}}*/}
+                {/*                    required={true}*/}
 
-                                />
-                                <div className={styles.currentPrice}>
-                                    当前价格:
-                                    <span className={styles.priceValue}>
-                                        {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : " 加载中..."}
-                                    </span>
-                                </div>
-                            <Divider className={styles.msrectangleshape}/>
-                            <div className={styles.specificationTitle}>{"支付方式"}</div>
+                {/*                />*/}
+                {/*                <div className={styles.currentPrice}>*/}
+                {/*                    当前价格:*/}
+                {/*                    <span className={styles.priceValue}>*/}
+                {/*                        {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : " 加载中..."}*/}
+                {/*                    </span>*/}
+                {/*                </div>*/}
+                {/*            <Divider className={styles.msrectangleshape}/>*/}
+                {/*            <div className={styles.specificationTitle}>{"支付方式"}</div>*/}
 
-                            <PayTypeFormItem/>
-                        </div>
-                    </ModalForm>
-                </div>}
+                {/*            <PayTypeFormItem/>*/}
+                {/*        </div>*/}
+                {/*    </ModalForm>*/}
+                {/*</div>}*/}
 
                 </Space>
             </div>
