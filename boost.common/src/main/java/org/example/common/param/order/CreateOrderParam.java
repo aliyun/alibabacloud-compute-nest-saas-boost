@@ -62,6 +62,11 @@ public class CreateOrderParam extends SpiBaseParam {
      */
     private String userId;
 
+    /**
+     * service instance id
+     */
+    private String serviceInstanceId;
+
     public void checkOrderParam() {
         if (StringUtils.isEmpty(this.getUserId())) {
             throw new BizException(ErrorInfo.PARAMETER_MISSING.getStatusCode(), ErrorInfo.PARAMETER_MISSING.getCode(),

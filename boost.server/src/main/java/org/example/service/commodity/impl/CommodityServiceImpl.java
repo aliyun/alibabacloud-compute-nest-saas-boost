@@ -157,7 +157,20 @@ public class CommodityServiceImpl implements CommodityService {
                 }
             }
         } else {
-            allowedPaymentDurations.put(commodity.getCommodityCode(), MONTHS);
+            String payPeriodUnit = commodity.getPayPeriodUnit();
+            String payPeriodsStr = commodity.getPayPeriods();
+            if (payPeriodsStr != null && payPeriodsStr.length() > 2 && !payPeriodsStr.trim().isEmpty()) {
+                List<Integer> payPeriods = Arrays.stream(payPeriodsStr.substring(1, payPeriodsStr.length() - 1).split(ARRAY_REGEX))
+                        .filter(str -> !str.isEmpty())
+                        .sorted()
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+                for (Integer payPeriod : payPeriods) {
+                    List<String> allowedPaymentDuration = allowedPaymentDurations.getOrDefault(commodity.getCommodityCode(), new ArrayList<>());
+                    allowedPaymentDuration.add(payPeriod + ":" + payPeriodUnit);
+                    allowedPaymentDurations.put(commodity.getCommodityCode(), allowedPaymentDuration);
+                }
+            }
         }
         commodity.setAllowedPaymentDurations(allowedPaymentDurations);
         return commodity;

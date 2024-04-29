@@ -7,7 +7,7 @@ import {
     updateCommoditySpecification
 } from "@/services/backend/specification";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
-import {specificationColumns, SpecificationForm, SpecificationModalProps} from "@/pages/Commodity/common";
+import {specificationColumns, SpecificationForm, SpecificationModalProps} from "@/pages/Commodity/constants";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {PlusOutlined} from "@ant-design/icons";
 import {yuanToCents} from "@/util/moneyUtil";

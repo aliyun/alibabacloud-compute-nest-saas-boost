@@ -39,6 +39,7 @@ import org.example.common.constant.CallSource;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
+import org.example.common.helper.WalletHelper;
 import org.example.common.model.ListServiceInstancesModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
@@ -47,6 +48,7 @@ import org.example.common.param.si.ListServiceInstancesParam;
 import org.example.service.base.ServiceManager;
 import org.example.service.base.impl.ServiceInstanceLifecycleServiceImpl;
 import org.example.service.order.OrderService;
+import org.example.service.payment.PaymentServiceManger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -78,6 +80,12 @@ class ServiceInstanceLifecycleServiceImplTest {
 
     @Injectable
     private ServiceManager serviceManager;
+
+    @Injectable
+    private WalletHelper walletHelper;
+
+    @Injectable
+    private PaymentServiceManger paymentServiceManger;
 
     private ListServiceInstancesResponseBody createListServiceInstancesResponseBody() {
         ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos serviceInfos = new ListServiceInstancesResponseBodyServiceInstancesServiceServiceInfos().setName("serviceInfoName-2").setShortDescription("description");

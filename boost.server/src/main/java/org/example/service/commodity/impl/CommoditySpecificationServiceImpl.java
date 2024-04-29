@@ -82,4 +82,10 @@ public class CommoditySpecificationServiceImpl implements CommoditySpecification
         boolean deleted = commoditySpecificationOtsHelper.deleteCommoditySpecification(param.getCommodityCode(), param.getSpecificationName());
         return BaseResult.success(deleted);
     }
+
+    @Override
+    public BaseResult<CommoditySpecificationDTO> getCommoditySpecification(UserInfoModel userInfoModel, CommoditySpecificationParam param) {
+        CommoditySpecificationDTO commoditySpecification = commoditySpecificationOtsHelper.getCommoditySpecification(param.getCommodityCode(), param.getSpecificationName());
+        return BaseResult.success(commoditySpecification);
+    }
 }

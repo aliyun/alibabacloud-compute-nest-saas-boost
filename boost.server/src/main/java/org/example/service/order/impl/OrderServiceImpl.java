@@ -118,10 +118,15 @@ public class OrderServiceImpl implements OrderService {
             matchFilters.add(orderIdMatchFilter);
         }
 
+        if (StringUtils.isNotEmpty(param.getOrderType())) {
+            OtsFilter orderTypeMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ORDER_TYPE, param.getOrderType());
+            matchFilters.add(orderTypeMatchFilter);
+        }
+
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
             OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
-            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_MILLIS, SortOrder.DESC));
+            sorters.add(new FieldSort(OrderOtsConstant.BILLING_END_DATE_MILLIS, SortOrder.ASC));
         }
 
         if (StringUtils.isNotEmpty(param.getStartTime()) && StringUtils.isNotEmpty(param.getEndTime())) {
@@ -308,6 +313,10 @@ public class OrderServiceImpl implements OrderService {
         orderDO.setCommodityName(commodityPriceModel.getCommodityName());
         orderDO.setSpecificationName(commodityPriceModel.getSpecificationName());
         orderDO.setCommodityCode(commodityPriceModel.getCommodityCode());
+        orderDO.setOrderType(createOrderParam.getOrderType());
+        if (StringUtils.isNotEmpty(createOrderParam.getServiceInstanceId())) {
+            orderDO.setServiceInstanceId(createOrderParam.getServiceInstanceId());
+        }
         return orderDO;
     }
 }
