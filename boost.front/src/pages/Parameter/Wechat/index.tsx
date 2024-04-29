@@ -60,14 +60,14 @@ export const WechatPaymentKeyForm: React.FC<{
                 render: (_) => (<></>),
             }}
         >
-            <ProFormText {...getFieldProps('WechatAppId', '应用ID(微信)', '请输入应用ID')} />
-            <ProFormText {...getFieldProps('WechatPid', '商户ID(微信)', '请输入商户ID')} />
-            <ProFormText {...getFieldProps('WechatOfficialPublicKey', '官方公钥(微信)', '请输入官方公钥')} />
-            <ProFormText {...getFieldProps('WechatPrivateKey', '服务商私钥(微信)', '请输入服务商私钥')} />
+            <ProFormText {...getFieldProps('WechatAppId', '应用ID', '请输入应用ID')} />
+            <ProFormText {...getFieldProps('WechatPid', '商户ID', '请输入商户ID')} />
+            <ProFormText {...getFieldProps('WechatOfficialPublicKey', '官方公钥', '请输入官方公钥')} />
+            <ProFormText {...getFieldProps('WechatPrivateKey', '服务商私钥', '请输入服务商私钥')} />
 
             <ProFormRadio.Group
                 name="paymentEnvironment"
-                label="支付环境"
+                label={<label style={{ fontWeight: 'bold' }}>支付环境</label>}
                 initialValue='https://openapi-sandbox.dl.alipaydev.com/gateway.do'
                 options={[
                     { label: '沙盒环境', value: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do' },

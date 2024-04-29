@@ -55,14 +55,14 @@ export const AlipayPaymentKeyForm: React.FC<{
                 render: (_) => (<></>),
             }}
         >
-            <ProFormText {...getFieldProps('AlipayAppId', '应用ID(支付宝)', '请输入应用ID')} />
-            <ProFormText {...getFieldProps('AlipayPid', '商户ID(支付宝)', '请输入商户ID')} />
-            <ProFormText {...getFieldProps('AlipayOfficialPublicKey', '官方公钥(支付宝)', '请输入官方公钥')} />
-            <ProFormText {...getFieldProps('AlipayPrivateKey', '服务商私钥(支付宝)', '请输入服务商私钥')} />
+            <ProFormText {...getFieldProps('AlipayAppId', '应用ID', '请输入应用ID')} />
+            <ProFormText {...getFieldProps('AlipayPid', '商户ID', '请输入商户ID')} />
+            <ProFormText {...getFieldProps('AlipayOfficialPublicKey', '官方公钥', '请输入官方公钥')} />
+            <ProFormText {...getFieldProps('AlipayPrivateKey', '服务商私钥', '请输入服务商私钥')} />
 
             <ProFormRadio.Group
                 name="paymentEnvironment"
-                label="支付环境"
+                label={<label style={{ fontWeight: 'bold' }}>支付环境</label>}
                 initialValue='https://openapi-sandbox.dl.alipaydev.com/gateway.do'
                 options={[
                     { label: '沙盒环境', value: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do' },

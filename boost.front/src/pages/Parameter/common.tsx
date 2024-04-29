@@ -1,6 +1,6 @@
 import { ProviderInfo, AlipayPaymentKeys, WechatPaymentKeys } from '@/pages/Parameter/component/interface';
 import React from "react";
-import {Button, Col, Row} from "antd";
+import {Button, Col, Row, Space} from "antd";
 
 export const initialProviderInfo: ProviderInfo = {
     ProviderName: '',
@@ -60,10 +60,12 @@ export const encryptedCredentialsMap = {
 export const ActionButtons: React.FC<{ onSave: () => void; onCancel: () => void }> = ({ onSave, onCancel }) => (
     <Row justify="end" style={{ marginTop: '0px', marginBottom: '24px' }}>
         <Col>
-            <Button type="primary" onClick={onSave}>
-                保存
-            </Button>
-            <Button onClick={onCancel}>取消</Button>
+            <Space>
+                <Button type="primary" onClick={onSave}>
+                    保存
+                </Button>
+                <Button onClick={onCancel}>取消</Button>
+            </Space>
         </Col>
     </Row>
 );
