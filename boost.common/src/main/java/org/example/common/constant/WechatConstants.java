@@ -117,5 +117,10 @@ public interface WechatConstants {
      */
     String OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY = "WechatOfficialPublicKey";
 
+    /**
+     * Wechat gateway
+     */
+    String OOS_WECHAT_GATEWAY = "WechatGateway";
+
     String OOS_SECRET_ADMIN_AID = "AdminAid";
 }

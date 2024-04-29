@@ -22,6 +22,7 @@ export const initialAlipayPaymentKeys: AlipayPaymentKeys = {
     AlipayPid: '',
     AlipayOfficialPublicKey: '',
     AlipayPrivateKey: '',
+    AlipayGateway: '',
 };
 
 export const initialWechatPaymentKeys: WechatPaymentKeys = {
@@ -29,14 +30,15 @@ export const initialWechatPaymentKeys: WechatPaymentKeys = {
     WechatPid: '',
     WechatOfficialPublicKey: '',
     WechatPrivateKey: '',
+    WechatGateway: '',
 };
 export const initialPaymentKeysNameList = {
-    alipay: ['AlipayAppId', 'AlipayPid', 'AlipayOfficialPublicKey', 'AlipayPrivateKey'],
-    wechat: ['WechatAppId', 'WechatPid', 'WechatOfficialPublicKey', 'WechatPrivateKey'],
+    alipay: ['AlipayAppId', 'AlipayPid', 'AlipayOfficialPublicKey', 'AlipayPrivateKey', 'AlipayGateway'],
+    wechat: ['WechatAppId', 'WechatPid', 'WechatOfficialPublicKey', 'WechatPrivateKey', 'WechatGateway'],
 };
 export const initialPaymentKeysEncryptedList = {
-    alipay: [true, true, true, true],
-    wechat: [true, true, true, true],
+    alipay: [true, true, true, true, false],
+    wechat: [true, true, true, true, false],
 };
 
 export const encryptedCredentialsMap = {
@@ -47,10 +49,12 @@ export const encryptedCredentialsMap = {
     'AlipayPid': true,
     'AlipayOfficialPublicKey': true,
     'AlipayPrivateKey': true,
+    'AlipayGateway': false,
     'WechatAppId': true,
     'WechatPid': true,
     'WechatOfficialPublicKey': true,
     'WechatPrivateKey': true,
+    'WechatGateway': false,
 };
 
 export const ActionButtons: React.FC<{ onSave: () => void; onCancel: () => void }> = ({ onSave, onCancel }) => (

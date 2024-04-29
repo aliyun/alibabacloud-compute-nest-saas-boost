@@ -9,10 +9,12 @@ export interface AlipayPaymentKeys {
     AlipayPid: string;
     AlipayOfficialPublicKey: string;
     AlipayPrivateKey: string;
+    AlipayGateway: string;
 }
 export interface WechatPaymentKeys {
     WechatAppId: string;
     WechatPid: string;
     WechatOfficialPublicKey: string;
     WechatPrivateKey: string;
+    WechatGateway: string;
 }

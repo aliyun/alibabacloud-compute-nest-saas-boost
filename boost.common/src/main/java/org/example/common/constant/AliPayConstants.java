@@ -117,5 +117,10 @@ public interface AliPayConstants {
      */
     String OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
 
+    /**
+     * Alipay gateway
+     */
+    String OOS_ALIPAY_GATEWAY = "AlipayGateway";
+
     String OOS_SECRET_ADMIN_AID = "AdminAid";
 }
