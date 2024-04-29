@@ -48,4 +48,6 @@ export default {
     'message.to-be-selected': '待选择',
     'message.no-specification': '无套餐',
     'message.query-orders-for-selected-time-range': '查询您选择的时间到当前时间内的所有订单',
+    'message.select-renewal-time' : '请选择续费时间',
+    'message.service-instance-loading' : '实例加载中或实例正在被删除'
 }

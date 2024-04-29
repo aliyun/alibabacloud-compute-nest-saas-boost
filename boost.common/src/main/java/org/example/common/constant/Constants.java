@@ -121,4 +121,8 @@ public interface Constants {
      * Compute nest service instance id.
      */
     String SERVICE_INSTANCE_ID = "ServiceInstanceId";
+
+    String ALIPAY_TAG = "Alipay";
+
+    String WECHATPAY_TAG = "WechatPay";
 }

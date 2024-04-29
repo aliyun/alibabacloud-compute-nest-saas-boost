@@ -7,7 +7,6 @@ import {ProTable} from "@ant-design/pro-components";
 import {Button, message, Modal, Pagination, Space, Typography} from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
 
 import {ServiceInstanceOrderProps} from "@/pages/ServiceInstanceOrder/components/interface";
 import {PayChannelEnum, TIME_FORMAT} from "@/constants";
@@ -16,15 +15,20 @@ import styles from "./components/css/order.module.css"
 import {ExclamationCircleOutlined} from "@ant-design/icons";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
-import {handlePaySubmit} from "@/util/aliPayUtil";
 import {createTransaction} from "@/services/backend/payment";
-import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 import {centsToYuan} from "@/util/moneyUtil";
 import {FormattedMessage} from "@@/exports";
+import {PaymentModal} from "@/pages/PaymentMethod";
+import {listConfigParameters} from "@/services/backend/parameterManager";
+import {paymentConfiguredEncryptedList, paymentConfiguredNameList} from "@/pages/Parameter/common";
 
 dayjs.extend(utc);
 
 export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
+    const [refreshing, setRefreshing] = useState(false);
+    const [alipayAllConfigured, setAlipayAllConfigured] = useState(false);
+    const [wechatPayAllConfigured, setWechatPayAllConfigured] = useState(false);
+    const [paymentAllConfigured, setPaymentAllConfigured] = useState(false);
     const searchParams = getHashSearchParams();
     const initialOrderId = searchParams.get('orderId') || undefined;
     const [orders, setOrders] = useState<API.OrderDTO[]>([]);
@@ -37,10 +41,12 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
     const {Paragraph} = Typography;
     const actionRef = useRef<ActionType>();
-    const [isPayModalVisible, setPayModalVisible] = useState(false);
+    const [paymentModalVisible, setPaymentModalVisible] = useState(false);
     const [currentOrder, setCurrentOrder] = useState<API.OrderDTO | null>(null);
-    const form = useRef<ProFormInstance>();
-
+    const [tradeResult, setTradeResult] = useState<string | null>(null);
+    const [activePaymentMethodKey, setActivePaymentMethodKey] = useState<string>('ALIPAY');
+    const [alipayTradeResult, setAlipayTradeResult] = useState<string | null>(null);
+    const [wechatTradeResult, setWechatTradeResult] = useState<string | null>(null);
     const [filterValues, setFilterValues] = useState<{
         tradeStatus?: | 'TRADE_CLOSED'
             | 'TRADE_SUCCESS'
@@ -85,44 +91,102 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             param.endTime = utcTime;
         }
         console.log(param);
-        const result: API.ListResultOrderDTO_ = await listOrders(param);
 
-        if (result.data !== undefined) {
-            setTotal(result.count || 0);
-            setOrders(result.data || []);
-            nextTokens[currentPage] = result.nextToken;
-            const transformedData = result.data?.map((item: API.OrderDTO, index) => {
-                const localTime = item.gmtCreate ? moment.utc(item.gmtCreate).local().format('YYYY-MM-DD HH:mm:ss') : '';
+        const maxRetries = 3;
+        let attempt = 0;
+        let result: API.ListResultOrderDTO_;
+
+        while (attempt < maxRetries) {
+            result = await listOrders(param);
+
+            if (result.data !== undefined) {
+                setTotal(result.count || 0);
+                setOrders(result.data || []);
+                if (initialOrderId && tradeResult == null) {
+                    await handlePaySubmitButton(result.data.find((order: API.OrderDTO) => order.orderId === initialOrderId));
+                }
+                nextTokens[params.current] = result.nextToken;
+                const transformedData = result.data?.map((item: API.OrderDTO) => {
+                    const localTime = item.gmtCreate ? moment.utc(item.gmtCreate).local().format('YYYY-MM-DD HH:mm:ss') : '';
+                    return {
+                        ...item,
+                        gmtCreate: localTime,
+                        tradeStatus: TradeStatusEnum[item.tradeStatus as keyof typeof TradeStatusEnum],
+                        type: PayChannelEnum[item.payChannel as keyof typeof PayChannelEnum],
+                    };
+                }) || [];
+
                 return {
-                    ...item,
-                    gmtCreate: localTime,
-                    tradeStatus: TradeStatusEnum[item.tradeStatus as keyof typeof TradeStatusEnum],
-                    type: PayChannelEnum[item.payChannel as keyof typeof PayChannelEnum],
+                    data: transformedData,
+                    success: true,
+                    total: result.count || 0,
                 };
-            }) || [];
-            return {
-                //@ts-ignored
-                data: transformedData,
-                success: true,
-                total: result.count || 0,
-            };
+            } else {
+                attempt++;
+                console.log(`Failed to fetch orders, attempt ${attempt}`);
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Delay for 1 second
+                }
+            }
         }
+
         return {
             data: [],
-            success: true,
+            success: false,
             total: 0,
-        }
-    }
-
-    useEffect(() => {
-        const fetchOrders = async () => {
-            const result: API.ListResultOrderDTO_ = await listOrders({
-                orderId: initialOrderId
-            });
         };
-        fetchOrders();
+    };
+    useEffect(() => {
+        handleRefresh();
+    }, []);
 
-    }, [initialOrderId]);
+    const loadPaymentMethod = async (parameterNames: string[], encrypted: boolean[]) => {
+        const configParameterQueryModels = parameterNames.map((name, index) => ({ name, encrypted: encrypted[index] }));
+        const listParams = { configParameterQueryModels };
+        const result = await listConfigParameters(listParams);
+
+        if (result.data?.length) {
+            const configStatus = result.data.reduce((acc, param) => {
+                if (param.name === 'AlipaySignatureMethod') {
+                    if (param.value === 'PrivateKey') {
+                        acc['AlipaySignatureMethodWithKey'] = true;
+                    } else if (param.value === 'Certificate') {
+                        acc['AlipaySignatureMethodWithCert'] = true;
+                    }
+                } else if (param.value !== 'waitToConfig') {
+                    acc[param.name] = true;
+                }
+                return acc;
+            }, {});
+
+            const alipayRequiredKeysWithKey = ['AlipayOfficialPublicKey', 'AlipaySignatureMethodWithKey'];
+            const alipayRequiredKeysWithCert = ['AlipaySignatureMethodWithCert',
+                'AlipayAppCertPath', 'AlipayCertPath', 'AlipayRootCertPath'];
+            const alipayConfigMapWithKey = alipayRequiredKeysWithKey.reduce(
+                (map, key) => ({ ...map, [key]: configStatus[key] ?? false }), {}
+            );
+            const alipayConfigMapWithCert = alipayRequiredKeysWithCert.reduce(
+                (map, key) => ({ ...map, [key]: configStatus[key] ?? false }), {}
+            );
+            const alipayAllConfigured = Object.values(alipayConfigMapWithCert).every(value => value !== false) ||
+                Object.values(alipayConfigMapWithKey).every(value => value !== false);
+            setAlipayAllConfigured(alipayAllConfigured);
+
+            const wechatPayRequiredKeys = ['WechatPayMchSerialNo', 'WechatPayPrivateKeyPath'];
+            const wechatPayConfigMap = wechatPayRequiredKeys.reduce(
+                (map, key) => ({ ...map, [key]: configStatus[key] ?? false }), {}
+            );
+            const wechatPayAllConfigured = Object.values(wechatPayConfigMap).every(value => value !== false);
+            setWechatPayAllConfigured(wechatPayAllConfigured);
+        }
+    };
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await loadPaymentMethod(paymentConfiguredNameList, paymentConfiguredEncryptedList);
+        setRefreshing(false);
+        setPaymentAllConfigured(true);
+    };
 
     const handleConfirmRefund = async (): Promise<void> => {
         try {
@@ -156,55 +220,60 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         }
     };
 
-
-    const PayModalForm: React.FC<{
-        visible: boolean;
-        onVisibleChange: (visible: boolean) => void;
-        onFinish: (values: any) => Promise<void>;
-    }> = ({visible, onVisibleChange, onFinish}) => {
-        return (
-            <ModalForm
-                title={<FormattedMessage id='title.select-payment-method' defaultMessage="选择支付方式"/>}
-                open={visible}
-                onOpenChange={onVisibleChange}
-                onFinish={onFinish}
-                formRef={form}
-                layout={'horizontal'}
-                width={400}
-            >
-                <PayTypeFormItem/>
-            </ModalForm>
-        );
-    };
-
-    const handlePaySubmitButton = async (record: any) => {
-        setPayModalVisible(true);
-        setCurrentOrder(record);
-    }
-
-    const handleCreateTransaction = async () => {
-
+    const handleCreateTransaction = async (key: string) => {
+        console.log(currentOrder);
         if (currentOrder) {
             try {
-                // console.log(form.current?.getFieldsValue());
-                console.log(currentOrder);
-                const {payChannel} = await form.current?.getFieldsValue();
-                console.log(payChannel);
-                const transactionResult: API.BaseResultString_ = await createTransaction({
-                    orderId: currentOrder.orderId,
-                    payChannel: payChannel
-
-                });
-                if (transactionResult.code == "200" && transactionResult.data != undefined) {
-                    await handlePaySubmit(transactionResult.data);
+                if (key === 'ALIPAY' && alipayTradeResult === null) {
+                    const transactionResult: API.BaseResultString_ = await createTransaction({
+                        orderId: currentOrder.orderId,
+                        payChannel: key
+                    });
+                    if (transactionResult.code == "200" && transactionResult.data != undefined) {
+                        setAlipayTradeResult(transactionResult.data);
+                        setTradeResult(transactionResult.data);
+                    }
+                } else if (key === 'ALIPAY' && alipayTradeResult !== null) {
+                    setTradeResult(alipayTradeResult);
+                }
+                if (key === 'WECHATPAY' && wechatTradeResult === null) {
+                    const transactionResult: API.BaseResultString_ = await createTransaction({
+                        orderId: currentOrder.orderId,
+                        payChannel: key
+                    });
+                    if (transactionResult.code == "200" && transactionResult.data != undefined) {
+                        setWechatTradeResult(transactionResult.data);
+                        setTradeResult(transactionResult.data);
+                    }
+                } else if (key === 'WECHATPAY' && wechatTradeResult !== null) {
+                    setTradeResult(wechatTradeResult);
                 }
 
             } catch (error) {
                 console.error(error);
-                message.error(<FormattedMessage id='message.transaction-creation-failed' defaultMessage='交易创建失败'/>);
+                message.error(<FormattedMessage id='message.transaction-creation-failed'
+                                                defaultMessage='交易创建失败'/>);
             }
         }
-        setPayModalVisible(false);
+    };
+
+    const handlePaySubmitButton = async (record: any) => {
+        setCurrentOrder(record);
+        setActivePaymentMethodKey(alipayAllConfigured? 'ALIPAY' : 'WECHATPAY');
+        setPaymentModalVisible(true);
+    }
+
+    useEffect(() => {
+        if (currentOrder) {
+            (async () => {
+                await handleCreateTransaction(activePaymentMethodKey);
+            })();
+        }
+    }, [currentOrder]);
+
+    const handlePaymentMethodKeyChange = async (key: string) => {
+        setActivePaymentMethodKey(key);
+        await handleCreateTransaction(key);
     };
 
 
@@ -230,7 +299,8 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                         </>
                     );
                 }
-                if (props.serviceType == "managed" && props.serviceInstanceId != undefined && record.canRefund === true) {
+                // 取消退续费功能，后续微信支持oss远程证书后再开启
+                if (1 !== 1 && props.serviceType == "managed" && props.serviceInstanceId != undefined && record.canRefund === true) {
                     const refundButton = (
                         <a className={styles.refundButton} onClick={() => handleButtonClick(record)}>
                             <FormattedMessage id='button.refund' defaultMessage='退款'/>
@@ -242,11 +312,14 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                             <ExclamationCircleOutlined style={{color: '#faad14', marginRight: 8}}/>
                             <FormattedMessage id='message.confirm-refund' defaultMessage='确定要进行退款吗？'/>
                         </div>} open={visible} onCancel={handleModalClose} footer={null}>
-                            <Paragraph style={{marginLeft: '24px'}}><FormattedMessage id='message.current-order-refundable-amount' defaultMessage='您当前订单可退金额为：'/><span
+                            <Paragraph style={{marginLeft: '24px'}}><FormattedMessage
+                                id='message.current-order-refundable-amount'
+                                defaultMessage='您当前订单可退金额为：'/><span
                                 style={{color: "red"}}>¥ {refundAmount}</span></Paragraph>
                             <div style={{marginTop: 16, textAlign: 'right'}}>
                                 <Space>
-                                    <Button onClick={handleModalClose}><FormattedMessage id='button.cancel' defaultMessage='取消'/></Button>
+                                    <Button onClick={handleModalClose}><FormattedMessage id='button.cancel'
+                                                                                         defaultMessage='取消'/></Button>
                                     <Button type="primary"
                                             onClick={handleConfirmRefund}>
                                         <FormattedMessage id='button.confirm-refund' defaultMessage='确认退款'/>
@@ -268,21 +341,32 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         },
     ])
     return (
-        <PageContainer title={props.serviceInstanceId}>
+        <PageContainer title={props.serviceInstanceId} loading={refreshing}>
+            {(paymentModalVisible && tradeResult) ?
+                // @ts-ignore
+                <PaymentModal
+                    qrCodeURL={tradeResult}
+                    orderAmount={currentOrder?.totalAmount ? currentOrder?.totalAmount as number : -1}
+                    orderId={currentOrder?.orderId ? currentOrder?.orderId as string : ""}
+                    alipayAllConfigured={alipayAllConfigured}
+                    wechatPayAllConfigured={wechatPayAllConfigured}
+                    visible={paymentModalVisible}
+                    onClose={() => setPaymentModalVisible(false)}
+                    activePaymentMethodKey={activePaymentMethodKey}
+                    onPaymentMethodKeyChange={(key: string) => handlePaymentMethodKeyChange(key)}
+                >
+                </PaymentModal> : null}
 
-            <PayModalForm
-                visible={isPayModalVisible}
-                onVisibleChange={setPayModalVisible}
-                onFinish={handleCreateTransaction}
-            />
-            <ProTable
+            {paymentAllConfigured ? <ProTable
                 onSubmit={(values) => {
                     // @ts-ignore
                     setFilterValues(values);
                     actionRef.current?.reload();
                 }}
+                loading={refreshing}
                 actionRef={actionRef}
-                headerTitle={<FormattedMessage id='menu.list.service-instance-order-list' defaultMessage='服务实例订单列表'/>}
+                headerTitle={<FormattedMessage id='menu.list.service-instance-order-list'
+                                               defaultMessage='服务实例订单列表'/>}
                 options={{
                     search: false,
                     density: false,
@@ -307,8 +391,8 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 }}
                 columns={columns}
                 request={fetchOrders}
-                rowKey="key" pagination={false}/>
-            <Pagination
+                rowKey="key" pagination={false}/> : null}
+            {paymentAllConfigured ? <Pagination
                 style={{marginTop: '16px', textAlign: 'right'}}
                 current={currentPage}
                 pageSize={pageSize}
@@ -317,7 +401,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                     handleGoToPage(page, currentPage, total, fetchOrders, setCurrentPage, actionRef, pageSize);
                 }}
                 showSizeChanger={false}
-            />
+            /> : null}
         </PageContainer>
     );
 }

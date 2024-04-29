@@ -22,6 +22,7 @@ import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttrib
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.ComputeNestConstants;
 import org.example.common.constant.PayChannel;
@@ -31,7 +32,6 @@ import org.example.common.dto.OrderDTO;
 import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
-import org.example.common.utils.MoneyUtil;
 
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
@@ -44,6 +44,8 @@ public class RefundOrderTask implements Runnable {
     private OrderOtsHelper orderOtsHelper;
 
     private BaseAlipayClient baseAlipayClient;
+
+    private BaseWechatPayClient baseWechatPayClient;
 
     private ComputeNestSupplierClient computeNestSupplierClient;
 
@@ -79,24 +81,22 @@ public class RefundOrderTask implements Runnable {
                     deleteServiceInstancesRequest.setServiceInstanceId(Collections.singletonList(serviceInstanceId));
                     DeleteServiceInstancesResponse deleteServiceInstancesResponse = computeNestSupplierClient.deleteServiceInstance(deleteServiceInstancesRequest);
                     log.info("Delete service instance status code = {}", deleteServiceInstancesResponse.getStatusCode());
-                } else {
-                    String endTime = DateUtil.parseIs08601DateMillis(order.getBillingStartDateMillis());
-                    UpdateServiceInstanceAttributeRequest updateServiceInstanceAttributeRequest = new UpdateServiceInstanceAttributeRequest();
-                    updateServiceInstanceAttributeRequest.setServiceInstanceId(serviceInstanceId);
-                    updateServiceInstanceAttributeRequest.setRegionId(ComputeNestConstants.DEFAULT_REGION_ID);
-                    updateServiceInstanceAttributeRequest.setEndTime(endTime);
-                    UpdateServiceInstanceAttributeResponse updateServiceInstanceAttributeResponse = computeNestSupplierClient.updateServiceInstanceAttribute(updateServiceInstanceAttributeRequest);
-                    log.info("Update service instance attribute success. request = {}, response = {}.", JsonUtil.toJsonString(updateServiceInstanceAttributeRequest),
-                            JsonUtil.toJsonString(updateServiceInstanceAttributeResponse));
                 }
                 Boolean updateOrder = orderOtsHelper.updateOrder(orderDO);
-                Boolean alipaySuccess = Boolean.TRUE;
+                Boolean refundSuccess = Boolean.TRUE;
+                order.setOrderId(orderId);
+                order.setRefundAmount(refundAmount);
+                order.setRefundId(refundId);
                 if (payChannel != null && payChannel != PayChannel.PAY_POST && refundAmount > 0) {
-                    alipaySuccess = baseAlipayClient.refundOrder(orderId, MoneyUtil.fromCents(refundAmount), refundId);
+                    if (PayChannel.ALIPAY == payChannel) {
+                        refundSuccess = baseAlipayClient.refundOutTrade(order);
+                    } else if (PayChannel.WECHATPAY == payChannel) {
+                        refundSuccess = baseWechatPayClient.refundOutTrade(order);
+                    }
                 }
-                log.info("Alipay refund {}. Update order {}.", alipaySuccess, updateOrder);
+                log.info("refund {}. Update order {}.", refundSuccess, updateOrder);
                 log.info("Order refund success. order id = {}.", orderDO.getOrderId());
-                success = order.getTradeStatus() == TradeStatus.REFUNDED;
+                success = true;
             } catch (Exception e) {
                 retryCount++;
                 log.error("Failed to execute code. Retry count: {}", retryCount, e);

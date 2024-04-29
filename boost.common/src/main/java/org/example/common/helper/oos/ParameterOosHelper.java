@@ -32,10 +32,13 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.OosClient;
+import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
@@ -45,6 +48,9 @@ import org.example.common.param.parameter.UpdateConfigParameterParam;
 import org.example.common.utils.JsonUtil;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author mengjunwei.mjw
+ */
 @Component
 @Slf4j
 public class ParameterOosHelper {
@@ -53,43 +59,52 @@ public class ParameterOosHelper {
     @Resource
     private BaseAlipayClient baseAlipayClient;
 
+    @Resource
+    private BaseWechatPayClient baseWechatPayClient;
+
     public ParameterOosHelper(OosClient oosClient) {
         this.oosClient = oosClient;
     }
 
     public BaseResult<Void> updateConfigParameter(UpdateConfigParameterParam updateConfigParameterParam){
         try {
-
             if (updateConfigParameterParam.getEncrypted().equals(Boolean.TRUE)) {
                 UpdateSecretParameterResponse updateSecretParameterResponse = oosClient.updateSecretParameter
-                        (updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                        (updateConfigParameterParam.getName(), StringUtils.trim(updateConfigParameterParam.getValue()));
 
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateSecretParameterResponse.getBody())
                         .map(UpdateSecretParameterResponseBody::getParameter)
                         .map(UpdateSecretParameterResponseBodyParameter::getId);
-                if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
-                    baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
-                    return BaseResult.success();
-                } else {
-                    return BaseResult.fail("The parameter in the response is an empty dictionary.");
-                }
+                return handleUpdateResponse(updateConfigParameterParam, parameterIdOptional);
             } else {
+
                 UpdateParameterResponse updateParameterResponse = oosClient.updateParameter
-                        (updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                        (updateConfigParameterParam.getName(), StringUtils.trim(updateConfigParameterParam.getValue()));
 
                 Optional<String> parameterIdOptional = Optional.ofNullable(updateParameterResponse.getBody())
                         .map(UpdateParameterResponseBody::getParameter)
                         .map(UpdateParameterResponseBodyParameter::getId);
-                if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
-                    return BaseResult.success();
-                } else {
-                    return BaseResult.fail("The parameter in the response is an empty dictionary.");
-                }
+                return handleUpdateResponse(updateConfigParameterParam, parameterIdOptional);
             }
         } catch (Exception e) {
             log.error("ParameterOosHelper.updateConfigParameter request:{}, throw Exception",
                     JsonUtil.toJsonString(updateConfigParameterParam), e);
-            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+            throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
+                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), updateConfigParameterParam.getName()), e);
+        }
+    }
+
+    private BaseResult<Void> handleUpdateResponse(UpdateConfigParameterParam updateConfigParameterParam,
+                                                  Optional<String> parameterIdOptional) throws Exception {
+        if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
+            if (updateConfigParameterParam.getTag().equals(Constants.ALIPAY_TAG)) {
+                baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+            } else if (updateConfigParameterParam.getTag().equals(Constants.WECHATPAY_TAG)) {
+                baseWechatPayClient.updateClient(updateConfigParameterParam.getName(), StringUtils.trim(updateConfigParameterParam.getValue()));
+            }
+            return BaseResult.success();
+        } else {
+            return BaseResult.fail("The parameter in the response is an empty dictionary.");
         }
     }
 
@@ -139,7 +154,8 @@ public class ParameterOosHelper {
                 results.getData().add(configParameterModel);
             } catch (Exception e) {
                 log.error("Error fetching config parameter request: {}", JsonUtil.toJsonString(listConfigParametersParam), e);
-                throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+                throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
+                        String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), listConfigParametersParam.getConfigParameterQueryModels()), e);
             }
         }
         return results;
@@ -152,11 +168,13 @@ public class ParameterOosHelper {
                     .map(GetSecretParameterResponse::getBody)
                     .map(GetSecretParameterResponseBody::getParameter)
                     .map(GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter::getValue);
-            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
+            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(),
+                    ErrorInfo.PARAMETER_NOT_FOUND.getCode(), String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name)));
         } catch (Exception e) {
             log.error("ParameterOosHelper.getSecretParameter request:{}, throw Exception",
                     JsonUtil.toJsonString(name), e);
-            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+            throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
+                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name), e);
         }
     }
 
@@ -167,11 +185,13 @@ public class ParameterOosHelper {
                     .map(GetParameterResponse::getBody)
                     .map(GetParameterResponseBody::getParameter)
                     .map(GetParameterResponseBody.GetParameterResponseBodyParameter::getValue);
-            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.RESOURCE_NOT_FOUND));
+            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(),
+                    ErrorInfo.PARAMETER_NOT_FOUND.getCode(), String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name)));
         } catch (Exception e) {
             log.error("ParameterOosHelper.getParameter request:{}, throw Exception",
                     JsonUtil.toJsonString(name), e);
-            throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
+            throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
+                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name), e);
         }
     }
 

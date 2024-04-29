@@ -14,14 +14,14 @@
 */
 
 import React, {useEffect, useState} from 'react';
-import {Badge, Button, Descriptions, Divider, message, Modal, Space, Typography} from 'antd';
+import {Badge, Button, Descriptions, Divider, message, Modal, Space, Spin, Typography} from 'antd';
 import {getStatusEnum} from "@/pages/ServiceInstanceList/common";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {listOrders, refundOrder} from "@/services/backend/order";
 import {ProForm, ProFormSelect} from "@ant-design/pro-form";
+import {PageContainer} from "@ant-design/pro-layout";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
-import {handlePaySubmit} from "@/util/aliPayUtil";
 import {isIPv4Address, replaceUrlPlaceholders} from "@/util/urlUtil";
 import {ServiceInstanceContentProps} from "@/pages/ServiceInstanceContent/components/interface";
 import {CallSource, COMPUTE_NEST_URL} from "@/constants";
@@ -38,7 +38,7 @@ import {
 } from "@/pages/ServiceInstanceContent/components/constants"
 import {getCommodity, getCommodityPrice} from "@/services/backend/commodity";
 import {FormattedMessage} from "@@/exports";
-import {renderToString} from "react-dom/server";
+import {RenewalModal} from "@/pages/PaymentMethod";
 
 dayjs.extend(utc);
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
@@ -46,7 +46,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     const [data, setData] = useState<API.ServiceInstanceModel>();
     const [order, setOrder] = useState<API.OrderDTO | undefined>(undefined);
     const [currentPrice, setCurrentPrice] = useState<string | undefined>(undefined);
-    const [selectedPayPeriod, setSelectedPayPeriod] = useState<number>(1);
+    const [selectedPayPeriod, setSelectedPayPeriod] = useState<number>(-1);
     const [submitting, setSubmitting] = useState(false);
     const [refundAmount, setRefundAmount] = useState<string>("0.00");
     const [source, setSource] = useState<string | undefined>(undefined);
@@ -54,11 +54,18 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     const computeNestDefaultRegion = "cn-hangzhou";
     const [payPeriodsOptions, setPayPeriodsOptions] = useState<number[]>([]);
     const [refundModalVisible, setRefundModalVisible] = useState(false);
-    const [renewalModalVisible, setRenewalModalVisible] = useState(false);
+    const [renewalFormVisible, setRenewalFormVisible] = useState(false);
     const [createTime, setCreateTime] = useState<string | undefined>(undefined);
     const [updateTime, setUpdateTime] = useState<string | undefined>(undefined);
+    const [currentOrder, setCurrentOrder] = useState<API.CommodityPriceModel | null>(null);
+    const [renewalModalVisible, setRenewalModalVisible] = useState(false);
+    const [tradeResult, setTradeResult] = useState<string | null>(null);
+    const [activePaymentMethodKey, setActivePaymentMethodKey] = useState<string>('ALIPAY');
+    const [showRefundAndDeleteButtons, setShowRefundAndDeleteButtons] = useState<boolean>(false);
 
-
+    useEffect(()=>{
+        setShowRefundAndDeleteButtons(data?.serviceType == 'managed');
+    },[order, data])
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -142,6 +149,15 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         fetchCost();
     }, [selectedPayPeriod]);
 
+    const LoadingIndicator = () => {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Spin size="large" tip="加载中..." />
+                <FormattedMessage id="message.service-instance-loading" defaultMessage='加载中'/>
+            </div>
+        );
+    };
+
     const confirmDeleteServiceInstance = async (): Promise<void> => {
         try {
             if (serviceInstanceId) {
@@ -201,7 +217,13 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
 
                 const result = await renewServiceInstance(params);
                 if (result.code == "200" && result.data != undefined) {
-                    await handlePaySubmit(result.data.paymentForm);
+                    setActivePaymentMethodKey(values.payChannel as string);
+                    setCurrentOrder(result.data);
+                    setTradeResult(result.data.paymentForm as string);
+                    setRenewalFormVisible(false);
+                    setRenewalModalVisible(true);
+                    console.log(result.data.paymentForm as string);
+                    console.log(true);
                 }
             }
         } catch (error) {
@@ -211,8 +233,8 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         }
     }
 
-    if (data !== undefined) {
-        const showRefundAndDeleteButtons = data.serviceType == 'managed';
+    if (data !== undefined && order !== undefined) {
+        // const showRefundAndDeleteButtons = data.serviceType == 'managed' && order?.payChannel == 'ALIPAY';
         const {outputs, parameters} = processServiceInstanceData(data);
         let renewalAndDeleteVisible = false;
         if (data.status != undefined) {
@@ -236,9 +258,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                     footer={null}
                                     title="删除服务实例"
                                 >
-                                    <Paragraph>您当前服务实例可退金额为：<span
-                                        style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
-                                    <Paragraph><FormattedMessage id="message.current-refundable-amount" defaultMessage='您当前服务实例可退金额为：'/><span style={{color: "red"}}>{refundAmount}</span></Paragraph>
+                                    <Paragraph><FormattedMessage id="message.current-refundable-amount" defaultMessage='您当前服务实例可退金额为：'/><span style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
                                     <div style={{marginTop: 16, textAlign: 'right'}}>
                                         <Space>
 
@@ -259,11 +279,11 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                     {source != CallSource[CallSource.Market] &&
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
 
-                            <Button hidden={renewalAndDeleteVisible} onClick={() => setRenewalModalVisible(true)}>
+                            <Button hidden={renewalAndDeleteVisible} onClick={() => setRenewalFormVisible(true)}>
                                 <FormattedMessage id='button.renew' defaultMessage='续费'/>
                             </Button>
-                            <Modal title="续费" open={renewalModalVisible}
-                                   onCancel={() => setRenewalModalVisible(false)}
+                            <Modal title="续费" open={renewalFormVisible}
+                                   onCancel={() => setRenewalFormVisible(false)}
                                    footer={null} destroyOnClose={true}>
                                 <ProForm onFinish={renewalServiceInstance}
                                          submitter={{
@@ -274,7 +294,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                                              <FormattedMessage id='button.renew' defaultMessage='续费'/>
                                                          </Button>
                                                          <Button onClick={() => {
-                                                             setRenewalModalVisible(false);
+                                                             setRenewalFormVisible(false);
                                                          }}>
                                                              <FormattedMessage id='button.cancel' defaultMessage='取消'/>
                                                          </Button>
@@ -301,12 +321,15 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                     />
 
                                     <PayTypeFormItem/>
-                                    <div className={styles.currentPrice}>
-                                        <FormattedMessage id='message.current-price' defaultMessage="当前价格:"/>
-                                        <span className={styles.priceValue}>
-                                        {currentPrice ? `     ¥${currentPrice}` : <FormattedMessage id='message.loading' defaultMessage=" 加载中..."/>}
-                                    </span>
-                                    </div>
+                                    <Space>
+                                        <div className={styles.currentPrice}>
+                                            <FormattedMessage id='message.current-price' defaultMessage="当前价格:"/>
+                                            <span className={styles.priceValue}>
+                                            {currentPrice ? `     ¥${currentPrice}` :
+                                                <FormattedMessage id='message.select-renewal-time' defaultMessage=" 请选择续费时间"/>}
+                                            </span>
+                                        </div>
+                                    </Space>
                                     <Divider className={styles.msrectangleshape}/>
                                 </ProForm>
                             </Modal>
@@ -315,82 +338,95 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             </div>
         );
 
-        // @ts-ignore
         return (
-            <Space direction="vertical" size="large" style={{display: 'flex'}}>
-                <Descriptions bordered={true} title={title} column={2}>
+            // @ts-ignore
+            <PageContainer title={props.serviceInstanceId}>
+                {(renewalModalVisible && tradeResult) ?
+                    <RenewalModal
+                    serviceInstanceModel={data}
+                    qrCodeURL={tradeResult? tradeResult : ""}
+                    orderId={currentOrder?.orderId ? currentOrder?.orderId as string : ""}
+                    orderAmount={currentOrder?.totalAmount? currentOrder?.totalAmount : -1}
+                    visible={renewalModalVisible}
+                    onClose={() => setRenewalModalVisible(false)}
+                    activePaymentMethodKey={activePaymentMethodKey}
+                >
+                </RenewalModal> : null}
+                <Space direction="vertical" size="large" style={{display: 'flex'}}>
+                    <Descriptions bordered={true} title={title} column={2}>
 
-                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.serviceInstanceId' defaultMessage="实例ID"/>}>{data?.serviceInstanceId} </Descriptions.Item>
-                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.serviceInstanceName' defaultMessage="实例名称"/>}>{data?.serviceInstanceName}</Descriptions.Item>
-                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.status' defaultMessage="状态"/>}>
+                        <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.serviceInstanceId' defaultMessage="实例ID"/>}>{data?.serviceInstanceId} </Descriptions.Item>
+                        <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.serviceInstanceName' defaultMessage="实例名称"/>}>{data?.serviceInstanceName}</Descriptions.Item>
+                        <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.status' defaultMessage="状态"/>}>
+                            {
+                                <Badge
+                                    //@ts-ignore
+                                    status={data ? getStatusEnum()[data?.status].status.toLocaleLowerCase() : 'processing'}
+                                    //@ts-ignore
+                                    text={data ? getStatusEnum()[data?.status].text : 'Deployed'}/>
+                            }
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.createTime' defaultMessage="创建时间"/>}>
+                            {createTime}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.updateTime' defaultMessage="更新时间"/>}>
+                            {updateTime}</Descriptions.Item>
+                        <Descriptions.Item
+                            label={<FormattedMessage id='pages.instanceSearchTable.expiration-time' defaultMessage="到期时间"/>}>
+                            {source == CallSource[CallSource.Market] ? <FormattedMessage id='message.paying-by-usage' defaultMessage="按量计费中"/> :
+                            (
+                                <div>{data.endTime ? dayjs(data.endTime).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
+                            )}
+                        </Descriptions.Item>
                         {
-                            <Badge
-                                //@ts-ignore
-                                status={data ? getStatusEnum()[data?.status].status.toLocaleLowerCase() : 'processing'}
-                                //@ts-ignore
-                                text={data ? getStatusEnum()[data?.status].text : 'Deployed'}/>
-                        }
-                    </Descriptions.Item>
-                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.createTime' defaultMessage="创建时间"/>}>
-                        {createTime}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.updateTime' defaultMessage="更新时间"/>}>
-                        {updateTime}</Descriptions.Item>
-                    <Descriptions.Item
-                        label={<FormattedMessage id='pages.instanceSearchTable.expiration-time' defaultMessage="到期时间"/>}>
-                        {source == CallSource[CallSource.Market] ? <FormattedMessage id='message.paying-by-usage' defaultMessage="按量计费中"/> :
-                        (
-                            <div>{data.endTime ? dayjs(data.endTime).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
-                        )}
-                    </Descriptions.Item>
-                    {
-                        Object.keys(outputs).map((key) => {
-                            // @ts-ignore
-                            let httpUrl = JSON.stringify(outputs[key]).replace(/\"/g, "");
-                            if (httpUrl.indexOf('http') >= 0 || isIPv4Address(httpUrl)) {
+                            Object.keys(outputs).map((key) => {
                                 // @ts-ignore
-                                return (<Descriptions.Item label={key}>
-                                    <a href={httpUrl}>
-                                        {httpUrl}
-                                    </a>
-                                </Descriptions.Item>)
-                            } else {
+                                let httpUrl = JSON.stringify(outputs[key]).replace(/"/g, "");
+                                if (httpUrl.indexOf('http') >= 0 || isIPv4Address(httpUrl)) {
+                                    // @ts-ignore
+                                    return (<Descriptions.Item label={key}>
+                                        <a href={httpUrl}>
+                                            {httpUrl}
+                                        </a>
+                                    </Descriptions.Item>)
+                                } else {
+                                    return (<Descriptions.Item
+                                        // @ts-ignore
+                                        label={key}>{JSON.stringify(outputs[key]).replace(/"/g, "")}</Descriptions.Item>)
+                                }
+                            })
+                        }
+                        {source == CallSource[CallSource.Market] && <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.cloud-market-order' defaultMessage="云市场订单"/>}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                <Button title={"前往云市场"}
+                                        onClick={navigateToCloudMarketplaceOrderDetails}><FormattedMessage id='button.goto-cloud-market' defaultMessage="前往云市场"/></Button>
+                            </div>
+                        </Descriptions.Item>}
+
+
+                    </Descriptions>
+                    <Divider/>
+                    <Descriptions bordered={true} title={<FormattedMessage id='title.service-info' defaultMessage="服务信息"/>} column={2}>
+                        <Descriptions.Item label={<FormattedMessage id='title.label.service-id' defaultMessage="服务ID"/>}>{data?.serviceModel?.serviceId}</Descriptions.Item>
+                        <Descriptions.Item label={<FormattedMessage id='title.label.service-name' defaultMessage="服务名"/>}>{data?.serviceModel?.name} </Descriptions.Item>
+                        <Descriptions.Item label={<FormattedMessage id='title.label.description' defaultMessage="描述"/>}>{data?.serviceModel?.description} </Descriptions.Item>
+                    </Descriptions>
+                    <Divider/>
+                    <Descriptions bordered={true} title={<FormattedMessage id='title.configuration-info' defaultMessage="配置信息"/>} column={1}>
+                        {
+                            Object.keys(parameters).map((key) => {
                                 return (<Descriptions.Item
                                     // @ts-ignore
-                                    label={key}>{JSON.stringify(outputs[key]).replace(/\"/g, "")}</Descriptions.Item>)
-                            }
-                        })
-                    }
-                    {source == CallSource[CallSource.Market] && <Descriptions.Item label={<FormattedMessage id='pages.instanceSearchTable.cloud-market-order' defaultMessage="云市场订单"/>}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <Button title={"前往云市场"}
-                                    onClick={navigateToCloudMarketplaceOrderDetails}><FormattedMessage id='button.goto-cloud-market' defaultMessage="前往云市场"/></Button>
-                        </div>
-                    </Descriptions.Item>}
-
-
-                </Descriptions>
-                <Divider/>
-                <Descriptions bordered={true} title={<FormattedMessage id='title.service-info' defaultMessage="服务信息"/>} column={2}>
-                    <Descriptions.Item label={<FormattedMessage id='title.label.service-id' defaultMessage="服务ID"/>}>{data?.serviceModel?.serviceId}</Descriptions.Item>
-                    <Descriptions.Item label={<FormattedMessage id='title.label.service-name' defaultMessage="服务名"/>}>{data?.serviceModel?.name} </Descriptions.Item>
-                    <Descriptions.Item label={<FormattedMessage id='title.label.description' defaultMessage="描述"/>}>{data?.serviceModel?.description} </Descriptions.Item>
-                </Descriptions>
-                <Divider/>
-                <Descriptions bordered={true} title={<FormattedMessage id='title.configuration-info' defaultMessage="配置信息"/>} column={1}>
-                    {
-                        Object.keys(parameters).map((key) => {
-                            return (<Descriptions.Item
-                                // @ts-ignore
-                                label={key}>{JSON.stringify(parameters[key]).replace(/\"/g, "")}</Descriptions.Item>);
-                        })
-                    }
-                </Descriptions>
-                <Divider/>
-            </Space>
+                                    label={key}>{JSON.stringify(parameters[key]).replace(/"/g, "")}</Descriptions.Item>);
+                            })
+                        }
+                    </Descriptions>
+                    <Divider/>
+                </Space>
+            </PageContainer>
         )
     } else {
-        return (<Space></Space>)
+        return (<LoadingIndicator />)
     }
 }
 

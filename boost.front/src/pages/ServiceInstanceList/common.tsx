@@ -162,6 +162,7 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
         title: <FormattedMessage id="pages.instanceSearchTable.serviceType" defaultMessage="服务类型"/>,
         dataIndex: 'serviceType',
         hideInTable: true,
+        search: false
     },
 ];
 

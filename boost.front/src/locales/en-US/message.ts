@@ -48,4 +48,6 @@ export default {
     'message.to-be-selected': 'To Be Selected',
     'message.no-specification': 'No Specification',
     'message.query-orders-for-selected-time-range': 'Query all orders from the selected time range up to the present',
+    'message.select-renewal-time' : 'Please select a renewal time',
+    'message.service-instance-loading' : 'Instance is loading or being deleted'
 };
