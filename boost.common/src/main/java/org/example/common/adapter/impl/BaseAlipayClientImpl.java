@@ -18,64 +18,90 @@ package org.example.common.adapter.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeCloseModel;
+import com.alipay.api.domain.AlipayTradePrecreateModel;
+import com.alipay.api.domain.AlipayTradeQueryModel;
+import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.alipay.api.request.AlipayTradeCloseRequest;
-import com.alipay.api.request.AlipayTradePagePayRequest;
-import com.alipay.api.request.AlipayTradeQueryRequest;
-import com.alipay.api.request.AlipayTradeRefundRequest;
-import com.alipay.api.response.AlipayTradeCloseResponse;
-import com.alipay.api.response.AlipayTradePagePayResponse;
+import com.alipay.api.internal.util.codec.Base64;
 import com.alipay.api.response.AlipayTradeQueryResponse;
-import com.alipay.api.response.AlipayTradeRefundResponse;
+import com.ijpay.alipay.AliPayApi;
+import com.ijpay.alipay.AliPayApiConfig;
+import com.ijpay.alipay.AliPayApiConfigKit;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.SocketTimeoutException;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.example.common.BaseResult;
 import org.example.common.adapter.BaseAlipayClient;
-import org.example.common.config.AlipayConfig;
+import org.example.common.adapter.OssClient;
+import org.example.common.config.BoostAlipayConfig;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.constant.Constants;
+import org.example.common.constant.PayChannel;
+import org.example.common.constant.TradeStatus;
+import org.example.common.dataobject.OrderDO;
+import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
-import org.example.common.utils.DateUtil;
+import org.example.common.helper.LocalCertStorageHelper;
+import org.example.common.helper.ots.OrderOtsHelper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.net.SocketTimeoutException;
-import java.util.Optional;
-
-import static org.example.common.constant.AliPayConstants.OUT_TRADE_NO;
-import static org.example.common.constant.AliPayConstants.REFUND_AMOUNT;
-import static org.example.common.constant.AliPayConstants.REFUND_REQUEST_ID;
+import static com.alipay.api.internal.util.AntCertificationUtil.getCertFromContent;
 
 @Component
 @Slf4j
 public class BaseAlipayClientImpl implements BaseAlipayClient {
 
-    private AlipayConfig alipayConfig;
+    private BoostAlipayConfig boostAlipayConfig;
 
     private AlipayClient alipayClient;
 
-    private static final Integer CLOSE_TRANSACTION_TIME = 15;
+    @Resource
+    private LocalCertStorageHelper localCertStorageHelper;
+
+    @Resource
+    private OssClient ossClient;
+
+    @Resource
+    private OrderOtsHelper orderOtsHelper;
+
+    private static final String CLOSE_TRANSACTION_TIME = "15m";
+
+    private static final String LOCAL_CERT_STORAGE_PATH = "/home/admin/application/boost.server/target/cert";
+
+    @Value("${stack-name}")
+    private String bucketName;
 
     @Override
     @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    public AlipayTradeQueryResponse queryOutTrade(String outTradeNumber) {
-        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
-        request.setBizContent(new JSONObject().fluentPut(OUT_TRADE_NO, outTradeNumber).toString());
+    public AlipayTradeQueryResponse queryOutTrade(String outTradeNo, Boolean certModel) {
         try {
-            return alipayClient.execute(request);
+            AlipayTradeQueryModel model = new AlipayTradeQueryModel();
+            model.setOutTradeNo(outTradeNo);
+            return AliPayApi.tradeQueryToResponse(alipayClient, certModel, model);
         } catch (AlipayApiException e) {
             throw new BizException(ErrorInfo.ENTITY_NOT_EXIST.getStatusCode(), ErrorInfo.ENTITY_NOT_EXIST.getCode(),
-                    String.format(ErrorInfo.ENTITY_NOT_EXIST.getMessage(), outTradeNumber), e);
+                    String.format(ErrorInfo.ENTITY_NOT_EXIST.getMessage(), outTradeNo), e);
         }
     }
 
     @Override
     @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    public boolean verifySignature(String sign, String content) {
+    public boolean verifySignatureWithKey(String sign, String content) {
         try {
-            return AlipaySignature.rsaCheck(content, sign, alipayConfig.getOfficialPublicKey(),
+            return AlipaySignature.rsaCheck(content, sign, boostAlipayConfig.getAlipayPublicKey(),
                     Constants.TRANSFORMATION_FORMAT_UTF_8, AliPayConstants.SIGN_TYPE_RSA2);
         } catch (AlipayApiException e) {
             throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
@@ -84,17 +110,14 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
 
     @Override
     @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    public String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo) {
-        AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
-        request.setNotifyUrl(alipayConfig.getNotifyUrl());
-        request.setReturnUrl(alipayConfig.getReturnUrl());
-        request.setBizContent(new JSONObject().fluentPut(OUT_TRADE_NO, outTradeNo)
-                .fluentPut(AliPayConstants.TOTAL_AMOUNT, totalAmount).fluentPut(AliPayConstants.SUBJECT, subject)
-                .fluentPut(AliPayConstants.PRODUCT_CODE_PREFIX, AliPayConstants.PRODUCT_CODE_PC_WEB)
-                .fluentPut(AliPayConstants.TIME_EXPIRE, DateUtil.getCurrentTimePlusMinutes(CLOSE_TRANSACTION_TIME)).toString());
+    public boolean verifySignatureWithCert(String sign, String content) {
         try {
-            return Optional.ofNullable(alipayClient.pageExecute(request))
-                    .map(AlipayTradePagePayResponse::getBody).orElse(null);
+            String alipayCertPath = String.format("%s/%s", PayChannel.ALIPAY.getDisplayName(),
+                    boostAlipayConfig.getAlipayCertPath());
+            BaseResult<String> alipayCertContent = ossClient.getObjectContent(bucketName, alipayCertPath);
+            X509Certificate certFromContent = getCertFromContent(alipayCertContent.getData());
+            PublicKey publicKey = certFromContent.getPublicKey();
+            return AlipaySignature.rsaCheck(content, sign, Base64.encodeBase64String(publicKey.getEncoded()), Constants.TRANSFORMATION_FORMAT_UTF_8, AliPayConstants.SIGN_TYPE_RSA2);
         } catch (AlipayApiException e) {
             throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
         }
@@ -102,66 +125,148 @@ public class BaseAlipayClientImpl implements BaseAlipayClient {
 
     @Override
     @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundRequestId) {
-        Double formatRefundAmount = Double.parseDouble(String.format("%.2f", refundAmount));
-        JSONObject bizContent = new JSONObject().fluentPut(OUT_TRADE_NO, orderId)
-                .fluentPut(REFUND_AMOUNT, formatRefundAmount)
-                .fluentPut(REFUND_REQUEST_ID, refundRequestId);
-        AlipayTradeRefundRequest alipayTradeRefundRequest = new AlipayTradeRefundRequest();
-        alipayTradeRefundRequest.setBizContent(bizContent.toString());
+    public String createOutTrade(OrderDTO order) {
+        AlipayTradePrecreateModel model = new AlipayTradePrecreateModel();
+        model.setSubject(order.getCommodityName());
+        model.setTotalAmount(formatAmount(order.getTotalAmount()));
+        model.setStoreId(boostAlipayConfig.getPid());
+        model.setTimeoutExpress(CLOSE_TRANSACTION_TIME);
+        model.setOutTradeNo(order.getOrderId());
         try {
-            AlipayTradeRefundResponse execute = alipayClient.execute(alipayTradeRefundRequest);
-            if (execute.isSuccess()) {
-                return Boolean.TRUE;
-            }
+            Boolean certModel = (boostAlipayConfig.getSignatureMethod().equals
+                    (AliPayConstants.OOS_ALIPAY_SIGNATURE_OF_CERT)? Boolean.TRUE : Boolean.FALSE);
+            String resultStr = AliPayApi.tradePrecreatePayToResponse(alipayClient, certModel, model, boostAlipayConfig.getNotifyUrl()).getBody();
+            JSONObject jsonObject = JSONObject.parseObject(resultStr);
+            return jsonObject.getJSONObject(AliPayConstants.ALIPAY_TRADE_PRECREATE_RESPONSE)
+                    .getString(AliPayConstants.QR_CODE);
         } catch (AlipayApiException e) {
-            log.error("Refund failed. Order Id = {}, refund request id = {}", orderId, refundRequestId, e);
+            throw new BizException(ErrorInfo.TRANSACTION_CREATION_FAILED.getStatusCode(), ErrorInfo.TRANSACTION_CREATION_FAILED.getCode(),
+                    String.format(ErrorInfo.TRANSACTION_CREATION_FAILED.getMessage(), e.getMessage()), e);
         }
-        return Boolean.FALSE;
     }
 
     @Override
     @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    public Boolean closeOrder(String orderId) {
-        AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
-        JSONObject bizContent = new JSONObject();
-        bizContent.put(OUT_TRADE_NO, orderId);
-        request.setBizContent(bizContent.toString());
-        AlipayTradeCloseResponse response;
+    public Boolean refundOutTrade(OrderDTO order) {
         try {
-            response = alipayClient.execute(request);
-            if (response.isSuccess()) {
+            AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+            model.setOutTradeNo(order.getOrderId());
+            model.setOutRequestNo(order.getRefundId());
+            model.setRefundAmount(formatAmount(order.getRefundAmount()));
+            Boolean certModel = (boostAlipayConfig.getSignatureMethod().equals
+                    (AliPayConstants.OOS_ALIPAY_SIGNATURE_OF_CERT)? Boolean.TRUE : Boolean.FALSE);
+            if (AliPayApi.tradeRefundToResponse(alipayClient, certModel, model).isSuccess()) {
+                order.setTradeStatus(TradeStatus.REFUNDED);
+                OrderDO orderDO = new OrderDO();
+                BeanUtils.copyProperties(order, orderDO);
+                orderOtsHelper.updateOrder(orderDO);
                 return Boolean.TRUE;
             }
+            return Boolean.FALSE;
+        } catch (AlipayApiException e) {
+            log.error("Refund failed. Order Id = {}, refund request id = {}", order.getOrderId(), order.getRefundId(), e);
+            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
+        }
+    }
+
+    @Override
+    @Retryable(value = {SocketTimeoutException.class, AlipayApiException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    public Boolean closeOutTrade(String orderId) {
+        try {
+            AlipayTradeCloseModel model = new AlipayTradeCloseModel();
+            model.setOutTradeNo(orderId);
+            Boolean certModel = (boostAlipayConfig.getSignatureMethod().equals
+                    (AliPayConstants.OOS_ALIPAY_SIGNATURE_OF_CERT)? Boolean.TRUE : Boolean.FALSE);
+            if (AliPayApi.tradeCloseToResponse(alipayClient, certModel, model).isSuccess()) {
+                return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
         } catch (AlipayApiException e) {
             throw new BizException(ErrorInfo.ENTITY_NOT_EXIST, e);
         }
-        return Boolean.FALSE;
     }
 
     @Override
-    public void createClient(AlipayConfig alipayConfig) throws Exception {
-        this.alipayConfig = alipayConfig;
-        alipayClient = new DefaultAlipayClient(
-                alipayConfig.getGateway(),
-                alipayConfig.getAppId(),
-                alipayConfig.getPrivateKey(),
-                Constants.JSON_FORMAT,
-                Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase(),
-                alipayConfig.getOfficialPublicKey(),
-                AliPayConstants.SIGN_TYPE_RSA2);
+    public void createClient(BoostAlipayConfig boostAlipayConfig) throws Exception {
+        this.boostAlipayConfig = boostAlipayConfig;
+        if (boostAlipayConfig.getSignatureMethod().equals(AliPayConstants.OOS_ALIPAY_SIGNATURE_OF_CERT)) {
+            createClientWithCert();
+        } else {
+            createClientWithKey();
+        }
     }
 
     @Override
-    public void updateClient(String parameterName, String value) throws Exception {
-        this.alipayConfig.updateOosParamConfig(parameterName, value);
-        alipayClient = new DefaultAlipayClient(
-                alipayConfig.getGateway(),
-                alipayConfig.getAppId(),
-                alipayConfig.getPrivateKey(),
-                Constants.JSON_FORMAT,
-                Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase(),
-                alipayConfig.getOfficialPublicKey(),
-                AliPayConstants.SIGN_TYPE_RSA2);
+    public void updateClient(String parameterName, String value) {
+        this.boostAlipayConfig.updateOosParamConfig(parameterName, value);
+        if (boostAlipayConfig.getSignatureMethod().equals(AliPayConstants.OOS_ALIPAY_SIGNATURE_OF_CERT)) {
+            createClientWithCert();
+        } else {
+            createClientWithKey();
+        }
+    }
+
+    private void createClientWithKey() {
+        AlipayConfig alipayConfig = new AlipayConfig();
+        alipayConfig.setServerUrl(boostAlipayConfig.getGateway());
+        alipayConfig.setAppId(boostAlipayConfig.getAppId());
+        alipayConfig.setPrivateKey(boostAlipayConfig.getPrivateKey());
+        alipayConfig.setFormat(Constants.JSON_FORMAT);
+        alipayConfig.setSignType(AliPayConstants.SIGN_TYPE_RSA2);
+        alipayConfig.setAlipayPublicKey(boostAlipayConfig.getAlipayPublicKey());
+        alipayConfig.setCharset(Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase());
+        try {
+            alipayClient = new DefaultAlipayClient(alipayConfig);
+            AliPayApiConfigKit.removeApiConfig(boostAlipayConfig.getAppId());
+            AliPayApiConfig alipayApiConfig = AliPayApiConfig.builder().build(new DefaultAlipayClient(alipayConfig));
+            alipayApiConfig.setAppId(boostAlipayConfig.getAppId());
+            AliPayApiConfigKit.setThreadLocalAppId(boostAlipayConfig.getAppId());
+            AliPayApiConfigKit.setThreadLocalAliPayApiConfig(alipayApiConfig);
+            log.info("Alipay client created with key.");
+        } catch (AlipayApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void createClientWithCert() {
+        try {
+            String appCertPath = String.format("%s/%s", PayChannel.ALIPAY.getDisplayName(),
+                    boostAlipayConfig.getAppCertPath());
+            String alipayCertPath = String.format("%s/%s", PayChannel.ALIPAY.getDisplayName(),
+                    boostAlipayConfig.getAlipayCertPath());
+            String alipayRootCertPath = String.format("%s/%s", PayChannel.ALIPAY.getDisplayName(),
+                    boostAlipayConfig.getAlipayRootCertPath());
+            BaseResult<String> appCertContent = ossClient.getObjectContent(bucketName, appCertPath);
+            BaseResult<String> alipayCertContent = ossClient.getObjectContent(bucketName, alipayCertPath);
+            BaseResult<String> alipayRootCertContent = ossClient.getObjectContent(bucketName, alipayRootCertPath);
+            if(StringUtils.isNotEmpty(appCertContent.getData()) && StringUtils.isNotEmpty(alipayCertContent.getData())
+                    && StringUtils.isNotEmpty(alipayRootCertContent.getData())) {
+                AlipayConfig alipayConfig = new AlipayConfig();
+                alipayConfig.setServerUrl(boostAlipayConfig.getGateway());
+                alipayConfig.setAppId(boostAlipayConfig.getAppId());
+                alipayConfig.setPrivateKey(boostAlipayConfig.getPrivateKey());
+                alipayConfig.setAppCertContent(appCertContent.getData());
+                alipayConfig.setAlipayPublicCertContent(alipayCertContent.getData());
+                alipayConfig.setRootCertContent(alipayRootCertContent.getData());
+                alipayConfig.setFormat(Constants.JSON_FORMAT);
+                alipayConfig.setCharset(Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase());
+                alipayConfig.setSignType(AliPayConstants.SIGN_TYPE_RSA2);
+                alipayClient = new DefaultAlipayClient(alipayConfig);
+
+                AliPayApiConfigKit.removeApiConfig(boostAlipayConfig.getAppId());
+                AliPayApiConfig alipayApiConfig = AliPayApiConfig.builder().build(new DefaultAlipayClient(alipayConfig));
+                alipayApiConfig.setAppId(boostAlipayConfig.getAppId());
+                AliPayApiConfigKit.setThreadLocalAppId(boostAlipayConfig.getAppId());
+                AliPayApiConfigKit.setThreadLocalAliPayApiConfig(alipayApiConfig);
+                log.info("Alipay client created with cert.");
+            }
+        } catch (Exception e) {
+            log.error("Failed to create Alipay client with cert.", e);
+        }
+    }
+
+    public String formatAmount(Long amountInCents) {
+        BigDecimal amountInYuan = new BigDecimal(amountInCents).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        return amountInYuan.toString();
     }
 }

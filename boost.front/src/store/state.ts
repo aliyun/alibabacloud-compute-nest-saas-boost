@@ -5,4 +5,8 @@ export interface RootState {
         providerDescription: string;
         providerLogoUrl: string;
     };
+    paymentMethod: {
+        alipayConfigured: boolean;
+        wechatPayConfigured: boolean;
+    };
 }

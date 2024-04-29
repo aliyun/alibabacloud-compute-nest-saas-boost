@@ -84,6 +84,24 @@
                     <to>
                         <image>aliyun-saas-boost-server:1.0.0</image>
                     </to>
+                    <extraDirectories>
+                        <paths>
+                            <path>
+                                <from>src/main/resources/jib</from>
+                                <into>/</into>
+                            </path>
+                        </paths>
+                        <permissions>
+                            <permission>
+                                <file>/home/admin/application/boost.server/target/cert/WechatPay</file>
+                                <mode>777</mode>
+                            </permission>
+                            <permission>
+                                <file>/home/admin/application/boost.server/target/cert/Alipay</file>
+                                <mode>777</mode>
+                            </permission>
+                        </permissions>
+                    </extraDirectories>
                     <container>
                         <ports>
                             <port>9999</port>

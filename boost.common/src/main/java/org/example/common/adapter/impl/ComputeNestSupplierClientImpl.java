@@ -147,7 +147,7 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
             return client.updateServiceInstanceAttributeWithOptions(request, runtimeOptions);
         } catch (Exception e) {
             log.error("update service instance attribute failed.", e);
-            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
+            return null;
         }
     }
 }

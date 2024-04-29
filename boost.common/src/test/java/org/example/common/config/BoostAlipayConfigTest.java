@@ -21,10 +21,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class AlipayConfigTest {
+public class BoostAlipayConfigTest {
 
     @Tested
-    private AlipayConfig alipayConfig;
+    private BoostAlipayConfig boostAlipayConfig;
 
     @Injectable
     private OosParamConfig oosSecretParamConfig;
@@ -36,8 +36,8 @@ public class AlipayConfigTest {
         String returnUrl = "test.returnUrl";
         String notifyUrl = "test.notifyUrl";
 
-        alipayConfig.setReturnUrl(returnUrl);
+        boostAlipayConfig.setReturnUrl(returnUrl);
 
-        assertEquals(returnUrl, alipayConfig.getReturnUrl());
+        assertEquals(returnUrl, boostAlipayConfig.getReturnUrl());
     }
 }

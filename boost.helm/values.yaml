@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 env:
-  ramRoleName: "SaaSBoostAckRole-c4f9fb70-ca64-498b-8a91-823c2f98493b"
   regionId: "cn-beijing"
   clusterId: "cd0d29c4626a84e33a0b7c1e8b957a65e"
   stackName: "saas-boost-pj91"
@@ -20,12 +19,12 @@ replicaCount: 1
 
 
 image:
-  repository: aliyun-computenest-opensource-registry.cn-hangzhou.cr.aliyuncs.com/default/aliyun-saas-boost-server:0.01
+  repository: aliyun-computenest-opensource-registry.cn-hangzhou.cr.aliyuncs.com/default/aliyun-saas-boost-server:1.6.0
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0.0.snapshot"
 cronImage:
-  repository: aliyun-computenest-opensource-registry.cn-hangzhou.cr.aliyuncs.com/default/aliyun-saas-boost-serverless:0.01
+  repository: aliyun-computenest-opensource-registry.cn-hangzhou.cr.aliyuncs.com/default/aliyun-saas-boost-serverless:1.6.0
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0.0.snapshot"
