@@ -2,11 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {updateConfigParameter, listConfigParameters} from "@/services/backend/parameterManager";
 import {Tabs, Space, Spin, Tooltip, message} from 'antd';
 import {EditOutlined, EyeInvisibleOutlined, EyeOutlined, ReloadOutlined} from '@ant-design/icons';
-import { ProviderInfo, AlipayPaymentKeys, WechatPaymentKeys} from '@/pages/Parameter/component/interface';
+import { ProviderInfo, AlipayPaymentKeys, WechatPayPaymentKeys} from '@/pages/Parameter/component/interface';
 import {
     initialProviderInfo,
     initialAlipayPaymentKeys,
-    initialWechatPaymentKeys,
+    initialWechatPayPaymentKeys,
     initialProviderInfoNameList,
     initialProviderInfoEncryptedList,
     initialPaymentKeysNameList,
@@ -23,21 +23,19 @@ import {
 } from "@/store/providerInfo/actions";
 import {ProviderInfoForm} from '@/pages/Parameter/ProviderInfo'
 import {AlipayPaymentKeyForm} from "@/pages/Parameter/Alipay";
-import {WechatPaymentKeyForm} from "@/pages/Parameter/Wechat";
+import {WechatPayPaymentKeyForm} from "@/pages/Parameter/WechatPay";
 
 import {FormattedMessage} from "@@/exports";
-import {renderToString} from "react-dom/server";
 
 const ParameterManagement: React.FC = () => {
-    const [activeTabKey, setActiveTabKey] = useState<string>('providerInfo');
+    const [activeTabKey, setActiveTabKey] = useState<string>('ProviderInfo');
     const [activePaymentMethodKey, setActivePaymentMethodKey] = useState<string>('Alipay');
     const [refreshing, setRefreshing] = useState(false);
     const [editing, setEditing] = useState(false);
     const [privateKeysVisible, setIsPrivateKeysVisible] = useState(false);
     const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
     const [alipayPaymentKeys, setAlipayPaymentKeys] = useState<AlipayPaymentKeys>(initialAlipayPaymentKeys);
-    const [wechatPaymentKeys, setWechatPaymentKeys] = useState<WechatPaymentKeys>(initialWechatPaymentKeys);
-    const [paymentMethod, setPaymentMethod] = useState('Alipay');
+    const [wechatPayPaymentKeys, setWechatPayPaymentKeys] = useState<WechatPayPaymentKeys>(initialWechatPayPaymentKeys);
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
         const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
             name,
@@ -63,8 +61,8 @@ const ParameterManagement: React.FC = () => {
                 setProviderInfo(configParams as ProviderInfo);
             } else if (parameterNames === initialPaymentKeysNameList.alipay) {
                 setAlipayPaymentKeys(configParams as AlipayPaymentKeys);
-            } else if (parameterNames === initialPaymentKeysNameList.wechat) {
-                setWechatPaymentKeys(configParams as WechatPaymentKeys);
+            } else if (parameterNames === initialPaymentKeysNameList.wechatPay) {
+                setWechatPayPaymentKeys(configParams as WechatPayPaymentKeys);
             }
         }
     };
@@ -101,12 +99,12 @@ const ParameterManagement: React.FC = () => {
     const handleTogglePrivateKeysVisibility = () => setIsPrivateKeysVisible(!privateKeysVisible);
 
     const fetchData = async () =>  {
-        if (activeTabKey === 'providerInfo') {
+        if (activeTabKey === 'ProviderInfo') {
             await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
-        } else if (activeTabKey === 'paymentManagement' && activePaymentMethodKey === 'Alipay') {
+        } else if (activeTabKey === 'PaymentManagement' && activePaymentMethodKey === 'Alipay') {
             await loadConfigParameters(initialPaymentKeysNameList.alipay, initialPaymentKeysEncryptedList.alipay);
-        } else if (activeTabKey === 'paymentManagement' && activePaymentMethodKey === 'Wechat') {
-            await loadConfigParameters(initialPaymentKeysNameList.wechat, initialPaymentKeysEncryptedList.wechat);
+        } else if (activeTabKey === 'PaymentManagement' && activePaymentMethodKey === 'WechatPay') {
+            await loadConfigParameters(initialPaymentKeysNameList.wechatPay, initialPaymentKeysEncryptedList.wechatPay);
         }
     }
 
@@ -119,6 +117,7 @@ const ParameterManagement: React.FC = () => {
                         name: field.valueOf(),
                         value: updatedInfo[field],
                         encrypted: encryptedCredentialsMap[field],
+                        tag: "ProviderInfo",
                     }).then((result) => {
                         console.log(result);
                         setProviderInfo(updatedInfo);
@@ -142,6 +141,7 @@ const ParameterManagement: React.FC = () => {
                         name: field.valueOf(),
                         value: updatedKeys[field],
                         encrypted: encryptedCredentialsMap[field],
+                        tag: "Alipay",
                     }).then((result) => {
                         setAlipayPaymentKeys(updatedKeys);
                         console.log(result);
@@ -154,18 +154,19 @@ const ParameterManagement: React.FC = () => {
         }
     };
 
-    const onUpdateWechatPaymentKeys = (updatedKeys: WechatPaymentKeys) => {
-        const wechatKeys = Object.keys(updatedKeys) as Array<keyof WechatPaymentKeys>;
+    const onUpdateWechatPayPaymentKeys = (updatedKeys: WechatPayPaymentKeys) => {
+        const wechatKeys = Object.keys(updatedKeys) as Array<keyof WechatPayPaymentKeys>;
         try {
             wechatKeys.forEach((field) => {
-                if (updatedKeys[field] !== wechatPaymentKeys[field]) {
+                if (updatedKeys[field] !== wechatPayPaymentKeys[field]) {
 
                     updateConfigParameter({
-                        name: field.valueOf(),
+                        name: field.valueOf() as string,
                         value: updatedKeys[field],
                         encrypted: encryptedCredentialsMap[field],
+                        tag: "WechatPay",
                     }).then((result) => {
-                        setWechatPaymentKeys(updatedKeys);
+                        setWechatPayPaymentKeys(updatedKeys);
 
                         console.log(result);
                     });
@@ -213,7 +214,7 @@ const ParameterManagement: React.FC = () => {
                                 <ReloadOutlined />
                             </a>
                         </Tooltip>
-                        {activeTabKey === 'paymentManagement' ? (
+                        {activeTabKey === 'PaymentManagement' ? (
                             privateKeysVisible ? (
                                 <Tooltip key="hidePrivateKeys" title="隐藏加密参数">
                                     <a key="hidePrivateKeys" onClick={handleTogglePrivateKeysVisibility}
@@ -237,8 +238,10 @@ const ParameterManagement: React.FC = () => {
                         style={{ marginTop: '-24px' }}
                         items={[
                             {
-                                key: 'providerInfo',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}><FormattedMessage id="pages.parameterManagementTabs.supplier-personal-information-management" defaultMessage="服务商个人信息管理"/></span>,
+                                key: 'ProviderInfo',
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                                    <FormattedMessage id="pages.parameterManagementTabs.supplier-personal-information-management"
+                                                      defaultMessage="服务商个人信息管理"/></span>,
                                 children: (
                                     <ProviderInfoForm
                                         providerInfo={providerInfo}
@@ -249,14 +252,16 @@ const ParameterManagement: React.FC = () => {
                                 ),
                             },
                             {
-                                key: 'paymentManagement',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}><FormattedMessage id="pages.parameterManagementTabs.payment-key-management" defaultMessage="支付密钥管理"/></span>,
+                                key: 'PaymentManagement',
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                                    <FormattedMessage id="pages.parameterManagementTabs.payment-key-management"
+                                                      defaultMessage="支付密钥管理"/></span>,
                                 children: (
                                     <ProCard
                                         tabs={{
                                             type: 'card',
-                                            activeKey: paymentMethod,
-                                            onChange: (key) => setPaymentMethod(key),
+                                            activeKey: activePaymentMethodKey,
+                                            onChange: (key) => setActivePaymentMethodKey(key),
                                         }}
                                     >
                                         <ProCard.TabPane key="Alipay" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝</span>}>
@@ -268,16 +273,15 @@ const ParameterManagement: React.FC = () => {
                                                 onCancelEdit={handleCancelEdit}
                                             />
                                         </ProCard.TabPane>
-
-                                        {/*<ProCard.TabPane key="Wechat" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝</span>}>*/}
-                                        {/*    <WechatPaymentKeyForm*/}
-                                        {/*        wechatPaymentKeys={wechatPaymentKeys}*/}
-                                        {/*        onUpdateWechatPaymentKeys={onUpdateWechatPaymentKeys}*/}
-                                        {/*        editing={editing}*/}
-                                        {/*        privateKeysVisible={privateKeysVisible}*/}
-                                        {/*        onCancelEdit={handleCancelEdit}*/}
-                                        {/*    />*/}
-                                        {/*</ProCard.TabPane>*/}
+                                        <ProCard.TabPane key="WechatPay" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>微信支付</span>}>
+                                            <WechatPayPaymentKeyForm
+                                                wechatPayPaymentKeys={wechatPayPaymentKeys}
+                                                onUpdateWechatPayPaymentKeys={onUpdateWechatPayPaymentKeys}
+                                                editing={editing}
+                                                privateKeysVisible={privateKeysVisible}
+                                                onCancelEdit={handleCancelEdit}
+                                            />
+                                        </ProCard.TabPane>
                                     </ProCard>
                                 ),
                             },

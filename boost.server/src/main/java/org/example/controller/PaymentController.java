@@ -17,6 +17,7 @@ package org.example.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.servlet.http.HttpServletResponse;
 import org.example.common.BaseResult;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.payment.CreateTransactionParam;
@@ -37,11 +38,29 @@ public class PaymentController {
 
     @Resource
     private PaymentServiceManager paymentServiceManager;
+//
+//    @ApiOperation(value = "支付异步回调校验", nickname = "verifyTradeCallback")
+//    @PostMapping("/payment/verifyTradeCallback")
+//    public String verifyTradeCallback(HttpServletRequest request) {
+//        return paymentServiceManager.verifyTradeCallback(request);
+//    }
+//
+//    @ApiOperation(value = "退款异步回调校验", nickname = "verifyRefundCallback")
+//    @PostMapping("/payment/verifyRefundCallback")
+//    public String verifyRefundCallback(HttpServletRequest request) {
+//        return paymentServiceManager.verifyRefundCallback(request);
+//    }
 
-    @ApiOperation(value = "支付异步回调校验", nickname = "verifyTradeCallback")
+    @ApiOperation(value = "付款统一异步回调校验", nickname = "verifyTradeCallback")
     @PostMapping("/payment/verifyTradeCallback")
-    public String verifyTradeCallback(HttpServletRequest request) {
-        return paymentServiceManager.verifyTradeCallback(request);
+    public String verifyTradeCallback(HttpServletRequest request, HttpServletResponse response) {
+        return paymentServiceManager.verifyTradeCallback(request, response);
+    }
+
+    @ApiOperation(value = "退款统一异步回调校验", nickname = "verifyRefundCallback")
+    @PostMapping("/payment/verifyRefundCallback")
+    public String verifyRefundCallback(HttpServletRequest request, HttpServletResponse response) {
+        return paymentServiceManager.verifyRefundCallback(request, response);
     }
 
     @ApiOperation(value = "创建交易", nickname = "createTransaction")
@@ -49,6 +68,5 @@ public class PaymentController {
     public BaseResult<String> createTransaction(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, CreateTransactionParam param) {
         return BaseResult.success(paymentServiceManager.createTransaction(userInfoModel, param));
     }
-
 }
 

@@ -34,6 +34,13 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultBoolean_ = {
+    code?: string;
+    data?: boolean;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultCommodityDTO_ = {
     code?: string;
     data?: CommodityDTO;
@@ -195,6 +202,11 @@ declare namespace API {
 
   type createTransactionParams = {
     orderId?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+  };
+
+  type DeleteCertParam = {
+    certName?: string;
     payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
   };
 
@@ -390,6 +402,15 @@ declare namespace API {
     requestId?: string;
   };
 
+  type ListResultString_ = {
+    code?: string;
+    count?: number;
+    data?: string[];
+    message?: string;
+    nextToken?: string;
+    requestId?: string;
+  };
+
   type ListServiceInstancesParam = {
     maxResults?: number;
     nextToken?: string;
@@ -442,6 +463,12 @@ declare namespace API {
       | 'TRADE_FINISHED'
       | 'REFUNDED'
       | 'REFUNDING';
+  };
+
+  type PutCertParam = {
+    certContent?: string;
+    certName?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
   };
 
   type RefundOrderParam = {
@@ -521,6 +548,7 @@ declare namespace API {
   type UpdateConfigParameterParam = {
     encrypted?: boolean;
     name?: string;
+    tag?: string;
     value?: string;
   };
 

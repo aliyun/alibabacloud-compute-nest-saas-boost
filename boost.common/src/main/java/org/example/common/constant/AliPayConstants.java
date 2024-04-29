@@ -87,6 +87,8 @@ public interface AliPayConstants {
      */
     String TIME_EXPIRE = "time_expire";
 
+    String QR_PAY_MODE = "qr_pay_mode";
+
     /**
      *  Verify transaction success result.
      */
@@ -100,12 +102,12 @@ public interface AliPayConstants {
     /**
      * Alipay Application ID is the unique identifier for your registered application.
      */
-    String OOS_SECRET_ALIPAY_APP_ID = "AlipayAppId";
+    String OOS_ALIPAY_APP_ID = "AlipayAppId";
 
     /**
      * Alipay merchant account
      */
-    String OOS_SECRET_ALIPAY_PID = "AlipayPid";
+    String OOS_ALIPAY_PID = "AlipayPid";
 
     /**
      * Alipay app private key
@@ -113,9 +115,39 @@ public interface AliPayConstants {
     String OOS_SECRET_ALIPAY_PRIVATE_KEY = "AlipayPrivateKey";
 
     /**
+     * Alipay signature method
+     */
+    String OOS_ALIPAY_SIGNATURE_METHOD = "AlipaySignatureMethod";
+
+    /**
+     * Alipay signature of private key
+     */
+    String OOS_ALIPAY_SIGNATURE_OF_PRIVATE_KEY = "PrivateKey";
+
+    /**d
+     * Alipay signature of certificate
+     */
+    String OOS_ALIPAY_SIGNATURE_OF_CERT = "Certificate";
+
+    /**
      * Alipay official public key
      */
     String OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+
+    /**
+     * Alipay app certificate path
+     */
+    String OOS_SECRET_ALIPAY_APP_CERT_PATH = "AlipayAppCertPath";
+
+    /**
+     * Alipay certificate path
+     */
+    String OOS_SECRET_ALIPAY_CERT_PATH = "AlipayCertPath";
+
+    /**
+     * Alipay root certificate path
+     */
+    String OOS_SECRET_ALIPAY_ROOT_CERT_PATH = "AlipayRootCertPath";
 
     /**
      * Alipay gateway

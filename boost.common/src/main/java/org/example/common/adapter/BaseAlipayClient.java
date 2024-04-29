@@ -16,9 +16,8 @@
 package org.example.common.adapter;
 
 import com.alipay.api.response.AlipayTradeQueryResponse;
-import org.example.common.config.AlipayConfig;
-
-import java.math.BigDecimal;
+import org.example.common.config.BoostAlipayConfig;
+import org.example.common.dto.OrderDTO;
 
 public interface BaseAlipayClient {
 
@@ -35,39 +34,43 @@ public interface BaseAlipayClient {
      * @param content seller_id...
      * @return boolean
      */
-    boolean verifySignature(String sign, String content);
+    boolean verifySignatureWithKey(String sign, String content);
 
     /**
-     * Create transaction.
-     * @param totalAmount total amount money
-     * @param subject payment subject
-     * @param outTradeNo out trade number
+     * Verify if the signature is correct.
+     * @param sign signature
+     * @param content seller_id...
+     * @return boolean
+     */
+    boolean verifySignatureWithCert(String sign, String content);
+
+    /**
+     * Create order.
+     * @param order order
      * @return String
      */
-    String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo);
+    String createOutTrade(OrderDTO order);
 
     /**
      * Order Refund.
-     * @param orderId Order Id
-     * @param refundAmount Refund Amount
-     * @param refundRequestId Refund Request Id
+     * @param order order
      * @return {@link Boolean}
      */
-    Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundRequestId);
+    Boolean refundOutTrade(OrderDTO order);
 
     /**
      * Close order.
      * @param orderId Order Id
      * @return {@link Boolean}
      */
-    Boolean closeOrder(String orderId);
+    Boolean closeOutTrade(String orderId);
 
     /**
      * Create Alipay Client.
-     * @param alipayConfig alipay config
+     * @param boostAlipayConfig alipay config
      * @throws Exception Common Exception
      */
-    void createClient(AlipayConfig alipayConfig) throws Exception;
+    void createClient(BoostAlipayConfig boostAlipayConfig) throws Exception;
 
     /**
      * Update Alipay Client.

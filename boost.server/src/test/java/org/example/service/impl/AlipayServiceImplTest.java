@@ -19,7 +19,7 @@ import com.alipay.api.response.AlipayTradeQueryResponse;
 import org.apache.commons.beanutils.BeanUtils;
 import org.example.common.BaseResult;
 import org.example.common.adapter.BaseAlipayClient;
-import org.example.common.config.AlipayConfig;
+import org.example.common.config.BoostAlipayConfig;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.TradeStatus;
@@ -57,7 +57,7 @@ import static org.mockito.Mockito.when;
 class AlipayServiceImplTest {
 
     @Mock
-    private AlipayConfig alipayConfig;
+    private BoostAlipayConfig boostAlipayConfig;
 
     @Mock
     private OrderService orderService;
@@ -88,14 +88,14 @@ class AlipayServiceImplTest {
         BigDecimal bigDecimal = new BigDecimal(100.0);
         orderDTO.setTotalAmount(MoneyUtil.toCents(bigDecimal));
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderDTO);
-        when(alipayConfig.getAppId()).thenReturn("getAppidResponse");
-        when(alipayConfig.getPid()).thenReturn("getPidResponse");
+        when(boostAlipayConfig.getAppId()).thenReturn("getAppidResponse");
+        when(boostAlipayConfig.getPid()).thenReturn("getPidResponse");
 
         BaseResult<OrderDTO> orderResult = new BaseResult<>(orderDTO);
         when(orderService.getOrder(any(), any())).thenReturn(orderResult);
 
         when(baseAlipayClient.queryOutTrade(anyString())).thenReturn(null);
-        when(baseAlipayClient.verifySignature(anyString(), anyString())).thenReturn(true);
+        when(baseAlipayClient.verifySignatureWithKey(anyString(), anyString())).thenReturn(true);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("trade_status", "TRADE_SUCCESS");
@@ -103,7 +103,7 @@ class AlipayServiceImplTest {
         request.setParameter("total_amount", "100.0");
         Map<String, String> requestToMap = HttpUtil.requestToMap(request);
         OrderDO orderDO = HttpUtil.requestToObject(request, OrderDO.class);
-        String result = alipayService.verifyTradeCallback(orderDO, requestToMap);
+        String result = alipayService.verifyTradeCallback(request);
         assertEquals("success", result);
     }
 
@@ -119,12 +119,13 @@ class AlipayServiceImplTest {
         BaseResult<OrderDTO> orderResult = new BaseResult<>(orderFromOts);
         when(orderOtsHelper.getOrder(anyString(), any())).thenReturn(orderFromOts);
         when(orderService.getOrder(eq(null), any(GetOrderParam.class))).thenReturn(orderResult);
-        when(baseAlipayClient.verifySignature(eq("validSignature"), anyString())).thenReturn(true);
+        when(baseAlipayClient.verifySignatureWithKey(eq("validSignature"), anyString())).thenReturn(true);
         AlipayTradeQueryResponse queryResponse = new AlipayTradeQueryResponse();
         queryResponse.setTradeStatus(TradeStatus.TRADE_SUCCESS.name());
         when(baseAlipayClient.queryOutTrade(eq("validOrderId"))).thenReturn(queryResponse);
-        when(alipayConfig.getPid()).thenReturn("111");
-        when(alipayConfig.getAppId()).thenReturn("222");
+        when(boostAlipayConfig.getPid()).thenReturn("111");
+        when(boostAlipayConfig.getAppId()).thenReturn("222");
+        when(boostAlipayConfig.getSignatureMethod()).thenReturn("PrivateKey");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter(AliPayConstants.OUT_TRADE_NO, "validOrderId");
         request.setParameter("seller_id", "111");
@@ -136,7 +137,7 @@ class AlipayServiceImplTest {
         OrderDO unverifiedOrder = new OrderDO();
         BeanUtils.copyProperties(unverifiedOrder, orderDO);
         unverifiedOrder.setTotalAmount(MoneyUtil.toCents(new BigDecimal(orderDO.getTotalAmount())));
-        String result = alipayService.verifyTradeCallback(unverifiedOrder, requestToMap);
+        String result = alipayService.verifyTradeCallback(request);
         assertEquals("success", result);
         Mockito.verify(orderService, Mockito.times(1)).updateOrder(Mockito.any(UserInfoModel.class), Mockito.any(OrderDO.class));
     }
@@ -147,7 +148,7 @@ class AlipayServiceImplTest {
         request.setParameter(AliPayConstants.OUT_TRADE_NO, "invalidOrderId");
         BaseResult<OrderDTO> orderResult = BaseResult.success();
         when(orderService.getOrder(eq(null), any(GetOrderParam.class))).thenReturn(orderResult);
-        String result = alipayService.verifyTradeCallback(new OrderDO(), new HashMap<>());
+        String result = alipayService.verifyTradeCallback(request);
         assertEquals("failure", result);
         Mockito.verify(orderService, Mockito.never()).updateOrder(Mockito.any(UserInfoModel.class), Mockito.any(OrderDO.class));
     }
@@ -168,9 +169,9 @@ class AlipayServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(orderFromOts);
 
         when(orderService.getOrder(eq(null), any(GetOrderParam.class))).thenReturn(orderResult);
-        when(alipayConfig.getPid()).thenReturn("111");
-        when(alipayConfig.getAppId()).thenReturn("222");
-        when(baseAlipayClient.verifySignature(eq("invalidSignature"), anyString())).thenReturn(false);
+        when(boostAlipayConfig.getPid()).thenReturn("111");
+        when(boostAlipayConfig.getAppId()).thenReturn("222");
+        when(baseAlipayClient.verifySignatureWithKey(eq("invalidSignature"), anyString())).thenReturn(false);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter(AliPayConstants.OUT_TRADE_NO, "alipay-123");
@@ -181,34 +182,39 @@ class AlipayServiceImplTest {
         PaymentOrderModel orderDO = HttpUtil.requestToObject(request, PaymentOrderModel.class);
         BeanUtils.copyProperties(unverifiedOrder, orderDO);
         unverifiedOrder.setTotalAmount(MoneyUtil.toCents(new BigDecimal(orderDO.getTotalAmount())));
-        String result = alipayService.verifyTradeCallback(unverifiedOrder, requestToMap);
+        String result = alipayService.verifyTradeCallback(request);
         assertEquals("failure", result);
         Mockito.verify(orderService, Mockito.never()).updateOrder(Mockito.any(UserInfoModel.class), Mockito.any(OrderDO.class));
     }
 
     @Test
     public void testCreateTransaction() {
-        BigDecimal totalAmount = BigDecimal.TEN;
-        String subject = "Test Subject";
         String outTradeNo = "TestTradeNo";
 
         OrderDTO mockOrder = new OrderDTO();
+        mockOrder.setOrderId("TestTradeNo");
+        mockOrder.setCommodityName("Test Subject");
+        mockOrder.setTotalAmount(100L);
         mockOrder.setPaymentForm("");
 
         when(orderOtsHelper.getOrder(outTradeNo, null)).thenReturn(mockOrder);
         String expectedTransaction = "ExpectedTransactionForm";
-        when(baseAlipayClient.createTransaction(totalAmount, subject, outTradeNo)).thenReturn(expectedTransaction);
+        when(baseAlipayClient.createOutTrade(mockOrder)).thenReturn(expectedTransaction);
 
-        String result = alipayService.createTransaction(totalAmount, subject, outTradeNo);
+        String result = alipayService.createOutTrade(mockOrder);
 
         assertEquals(expectedTransaction, result);
     }
 
     @Test
     void testRefundOrder() {
-        when(baseAlipayClient.refundOrder(anyString(), any(), anyString())).thenReturn(Boolean.TRUE);
+        when(baseAlipayClient.refundOutTrade(any())).thenReturn(Boolean.TRUE);
 
-        Boolean result = alipayService.refundOrder("orderId", BigDecimal.valueOf(0), "refundId");
+        OrderDTO order = new OrderDTO();
+        order.setOrderId("orderId");
+        order.setTotalAmount(100L);
+        order.setRefundAmount(100L);
+        Boolean result = alipayService.refundOutTrade(order);
         assertEquals(Boolean.TRUE, result);
     }
 }

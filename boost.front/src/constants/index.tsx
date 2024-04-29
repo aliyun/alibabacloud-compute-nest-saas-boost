@@ -22,7 +22,8 @@ export const LOGIN_CONSTANTS = {
 export const USER_PARAMETERS = "UserParameters";
 
 export enum PayChannelEnum {
-    ALIPAY = '支付宝',
+    ALIPAY = 'ALIPAY',
+    WECHATPAY = 'WECHATPAY',
 }
 
 export enum ProductNameEnum {

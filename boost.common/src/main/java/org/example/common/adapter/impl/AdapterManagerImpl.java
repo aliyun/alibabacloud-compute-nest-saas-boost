@@ -14,17 +14,22 @@
  */
 package org.example.common.adapter.impl;
 
+import java.util.Map;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.AdapterManager;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.CloudMonitorClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.adapter.OosClient;
+import org.example.common.adapter.OssClient;
 import org.example.common.adapter.OtsClient;
-import org.example.common.config.AlipayConfig;
 import org.example.common.config.AliyunConfig;
+import org.example.common.config.BoostAlipayConfig;
 import org.example.common.config.OosParamConfig;
+import org.example.common.config.WechatPayConfig;
 import org.example.common.constant.Constants;
 import org.example.common.constant.DeployType;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,9 +38,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Map;
 
 @Service
 @EnableScheduling
@@ -47,13 +49,19 @@ public class AdapterManagerImpl implements AdapterManager {
     private AliyunConfig aliyunConfig;
 
     @Resource
-    private AlipayConfig alipayConfig;
+    private BoostAlipayConfig boostAlipayConfig;
+
+    @Resource
+    private WechatPayConfig wechatPayConfig;
 
     @Resource
     private OosClient oosClient;
 
     @Resource
     private OtsClient otsClient;
+
+    @Resource
+    private OssClient ossClient;
 
     @Resource
     private CloudMonitorClient cloudMonitorClient;
@@ -63,6 +71,9 @@ public class AdapterManagerImpl implements AdapterManager {
 
     @Resource
     private BaseAlipayClient baseAlipayClient;
+
+    @Resource
+    private BaseWechatPayClient baseWechatPayClient;
 
     @Resource
     private OosParamConfig oosParamConfig;
@@ -88,10 +99,12 @@ public class AdapterManagerImpl implements AdapterManager {
             oosClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
             oosParamConfig.init();
             otsClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+            ossClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
             computeNestSupplierClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
             cloudMonitorClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
             acsApiCaller.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            baseAlipayClient.createClient(alipayConfig);
+            baseAlipayClient.createClient(boostAlipayConfig);
+            baseWechatPayClient.createClient(wechatPayConfig);
             log.info("Local Client injection success");
             return;
         }
@@ -99,6 +112,7 @@ public class AdapterManagerImpl implements AdapterManager {
             oosClient.createClient(aliyunConfig);
             oosParamConfig.init();
             otsClient.createClient(aliyunConfig);
+            ossClient.createClient(aliyunConfig);
             computeNestSupplierClient.createClient(aliyunConfig);
             cloudMonitorClient.createClient(aliyunConfig);
             acsApiCaller.createClient(aliyunConfig);
@@ -108,11 +122,13 @@ public class AdapterManagerImpl implements AdapterManager {
             String securityToken = header.get(Constants.FC_SECURITY_TOKEN);
             oosClient.createClient(accessKeyId, accessKeySecret, securityToken);
             otsClient.createClient(accessKeyId, accessKeySecret, securityToken);
+            ossClient.createClient(accessKeyId, accessKeySecret, securityToken);
             computeNestSupplierClient.createClient(accessKeyId, accessKeySecret, securityToken);
             oosParamConfig.init();
             acsApiCaller.createClient(accessKeyId, accessKeySecret, securityToken);
         }
-        baseAlipayClient.createClient(alipayConfig);
+        baseAlipayClient.createClient(boostAlipayConfig);
+        baseWechatPayClient.createClient(wechatPayConfig);
         log.info("Client injection success");
     }
 

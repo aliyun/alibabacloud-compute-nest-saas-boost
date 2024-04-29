@@ -34,6 +34,8 @@ public class DateUtil {
 
     public static final String TIMESTAMP_FORMAT = "yyyyMMddHHmmssSSS";
 
+    public static final String TIME_FORMAT = "yyyyMMddHHmmss";
+
     private static final Pattern ISO8601_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$");
 
     private static final Pattern DATE_TIME_PATTERN = Pattern.compile("^(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})$");
@@ -167,5 +169,11 @@ public class DateUtil {
     public static Long getUtcEpochMillis(LocalDateTime localDateTime) {
         return localDateTime.atZone(DEFAULT_ZONE_ID).withZoneSameInstant(UTC_ZONE_OFFSET)
                 .toInstant().toEpochMilli();
+    }
+
+    public static String getCurrentTimeStringWithOffset(int minutes) {
+        LocalDateTime now = LocalDateTime.now().plusMinutes(minutes);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
+        return now.format(formatter);
     }
 }

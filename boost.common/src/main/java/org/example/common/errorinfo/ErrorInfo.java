@@ -58,6 +58,30 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     INVALID_SPI_PARAMETER(400, "InvalidParameter", "The provided SPI Parameter \"%s\" missing token or commodity code."),
 
+    INVALID_PAYMENT_AMOUNT(400, "InvalidPaymentAmount", "The payment amount cannot be null or negative."),
+
+    TRANSACTION_CREATION_FAILED(400, "TransactionCreationFailed", "Failed to create transaction."),
+
+    QR_CODE_GENERATION_FAILED(400, "QrCodeGenerationFailed", "Failed to generate QR code."),
+
+    UNKNOWN_ERROR(400, "UnknownError", "program reached an unreachable point."),
+
+    SIG_VERIFY_FAILED(400, "SigVerifyFailed", "WechatPay Signature Verification Failed."),
+
+    OBJECT_UPLOAD_FAILED(400, "ObjectUploadFailed", "Object upload failed."),
+
+    OBJECT_RETRIEVAL_FAILED(400, "ObjectRetrievalFailed", "Object retrieval failed."),
+
+    OBJECT_DELETION_FAILED(400, "ObjectDeletionFailed", "Object deletion failed."),
+
+    BUCKET_CREATION_FAILED(400, "BucketCreationFailed", "Bucket creation failed."),
+
+    BUCKET_EXISTENCE_CHECK_FAILED(503, "BucketExistenceCheckFailed",
+            "Failed to check if the bucket exists due to a server error or service unavailability."),
+
+    OBJECT_EXISTENCE_CHECK_FAILED(503, "ObjectExistenceCheckFailed",
+            "Failed to check if the object exists due to a server error or service unavailability."),
+
     ;
 
     private final int statusCode;
