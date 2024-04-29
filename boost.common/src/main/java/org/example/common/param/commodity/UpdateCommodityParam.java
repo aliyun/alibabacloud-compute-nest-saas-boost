@@ -16,6 +16,7 @@ package org.example.common.param.commodity;
 
 import lombok.Data;
 import org.example.common.constant.CommodityStatus;
+import org.example.common.constant.PayPeriodUnit;
 import org.example.common.param.CommodityBaseParam;
 
 @Data
@@ -45,4 +46,14 @@ public class UpdateCommodityParam extends CommodityBaseParam {
      * commodity status
      */
     private CommodityStatus commodityStatus;
+
+    /**
+     * Unit for pricing calculation (e.g., Year, Month, or PostPaid).
+     */
+    private PayPeriodUnit payPeriodUnit;
+
+    /**
+     * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
+     */
+    private String payPeriods;
 }

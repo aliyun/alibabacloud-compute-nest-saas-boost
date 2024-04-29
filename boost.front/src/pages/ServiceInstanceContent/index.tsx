@@ -28,12 +28,15 @@ import {CallSource, COMPUTE_NEST_URL} from "@/constants";
 import styles from "@/pages/Service/component/css/service.module.css";
 import {centsToYuan} from "@/util/moneyUtil";
 import {getServiceInstance, renewServiceInstance} from "@/services/backend/serviceInstance";
-import {getEstimatedPrice} from "@/services/backend/commodity";
 import {getCommoditySpecification} from "@/services/backend/specification";
 import {
     convertToLocaleTime,
-    navigateToCloudMarketplaceOrderDetails, processServiceInstanceData, unitMapping, UnitMappingType
+    navigateToCloudMarketplaceOrderDetails,
+    processServiceInstanceData,
+    unitMapping,
+    UnitMappingType
 } from "@/pages/ServiceInstanceContent/components/constants"
+import {getCommodity, getCommodityPrice} from "@/services/backend/commodity";
 
 dayjs.extend(utc);
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
@@ -92,16 +95,26 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         (async () => {
             if (order && order.commodityCode) {
                 try {
-                    const result = await getCommoditySpecification({
-                        commodityCode: order.commodityCode,
-                        specificationName: order.specificationName
-                    });
-                    if (result.code === '200' && result.data && result.data.payPeriods) {
-                        const periodsArray = JSON.parse(result.data.payPeriods);
-                        setPayPeriodsOptions(periodsArray);
+                    if (order.specificationName) {
+                        const result = await getCommoditySpecification({
+                            commodityCode: order.commodityCode,
+                            specificationName: order.specificationName
+                        });
+                        if (result.code === '200' && result.data && result.data.payPeriods) {
+                            const periodsArray = JSON.parse(result.data.payPeriods);
+                            setPayPeriodsOptions(periodsArray);
+                        }
+                    } else {
+                        const result = await getCommodity({
+                            commodityCode: order.commodityCode,
+                        });
+                        if (result.payPeriodUnit != undefined) {
+                            const periodsArray = JSON.parse(result.payPeriodUnit);
+                            setPayPeriodsOptions(periodsArray);
+                        }
                     }
                 } catch (error) {
-                    console.error('Failed to fetch commodity specification:', error);
+                    console.error('Failed to fetch allowed pay periods:', error);
                 }
             }
         })();
@@ -110,14 +123,14 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
     useEffect(() => {
         const fetchCost = async () => {
             if (order != undefined && order.payPeriodUnit && order.specificationName) {
-                const params: API.getEstimatedPriceParams = {
+                const params: API.getCommodityPriceParams = {
                     payPeriod: selectedPayPeriod,
                     payPeriodUnit: order.payPeriodUnit,
                     specificationName: order.specificationName,
                     commodityCode: order.commodityCode
                 };
 
-                const result = await getEstimatedPrice(params);
+                const result = await getCommodityPrice(params);
                 if (result.totalAmount != undefined) {
                     let totalAmount: string = result.totalAmount.toString();
                     setCurrentPrice(centsToYuan(totalAmount));
@@ -246,24 +259,26 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             <Button hidden={renewalAndDeleteVisible} onClick={() => setRenewalModalVisible(true)}>
                                 续费
                             </Button>
-                            <Modal title="续费" open={renewalModalVisible} onCancel={() => setRenewalModalVisible(false)}
-                                footer={null} destroyOnClose={true}>
+                            <Modal title="续费" open={renewalModalVisible}
+                                   onCancel={() => setRenewalModalVisible(false)}
+                                   footer={null} destroyOnClose={true}>
                                 <ProForm onFinish={renewalServiceInstance}
-                                    submitter={{
-                                        render: (props, doms) => {
-                                            return (
-                                                <Space>
-                                                    <Button type="primary" htmlType="submit" loading={submitting}>
-                                                        续费
-                                                    </Button>
-                                                    <Button onClick={() => {
-                                                            setRenewalModalVisible(false);}}>
-                                                        取消
-                                                    </Button>
-                                                </Space>
-                                            );
-                                        },
-                                    }}
+                                         submitter={{
+                                             render: (props, doms) => {
+                                                 return (
+                                                     <Space>
+                                                         <Button type="primary" htmlType="submit" loading={submitting}>
+                                                             续费
+                                                         </Button>
+                                                         <Button onClick={() => {
+                                                             setRenewalModalVisible(false);
+                                                         }}>
+                                                             取消
+                                                         </Button>
+                                                     </Space>
+                                                 );
+                                             },
+                                         }}
                                 >
                                     <ProFormSelect
                                         name="PayPeriod"

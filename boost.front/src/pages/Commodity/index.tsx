@@ -5,10 +5,10 @@ import {commodityColumns, CommodityForm} from "@/pages/Commodity/constants";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {PlusOutlined} from "@ant-design/icons";
 import {PageContainer} from "@ant-design/pro-layout";
-import {createCommodity, deleteCommodity, listAllCommodities, updateCommodity} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
 import {yuanToCents} from "@/util/moneyUtil";
+import {createCommodity, deleteCommodity, listAllCommodities, updateCommodity} from "@/services/backend/commodity";
 
 const CommodityList: React.FC = () => {
     const [isCommodityModalVisible, setIsCommodityModalVisible] = useState(false);
@@ -94,7 +94,10 @@ const CommodityList: React.FC = () => {
                     serviceId: values.serviceId?.trim(),
                     commodityName: values.commodityName?.trim(),
                     commodityStatus: values.commodityStatus,
-                    description: values.description
+                    description: values.description,
+                    payPeriods: values.payPeriods,
+                    //@ts-ignore
+                    payPeriodUnit: values.payPeriodUnit
                 });
                 message.success('商品更新成功');
             } catch (error) {
@@ -108,7 +111,10 @@ const CommodityList: React.FC = () => {
                     chargeType: values.chargeType,
                     serviceId: values.serviceId,
                     commodityStatus: values.commodityStatus,
-                    description: values.description
+                    description: values.description,
+                    payPeriods: values.payPeriods,
+                    //@ts-ignore
+                    payPeriodUnit: values.payPeriodUnit,
                 });
                 message.success('商品新建成功');
             } catch (error) {

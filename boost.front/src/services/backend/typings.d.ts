@@ -124,6 +124,8 @@ declare namespace API {
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';
     description?: string;
+    payPeriodUnit?: string;
+    payPeriods?: string;
     serviceId?: string;
     unitPrice?: number;
   };
@@ -148,11 +150,13 @@ declare namespace API {
     unitPrice?: number;
   };
 
-  type createCommodityParams = {
+  type CreateCommodityParam = {
     chargeType?: 'PostPaid' | 'PrePaid';
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';
     description?: string;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: string;
     serviceId?: string;
     unitPrice?: number;
   };
@@ -199,7 +203,7 @@ declare namespace API {
     state?: string;
   };
 
-  type GetCommodityParam = {
+  type getCommodityParams = {
     commodityCode?: string;
     token?: string;
   };
@@ -212,17 +216,17 @@ declare namespace API {
     token?: string;
   };
 
-  type getCommoditySpecificationParams = {
-    commodityCode?: string;
-    specificationName?: string;
-  };
-
-  type getEstimatedPriceParams = {
+  type getCommodityPriceParams = {
     commodityCode?: string;
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
     specificationName?: string;
     token?: string;
+  };
+
+  type getCommoditySpecificationParams = {
+    commodityCode?: string;
+    specificationName?: string;
   };
 
   type getOrderParams = {
@@ -469,11 +473,13 @@ declare namespace API {
     parameterValue?: string;
   };
 
-  type updateCommodityParams = {
+  type UpdateCommodityParam = {
     commodityCode?: string;
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';
     description?: string;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: string;
     serviceId?: string;
     unitPrice?: number;
   };
