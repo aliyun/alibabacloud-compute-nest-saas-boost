@@ -20,18 +20,17 @@ import moment from "moment";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {listOrders, refundOrder} from "@/services/backend/order";
-import {getServiceInstance} from "@/services/backend/serviceInstance";
-import {ModalForm, ProFormDigit, ProFormInstance} from "@ant-design/pro-form";
+import {ProForm, ProFormDigit, ProFormInstance, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
-import ProCard from "@ant-design/pro-card";
-import {getServiceCost} from "@/services/backend/serviceManager";
-import {handleAlipaySubmit} from "@/util/aliPayUtil";
+import {handlePaySubmit} from "@/util/aliPayUtil";
 import {isIPv4Address, replaceUrlPlaceholders} from "@/util/urlUtil";
 import {ServiceInstanceContentProps} from "@/pages/ServiceInstanceContent/components/interface";
 import {CallSource, CLOUD_MARKET_ORDER_URL, COMPUTE_NEST_URL} from "@/constants";
 import styles from "@/pages/Service/component/css/service.module.css";
-import {DEFAULT_PAY_PERIOD_UNIT, showErrorModal} from "@/global";
 import {centsToYuan} from "@/util/moneyUtil";
+import {getServiceInstance, renewServiceInstance} from "@/services/backend/serviceInstance";
+import {getEstimatedPrice} from "@/services/backend/commodity";
+import {getCommoditySpecification} from "@/services/backend/specification";
 
 dayjs.extend(utc);
 const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
@@ -51,23 +50,36 @@ const processServiceInstanceData = (data: API.ServiceInstanceModel) => {
     return {outputs, parameters};
 };
 
+type UnitMappingType = {
+    [key: string]: string;
+};
+
+const unitMapping: UnitMappingType = {
+    month: '月',
+    day: '日',
+    year: '年',
+};
+
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
     const {serviceInstanceId} = props;
     const [data, setData] = useState<API.ServiceInstanceModel>();
     const form = useRef<ProFormInstance>();
     const [order, setOrder] = useState<API.OrderDTO | undefined>(undefined);
-    const [currentPrice, setCurrentPrice] = useState<number | null>(null);
-    const [selectedMonths, setSelectedMonths] = useState<number>(1);
+    const [currentPrice, setCurrentPrice] = useState<string | undefined>(undefined);
+    const [selectedPayPeriod, setSelectedPayPeriod] = useState<number>(1);
     const [submitting, setSubmitting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [refundAmount, setRefundAmount] = useState<string>("0.00");
     const [source, setSource] = useState<string | undefined>(undefined);
     const {Paragraph} = Typography;
     const computeNestDefaultRegion = "cn-hangzhou";
+    const [payPeriodUnit, setPayPeriodUnit] = useState('');
+    const [payPeriodsOptions, setPayPeriodsOptions] = useState<number[]>([]);
 
-    useEffect(()=>{
+
+    useEffect(() => {
         setSource(data?.source);
-    },[data]);
+    }, [data]);
 
     useEffect(() => {
         const params: API.getServiceInstanceParams = {
@@ -88,31 +100,55 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             });
             if (result != undefined && result.data != undefined && result.data.length > 0) {
                 setOrder(result.data.at(0));
+
+                if (result.data?.at(0) != undefined && result?.data?.at(0)?.payPeriodUnit != undefined) {
+                    const unitInChinese = unitMapping[result?.data?.at(0)?.payPeriodUnit?.toLowerCase() as keyof UnitMappingType];
+                    setPayPeriodUnit(unitInChinese);
+                }
             }
 
         })();
     }, [serviceInstanceId]);
 
     useEffect(() => {
-        const fetchServiceCost = async () => {
-            try {
-                if (selectedMonths && order != undefined && order.specificationName != undefined) {
-                    const response = await getServiceCost({
-                        specificationName: order.specificationName,
-                        payPeriod: selectedMonths,
-                        payPeriodUnit: DEFAULT_PAY_PERIOD_UNIT,
-                    } as API.getServiceCostParams);
-                    setCurrentPrice(response.data || null);
-                    return;
+
+        (async () => {
+            if (order && order.commodityCode) {
+                try {
+                    const result = await getCommoditySpecification({
+                        commodityCode: order.commodityCode,
+                        specificationName: order.specificationName
+                    });
+                    if (result.code === '200' && result.data && result.data.payPeriods) {
+                        const periodsArray = JSON.parse(result.data.payPeriods);
+                        setPayPeriodsOptions(periodsArray);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch commodity specification:', error);
                 }
-                setCurrentPrice(null);
-            } catch (error) {
-                showErrorModal('套餐名不匹配', '套餐名不匹配，请修改后重新运行流水线：');
-                setCurrentPrice(100);
             }
-        };
-        fetchServiceCost();
-    }, [selectedMonths]);
+        })();
+    }, [order]);
+
+    useEffect(() => {
+        const fetchCost = async () => {
+            if (order != undefined && order.payPeriodUnit && order.specificationName) {
+                const params: API.getEstimatedPriceParams = {
+                    payPeriod: selectedPayPeriod,
+                    payPeriodUnit: order.payPeriodUnit,
+                    specificationName: order.specificationName,
+                    commodityCode: order.commodityCode
+                };
+
+                const result = await getEstimatedPrice(params);
+                if (result.totalAmount != undefined) {
+                    let totalAmount: string = result.totalAmount.toString();
+                    setCurrentPrice(centsToYuan(totalAmount));
+                }
+            }
+        }
+        fetchCost();
+    }, [selectedPayPeriod]);
 
     const confirmDeleteServiceInstance = async (): Promise<void> => {
         try {
@@ -166,30 +202,26 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
         window.location.reload();
     }
 
-    const renewalServiceInstance = async () => {
+    const renewalServiceInstance = async (values: API.renewServiceInstanceParams) => {
+        console.log("as");
+
         if (submitting) {
             return;
         }
         try {
             setSubmitting(true);
-            if (!(form !== undefined && form?.current !== null && form?.current?.getFieldFormatValue !== undefined && form?.current?.getFieldFormatValue)) {
-                return;
-            }
-            const {PayPeriod, type} = await form?.current?.getFieldFormatValue();
             if (order != null && order.specificationName && order.serviceInstanceId) {
-
-                const productComponents = {
-                    SpecificationName: order.specificationName,
-                    PayPeriod: PayPeriod,
-                    PayPeriodUnit: DEFAULT_PAY_PERIOD_UNIT,
-                    ServiceInstanceId: order.serviceInstanceId
+                const params: API.renewServiceInstanceParams = {
+                    serviceInstanceId: serviceInstanceId,
+                    payPeriod: selectedPayPeriod,
+                    payPeriodUnit: order.payPeriodUnit,
+                    payChannel: values.payChannel
                 };
-                console.log(productComponents);
-                await handleAlipaySubmit({
-                    productComponents: JSON.stringify(productComponents),
-                    type: type,
-                    productName: 'SERVICE_INSTANCE',
-                }, 1);
+
+                const result = await renewServiceInstance(params);
+                if (result.code == "200" && result.data != undefined) {
+                    await handlePaySubmit(result.data.paymentForm);
+                }
             }
         } catch (error) {
             console.log('Error: ', error);
@@ -210,7 +242,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             renewalAndDeleteVisible = getStatusEnum()[data?.status].status.toLocaleLowerCase() !== 'success';
         }
         const title = (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <span>服务实例</span>
                 <Space>
                     <div>
@@ -224,7 +256,8 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                     footer={null}
                                     title="退款金额"
                                 >
-                                    <Paragraph>您当前服务实例可退金额为：<span style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
+                                    <Paragraph>您当前服务实例可退金额为：<span
+                                        style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
                                     <div style={{marginTop: 16, textAlign: 'right'}}>
                                         <Button style={{width: '100px'}} type="primary"
                                                 onClick={confirmDeleteServiceInstance}>
@@ -237,48 +270,61 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                             </div>
                         )}
                     </div>
-                {/* Temporarily cancel renewal   {source != CallSource[CallSource.Market] && <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>*/}
-                {/*    <ModalForm*/}
-                {/*        title="续费"*/}
-                {/*        size={'large'}*/}
-                {/*        trigger={<Button hidden={renewalAndDeleteVisible}>续费</Button>}*/}
-                {/*        formRef={form}*/}
-                {/*        modalProps={{*/}
-                {/*            destroyOnClose: true,*/}
-                {/*        }}*/}
-                {/*        onFinish={async (values) => {*/}
-                {/*            await renewalServiceInstance();*/}
-                {/*            return true;*/}
-                {/*        }}*/}
-                {/*    >*/}
-                {/*        <div style={{display: 'flex', flexDirection: 'column'}}>*/}
-                {/*                /!*<PayPeriodFormItem onChange={handleOptionChange}/>*!/*/}
-                {/*                <ProFormDigit*/}
-                {/*                    label="包月时间"*/}
-                {/*                    name="PayPeriod"*/}
-                {/*                    key={"PayPeriod"}*/}
-                {/*                    min={1}*/}
-                {/*                    initialValue={1}*/}
-                {/*                    fieldProps={{precision: 0, defaultValue: 1, onChange: (value) => {*/}
-                {/*                            if(value){*/}
-                {/*                                setSelectedMonths(value);*/}
-                {/*                            }}}}*/}
-                {/*                    required={true}*/}
+                    {source != CallSource[CallSource.Market] &&
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <Button hidden={renewalAndDeleteVisible} onClick={() => setVisible(true)}>
+                                续费
+                            </Button>
+                            <Modal
+                                title="续费"
+                                open={visible}
+                                onCancel={() => setVisible(false)}
+                                footer={null}
+                                destroyOnClose={true}
+                            >
+                                <ProForm
+                                    onFinish={renewalServiceInstance}
+                                >
+                                    <div>
+                                        {/*<PayPeriodFormItem onChange={handleOptionChange}/>*/}
+                                        {/*<ProFormText*/}
+                                        {/*    name="payPeriodUnit"*/}
+                                        {/*    label="购买周期"*/}
+                                        {/*    initialValue={payPeriodUnit}*/}
+                                        {/*    disabled={true}*/}
+                                        {/*/>*/}
+                                        <ProFormSelect
+                                            name="PayPeriod"
+                                            label="续费时间"
+                                            options={payPeriodsOptions.map((period) => ({
+                                                label: `${period} ${unitMapping[order?.payPeriodUnit?.toLowerCase() as keyof UnitMappingType]}`,
+                                                value: period,
+                                            }))}
+                                            fieldProps={{
+                                                onChange: (value) => {
+                                                    if (value) {
+                                                        setSelectedPayPeriod(value);
+                                                    }
+                                                },
+                                            }}
+                                            required={true}
+                                        />
 
-                {/*                />*/}
-                {/*                <div className={styles.currentPrice}>*/}
-                {/*                    当前价格:*/}
-                {/*                    <span className={styles.priceValue}>*/}
-                {/*                        {currentPrice ? `     ¥${currentPrice.toFixed(2)}` : " 加载中..."}*/}
-                {/*                    </span>*/}
-                {/*                </div>*/}
-                {/*            <Divider className={styles.msrectangleshape}/>*/}
-                {/*            <div className={styles.specificationTitle}>{"支付方式"}</div>*/}
+                                        <PayTypeFormItem/>
+                                        {/*<Divider className={styles.msrectangleshape}/>*/}
+                                        <div className={styles.currentPrice}>
+                                            当前价格:
+                                            <span className={styles.priceValue}>
+                                        {currentPrice ? `     ¥${currentPrice}` : " 加载中..."}
+                                    </span>
+                                        </div>
+                                        <Divider className={styles.msrectangleshape}/>
 
-                {/*            <PayTypeFormItem/>*/}
-                {/*        </div>*/}
-                {/*    </ModalForm>*/}
-                {/*</div>}*/}
+                                    </div>
+                                </ProForm>
+                            </Modal>
+                            {/*</ModalForm>*/}
+                        </div>}
 
                 </Space>
             </div>

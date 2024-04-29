@@ -198,7 +198,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
 
                 });
                 if (transactionResult.code == "200" && transactionResult.data != undefined) {
-                    await handlePaySubmit(transactionResult.data, 1);
+                    await handlePaySubmit(transactionResult.data);
                 }
 
             } catch (error) {
@@ -224,9 +224,9 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             render: (text?: string, record?: any, index) => {
                 if (record.tradeStatus == TradeStatusEnum.WAIT_BUYER_PAY) {
 
-                    const payButton = (<Button onClick={() => handlePaySubmitButton(record)}>
+                    const payButton = (<a className={styles.payButton} onClick={() => handlePaySubmitButton(record)}>
                         支付
-                    </Button>);
+                    </a>);
                     return (
                         <>                        {payButton}
                         </>
@@ -234,9 +234,9 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 }
                 if (props.serviceType == "managed" && props.serviceInstanceId != undefined && canRefundOrderIndex == index) {
                     const refundButton = (
-                        <div className={styles.refundButton} onClick={() => handleButtonClick(record)}>
+                        <a className={styles.refundButton} onClick={() => handleButtonClick(record)}>
                             退款
-                        </div>
+                        </a>
                     );
 
                     const refundModal = (

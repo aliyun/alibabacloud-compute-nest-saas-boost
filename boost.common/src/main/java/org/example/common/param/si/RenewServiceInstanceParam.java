@@ -12,22 +12,20 @@
  *See the License for the specific language governing permissions and
  *limitations under the License.
  */
-package org.example.common.param.payment;
+package org.example.common.param.si;
 
 import lombok.Data;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.PayPeriodUnit;
 
 @Data
-public class CreateTransactionParam {
+public class RenewServiceInstanceParam {
 
-    /**
-     * order id for alipay or wechat
-     */
-    private String orderId;
+    private PayPeriodUnit payPeriodUnit;
 
-    /**
-     * pay channel
-     */
+    private Long payPeriod;
+
+    private String serviceInstanceId;
+
     private PayChannel payChannel;
 }

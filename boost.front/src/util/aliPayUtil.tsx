@@ -29,8 +29,7 @@ export const handleAlipaySubmit = async (values: any, index: number) => {
     }
 };
 
-export const handlePaySubmit = async (paymentForm: string, index: number) => {
-    console.log(paymentForm);
+export const handlePaySubmit = async (paymentForm: string | undefined) => {
     if (paymentForm) {
         const div = document.createElement('div');
         div.style.display = 'none';

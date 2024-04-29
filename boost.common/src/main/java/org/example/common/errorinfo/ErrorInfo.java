@@ -30,6 +30,8 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     ENTITY_NOT_EXIST(400, "EntityNotExist","The entity \"%s\" does not exist."),
 
+    SERVICE_INSTANCE_ENTITY_NOT_EXIST(400, "EntityNotExist.ServiceInstance","The ServiceInstance entity \"%s\" does not exist."),
+
     SERVER_UNAVAILABLE(503,"ServerUnavailable","Server is unavailable."),
 
     SPECIFICATION_NOT_EXIST(400, "SpecificationNotExist", "The Specification does not exist."),

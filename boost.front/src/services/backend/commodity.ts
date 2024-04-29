@@ -32,6 +32,21 @@ export async function deleteCommodity(
   });
 }
 
+/** 获取预测价格 POST /api/getEstimatedPrice */
+export async function getEstimatedPrice(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getEstimatedPriceParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.CommodityPriceModel>('/api/getEstimatedPrice', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 获取所有商品 POST /api/listAllCommodities */
 export async function listAllCommodities(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

@@ -48,6 +48,13 @@ public class CommoditySpecificationController {
         this.commoditySpecificationService = commoditySpecificationService;
     }
 
+    @ApiOperation(value = "查询商品规格", nickname = "getCommoditySpecification")
+    @RequestMapping(path = "/getCommoditySpecification", method = RequestMethod.POST)
+    public BaseResult<CommoditySpecificationDTO> getCommoditySpecification(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                         CommoditySpecificationParam param) {
+        return commoditySpecificationService.getCommoditySpecification(userInfoModel, param);
+    }
+
     @AdminAPI
     @ApiOperation(value = "创建商品规格", nickname = "createCommoditySpecification")
     @RequestMapping(path = "/createCommoditySpecification", method = RequestMethod.POST)

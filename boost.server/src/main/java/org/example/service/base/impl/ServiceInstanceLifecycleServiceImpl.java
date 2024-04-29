@@ -46,22 +46,29 @@ import org.example.common.ListResult;
 import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.CallSource;
+import org.example.common.constant.ChargeType;
 import org.example.common.constant.ComputeNestConstants;
 import org.example.common.constant.OrderType;
+import org.example.common.constant.PayPeriodUnit;
 import org.example.common.constant.ServiceType;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.helper.ServiceInstanceLifeStyleHelper;
+import org.example.common.helper.WalletHelper;
+import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.ServiceModel;
 import org.example.common.model.UserInfoModel;
+import org.example.common.param.order.CreateOrderParam;
 import org.example.common.param.order.ListOrdersParam;
+import org.example.common.param.payment.CreateTransactionParam;
 import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.common.param.si.RenewServiceInstanceParam;
 import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
@@ -70,6 +77,7 @@ import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.OrderService;
+import org.example.service.payment.PaymentServiceManger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -108,6 +116,12 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     @Resource
     private ServiceManager serviceManager;
+
+    @Resource
+    private WalletHelper walletHelper;
+
+    @Resource
+    private PaymentServiceManger paymentServiceManger;
 
     private static final String PREFIX = "saas-boost";
 
@@ -229,24 +243,48 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
 
     @Override
     public String payOrderCallback(UserInfoModel userInfoModel, OrderDO orderDO) throws ClientException {
-        if (StringUtils.isEmpty(orderDO.getServiceInstanceId())) {
-            CommonRequest commonRequest = buildPayOrderCallbackRequest(orderDO, userInfoModel.getAid());
-            CommonResponse commonResponse = acsApiCaller.getCommonResponse(commonRequest);
-            if (commonResponse.getHttpStatus() == HttpStatus.SC_OK && StringUtils.isNotEmpty(commonResponse.getData())) {
-                ServiceInstanceModel serviceInstanceModel = JsonUtil.parseObjectUpperCamelCase(commonResponse.getData(), ServiceInstanceModel.class);
-                log.info("payOrderCallback success, orderId = {}, serviceInstanceId = {}", orderDO.getOrderId(), serviceInstanceModel.getServiceInstanceId());
-                return serviceInstanceModel.getServiceInstanceId();
-            } else {
-                throw new BizException(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getStatusCode(), ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getCode(),
-                        String.format(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getMessage(), orderDO.getOrderId()));
-            }
-        } else {
-            updateServiceInstance(userInfoModel, orderDO);
-        }
-        return null;
+        String orderType = StringUtils.isEmpty(orderDO.getServiceInstanceId()) ? OrderType.BUY.name() : OrderType.RENEW.name();
+        CommonRequest commonRequest = buildPayOrderCallbackRequest(orderDO, userInfoModel.getAid(), orderType, orderDO.getServiceInstanceId());
+        CommonResponse commonResponse = acsApiCaller.getCommonResponse(commonRequest);
+        return processCommonResponse(commonResponse, orderDO);
     }
 
-    private CommonRequest buildPayOrderCallbackRequest(OrderDO orderDO, String aid) {
+    private String processCommonResponse(CommonResponse commonResponse, OrderDO orderDO) {
+        if (commonResponse.getHttpStatus() == HttpStatus.SC_OK && StringUtils.isNotEmpty(commonResponse.getData())) {
+            ServiceInstanceModel serviceInstanceModel = JsonUtil.parseObjectUpperCamelCase(commonResponse.getData(), ServiceInstanceModel.class);
+            log.info("payOrderCallback success, orderId = {}, serviceInstanceId = {}", orderDO.getOrderId(), serviceInstanceModel.getServiceInstanceId());
+            return serviceInstanceModel.getServiceInstanceId();
+        } else {
+            String errorMsg = String.format(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getMessage(), orderDO.getOrderId());
+            throw new BizException(ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getStatusCode(),
+                    ErrorInfo.SERVICE_INSTANCE_CREATE_FAILED.getCode(),
+                    errorMsg);
+        }
+    }
+
+    @Override
+    public BaseResult<CommodityPriceModel> renewServiceInstance(UserInfoModel userInfoModel, RenewServiceInstanceParam renewServiceInstanceParam) {
+        PayPeriodUnit payPeriodUnit = renewServiceInstanceParam.getPayPeriodUnit();
+        Long payPeriod = renewServiceInstanceParam.getPayPeriod();
+        String serviceInstanceId = renewServiceInstanceParam.getServiceInstanceId();
+        CommodityPriceModel commodityPriceModel = walletHelper.getServiceInstanceRenewAmount(serviceInstanceId, payPeriod, payPeriodUnit);
+        CreateOrderParam createOrderParam = new CreateOrderParam();
+        BeanUtils.copyProperties(renewServiceInstanceParam, createOrderParam);
+        BeanUtils.copyProperties(commodityPriceModel, createOrderParam);
+        createOrderParam.setOrderType(OrderType.RENEW.name());
+        createOrderParam.setUserId(userInfoModel.getAid());
+        createOrderParam.setChargeType(ChargeType.PrePaid);
+        createOrderParam.setServiceInstanceId(serviceInstanceId);
+        OrderDTO order = orderService.createOrder(createOrderParam);
+        CreateTransactionParam createTransactionParam = new CreateTransactionParam();
+        createTransactionParam.setPayChannel(renewServiceInstanceParam.getPayChannel());
+        createTransactionParam.setOrderId(order.getOrderId());
+        String transaction = paymentServiceManger.createTransaction(userInfoModel, createTransactionParam);
+        commodityPriceModel.setPaymentForm(transaction);
+        return BaseResult.success(commodityPriceModel);
+    }
+
+    private CommonRequest buildPayOrderCallbackRequest(OrderDO orderDO, String aid, String orderType, String serviceInstanceId) {
         CommonRequest request = new CommonRequest();
         request.setSysRegionId(DEFAULT_REGION_ID);
         request.setSysMethod(MethodType.POST);
@@ -254,10 +292,13 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         request.setSysVersion(COMPUTE_NEST_SUPPLIER_API_VERSION);
         request.setSysAction("PayOrderCallback");
         request.putQueryParameter("OrderId", orderDO.getOrderId());
-        request.putQueryParameter("OrderType", OrderType.BUY.name());
+        request.putQueryParameter("OrderType", orderType);
         request.putQueryParameter("BuyerAliUid", aid);
         request.putQueryParameter("ServiceId", orderDO.getServiceId());
         request.putQueryParameter("EndTime", DateUtil.parseIs08601DateMillis(orderDO.getBillingEndDateMillis()));
+        if (StringUtils.isNotEmpty(serviceInstanceId)) {
+            request.putQueryParameter("ServiceInstanceId", serviceInstanceId);
+        }
         return request;
     }
 
