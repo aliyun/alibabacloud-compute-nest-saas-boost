@@ -96,4 +96,10 @@ public class CommodityController {
     public CommodityDTO getCommodity(@Valid @RequestBody GetCommodityParam param) {
         return commodityService.getCommodity(param);
     }
+
+    @ApiOperation(value = "获取预测价格", nickname = "getEstimatedPrice")
+    @RequestMapping(path = "/getEstimatedPrice", method = RequestMethod.POST)
+    public CommodityPriceModel getEstimatedPrice(@Valid GetCommodityPriceParam param) {
+        return commodityService.getCommodityPrice(param);
+    }
 }
