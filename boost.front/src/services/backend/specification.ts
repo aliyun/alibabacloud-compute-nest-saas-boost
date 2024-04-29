@@ -32,6 +32,21 @@ export async function deleteCommoditySpecification(
   });
 }
 
+/** 查询商品规格 POST /api/getCommoditySpecification */
+export async function getCommoditySpecification(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getCommoditySpecificationParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResultCommoditySpecificationDTO_>('/api/getCommoditySpecification', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 获取所有商品规格 POST /api/listAllSpecifications */
 export async function listAllSpecifications(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

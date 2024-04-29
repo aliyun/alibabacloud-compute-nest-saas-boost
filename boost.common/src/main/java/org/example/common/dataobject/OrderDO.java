@@ -181,4 +181,6 @@ public class OrderDO implements Serializable {
      * service id.
      */
     private String serviceId;
+
+    private String orderType;
 }

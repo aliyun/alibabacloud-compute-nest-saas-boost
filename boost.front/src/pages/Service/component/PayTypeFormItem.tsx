@@ -26,17 +26,16 @@ const PayTypeFormItem: React.FC = () => {
 
     return (
         <ProFormRadio.Group
+            label={'支付方式'}
             name="payChannel"
             initialValue="ALIPAY"
-            rules={[{ required: true, message: '请选择支付方式' }]}
+            rules={[{required: true, message: '请选择支付方式'}]}
             options={payTypeEntries.map(([key, value]) => ({
                 label: (
-                    <ProCard bordered>
-                        <Space>
-                            {key === 'ALIPAY' && <AlipayCircleOutlined style={{ color: '#009fe8' }} />}
-                            {value}
-                        </Space>
-                    </ProCard>
+                    <Space>
+                        {key === 'ALIPAY' && <AlipayCircleOutlined style={{color: '#009fe8'}}/>}
+                        {value}
+                    </Space>
                 ),
                 value: key,
             }))}

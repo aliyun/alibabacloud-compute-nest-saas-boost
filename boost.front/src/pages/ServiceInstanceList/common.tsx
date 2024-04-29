@@ -126,7 +126,7 @@ const listColumns: ProColumns<API.ServiceInstanceModel>[] = [
                 <Link
                 to={{
                     pathname: `/serviceInstance/${record.serviceInstanceId}/`,
-                    search: `tab=serviceInstanceOrders&orderId=${record.orderId}`,
+                    search: `tab=serviceInstanceOrders&orderId=${record.orderId}&serviceType=${record.serviceType}`,
                 }}
             >
                 {text}
