@@ -75,7 +75,7 @@ public class OosParamConfig {
         putSecretValue(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
         putSecretValue(OOS_SECRET_WECHAT_PRIVATE_KEY);
         putValue(OOS_ALIPAY_GATEWAY);
-        putValue(OOS_WECHAT_GATEWAY);
+//        putValue(OOS_WECHAT_GATEWAY);
 
         modifiableParameterList = new ArrayList<>();
         modifiableParameterList.add(OOS_SECRET_ALIPAY_APP_ID);

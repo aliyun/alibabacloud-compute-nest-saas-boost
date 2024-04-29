@@ -11,7 +11,6 @@ export const AlipayPaymentKeyForm: React.FC<{
     onCancelEdit: () => void, // Add this prop
 }> = ({ alipayPaymentKeys, onUpdateAlipayPaymentKeys, editing, privateKeysVisible, onCancelEdit }) => {
     const [localAlipayPaymentKeys, setLocalAlipayPaymentKeys] = useState(alipayPaymentKeys);
-    const [paymentEnvironment, setPaymentEnvironment] = useState('Sandbox');
 
     useEffect(() => {
         setLocalAlipayPaymentKeys(alipayPaymentKeys);
@@ -31,8 +30,8 @@ export const AlipayPaymentKeyForm: React.FC<{
         setLocalAlipayPaymentKeys({ ...localAlipayPaymentKeys, [key]: value });
     };
 
-    const handleEnvironmentChange = (e: any) => {
-        setPaymentEnvironment(e.target.value);
+    const handleEnvironmentChange = (key: keyof AlipayPaymentKeys, value: string) => {
+        setLocalAlipayPaymentKeys({ ...localAlipayPaymentKeys, [key]: value });
     };
 
     const getFieldProps = (key: keyof AlipayPaymentKeys, label: string, placeholder: string) => ({
@@ -64,12 +63,14 @@ export const AlipayPaymentKeyForm: React.FC<{
             <ProFormRadio.Group
                 name="paymentEnvironment"
                 label="支付环境"
+                initialValue='https://openapi-sandbox.dl.alipaydev.com/gateway.do'
                 options={[
-                    { label: 'Sandbox', value: 'sandbox' },
-                    { label: '正式环境', value: 'production' }
+                    { label: '沙盒环境', value: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do' },
+                    { label: '正式环境', value: 'https://openapi.alipay.com/gateway.do' }
                 ]}
                 fieldProps={{
-                    onChange: handleEnvironmentChange,
+                    value: localAlipayPaymentKeys['AlipayGateway'],
+                    onChange: (e:any) => handleEnvironmentChange("AlipayGateway", e.target.value),
                     disabled: !editing, // Optional: if the radio group should be disabled when not editing
                 }}
             />

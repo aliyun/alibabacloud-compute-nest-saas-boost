@@ -17,7 +17,6 @@ export const WechatPaymentKeyForm: React.FC<{
           onCancelEdit,
       }) => {
     const [localWechatPaymentKeys, setLocalWechatPaymentKeys] = useState(wechatPaymentKeys);
-    const [paymentEnvironment, setPaymentEnvironment] = useState('Sandbox');
 
     useEffect(() => {
         setLocalWechatPaymentKeys(wechatPaymentKeys);
@@ -37,8 +36,8 @@ export const WechatPaymentKeyForm: React.FC<{
         setLocalWechatPaymentKeys({ ...localWechatPaymentKeys, [key]: value });
     };
 
-    const handleEnvironmentChange = (e: any) => {
-        setPaymentEnvironment(e.target.value);
+    const handleEnvironmentChange = (key: keyof WechatPaymentKeys, value: string) => {
+        setLocalWechatPaymentKeys({ ...localWechatPaymentKeys, [key]: value });
     };
 
     const getFieldProps = (key: keyof WechatPaymentKeys, label: string, placeholder: string) => ({
@@ -69,12 +68,14 @@ export const WechatPaymentKeyForm: React.FC<{
             <ProFormRadio.Group
                 name="paymentEnvironment"
                 label="支付环境"
+                initialValue='https://openapi-sandbox.dl.alipaydev.com/gateway.do'
                 options={[
-                    { label: 'Sandbox', value: 'sandbox' },
-                    { label: '正式环境', value: 'production' }
+                    { label: '沙盒环境', value: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do' },
+                    { label: '正式环境', value: 'https://openapi.alipay.com/gateway.do' }
                 ]}
                 fieldProps={{
-                    onChange: handleEnvironmentChange,
+                    value: localWechatPaymentKeys['WechatGateway'],
+                    onChange: (e:any) => handleEnvironmentChange("WechatGateway", e.target.value),
                     disabled: !editing, // Optional: if the radio group should be disabled when not editing
                 }}
             />
