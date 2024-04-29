@@ -32,6 +32,7 @@ const ParameterManagement: React.FC = () => {
     const [providerInfo, setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
     const [alipayPaymentKeys, setAlipayPaymentKeys] = useState<AlipayPaymentKeys>(initialAlipayPaymentKeys);
     const [wechatPaymentKeys, setWechatPaymentKeys] = useState<WechatPaymentKeys>(initialWechatPaymentKeys);
+    const [paymentEnvironment, setPaymentEnvironment] = useState('Alipay');
     const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
         const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
             name,
@@ -69,11 +70,9 @@ const ParameterManagement: React.FC = () => {
         if (providerInfo.ProviderName) {
             dispatch(setProviderName(providerInfo.ProviderName));
         }
-
         if (providerInfo.ProviderOfficialLink) {
             dispatch(setProviderOfficialLink(providerInfo.ProviderOfficialLink));
         }
-
         if (providerInfo.ProviderDescription) {
             dispatch(setProviderDescription(providerInfo.ProviderDescription));
         }
@@ -226,29 +225,36 @@ const ParameterManagement: React.FC = () => {
                                 ),
                             },
                             {
-                                key: 'alipayPaymentKeys',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝参数管理</span>,
+                                key: 'paymentManagement',
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付信息管理</span>,
                                 children: (
-                                    <AlipayPaymentKeyForm
-                                        alipayPaymentKeys={alipayPaymentKeys}
-                                        onUpdateAlipayPaymentKeys={onUpdateAlipayPaymentKeys}
-                                        editing={editing}
-                                        privateKeysVisible={privateKeysVisible}
-                                        onCancelEdit={handleCancelEdit}
-                                    />
-                                ),
-                            },
-                            {
-                                key: 'wechatPaymentKeys',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>微信参数管理</span>,
-                                children: (
-                                    <WechatPaymentKeyForm
-                                        wechatPaymentKeys={wechatPaymentKeys}
-                                        onUpdateWechatPaymentKeys={onUpdateWechatPaymentKeys}
-                                        editing={editing}
-                                        privateKeysVisible={privateKeysVisible}
-                                        onCancelEdit={handleCancelEdit}
-                                    />
+                                    <ProCard
+                                        tabs={{
+                                            type: 'card',
+                                            activeKey: paymentEnvironment,
+                                            onChange: (key) => setPaymentEnvironment(key),
+                                        }}
+                                    >
+                                        <ProCard.TabPane key="Alipay" tab="支付宝">
+                                            <AlipayPaymentKeyForm
+                                                alipayPaymentKeys={alipayPaymentKeys}
+                                                onUpdateAlipayPaymentKeys={onUpdateAlipayPaymentKeys}
+                                                editing={editing}
+                                                privateKeysVisible={privateKeysVisible}
+                                                onCancelEdit={handleCancelEdit}
+                                            />
+                                        </ProCard.TabPane>
+
+                                        <ProCard.TabPane key="Wechat" tab="微信">
+                                            <WechatPaymentKeyForm
+                                                wechatPaymentKeys={wechatPaymentKeys}
+                                                onUpdateWechatPaymentKeys={onUpdateWechatPaymentKeys}
+                                                editing={editing}
+                                                privateKeysVisible={privateKeysVisible}
+                                                onCancelEdit={handleCancelEdit}
+                                            />
+                                        </ProCard.TabPane>
+                                    </ProCard>
                                 ),
                             },
                         ]}
