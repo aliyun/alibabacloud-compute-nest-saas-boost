@@ -17,10 +17,12 @@ package org.example.task;
 
 import com.aliyun.computenestsupplier20210521.models.DeleteServiceInstancesRequest;
 import com.aliyun.computenestsupplier20210521.models.DeleteServiceInstancesResponse;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
+import org.example.common.constant.ComputeNestConstants;
 import org.example.common.constant.PayChannel;
 import org.example.common.constant.TradeStatus;
 import org.example.common.dataobject.OrderDO;
@@ -75,6 +77,11 @@ public class RefundOrderTask implements Runnable {
                     deleteServiceInstancesRequest.setServiceInstanceId(Collections.singletonList(serviceInstanceId));
                     DeleteServiceInstancesResponse deleteServiceInstancesResponse = computeNestSupplierClient.deleteServiceInstance(deleteServiceInstancesRequest);
                     log.info("Delete service instance status code = {}", deleteServiceInstancesResponse.getStatusCode());
+                } else {
+                    UpdateServiceInstanceAttributeRequest updateServiceInstanceAttributeRequest = new UpdateServiceInstanceAttributeRequest();
+                    updateServiceInstanceAttributeRequest.setRegionId(ComputeNestConstants.DEFAULT_REGION_ID);
+                    updateServiceInstanceAttributeRequest.setEndTime(DateUtil.parseIs08601DateMillis(order.getBillingStartDateMillis()));
+                    computeNestSupplierClient.updateServiceInstanceAttribute(updateServiceInstanceAttributeRequest);
                 }
                 Boolean updateOrder = orderOtsHelper.updateOrder(orderDO);
                 Boolean alipaySuccess = Boolean.TRUE;

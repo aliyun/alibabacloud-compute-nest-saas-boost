@@ -18,7 +18,7 @@ import {listMetricMetaDatas, listMetrics} from "@/services/backend/cloudMonitor"
 import TimeItem from "@/pages/ServiceInstanceMonitor/components/timeItem";
 import dayjs, {Dayjs} from "dayjs";
 import {RangePickerProps} from "antd/es/date-picker";
-import {Space, Typography} from 'antd';
+import {Space, Spin, Typography} from 'antd';
 import ChartItem from "@/pages/ServiceInstanceMonitor/components/chartItem";
 
 interface ServiceInstanceMonitorProps {
@@ -38,6 +38,7 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
     //const defaultTimeScope = [dayjs().subtract(1, "hour"), dayjs()];
     const [timeScope, setTimeScope] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, "hour"), dayjs()]);
     const [monitorAvailable, setMonitorAvailable] = useState(true);
+    const [isLoading, setIsLoading] = useState(true); // 默认为 true 表示正在加载
 
     const onChange = (
         value?: RangePickerProps['value'],
@@ -54,9 +55,18 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
         value && console.log('timeValue: ', value[0] ?? '');
     };
 
+    const LoadingIndicator = () => {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Spin size="large" tip="加载中..." />
+            </div>
+        );
+    };
+
     useEffect(() => {
         const fetchMetricMetaData = async () => {
             try {
+                setIsLoading(true);
                 const response = await listMetricMetaDatas();
                 const listMetricMetaData = response.data as API.MetricMetaDataModel[];
                 setDataCount(response.count as number);
@@ -72,15 +82,11 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
                 });
 
                 const results = await Promise.all(promises);
-
-                // 过滤掉任何因错误而返回 null 的结果
                 const validResults = results.filter(result => result !== null);
 
                 if (validResults.length === 0) {
-                    // 如果没有有效的结果，设置监控不可用
                     setMonitorAvailable(false);
                 } else {
-                    // 否则，处理并设置图表数据
                     const listChartItemTemp = validResults.map((response, index) => {
                         const metricMetaData = listMetricMetaData[index];
                         let chartItem: ChartItemProps = {
@@ -92,9 +98,10 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
                         return chartItem;
                     });
                     setListChartItem(listChartItemTemp);
+                    setIsLoading(false);
                 }
             } catch (error) {
-                // 如果在获取监控元数据时出错，同样设置监控不可用
+                setIsLoading(false);
                 setMonitorAvailable(false);
                 console.error('Error fetching metric metadata:', error);
             }
@@ -105,6 +112,9 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
     const hasData = listChartItem.every(item => !item.data || item.data === '');
     return (
         <div>
+            {isLoading ? (
+                    <LoadingIndicator />
+            ) :
             <Space direction="vertical" size={20} style={{display: 'flex'}}>
 
                 {!hasData ? (
@@ -130,7 +140,7 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
                         当前服务实例监控暂时不支持。
                     </Typography.Paragraph>
                 )}
-            </Space>
+            </Space>}
         </div>
     );
 };

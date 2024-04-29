@@ -41,6 +41,20 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultCommodityPriceModel_ = {
+    code?: string;
+    data?: CommodityPriceModel;
+    message?: string;
+    requestId?: string;
+  };
+
+  type BaseResultCommoditySpecificationDTO_ = {
+    code?: string;
+    data?: CommoditySpecificationDTO;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultDouble_ = {
     code?: string;
     data?: number;
@@ -118,6 +132,7 @@ declare namespace API {
     commodityCode?: string;
     commodityName?: string;
     currency?: string;
+    paymentForm?: string;
     serviceId?: string;
     specificationName?: string;
     totalAmount?: number;
@@ -157,6 +172,7 @@ declare namespace API {
     orderType?: string;
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    serviceInstanceId?: string;
     specificationName?: string;
     token?: string;
     userId?: string;
@@ -189,6 +205,19 @@ declare namespace API {
   };
 
   type GetCommodityPriceParam = {
+    commodityCode?: string;
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    specificationName?: string;
+    token?: string;
+  };
+
+  type getCommoditySpecificationParams = {
+    commodityCode?: string;
+    specificationName?: string;
+  };
+
+  type getEstimatedPriceParams = {
     commodityCode?: string;
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
@@ -266,6 +295,7 @@ declare namespace API {
     maxResults?: number;
     nextToken?: string;
     orderId?: string;
+    orderType?: string;
     serviceInstanceId?: string;
     startTime?: string;
     tradeStatus?: (
@@ -361,6 +391,7 @@ declare namespace API {
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
+    orderType?: string;
     payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
@@ -371,6 +402,7 @@ declare namespace API {
     refundDate?: string;
     refundDetail?: string;
     refundId?: string;
+    serviceId?: string;
     serviceInstanceId?: string;
     specificationName?: string;
     totalAmount?: number;
@@ -390,6 +422,13 @@ declare namespace API {
     serviceInstanceId?: string;
   };
 
+  type renewServiceInstanceParams = {
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    serviceInstanceId?: string;
+  };
+
   type ServiceInstanceModel = {
     createTime?: string;
     orderId?: string;
@@ -402,7 +441,7 @@ declare namespace API {
     serviceModel?: ServiceModel;
     serviceName?: string;
     serviceType?: 'private' | 'managed';
-    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaaSBoost';
+    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaasBoost';
     status?: string;
     updateTime?: string;
   };
