@@ -18,39 +18,48 @@ package org.example.common.adapter.impl;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradePagePayRequest;
-import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.ijpay.alipay.AliPayApi;
+import com.ijpay.alipay.AliPayApiConfig;
+import com.ijpay.alipay.AliPayApiConfigKit;
+import java.lang.reflect.Field;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.internal.reflection.FieldReflection;
-import org.example.common.config.AlipayConfig;
+import org.example.common.adapter.OssClient;
+import org.example.common.config.BoostAlipayConfig;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.constant.Constants;
+import org.example.common.dto.OrderDTO;
 import org.example.common.exception.BizException;
-import org.example.common.utils.MoneyUtil;
+import org.example.common.helper.LocalCertStorageHelper;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
 
 class BaseAlipayClientImplTest {
 
     @Injectable
-    private AlipayConfig alipayConfig;
+    private BoostAlipayConfig boostAlipayConfig;
 
     @Tested
     private BaseAlipayClientImpl alipayClientImpl;
 
     @Injectable
     private AlipayTradePagePayRequest alipayTradePagePayRequest;
+
+    @Injectable
+    private LocalCertStorageHelper localCertStorageHelper;
+
+    @Injectable
+    private OssClient ossClient;
 
     private AlipayClient alipayClient = new DefaultAlipayClient(
             "https://openapi-sandbox.dl.alipaydev.com/gateway.do",
@@ -60,6 +69,14 @@ class BaseAlipayClientImplTest {
             Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase(),
             publicKey,
             AliPayConstants.SIGN_TYPE_RSA2);
+    private AliPayApiConfig alipayApiConfig = AliPayApiConfig.builder()
+            .setAppId("123")
+            .setAliPayPublicKey(publicKey)
+            .setPrivateKey(privateKey)
+            .setCharset(Constants.TRANSFORMATION_FORMAT_UTF_8.toLowerCase())
+            .setServiceUrl("https://openapi-sandbox.dl.alipaydev.com/gateway.do")
+            .setSignType(AliPayConstants.SIGN_TYPE_RSA2)
+            .build();
 
     private static final String privateKey = "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCIB3gIM9zBAF4iuP3YTnhaAIWeO" +
             "xHtjFLEteP8msDW/L98PbIASu0WK/DBId0YNCuEiEwkX1wvbylWeGIQvWEb+YVqxRAJ39bsp1YMylUCoL+S8L9rG09zhuCqDqqNgUtlh7" +
@@ -104,56 +121,77 @@ class BaseAlipayClientImplTest {
         AlipayTradePagePayResponse response = new AlipayTradePagePayResponse();
         response.setBody("body");
         setPrivateKey(alipayClient);
+
         new Expectations() {{
             alipayClient.pageExecute(withAny(new AlipayTradePagePayRequest()));
             result = response;
+
+            boostAlipayConfig.getSignatureMethod();
+            result = "PrivateKey";
         }};
         setClient();
-        alipayClientImpl.createTransaction(MoneyUtil.fromCents(0L), "subject", "outTradeNo");
+        OrderDTO order = new OrderDTO();
+        order.setOrderId("orderId");
+        order.setTotalAmount(100L);
+        order.setCommodityName("commodityName");
+        alipayClientImpl.createOutTrade(order);
         Assertions.assertTrue(response.isSuccess());
     }
 
     @Test
     void testRefundOrder() throws AlipayApiException, NoSuchFieldException {
         setPrivateKey(alipayClient);
+        AliPayApiConfigKit.setThreadLocalAliPayApiConfig(alipayApiConfig);
         new Expectations(){{
             alipayClient.pageExecute(withAny(new AlipayTradeRefundRequest()));
             result = true;
+
+            boostAlipayConfig.getSignatureMethod();
+            result = "PrivateKey";
         }};
         setClient();
-        Assertions.assertDoesNotThrow(()->alipayClientImpl.refundOrder("orderId", MoneyUtil.fromCents(1L), "refundRequestId"));
+        OrderDTO order = new OrderDTO();
+        order.setOrderId("orderId");
+        order.setTotalAmount(100L);
+        order.setRefundAmount(100L);
+        Assertions.assertDoesNotThrow(()->alipayClientImpl.refundOutTrade(order));
     }
 
     @Test
     void testCloseOrder() throws NoSuchFieldException, AlipayApiException {
         setPrivateKey(alipayClient);
+        AliPayApiConfigKit.setThreadLocalAliPayApiConfig(alipayApiConfig);
         new Expectations(){{
             alipayClient.pageExecute(withAny(new AlipayTradeCloseRequest()));
             AlipayTradeCloseResponse alipayTradeCloseResponse = new AlipayTradeCloseResponse();
             alipayTradeCloseResponse.setBody("body");
             result = alipayTradeCloseResponse;
+
+            boostAlipayConfig.getSignatureMethod();
+            result = "PrivateKey";
         }};
         setClient();
-        Assertions.assertDoesNotThrow(()->alipayClientImpl.closeOrder("orderId"));
+        Assertions.assertDoesNotThrow(()->alipayClientImpl.closeOutTrade("orderId"));
     }
 
     @Test
     void testQueryOutTrade() throws NoSuchFieldException, AlipayApiException {
         setPrivateKey(alipayClient);
+        AliPayApiConfigKit.setThreadLocalAliPayApiConfig(alipayApiConfig);
         new Expectations(){{
-            alipayClient.execute(withAny(new AlipayTradeQueryRequest()));
+            AliPayApi.tradeQueryToResponse(withAny(new AlipayTradeQueryModel()));
             AlipayTradeQueryResponse response = new AlipayTradeQueryResponse();
             response.setBody("body");
             result = response;
         }};
         setClient();
-        Assertions.assertDoesNotThrow( ()->alipayClientImpl.queryOutTrade("orderId"));
+        Assertions.assertDoesNotThrow( ()->alipayClientImpl.queryOutTrade("orderId", false));
     }
 
     @Test
     void testVerifySignature() throws NoSuchFieldException {
         setPublicKey(alipayClient);
-        assertThrows(BizException.class, ()->alipayClientImpl.verifySignature("sign","content"));
+        assertThrows(BizException.class, ()->alipayClientImpl.verifySignatureWithKey("sign","content"));
     }
 }
 

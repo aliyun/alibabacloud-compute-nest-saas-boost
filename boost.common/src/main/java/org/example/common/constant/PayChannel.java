@@ -23,9 +23,9 @@ public enum PayChannel {
     ALIPAY("Alipay", "0"),
 
     /**
-     * Wechat pay
+     * Wechat pay v3
      */
-    WECHATPAY("WeChat Pay", "1"),
+    WECHATPAY("WechatPay", "1"),
 
     /**
      * PayPal

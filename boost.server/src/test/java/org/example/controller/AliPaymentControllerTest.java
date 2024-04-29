@@ -39,9 +39,9 @@ class AliPaymentControllerTest {
 
     @Test
     void testVerifyTradeCallback() {
-        when(alipayService.verifyTradeCallback(any())).thenReturn("verifyTradeCallbackResponse");
+        when(alipayService.verifyTradeCallback(any(), any())).thenReturn("verifyTradeCallbackResponse");
 
-        String result = paymentController.verifyTradeCallback(null);
+        String result = paymentController.verifyTradeCallback(null, null);
         Assertions.assertEquals("verifyTradeCallbackResponse", result);
     }
 }

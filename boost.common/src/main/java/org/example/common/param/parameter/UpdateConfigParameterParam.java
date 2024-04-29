@@ -1,7 +1,6 @@
 package org.example.common.param.parameter;
 
 import java.io.Serializable;
-import java.util.Map;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,4 +18,6 @@ public class UpdateConfigParameterParam implements Serializable {
     private String value;
 
     private Boolean encrypted = false;
+
+    private String tag;
 }

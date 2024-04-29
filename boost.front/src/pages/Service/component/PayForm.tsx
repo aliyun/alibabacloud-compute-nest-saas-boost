@@ -16,6 +16,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {CreateServiceInstanceForm} from "@/pages/Service/component/CreateServiceInstanceForm";
 import {ModalForm, ProForm, ProFormInstance, ProFormRadio, ProFormSelect} from "@ant-design/pro-form";
+import {handleAlipaySubmit} from "@/util/aliPayUtil";
 import {Col, Row, Tabs} from "antd";
 import ProCard from "@ant-design/pro-card";
 import {FormattedMessage, useModel} from "@@/exports";

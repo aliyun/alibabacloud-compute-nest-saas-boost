@@ -19,6 +19,9 @@ import com.aliyun.computenestsupplier20210521.models.DeleteServiceInstancesReque
 import com.aliyun.computenestsupplier20210521.models.DeleteServiceInstancesResponse;
 import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
 import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
@@ -31,11 +34,6 @@ import org.example.common.dto.OrderDTO;
 import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
-import org.example.common.utils.MoneyUtil;
-
-import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledExecutorService;
 
 @Builder
 @Slf4j
@@ -91,8 +89,11 @@ public class RefundOrderTask implements Runnable {
                 }
                 Boolean updateOrder = orderOtsHelper.updateOrder(orderDO);
                 Boolean alipaySuccess = Boolean.TRUE;
+                order.setOrderId(orderId);
+                order.setRefundAmount(refundAmount);
+                order.setRefundId(refundId);
                 if (payChannel != null && payChannel != PayChannel.PAY_POST && refundAmount > 0) {
-                    alipaySuccess = baseAlipayClient.refundOrder(orderId, MoneyUtil.fromCents(refundAmount), refundId);
+                    alipaySuccess = baseAlipayClient.refundOutTrade(order);
                 }
                 log.info("Alipay refund {}. Update order {}.", alipaySuccess, updateOrder);
                 log.info("Order refund success. order id = {}.", orderDO.getOrderId());

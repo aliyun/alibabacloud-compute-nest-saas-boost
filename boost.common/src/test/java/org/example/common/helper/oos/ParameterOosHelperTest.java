@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.OosClient;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
@@ -38,6 +39,9 @@ public class ParameterOosHelperTest {
     @Injectable
     private BaseAlipayClient baseAlipayClient;
 
+    @Injectable
+    private BaseWechatPayClient baseWechatPayClient;
+
     @BeforeEach
     public void setUp() {
         parameterOosHelper = new ParameterOosHelper(oosClient);
@@ -58,6 +62,7 @@ public class ParameterOosHelperTest {
         UpdateConfigParameterParam param = new UpdateConfigParameterParam();
         param.setName("test-param");
         param.setValue("test-value");
+        param.setTag("Alipay");
         param.setEncrypted(true);
 
         new Expectations() {{
@@ -86,6 +91,7 @@ public class ParameterOosHelperTest {
         UpdateConfigParameterParam param = new UpdateConfigParameterParam();
         param.setName("test-param");
         param.setValue("test-value");
+        param.setTag("WechatPay");
         param.setEncrypted(false);
 
         BaseResult<Void> result = parameterOosHelper.updateConfigParameter(param);
