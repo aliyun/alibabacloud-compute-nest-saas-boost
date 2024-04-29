@@ -35,4 +35,6 @@ public interface CommoditySpecificationService {
     BaseResult<Void> updateCommoditySpecification(UserInfoModel userInfoModel, UpdateCommoditySpecificationParam param);
 
     BaseResult<Void> deleteCommoditySpecification(UserInfoModel userInfoModel, CommoditySpecificationParam param);
+
+    BaseResult<CommoditySpecificationDTO> getCommoditySpecification(UserInfoModel userInfoModel, CommoditySpecificationParam param);
 }

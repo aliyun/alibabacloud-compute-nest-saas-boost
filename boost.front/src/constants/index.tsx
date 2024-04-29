@@ -73,7 +73,8 @@ export const CLOUD_MARKET_PURCHASE_URL ="https://market.aliyun.com/products/5725
 
 export enum CallSource {
     Market = 2,
-    Supplier = 3
+    Supplier = 3,
+    SaasBoost = 6
 }
 
 export const TIME_FORMAT = "YYYY-MM-DDTHH:mm:ss[Z]";

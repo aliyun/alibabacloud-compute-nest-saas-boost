@@ -308,6 +308,9 @@ public class OrderServiceImpl implements OrderService {
         orderDO.setCommodityName(commodityPriceModel.getCommodityName());
         orderDO.setSpecificationName(commodityPriceModel.getSpecificationName());
         orderDO.setCommodityCode(commodityPriceModel.getCommodityCode());
+        if (StringUtils.isNotEmpty(createOrderParam.getServiceInstanceId())) {
+            orderDO.setServiceInstanceId(createOrderParam.getServiceInstanceId());
+        }
         return orderDO;
     }
 }
