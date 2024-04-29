@@ -20,10 +20,12 @@ import io.swagger.annotations.ApiOperation;
 import org.example.common.APIParameterConvert;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
+import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.common.param.si.RenewServiceInstanceParam;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,5 +56,12 @@ public class ServiceInstanceController {
     public BaseResult<ServiceInstanceModel> getServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                                                @APIParameterConvert GetServiceInstanceParam getServiceInstanceParam) {
         return serviceInstanceLifecycleService.getServiceInstance(userInfoModel, getServiceInstanceParam);
+    }
+
+    @ApiOperation(value = "服务实例续费", nickname = "renewServiceInstance")
+    @RequestMapping(path = "/renewServiceInstance",method = RequestMethod.POST)
+    public BaseResult<CommodityPriceModel> renewServiceInstance(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                                @APIParameterConvert RenewServiceInstanceParam renewServiceInstanceParam) {
+        return serviceInstanceLifecycleService.renewServiceInstance(userInfoModel, renewServiceInstanceParam);
     }
 }

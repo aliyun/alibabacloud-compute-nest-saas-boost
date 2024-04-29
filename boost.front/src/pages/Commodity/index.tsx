@@ -1,14 +1,14 @@
 import React, {useRef, useState} from 'react';
-import {Form, message, Modal, Pagination, Tooltip} from 'antd';
-import SpecificationModal from "@/pages/Commodity/SpeicificationModal";
-import {commodityColumns, CommodityForm} from "@/pages/Commodity/common";
+import {message, Modal, Pagination, Tooltip} from 'antd';
+import SpecificationModal from "@/pages/Commodity/components/SpeicificationModal";
+import {commodityColumns, CommodityForm} from "@/pages/Commodity/constants";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {PlusOutlined} from "@ant-design/icons";
 import {PageContainer} from "@ant-design/pro-layout";
-import {createCommodity, deleteCommodity, listAllCommodities, updateCommodity} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
 import {yuanToCents} from "@/util/moneyUtil";
+import {createCommodity, deleteCommodity, listAllCommodities, updateCommodity} from "@/services/backend/commodity";
 
 const CommodityList: React.FC = () => {
     const [isCommodityModalVisible, setIsCommodityModalVisible] = useState(false);
@@ -86,6 +86,18 @@ const CommodityList: React.FC = () => {
 
     const handleSaveCommodity = async (values: API.CommodityDTO) => {
         console.log(values);
+        let payPeriodsParsed;
+        if (typeof values.payPeriods === 'string') {
+            try {
+                payPeriodsParsed = JSON.parse(values.payPeriods);
+            } catch (error) {
+                console.error('Parsing payPeriods failed', error);
+                payPeriodsParsed = [];
+            }
+        } else {
+            payPeriodsParsed = values.payPeriods;
+        }
+
         if (values.commodityCode) {
             try {
                 await updateCommodity({
@@ -94,7 +106,11 @@ const CommodityList: React.FC = () => {
                     serviceId: values.serviceId?.trim(),
                     commodityName: values.commodityName?.trim(),
                     commodityStatus: values.commodityStatus,
-                    description: values.description
+                    description: values.description,
+                    //@ts-ignore
+                    payPeriods: payPeriodsParsed,
+                    //@ts-ignore
+                    payPeriodUnit: values.payPeriodUnit
                 });
                 message.success('商品更新成功');
             } catch (error) {
@@ -108,11 +124,16 @@ const CommodityList: React.FC = () => {
                     chargeType: values.chargeType,
                     serviceId: values.serviceId,
                     commodityStatus: values.commodityStatus,
-                    description: values.description
+                    description: values.description,
+                    //@ts-ignore
+                    payPeriods: payPeriodsParsed,
+                    //@ts-ignore
+                    payPeriodUnit: values.payPeriodUnit,
                 });
                 message.success('商品新建成功');
             } catch (error) {
                 message.error('商品新建失败');
+                console.log(error);
             }
         }
         setIsCommodityModalVisible(false);
@@ -161,6 +182,7 @@ const CommodityList: React.FC = () => {
         actionColumn,
     ];
 
+    // @ts-ignore
     return (
         <><PageContainer title={"商品"}>
             <ProTable columns={columns} rowKey="commodityCode"
@@ -201,7 +223,7 @@ const CommodityList: React.FC = () => {
             />
 
             <Modal
-                title={selectedCommodity ? 'Edit Commodity' : 'New Commodity'}
+                title={selectedCommodity ? '编辑商品' : '新建商品'}
                 open={isCommodityModalVisible}
                 onCancel={() => {
                     setIsCommodityModalVisible(false);
@@ -211,8 +233,12 @@ const CommodityList: React.FC = () => {
                 footer={null}
             >
                 {isCommodityModalVisible && (
-                    <CommodityForm commodity={selectedCommodity} onSubmit={handleSaveCommodity}
+                    <CommodityForm  onSubmit={handleSaveCommodity}
                                    key={selectedCommodity ? selectedCommodity.commodityCode : 'new'}
+                                   commodity={{
+                                       ...selectedCommodity,
+                                       payPeriods: selectedCommodity?.payPeriods ? JSON.parse(selectedCommodity.payPeriods) : [],
+                                   }}
                                    onCancel={() => {
                                        setIsCommodityModalVisible(false);
                                        setSelectedCommodity(undefined);

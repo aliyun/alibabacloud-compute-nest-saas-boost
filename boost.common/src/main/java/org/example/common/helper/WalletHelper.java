@@ -16,14 +16,19 @@
 package org.example.common.helper;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.common.ListResult;
 import org.example.common.config.SpecificationConfig;
+import org.example.common.constant.OrderOtsConstant;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.dto.CommodityDTO;
 import org.example.common.dto.CommoditySpecificationDTO;
+import org.example.common.dto.OrderDTO;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
+import org.example.common.helper.ots.BaseOtsHelper;
 import org.example.common.helper.ots.CommodityOtsHelper;
 import org.example.common.helper.ots.CommoditySpecificationOtsHelper;
+import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.model.CommodityPriceModel;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.MoneyUtil;
@@ -31,6 +36,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.example.common.utils.DateUtil.parseFromIsO8601DateString;
 
@@ -45,6 +52,9 @@ public class WalletHelper {
 
     @Resource
     private CommodityOtsHelper commodityOtsHelper;
+
+    @Resource
+    private OrderOtsHelper orderOtsHelper;
 
     private static final String DECIMAL_FORMAT = "%.2f";
 
@@ -71,7 +81,7 @@ public class WalletHelper {
             unitPrice = commoditySpecification.getUnitPrice();
         }
 
-        if (unitPrice != null ) {
+        if (unitPrice != null) {
             commodityPriceModel.setUnitPrice(unitPrice);
 
             commodityPriceModel.setTotalAmount(payPeriod * unitPrice);
@@ -115,5 +125,18 @@ public class WalletHelper {
 
     private Boolean checkNotNull(Long totalAmount, String refundDate, String paymentDate, Long payPeriod, PayPeriodUnit payPeriodUnit) {
         return totalAmount != null && StringUtils.isNotEmpty(refundDate) && StringUtils.isNotEmpty(paymentDate) && payPeriod != null && payPeriodUnit != null;
+    }
+
+    public CommodityPriceModel getServiceInstanceRenewAmount(String serviceInstanceId, Long payPeriod, PayPeriodUnit payPeriodUnit) {
+        List<BaseOtsHelper.OtsFilter> matchFilters = new ArrayList<>();
+        BaseOtsHelper.OtsFilter serviceInstanceMatchFilter = BaseOtsHelper.OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, serviceInstanceId);
+        matchFilters.add(serviceInstanceMatchFilter);
+        ListResult<OrderDTO> orderList = orderOtsHelper.listOrders(matchFilters, null, null, null, null);
+        if (orderList.getData() != null && orderList.getData().size() > 0) {
+            OrderDTO order = orderList.getData().get(0);
+            return getCommodityCost(order.getCommodityCode(), order.getSpecificationName(), payPeriod);
+        }
+        throw new BizException(ErrorInfo.SERVICE_INSTANCE_ENTITY_NOT_EXIST.getStatusCode(), ErrorInfo.SERVICE_INSTANCE_ENTITY_NOT_EXIST.getCode(),
+                String.format(ErrorInfo.SERVICE_INSTANCE_ENTITY_NOT_EXIST.getMessage(), serviceInstanceId));
     }
 }

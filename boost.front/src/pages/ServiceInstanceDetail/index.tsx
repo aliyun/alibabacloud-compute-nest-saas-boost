@@ -61,11 +61,11 @@ const ServiceInstanceDetail: React.FC = () => {
                     label: '概览',
                     children: <ServiceInstanceContent serviceInstanceId={id} status={status} serviceType={serviceType}/>,
                 },
-                ...(status == 'Deployed') ? [{
+                {
                     key: 'monitor',
                     label: '监控',
                     children: <ServiceInstanceMonitor serviceInstanceId={id}/>,
-                }] : [],
+                },
                 // 根据 source 条件动态添加订单 Tab
                 ...(source !== CallSource[CallSource.Market]) ? [{
                     key: 'serviceInstanceOrders',

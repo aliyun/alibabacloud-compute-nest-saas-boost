@@ -56,15 +56,15 @@ public class CommodityController {
     @ApiOperation(value = "创建商品", nickname = "createCommodity")
     @RequestMapping(path = "/createCommodity", method = RequestMethod.POST)
     public BaseResult<CommodityDTO> createCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                                    @Valid CreateCommodityParam param) {
+                                                    @Valid @RequestBody CreateCommodityParam param) {
         return commodityService.createCommodity(userInfoModel, param);
     }
 
     @AdminAPI
     @ApiOperation(value = "更新商品信息", nickname = "updateCommodity")
-    @RequestMapping(path = "/updateCommodity}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/updateCommodity}", method = RequestMethod.POST)
     public BaseResult<Void> updateCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
-                                            @Valid UpdateCommodityParam param) {
+                                            @Valid @RequestBody UpdateCommodityParam param) {
         return commodityService.updateCommodity(userInfoModel, param);
     }
 
@@ -83,14 +83,29 @@ public class CommodityController {
         return commodityService.listAllCommodities(userInfoModel, param);
     }
 
-    @ApiOperation(value = "获取商品价格", nickname = "getCommodityPrice")
+    @ApiOperation(value = "获取预测价格", nickname = "getCommodityPrice")
+    @RequestMapping(path = "/getCommodityPrice", method = RequestMethod.POST)
+    public CommodityPriceModel getCommodityPrice(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                                 @Valid GetCommodityPriceParam param) {
+        return commodityService.getCommodityPrice(param);
+    }
+
+    @ApiOperation(value = "获取商品信息", nickname = "getCommodity")
+    @RequestMapping(path = "/getCommodity", method = RequestMethod.POST)
+    public CommodityDTO getCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
+                                     @Valid GetCommodityParam param) {
+        return commodityService.getCommodity(param);
+    }
+
+    @ApiOperation(value = "获取商品价格", nickname = "getCommodityPriceSpi")
     @SPI(value = GetCommodityPriceParam.class)
     @RequestMapping(path = "/spi/getCommodityPrice", method = RequestMethod.POST)
     public CommodityPriceModel getCommodityPrice(@Valid @RequestBody GetCommodityPriceParam param) {
         return commodityService.getCommodityPrice(param);
     }
 
-    @ApiOperation(value = "获取商品信息", nickname = "getCommodity")
+    @ApiOperation(value = "获取商品信息", nickname = "getCommoditySpi")
+    @ApiIgnore
     @SPI(value = GetCommodityParam.class)
     @RequestMapping(path = "/spi/getCommodity", method = RequestMethod.POST)
     public CommodityDTO getCommodity(@Valid @RequestBody GetCommodityParam param) {
