@@ -35,7 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.OosClient;
+import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
@@ -53,13 +55,15 @@ public class ParameterOosHelper {
     @Resource
     private BaseAlipayClient baseAlipayClient;
 
+    @Resource
+    private BaseWechatPayClient baseWechatPayClient;
+
     public ParameterOosHelper(OosClient oosClient) {
         this.oosClient = oosClient;
     }
 
     public BaseResult<Void> updateConfigParameter(UpdateConfigParameterParam updateConfigParameterParam){
         try {
-
             if (updateConfigParameterParam.getEncrypted().equals(Boolean.TRUE)) {
                 UpdateSecretParameterResponse updateSecretParameterResponse = oosClient.updateSecretParameter
                         (updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
@@ -68,7 +72,11 @@ public class ParameterOosHelper {
                         .map(UpdateSecretParameterResponseBody::getParameter)
                         .map(UpdateSecretParameterResponseBodyParameter::getId);
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
-                    baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                    if (updateConfigParameterParam.getTag().equals(Constants.ALIPAY_TAG)) {
+                        baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                    } else if (updateConfigParameterParam.getTag().equals(Constants.WECHATPAY_TAG)) {
+                        baseWechatPayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                    }
                     return BaseResult.success();
                 } else {
                     return BaseResult.fail("The parameter in the response is an empty dictionary.");
@@ -81,6 +89,11 @@ public class ParameterOosHelper {
                         .map(UpdateParameterResponseBody::getParameter)
                         .map(UpdateParameterResponseBodyParameter::getId);
                 if (parameterIdOptional.isPresent() && !parameterIdOptional.get().isEmpty()) {
+                    if (updateConfigParameterParam.getTag().equals(Constants.ALIPAY_TAG)) {
+                        baseAlipayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                    } else if (updateConfigParameterParam.getTag().equals(Constants.WECHATPAY_TAG)) {
+                        baseWechatPayClient.updateClient(updateConfigParameterParam.getName(), updateConfigParameterParam.getValue());
+                    }
                     return BaseResult.success();
                 } else {
                     return BaseResult.fail("The parameter in the response is an empty dictionary.");

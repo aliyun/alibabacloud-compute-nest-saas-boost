@@ -25,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class EncryptionUtilTest {
 
     @Test
+    void testdiji() {
+        System.out.println(EncryptionUtil.getMd5HexString("低级版"));
+    }
+
+    @Test
     void testDncode() {
         Assertions.assertTrue(()->{
             byte[] test = new byte[]{-83,-21,46,-106};

@@ -23,69 +23,19 @@ public interface AliPayConstants {
     String OUT_TRADE_NO = "out_trade_no";
 
     /**
-     *  Alipay trade number.
-     */
-    String TRADE_NO = "trade_no";
-
-    /**
-     *  Alipay trade total amount.
-     */
-    String TOTAL_AMOUNT = "total_amount";
-
-    /**
-     *  Alipay trade refund amount.
-     */
-    String REFUND_AMOUNT = "refund_amount";
-
-    /**
-     *  Alipay trade refund request id.
-     */
-    String REFUND_REQUEST_ID = "out_request_no";
-
-    /**
-     *  Alipay trade subject.
-     */
-    String SUBJECT = "subject";
-
-    /**
-     *  Alipay product code.
-     */
-    String PRODUCT_CODE_PREFIX = "product_code";
-
-    /**
-     * Alipay trade status prefix.
-     */
-    String TRADE_STATUS = "trade_status";
-
-    /**
-     *  Encrypted signature for asynchronous payment query.
-     */
-    String SIGN = "sign";
-
-    /**
-     *  Alipay Seller Id.
-     */
-    String SELLER_ID = "seller_id";
-
-    /**
-     *  Alipay app id.
-     */
-    String APP_ID = "app_id";
-
-    /**
-     *  Payment sales product code, currently Alipay only supports FAST_INSTANT_TRADE_PAY.
-     */
-    String PRODUCT_CODE_PC_WEB = "FAST_INSTANT_TRADE_PAY";
-
-    /**
      *  Signature algorithm type.
      */
     String SIGN_TYPE_RSA2 = "RSA2";
 
     /**
-     *  Expired time.
+     * QR code.
      */
-    String TIME_EXPIRE = "time_expire";
+    String QR_CODE = "qr_code";
+
+    /**
+     * Alipay trade query response.
+     */
+    String ALIPAY_TRADE_PRECREATE_RESPONSE = "alipay_trade_precreate_response";
 
     /**
      *  Verify transaction success result.
@@ -100,12 +50,12 @@ public interface AliPayConstants {
     /**
      * Alipay Application ID is the unique identifier for your registered application.
      */
-    String OOS_SECRET_ALIPAY_APP_ID = "AlipayAppId";
+    String OOS_ALIPAY_APP_ID = "AlipayAppId";
 
     /**
      * Alipay merchant account
      */
-    String OOS_SECRET_ALIPAY_PID = "AlipayPid";
+    String OOS_ALIPAY_PID = "AlipayPid";
 
     /**
      * Alipay app private key
@@ -113,9 +63,39 @@ public interface AliPayConstants {
     String OOS_SECRET_ALIPAY_PRIVATE_KEY = "AlipayPrivateKey";
 
     /**
+     * Alipay signature method
+     */
+    String OOS_ALIPAY_SIGNATURE_METHOD = "AlipaySignatureMethod";
+
+    /**
+     * Alipay signature of private key
+     */
+    String OOS_ALIPAY_SIGNATURE_OF_PRIVATE_KEY = "PrivateKey";
+
+    /**d
+     * Alipay signature of certificate
+     */
+    String OOS_ALIPAY_SIGNATURE_OF_CERT = "Certificate";
+
+    /**
      * Alipay official public key
      */
     String OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+
+    /**
+     * Alipay app certificate path
+     */
+    String OOS_SECRET_ALIPAY_APP_CERT_PATH = "AlipayAppCertPath";
+
+    /**
+     * Alipay certificate path
+     */
+    String OOS_SECRET_ALIPAY_CERT_PATH = "AlipayCertPath";
+
+    /**
+     * Alipay root certificate path
+     */
+    String OOS_SECRET_ALIPAY_ROOT_CERT_PATH = "AlipayRootCertPath";
 
     /**
      * Alipay gateway

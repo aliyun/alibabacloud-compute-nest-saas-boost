@@ -16,6 +16,9 @@
 package org.example.service.impl;
 
 import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.constant.ServiceType;
@@ -41,25 +44,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 import static org.powermock.api.mockito.PowerMockito.mock;
+import org.slf4j.Logger;
+import org.springframework.beans.BeanUtils;
 
 class OrderServiceImplTest {
 
@@ -97,7 +95,7 @@ class OrderServiceImplTest {
         when(orderOtsHelper.getOrder(anyString(), anyLong())).thenReturn(new OrderDTO());
 
         BaseResult<OrderDTO> result = orderServiceImpl.getOrder(new UserInfoModel("sub", "name", "loginName", "123", "123", Boolean.TRUE), new GetOrderParam("orderId"));
-        Assertions.assertTrue(result.getCode().equals("200"));
+        Assertions.assertEquals("200", result.getCode());
     }
 
     @Test
@@ -112,7 +110,7 @@ class OrderServiceImplTest {
 
     @Test
     void testUpdateOrder() {
-        when(alipayService.refundOrder(anyString(), any(), anyString())).thenReturn(Boolean.TRUE);
+        when(alipayService.refundOrder(any())).thenReturn(Boolean.TRUE);
         when(orderOtsHelper.updateOrder(any())).thenReturn(Boolean.TRUE);
         when(serviceInstanceLifecycleService.createServiceInstance(any(), any(), anyBoolean(), anyString())).thenReturn(null);
 
@@ -143,8 +141,10 @@ class OrderServiceImplTest {
         ArgumentCaptor<OrderDO> orderCaptor = ArgumentCaptor.forClass(OrderDO.class);
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
+        OrderDTO order = new OrderDTO();
+        BeanUtils.copyProperties(orderDO, order);
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(BigDecimal.valueOf(100)), anyString());
+            verify(alipayService).refundOrder(eq(order));
         }
     }
 
@@ -172,8 +172,10 @@ class OrderServiceImplTest {
         ArgumentCaptor<OrderDO> orderCaptor = ArgumentCaptor.forClass(OrderDO.class);
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
+        OrderDTO order = new OrderDTO();
+        BeanUtils.copyProperties(orderDO, order);
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(BigDecimal.valueOf(100)), anyString());
+            verify(alipayService).refundOrder(eq(order));
         }
     }
 
@@ -204,8 +206,10 @@ class OrderServiceImplTest {
         ArgumentCaptor<OrderDO> orderCaptor = ArgumentCaptor.forClass(OrderDO.class);
         verify(orderOtsHelper).updateOrder(orderCaptor.capture());
         OrderDO capturedOrderDO = orderCaptor.getValue();
+        OrderDTO order = new OrderDTO();
+        BeanUtils.copyProperties(orderDO, order);
         if (capturedOrderDO.getTradeStatus() == TradeStatus.REFUNDED) {
-            verify(alipayService).refundOrder(eq("order-id"), eq(BigDecimal.valueOf(100)), anyString());
+            verify(alipayService).refundOrder(eq(order));
         }
     }
 
@@ -213,7 +217,6 @@ class OrderServiceImplTest {
     void testRefundOrderWithExpiredServiceInstanceId() {
         OrderDTO orderDTO = createMockOrderDTO();
         List<OrderDTO> orderList = createMockOrderList();
-        ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
         ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
         serviceInstanceModel.setServiceType(ServiceType.managed);
         GetServiceInstanceParam getServiceInstanceParam = new GetServiceInstanceParam();
@@ -227,17 +230,16 @@ class OrderServiceImplTest {
         when(serviceInstanceLifeStyleHelper.checkServiceInstanceExpiration(anyList(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
         BaseResult<Long> result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
-        Assertions.assertTrue(result.getCode().equals("200"));
+        Assertions.assertEquals("200", result.getCode());
         refundOrderParam.setDryRun(false);
         result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
-        Assertions.assertTrue(result.getCode().equals("200"));
+        Assertions.assertEquals("200", result.getCode());
     }
 
     @Test
     void testRefundOrderWithServiceInstanceId() {
         OrderDTO orderDTO = createMockOrderDTO();
         List<OrderDTO> orderList = createMockOrderList();
-        ListResult<OrderDTO> orderDtoListResult = ListResult.genSuccessListResult(orderList, 1);
         ServiceInstanceModel serviceInstanceModel = new ServiceInstanceModel();
         serviceInstanceModel.setServiceType(ServiceType.managed);
         GetServiceInstanceParam getServiceInstanceParam = new GetServiceInstanceParam();
@@ -252,10 +254,10 @@ class OrderServiceImplTest {
         when(orderOtsHelper.isOrderInConsuming(any(), anyLong())).thenReturn(true);
         RefundOrderParam refundOrderParam = createMockRefundOrderParam("123", true);
         BaseResult<Long> result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
-        Assertions.assertTrue(result.getCode().equals("200"));
+        Assertions.assertEquals("200", result.getCode());
         refundOrderParam.setDryRun(false);
         result = orderServiceImpl.refundOrders(createMockUserInfoModel(), refundOrderParam);
-        Assertions.assertTrue(result.getCode().equals("200"));
+        Assertions.assertEquals("200", result.getCode());
     }
 
     private OrderDTO createMockOrderDTO() {

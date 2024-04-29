@@ -14,23 +14,22 @@
  */
 package org.example.service.payment;
 
-import java.math.BigDecimal;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.example.common.constant.AliPayConstants;
-import org.example.common.dataobject.OrderDO;
+import org.example.common.constant.PayChannel;
+import org.example.common.constant.WechatPayConstants;
 import org.example.common.dto.OrderDTO;
 import org.example.common.helper.ots.OrderOtsHelper;
-import org.example.common.model.PaymentOrderModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.payment.CreateTransactionParam;
 import org.example.common.utils.HttpUtil;
-import org.example.common.utils.MoneyUtil;
-import org.springframework.beans.BeanUtils;
+import org.example.service.payment.impl.WechatPayServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,11 +46,48 @@ public class PaymentServiceManager {
     @Autowired
     private OrderOtsHelper orderOtsHelper;
 
+    private final String SUBJECT = "subject";
+
     @PostConstruct
     public void initPayChannelServiceMap() {
         for (PaymentService service : payChannelServices) {
             payChannelServiceMap.put(service.getType(), service);
         }
+    }
+
+    public String verifyTradeCallback(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> map = HttpUtil.requestToMap(request);
+        if (map.containsKey(SUBJECT)) {
+            return payChannelServiceMap.get(PayChannel.ALIPAY.getValue()).verifyTradeCallback(request);
+        } else {
+            try {
+                payChannelServiceMap.get(PayChannel.WECHATPAY.getValue()).verifyTradeCallback(request, response);
+//                return WechatPayConstants.VERIFY_SUCCESS_RESULT;
+                return WechatPayConstants.VERIFY_FAIL_RESULT;
+
+            } catch (IOException e) {
+                return WechatPayConstants.VERIFY_FAIL_RESULT;
+            }
+        }
+    }
+
+    public String verifyRefundCallback(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> map = HttpUtil.requestToMap(request);
+        if (map.containsKey(SUBJECT)) {
+            return payChannelServiceMap.get(PayChannel.ALIPAY.getValue()).verifyRefundCallback(request);
+        } else {
+            payChannelServiceMap.get(PayChannel.WECHATPAY.getValue()).verifyRefundCallback(request, response);
+            return WechatPayConstants.VERIFY_SUCCESS_RESULT;
+        }
+    }
+
+    public String createTransaction(UserInfoModel userInfoModel, CreateTransactionParam param) {
+        OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.parseLong(userInfoModel.getAid()));
+        return payChannelServiceMap.get(param.getPayChannel().getValue()).createTransaction(order);
+    }
+
+    public Boolean refundOrder(OrderDTO order) {
+        return payChannelServiceMap.get(order.getPayChannel().getValue()).refundOutTrade(order);
     }
 
     /**
@@ -60,45 +96,8 @@ public class PaymentServiceManager {
      * @param outTradeNo the type of the payment channel
      * @return the corresponding PayChannelService implementation
      */
-    public PaymentService getPayChannelService(String outTradeNo) {
+    private PaymentService getPayChannelService(String outTradeNo) {
         OrderDTO order = orderOtsHelper.getOrder(outTradeNo, null);
         return payChannelServiceMap.get(order.getPayChannel().getValue());
     }
-
-    public String verifyTradeCallback(HttpServletRequest request) {
-        PaymentOrderModel payOrderModel = HttpUtil.requestToObject(request, PaymentOrderModel.class);
-        log.info("verifyTradeCallback, payOrderModel:{}", payOrderModel);
-        OrderDO unverifiedOrder = new OrderDO();
-        BeanUtils.copyProperties(payOrderModel, unverifiedOrder);
-        BigDecimal totalAmountYuan = new BigDecimal(payOrderModel.getTotalAmount());
-        unverifiedOrder.setTotalAmount(MoneyUtil.toCents(totalAmountYuan));
-        if (payOrderModel.getBuyerPayAmount() != null) {
-            BigDecimal buyerPayAmountYuan = new BigDecimal(payOrderModel.getBuyerPayAmount());
-            unverifiedOrder.setBuyerPayAmount(MoneyUtil.toCents(buyerPayAmountYuan));
-        }
-
-        if (payOrderModel.getReceiptAmount() != null) {
-            BigDecimal receiptAmountYuan = new BigDecimal(payOrderModel.getReceiptAmount());
-            unverifiedOrder.setReceiptAmount(MoneyUtil.toCents(receiptAmountYuan));
-        }
-        unverifiedOrder.setOrderId(payOrderModel.getOutTradeNo());
-
-        Map<String, String> map = HttpUtil.requestToMap(request);
-        String orderId = map.get(AliPayConstants.OUT_TRADE_NO);
-        return getPayChannelService(orderId).verifyTradeCallback(unverifiedOrder, map);
-    }
-
-
-    public String createTransaction(UserInfoModel userInfoModel, CreateTransactionParam param) {
-        String orderId = param.getOrderId();
-        OrderDTO order = orderOtsHelper.getOrder(param.getOrderId(), Long.parseLong(userInfoModel.getAid()));
-        Long totalAmountCents = order.getTotalAmount();
-        BigDecimal totalAmount = MoneyUtil.fromCents(totalAmountCents);
-        return payChannelServiceMap.get(param.getPayChannel().getValue()).createTransaction(totalAmount, order.getCommodityName(), orderId);
-    }
-
-    public Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundId) {
-        return getPayChannelService(orderId).refundOrder(orderId, refundAmount, refundId);
-    }
-
 }

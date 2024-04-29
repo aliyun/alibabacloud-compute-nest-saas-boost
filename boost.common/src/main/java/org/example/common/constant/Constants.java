@@ -121,4 +121,18 @@ public interface Constants {
      * Compute nest service instance id.
      */
     String SERVICE_INSTANCE_ID = "ServiceInstanceId";
+
+    /**
+     * Saas Boost.
+     */
+    String SAAS_BOOST = "saas-boost";
+
+    /**
+     * Oss bucket.
+     */
+    String BUCKET = "bucket";
+
+    String ALIPAY_TAG = "Alipay";
+
+    String WECHATPAY_TAG = "WechatPay";
 }

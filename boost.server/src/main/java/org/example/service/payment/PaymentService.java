@@ -14,39 +14,53 @@
  */
 package org.example.service.payment;
 
-import org.example.common.dataobject.OrderDO;
+import org.example.common.dto.OrderDTO;
 
-import java.math.BigDecimal;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public interface PaymentService {
     /**
      * Verifies the trade callback received from the payment channel.
-     * @param unverifiedOrder the order to be verified
-     * @param map the request body from the payment channel
+     * @param request http request
      * @return a String indicating the result of the verification
      */
-    String verifyTradeCallback(OrderDO unverifiedOrder, Map<String, String> map);
+    String verifyTradeCallback(HttpServletRequest request);
 
     /**
-     * Creates a new transaction with the specified details in the payment channel.
-     *
-     * @param totalAmount the total amount for the transaction
-     * @param subject     the subject or description of the transaction
-     * @param outTradeNo  the external trade number for reference
-     * @return a String representing the transaction identifier or reference
+     * Verifies the refund callback received from the payment channel.
+     * @param request http request
+     * @return a String indicating the result of the verification
      */
-    String createTransaction(BigDecimal totalAmount, String subject, String outTradeNo);
+    String verifyRefundCallback(HttpServletRequest request);
 
     /**
-     * Processes a refund for a specific order in the payment channel.
-     *
-     * @param orderId      the identifier of the order to be refunded
-     * @param refundAmount the amount to be refunded
-     * @param refundId     the identifier for the refund transaction
-     * @return a Boolean indicating whether the refund was successful
+     * Verifies the trade callback received from the payment channel.
+     * @param request http request
+     * @param response http response
      */
-    Boolean refundOrder(String orderId, BigDecimal refundAmount, String refundId);
+    void verifyTradeCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    /**
+     * Verifies the refund callback received from the payment channel.
+     * @param request http request
+     * @param response http response
+     */
+    void verifyRefundCallback(HttpServletRequest request, HttpServletResponse response);
+
+    /**     * Creates an out trade for the specified order.
+     * @param order order
+     * @return String
+     */
+    String createTransaction(OrderDTO order);
+
+    /**
+     * Refunds the specified order.
+     * @param order order
+     * @return Boolean
+     */
+    Boolean refundOutTrade(OrderDTO order);
 
     /**
      * Gets the type of the payment channel.
