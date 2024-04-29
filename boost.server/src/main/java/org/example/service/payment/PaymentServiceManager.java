@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
