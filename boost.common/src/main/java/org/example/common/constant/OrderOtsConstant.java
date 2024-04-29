@@ -54,6 +54,8 @@ public interface OrderOtsConstant {
 
     String ORDER_ID = "orderId";
 
+    String ORDER_TYPE = "orderType";
+
     Set<String> MATCH_FILTERS_SET =  Collections.unmodifiableSet(new HashSet<String>(){
         {
             add(GMT_CREATE_LONG);

@@ -33,7 +33,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [total, setTotal] = useState<number>(0);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [orderId, setOrderId] = useState<string | null>(null);
+    const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
     const [canRefundOrderIndex, setCanRefundOrderIndex] = useState<number | undefined>(undefined);
     const {Paragraph} = Typography;
     const actionRef = useRef<ActionType>();
@@ -83,7 +83,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             param.startTime = currentTime.utc().subtract(1, 'year').format(TIME_FORMAT);
             param.endTime = utcTime;
         }
-
+        console.log(param);
         const result: API.ListResultOrderDTO_ = await listOrders(param);
 
         if (result.data !== undefined) {
@@ -122,15 +122,24 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         }
     }
 
+    useEffect(() => {
+        const fetchOrders = async () => {
+            const result: API.ListResultOrderDTO_ = await listOrders({
+                orderId: initialOrderId
+            });
+        };
+        fetchOrders();
+
+    }, [initialOrderId]);
 
     useEffect(() => {
     }, [canRefundOrderIndex]);
 
     const handleConfirmRefund = async (): Promise<void> => {
         try {
-            if (orderId) {
-                await refundOrder({orderId: orderId, dryRun: false});
-                setOrderId(null);
+            if (refundOrderId) {
+                await refundOrder({orderId: refundOrderId, dryRun: false});
+                setRefundOrderId(null);
                 message.success('退款中');
                 window.location.reload();
             }
@@ -146,7 +155,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             const response = await refundOrder(
                 {orderId: record.orderId, dryRun: true} as API.RefundOrderParam
             );
-            setOrderId(record.orderId);
+            setRefundOrderId(record.orderId);
             const data = response?.data;
             if (data !== undefined) {
                 let refundAmount: string | undefined = centsToYuan(data);
