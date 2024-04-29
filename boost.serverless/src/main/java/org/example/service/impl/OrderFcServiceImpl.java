@@ -17,6 +17,7 @@ package org.example.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.OrderOtsConstant;
 import org.example.common.constant.TradeStatus;
@@ -45,6 +46,8 @@ public class OrderFcServiceImpl implements OrderFcService {
 
     private BaseAlipayClient baseAlipayClient;
 
+    private BaseWechatPayClient baseWechatPayClient;
+
     private ComputeNestSupplierClient computeNestSupplierClient;
 
     private ScheduledExecutorService scheduledThreadPool;
@@ -52,9 +55,10 @@ public class OrderFcServiceImpl implements OrderFcService {
     private OrderProcessor orderProcessor;
 
     public OrderFcServiceImpl(OrderOtsHelper orderOtsHelper, BaseAlipayClient baseAlipayClient,
-                              ComputeNestSupplierClient computeNestSupplierClient, ScheduledExecutorService scheduledThreadPool, OrderProcessor orderProcessor) {
+                              ComputeNestSupplierClient computeNestSupplierClient, ScheduledExecutorService scheduledThreadPool, OrderProcessor orderProcessor, BaseWechatPayClient baseWechatPayClient) {
         this.orderOtsHelper = orderOtsHelper;
         this.baseAlipayClient = baseAlipayClient;
+        this.baseWechatPayClient = baseWechatPayClient;
         this.computeNestSupplierClient = computeNestSupplierClient;
         this.scheduledThreadPool = scheduledThreadPool;
         this.orderProcessor = orderProcessor;
@@ -91,6 +95,7 @@ public class OrderFcServiceImpl implements OrderFcService {
                 .serviceInstanceId(order.getServiceInstanceId())
                 .computeNestSupplierClient(computeNestSupplierClient)
                 .baseAlipayClient(baseAlipayClient)
+                .baseWechatPayClient(baseWechatPayClient)
                 .orderOtsHelper(orderOtsHelper)
                 .scheduledThreadPool(scheduledThreadPool)
                 .countDownLatch(countDownLatch)
