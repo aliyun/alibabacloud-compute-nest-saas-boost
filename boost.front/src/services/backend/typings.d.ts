@@ -295,6 +295,7 @@ declare namespace API {
     maxResults?: number;
     nextToken?: string;
     orderId?: string;
+    orderType?: string;
     serviceInstanceId?: string;
     startTime?: string;
     tradeStatus?: (
@@ -390,6 +391,7 @@ declare namespace API {
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
+    orderType?: string;
     payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
