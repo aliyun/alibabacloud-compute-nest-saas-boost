@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_GATEWAY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
@@ -32,12 +33,13 @@ import static org.example.common.constant.WechatConstants.OOS_SECRET_WECHAT_PID;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_ID;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_SECRET;
 import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
+import static org.example.common.constant.WechatConstants.OOS_WECHAT_GATEWAY;
 import org.example.common.helper.oos.ParameterOosHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class OosSecretParamConfig {
+public class OosParamConfig {
 
     @Value("${stack-name}")
     private String stackName;
@@ -45,17 +47,22 @@ public class OosSecretParamConfig {
     @Resource
     private ParameterOosHelper parameterOosHelper;
 
-    private Map<String, String> secretMap;
+    private Map<String, String> parameterMap;
 
-    private List<String> modifiableSecretValueList;
+    private List<String> modifiableParameterList;
 
     public String getSecretValue(String name) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, name);
-        return this.secretMap.get(format);
+        return this.parameterMap.get(format);
+    }
+
+    public String getValue(String name) {
+        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, name);
+        return this.parameterMap.get(format);
     }
 
     public void init() {
-        secretMap = new HashMap<>(10, 0.75F);
+        parameterMap = new HashMap<>(10, 0.75F);
         putSecretValue(OOS_SECRET_ALIPAY_APP_ID);
         putSecretValue(OOS_SECRET_ALIPAY_PID);
         putSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
@@ -67,31 +74,40 @@ public class OosSecretParamConfig {
         putSecretValue(OOS_SECRET_WECHAT_PID);
         putSecretValue(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
         putSecretValue(OOS_SECRET_WECHAT_PRIVATE_KEY);
+        putValue(OOS_ALIPAY_GATEWAY);
+        putValue(OOS_WECHAT_GATEWAY);
 
-        modifiableSecretValueList = new ArrayList<>();
-        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_APP_ID);
-        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_PID);
-        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
-        modifiableSecretValueList.add(OOS_SECRET_ALIPAY_PRIVATE_KEY);
-        modifiableSecretValueList.add(OOS_SECRET_WECHAT_APP_ID);
-        modifiableSecretValueList.add(OOS_SECRET_WECHAT_PID);
-        modifiableSecretValueList.add(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
-        modifiableSecretValueList.add(OOS_SECRET_WECHAT_PRIVATE_KEY);
+        modifiableParameterList = new ArrayList<>();
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_APP_ID);
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_PID);
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_PRIVATE_KEY);
+        modifiableParameterList.add(OOS_SECRET_WECHAT_APP_ID);
+        modifiableParameterList.add(OOS_SECRET_WECHAT_PID);
+        modifiableParameterList.add(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
+        modifiableParameterList.add(OOS_SECRET_WECHAT_PRIVATE_KEY);
+        modifiableParameterList.add(OOS_ALIPAY_GATEWAY);
+        modifiableParameterList.add(OOS_WECHAT_GATEWAY);
     }
 
     private void putSecretValue(String parameterName) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
-        secretMap.put(format, parameterOosHelper.getSecretParameter(format));
+        parameterMap.put(format, parameterOosHelper.getSecretParameter(format));
     }
 
-    public void updateOosSecretParamConfig(String parameterName, String value) {
+    private void putValue(String parameterName) {
+        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
+        parameterMap.put(format, parameterOosHelper.getParameter(format));
+    }
+
+    public void updateOosParameterConfig(String parameterName, String value) {
         String[] parts = parameterName.split("-");
         String parameterNameExtracted = parts[parts.length - 1];
         System.out.println(parameterNameExtracted);
 
-        if (modifiableSecretValueList.contains(parameterNameExtracted)) {
+        if (modifiableParameterList.contains(parameterNameExtracted)) {
             String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterNameExtracted);
-            secretMap.put(format, value);
+            parameterMap.put(format, value);
         }
     }
 }

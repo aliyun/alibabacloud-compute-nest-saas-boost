@@ -28,7 +28,7 @@ import org.example.common.adapter.OosClient;
 import org.example.common.adapter.OtsClient;
 import org.example.common.config.AlipayConfig;
 import org.example.common.config.AliyunConfig;
-import org.example.common.config.OosSecretParamConfig;
+import org.example.common.config.OosParamConfig;
 import org.example.common.constant.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +64,7 @@ class AdapterManagerImplTest {
     private BaseAlipayClient baseAlipayClient;
 
     @Injectable
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosSecretParamConfig;
 
     @Injectable
     private String deployType;
