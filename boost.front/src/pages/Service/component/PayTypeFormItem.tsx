@@ -26,6 +26,7 @@ const PayTypeFormItem: React.FC = () => {
 
     return (
         <ProFormRadio.Group
+            label={'支付方式'}
             name="payChannel"
             initialValue="ALIPAY"
             rules={[{ required: true, message: '请选择支付方式' }]}

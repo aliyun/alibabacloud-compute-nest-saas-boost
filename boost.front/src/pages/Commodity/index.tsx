@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {Form, message, Modal, Pagination, Tooltip} from 'antd';
-import SpecificationModal from "@/pages/Commodity/SpeicificationModal";
-import {commodityColumns, CommodityForm} from "@/pages/Commodity/common";
+import SpecificationModal from "@/pages/Commodity/components/SpeicificationModal";
+import {commodityColumns, CommodityForm} from "@/pages/Commodity/constants";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {PlusOutlined} from "@ant-design/icons";
 import {PageContainer} from "@ant-design/pro-layout";
