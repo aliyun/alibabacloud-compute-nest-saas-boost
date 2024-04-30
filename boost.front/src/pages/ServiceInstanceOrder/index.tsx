@@ -4,7 +4,7 @@ import {listOrders, refundOrder} from "@/services/backend/order";
 import {OrderColumns, TradeStatusEnum} from "@/pages/Order/common";
 import {PageContainer} from "@ant-design/pro-layout";
 import {ProTable} from "@ant-design/pro-components";
-import {Button, message, Modal, Pagination, Typography} from "antd";
+import {Button, message, Modal, Pagination, Space, Typography} from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
@@ -33,8 +33,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [total, setTotal] = useState<number>(0);
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [orderId, setOrderId] = useState<string | null>(null);
-    const [canRefundOrderIndex, setCanRefundOrderIndex] = useState<number | undefined>(undefined);
+    const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
     const {Paragraph} = Typography;
     const actionRef = useRef<ActionType>();
     const [isPayModalVisible, setPayModalVisible] = useState(false);
@@ -60,6 +59,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         let param = {
             maxResults: pageSize,
             nextToken: nextTokens[currentPage - 1],
+            endTimeSorterDesc: true
         } as API.ListOrdersParam;
         if (props.serviceInstanceId) {
             param.serviceInstanceId = props.serviceInstanceId;
@@ -83,22 +83,13 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             param.startTime = currentTime.utc().subtract(1, 'year').format(TIME_FORMAT);
             param.endTime = utcTime;
         }
-
+        console.log(param);
         const result: API.ListResultOrderDTO_ = await listOrders(param);
 
         if (result.data !== undefined) {
             setTotal(result.count || 0);
             setOrders(result.data || []);
             nextTokens[currentPage] = result.nextToken;
-            for (let index = 0; index < result.data.length; index++) {
-                let item = result.data[index];
-                console.log(item.tradeStatus);
-                if (canRefundOrderIndex == undefined && item.tradeStatus == 'TRADE_SUCCESS') {
-                    setCanRefundOrderIndex(index);
-                    break;
-                }
-            }
-            console.log(canRefundOrderIndex);
             const transformedData = result.data?.map((item: API.OrderDTO, index) => {
                 const localTime = item.gmtCreate ? moment.utc(item.gmtCreate).local().format('YYYY-MM-DD HH:mm:ss') : '';
                 return {
@@ -122,15 +113,21 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         }
     }
 
-
     useEffect(() => {
-    }, [canRefundOrderIndex]);
+        const fetchOrders = async () => {
+            const result: API.ListResultOrderDTO_ = await listOrders({
+                orderId: initialOrderId
+            });
+        };
+        fetchOrders();
+
+    }, [initialOrderId]);
 
     const handleConfirmRefund = async (): Promise<void> => {
         try {
-            if (orderId) {
-                await refundOrder({orderId: orderId, dryRun: false});
-                setOrderId(null);
+            if (refundOrderId) {
+                await refundOrder({orderId: refundOrderId, dryRun: false});
+                setRefundOrderId(null);
                 message.success('退款中');
                 window.location.reload();
             }
@@ -146,7 +143,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             const response = await refundOrder(
                 {orderId: record.orderId, dryRun: true} as API.RefundOrderParam
             );
-            setOrderId(record.orderId);
+            setRefundOrderId(record.orderId);
             const data = response?.data;
             if (data !== undefined) {
                 let refundAmount: string | undefined = centsToYuan(data);
@@ -198,7 +195,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
 
                 });
                 if (transactionResult.code == "200" && transactionResult.data != undefined) {
-                    await handlePaySubmit(transactionResult.data, 1);
+                    await handlePaySubmit(transactionResult.data);
                 }
 
             } catch (error) {
@@ -224,19 +221,19 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             render: (text?: string, record?: any, index) => {
                 if (record.tradeStatus == TradeStatusEnum.WAIT_BUYER_PAY) {
 
-                    const payButton = (<Button onClick={() => handlePaySubmitButton(record)}>
+                    const payButton = (<a className={styles.payButton} onClick={() => handlePaySubmitButton(record)}>
                         支付
-                    </Button>);
+                    </a>);
                     return (
                         <>                        {payButton}
                         </>
                     );
                 }
-                if (props.serviceType == "managed" && props.serviceInstanceId != undefined && canRefundOrderIndex == index) {
+                if (props.serviceType == "managed" && props.serviceInstanceId != undefined && record.canRefund === true) {
                     const refundButton = (
-                        <div className={styles.refundButton} onClick={() => handleButtonClick(record)}>
+                        <a className={styles.refundButton} onClick={() => handleButtonClick(record)}>
                             退款
-                        </div>
+                        </a>
                     );
 
                     const refundModal = (
@@ -247,12 +244,14 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                             <Paragraph style={{marginLeft: '24px'}}>您当前订单可退金额为：<span
                                 style={{color: "red"}}>¥ {refundAmount}</span></Paragraph>
                             <div style={{marginTop: 16, textAlign: 'right'}}>
+                                <Space>
+                                    <Button onClick={handleModalClose}>取消</Button>
+                                    <Button type="primary"
+                                            onClick={handleConfirmRefund}>
+                                        确认退款
+                                    </Button>
+                                </Space>
 
-                                <Button onClick={handleModalClose}>取消</Button>
-                                <Button type="primary"
-                                        onClick={handleConfirmRefund}>
-                                    确认退款
-                                </Button>
                             </div>
                         </Modal>
                     );

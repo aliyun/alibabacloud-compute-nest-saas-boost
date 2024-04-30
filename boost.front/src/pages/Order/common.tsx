@@ -119,5 +119,14 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         search: false,
         // hideInForm: true,
         hideInTable: true,
+    },
+    {
+        title: "是否能退款",
+        key: 'canRefund',
+        dataIndex: 'canRefund',
+        sorter: false,
+        search: false,
+        hideInForm: true,
+        hideInTable: true,
     }
 ];

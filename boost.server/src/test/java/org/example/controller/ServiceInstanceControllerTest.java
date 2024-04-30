@@ -53,7 +53,7 @@ class ServiceInstanceControllerTest {
 
     ServiceInstanceModel createCreateServiceInstanceModel() {
         return new ServiceInstanceModel("serviceInstanceId", "serviceInstanceName", "createTime", "updateTime", "status", Long.valueOf(1),
-                "serviceName", new ServiceModel("serviceId", "name", "description", "image"), "parameters", "outputs", "resources", CallSource.Supplier, "123", ServiceType.managed);
+                "serviceName", new ServiceModel("serviceId", "name", "description", "image"), "parameters", "outputs", "resources", CallSource.Supplier, "123", ServiceType.managed, "endtime");
     }
 
     @Test

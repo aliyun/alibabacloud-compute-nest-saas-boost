@@ -138,4 +138,11 @@ public class OrderDTO {
      * service id.
      */
     private String serviceId;
+
+    /**
+     * order type.
+     */
+    private String orderType;
+
+    private Boolean canRefund;
 }

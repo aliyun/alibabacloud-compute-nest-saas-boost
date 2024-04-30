@@ -18,6 +18,7 @@ package org.example.common.dataobject;
 import lombok.Data;
 import org.example.common.constant.ChargeType;
 import org.example.common.constant.CommodityStatus;
+import org.example.common.constant.PayPeriodUnit;
 
 import java.io.Serializable;
 
@@ -70,4 +71,14 @@ public class CommodityDO implements Serializable {
      * Description of the commodity.
      */
     private String description;
+
+    /**
+     * Unit for pricing calculation (e.g., Year, Month, or PostPaid).
+     */
+    private String payPeriodUnit;
+
+    /**
+     * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
+     */
+    private String payPeriods;
 }
