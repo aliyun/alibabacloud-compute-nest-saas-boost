@@ -2,7 +2,7 @@ import {
     SET_PROVIDER_NAME,
     SET_PROVIDER_OFFICIAL_LINK,
     SET_PROVIDER_DESCRIPTION,
-    SET_PROVIDER_LOGO,
+    SET_PROVIDER_LOGO_URL,
 } from './actions';
 
 // 首先，定义State和Action的类型
@@ -10,7 +10,7 @@ interface State {
     providerName: string;
     providerOfficialLink: string;
     providerDescription: string;
-    providerLogo: string;
+    providerLogoUrl: string;
 }
 
 interface Action {
@@ -23,7 +23,7 @@ const initialState: State = {
     providerName: "服务商待填",
     providerOfficialLink: "服务商待填官网",
     providerDescription: "服务商待填描述信息",
-    providerLogo: "/logo.png",
+    providerLogoUrl: "/logo.png",
 };
 
 export const providerInfoReducer = (state: State = initialState, action: Action): State => {
@@ -34,8 +34,8 @@ export const providerInfoReducer = (state: State = initialState, action: Action)
             return {...state, providerOfficialLink: action.payload};
         case SET_PROVIDER_DESCRIPTION:
             return {...state, providerDescription: action.payload};
-        case SET_PROVIDER_LOGO:
-            return {...state, providerLogo: action.payload};
+        case SET_PROVIDER_LOGO_URL:
+            return {...state, providerLogoUrl: action.payload};
         default:
             return state;
     }

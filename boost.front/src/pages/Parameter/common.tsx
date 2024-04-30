@@ -6,13 +6,16 @@ export const initialProviderInfo: ProviderInfo = {
     ProviderName: '',
     ProviderOfficialLink: '',
     ProviderDescription: '',
+    ProviderLogoUrl: '',
 };
 export const initialProviderInfoNameList = [
     'ProviderName',
     'ProviderOfficialLink',
     'ProviderDescription',
+    'ProviderLogoUrl',
 ];
 export const initialProviderInfoEncryptedList = [
+    false,
     false,
     false,
     false,
@@ -45,6 +48,7 @@ export const encryptedCredentialsMap = {
     'ProviderName': false,
     'ProviderOfficialLink': false,
     'ProviderDescription': false,
+    'ProviderLogoUrl': false,
     'AlipayAppId': true,
     'AlipayPid': true,
     'AlipayOfficialPublicKey': true,

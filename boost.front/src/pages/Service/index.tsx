@@ -30,7 +30,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from "@/store/state";
 import {initialProviderInfoEncryptedList, initialProviderInfoNameList} from "@/pages/Parameter/common";
 import {listConfigParameters} from "@/services/backend/parameterManager";
-import {setProviderDescription, setProviderName, setProviderOfficialLink} from "@/store/providerInfo/actions";
+import {
+    setProviderDescription,
+    setProviderLogoUrl,
+    setProviderName,
+    setProviderOfficialLink
+} from "@/store/providerInfo/actions";
 
 const {Paragraph} = Typography;
 
@@ -64,6 +69,8 @@ const ServicePage: React.FC = () => {
                         dispatch(setProviderOfficialLink(value));
                     } else if (configParam.name === 'ProviderDescription') {
                         dispatch(setProviderDescription(value));
+                    } else if (configParam.name === 'ProviderLogoUrl') {
+                        dispatch(setProviderLogoUrl(value));
                     }
                 }
             });
@@ -74,6 +81,7 @@ const ServicePage: React.FC = () => {
         name: state.providerInfo.providerName,
         link: state.providerInfo.providerOfficialLink,
         description: state.providerInfo.providerDescription,
+        logoUrl: state.providerInfo.providerLogoUrl,
     }));
     const actionRef = useRef<ActionType>();
     const fetchServices = async (params: {
@@ -154,17 +162,17 @@ const ServicePage: React.FC = () => {
                 <div>
                     <Row align="middle">
                         <Col>
-                            <Avatar size={64} src={profileImage} shape="circle" className={styles.supplierImage}/>
+                            <Avatar size={64} src={providerInfo.logoUrl? providerInfo.logoUrl:profileImage} shape="circle" className={styles.supplierImage}/>
                         </Col>
                         <Col flex="auto" className={styles.imageTitleGap}>
-                            <div className={styles.supplierTitle}>{providerInfo.name}</div> {/* 使用 providerInfo.name */}
-                            <a href={providerInfo.link} target="_blank" rel="noopener noreferrer" // 使用 providerInfo.link
+                            <div className={styles.supplierTitle}>{providerInfo.name? providerInfo.name: '服务商名待填'}</div> {/* 使用 providerInfo.name */}
+                            <a href={providerInfo.link? providerInfo.link: '服务商官网链接待填'} target="_blank" rel="noopener noreferrer" // 使用 providerInfo.link
                                className={styles.supplierDetails}><GlobalOutlined
-                                className={styles.globalOutlined}/>{providerInfo.link}</a>
+                                className={styles.globalOutlined}/>{providerInfo.link? providerInfo.link: '服务商官网链接待填'}</a>
                         </Col>
                     </Row>
                     <Paragraph/>
-                    <Paragraph className={styles.supplierDescription}>{providerInfo.description}</Paragraph> {/* 使用 providerInfo.description */}
+                    <Paragraph className={styles.supplierDescription}>{providerInfo.description? providerInfo.description: '服务商描述待填'}</Paragraph> {/* 使用 providerInfo.description */}
                     <Paragraph/>
                 </div>
             </ProCard>

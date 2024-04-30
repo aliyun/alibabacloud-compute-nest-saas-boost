@@ -19,6 +19,7 @@ import {
     setProviderName,
     setProviderOfficialLink,
     setProviderDescription,
+    setProviderLogoUrl,
 } from "@/store/providerInfo/actions";
 import {ProviderInfoForm} from '@/pages/Parameter/ProviderInfo'
 import {AlipayPaymentKeyForm} from "@/pages/Parameter/Alipay";
@@ -76,6 +77,9 @@ const ParameterManagement: React.FC = () => {
         }
         if (providerInfo.ProviderDescription) {
             dispatch(setProviderDescription(providerInfo.ProviderDescription));
+        }
+        if (providerInfo.ProviderDescription) {
+            dispatch(setProviderLogoUrl(providerInfo.ProviderLogoUrl));
         }
     }, [providerInfo, dispatch]);
 

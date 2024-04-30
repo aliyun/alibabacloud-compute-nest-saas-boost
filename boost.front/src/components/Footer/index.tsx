@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   const providerOfficialLink = useSelector((state: RootState) => state.providerInfo.providerOfficialLink);
   const defaultMessage = intl.formatMessage({
     id: 'app.footer.copyright',
-    defaultMessage: providerName+'出品',
+    defaultMessage: providerName? providerName+'出品': '服务商待填出品',
   });
 
   const currentYear = new Date().getFullYear();
