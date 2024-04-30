@@ -60,14 +60,29 @@ export const commodityColumns: ProColumns<API.CommodityDTO>[] = [
         key: 'commodityStatus',
         search: false,
         hideInTable: true
-    }
+    },
+    {
+        title: '支付周期单位',
+        dataIndex: 'payPeriodUnit',
+        key: 'payPeriodUnit',
+        valueType: 'text',
+        search: false
+    },
+    {
+        title: '支持的售卖周期',
+        dataIndex: 'payPeriods',
+        key: 'payPeriods',
+        valueType: 'text',
+        search: false
+
+    },
 ];
 
 export interface CommodityFormProps {
     commodity: API.CommodityDTO | undefined;
     onSubmit: (values: API.CommodityDTO) => Promise<void>;
 
-    onCancel: () => void
+    onCancel: () => void;
 }
 
 export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit, onCancel}) => {
@@ -97,12 +112,13 @@ export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit
             }}
             initialValues={commodity || {}}
         >
-            {commodity && (
+            {commodity?.commodityCode && (
                 <ProFormText
                     name="commodityCode"
                     label="商品码"
                     disabled={true}
                     rules={[{required: true, message: 'Please input commodity code!'}]}
+
                 />
             )}
             <ProFormText
@@ -135,7 +151,31 @@ export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit
                 label="描述"
                 rules={[{required: true, message: 'Please input service ID!'}]}
             />
-            {!commodity && (<ProFormSelect
+            <ProFormSelect
+                name="payPeriodUnit"
+                label="单位购买周期"
+                options={[
+                    {label: '月', value: 'Month'},
+                    {label: '日', value: 'Day'},
+                    {label: '年', value: 'Year'}
+                ]}
+                rules={[{required: true, message: 'Please select pay period unit!'}]}
+            />
+            <ProFormSelect
+                name="payPeriods"
+                label="允许购买的周期"
+                mode="multiple"
+                options={Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}))}
+                fieldProps={{
+                    optionFilterProp: "children",
+                    filterOption: (input, option) => {
+                        const childrenString = typeof option?.children === 'string' ? option.children : '';
+                        return childrenString.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                    }
+                }}
+                rules={[{required: true, message: 'Please select pay periods!'}]}
+            />
+            {!commodity?.commodityCode && (<ProFormSelect
                 name="chargeType"
                 label="付费方式"
                 options={[
