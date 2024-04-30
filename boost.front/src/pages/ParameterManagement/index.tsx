@@ -80,7 +80,7 @@ const ParameterManagement: React.FC = () => {
     }, [providerInfo, dispatch]);
 
     useEffect(() => {
-        fetchData();
+        handleRefresh();
     }, [activeTabKey, activePaymentMethodKey]);
 
     const handleTabChange = (key: string) => setActiveTabKey(key);

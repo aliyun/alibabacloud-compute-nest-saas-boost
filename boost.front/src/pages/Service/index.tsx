@@ -13,7 +13,7 @@
 *limitations under the License.
 */
 
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import ProCard from '@ant-design/pro-card';
 import {Avatar, Col, message, Row, Typography} from "antd";
 import styles from "./component/css/service.module.css";
@@ -26,12 +26,50 @@ import {listAllCommodities} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {getServiceMetadata} from "@/services/backend/serviceManager";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from "@/store/state";
+import {initialProviderInfoEncryptedList, initialProviderInfoNameList} from "@/pages/Parameter/common";
+import {listConfigParameters} from "@/services/backend/parameterManager";
+import {setProviderDescription, setProviderName, setProviderOfficialLink} from "@/store/providerInfo/actions";
 
 const {Paragraph} = Typography;
 
 const ServicePage: React.FC = () => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const doOnLoad = async () => {
+            await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
+        };
+        doOnLoad();
+    }, []);
+    const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
+        const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
+            name,
+            encrypted: encrypted[index],
+        }));
+
+        const listParams: API.ListConfigParametersParam = {
+            configParameterQueryModels,
+        };
+
+        const result: API.ListResultConfigParameterModel_ = await listConfigParameters(listParams);
+        if (result.data && result.data.length > 0) {
+            result.data.forEach((configParam) => {
+                if (configParam.name && configParam.value) {
+                    const value = configParam.value === 'waitToConfig' ? '' : configParam.value;
+                    if (configParam.name === 'ProviderName') {
+                        dispatch(setProviderName(value));
+                    } else if (configParam.name === 'ProviderOfficialLink') {
+                        dispatch(setProviderOfficialLink(value));
+                    } else if (configParam.name === 'ProviderDescription') {
+                        dispatch(setProviderDescription(value));
+                    }
+                }
+            });
+        }
+    };
+
     const providerInfo = useSelector((state: RootState) => ({
         name: state.providerInfo.providerName,
         link: state.providerInfo.providerOfficialLink,
