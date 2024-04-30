@@ -50,6 +50,7 @@ export const ProviderInfoForm: React.FC<{
         >
             <ProFormText {...getFieldProps('ProviderName', '服务商名称', '请输入服务商名称')} />
             <ProFormText {...getFieldProps('ProviderOfficialLink', '官方链接', '请输入服务商官方链接')} />
+            <ProFormText {...getFieldProps('ProviderLogoUrl', 'Logo链接', '请输入Logo链接')} />
             <ProFormTextArea {...getFieldProps('ProviderDescription', '服务商简介', '请输入服务商简介')} />
 
             {editing && <ActionButtons onSave={handleSave} onCancel={handleCancel} />}

@@ -40,7 +40,20 @@ export const WechatPaymentKeyForm: React.FC<{
         setLocalWechatPaymentKeys({ ...localWechatPaymentKeys, [key]: value });
     };
 
-    const getFieldProps = (key: keyof WechatPaymentKeys, label: string, placeholder: string) => ({
+    const getFieldPropsVisible = (key: keyof WechatPaymentKeys, label: string, placeholder: string) => ({
+        label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
+        placeholder: placeholder,
+        value: localWechatPaymentKeys[key],
+        fieldProps: {
+            disabled: !editing,
+            type: 'text',
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                handleChange(key, e.target.value);
+            },
+        },
+    });
+
+    const getFieldPropsInvisible = (key: keyof WechatPaymentKeys, label: string, placeholder: string) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
         value: localWechatPaymentKeys[key],
@@ -60,10 +73,10 @@ export const WechatPaymentKeyForm: React.FC<{
                 render: (_) => (<></>),
             }}
         >
-            <ProFormText {...getFieldProps('WechatAppId', '应用ID', '请输入应用ID')} />
-            <ProFormText {...getFieldProps('WechatPid', '商户ID', '请输入商户ID')} />
-            <ProFormText {...getFieldProps('WechatOfficialPublicKey', '官方公钥', '请输入官方公钥')} />
-            <ProFormText {...getFieldProps('WechatPrivateKey', '服务商私钥', '请输入服务商私钥')} />
+            <ProFormText {...getFieldPropsVisible('WechatAppId', '应用ID', '请输入应用ID')} />
+            <ProFormText {...getFieldPropsVisible('WechatPid', '商户ID', '请输入商户ID')} />
+            <ProFormText {...getFieldPropsInvisible('WechatOfficialPublicKey', '官方公钥', '请输入官方公钥')} />
+            <ProFormText {...getFieldPropsInvisible('WechatPrivateKey', '服务商私钥', '请输入服务商私钥')} />
 
             <ProFormRadio.Group
                 name="paymentEnvironment"

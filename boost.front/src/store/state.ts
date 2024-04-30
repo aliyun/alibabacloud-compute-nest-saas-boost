@@ -3,6 +3,6 @@ export interface RootState {
         providerName: string;
         providerOfficialLink: string;
         providerDescription: string;
-        providerLogo: string;
+        providerLogoUrl: string;
     };
 }

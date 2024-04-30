@@ -21,7 +21,7 @@ import type {RequestConfig, RunTimeLayoutConfig} from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import React from 'react';
+import React, {useState} from 'react';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 import {redirectLogin, getTicket} from "@/session";
@@ -29,6 +29,13 @@ import {getUserInfo} from "@/services/backend/user";
 import logoicon from '../public/logo.svg'
 import { Provider } from 'react-redux';
 import { store } from './store';
+import {listConfigParameters} from "@/services/backend/parameterManager";
+import {
+  initialProviderInfo,
+  initialProviderInfoEncryptedList,
+  initialProviderInfoNameList
+} from "@/pages/Parameter/common";
+import {ProviderInfo} from "@/pages/Parameter/component/interface";
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -79,6 +86,13 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const [providerInfo,setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
+  loadProviderInfo(initialProviderInfoNameList, initialProviderInfoEncryptedList, setProviderInfo);
+  const updateSettings = {
+    ...initialState?.settings,
+    title: providerInfo?.ProviderName ? providerInfo.ProviderName : 'SaaS Boost',
+    logo: providerInfo?.ProviderLogoUrl ? providerInfo.ProviderLogoUrl : logoicon,
+  };
 
   return {
     actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
@@ -153,7 +167,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             <SettingDrawer
               disableUrlParams
               enableDarkTheme
-              settings={initialState?.settings}
+              settings={updateSettings}
               onSettingChange={(settings) => {
                 setInitialState((preInitialState) => ({
                   ...preInitialState,
@@ -165,8 +179,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </>
       );
     },
-    ...initialState?.settings,
-    logo: <img src={logoicon}/>,
+    ...updateSettings,
+    logo: <img src={updateSettings?.logo? updateSettings.logo:logoicon}/>,
   };
 };
 
@@ -184,3 +198,28 @@ export const request = {
 export function rootContainer(container: React.ReactNode) {
   return <Provider store={store}>{container}</Provider>;
 }
+
+const loadProviderInfo = async (parameterNames: string[], encrypted: boolean[], setProviderInfo: (providerInfo: ProviderInfo) => void) => {
+  const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
+    name,
+    encrypted: encrypted[index],
+  }));
+
+  const listParams: API.ListConfigParametersParam = {
+    configParameterQueryModels,
+  };
+
+  const result: API.ListResultConfigParameterModel_ = await listConfigParameters(listParams);
+  if (
+      result.data && result.data.length > 0
+  ) {
+    const configParams = result.data.reduce(
+        (acc, configParam) => ({
+          ...acc,
+          [configParam.name as string]: configParam.value === 'waitToConfig'? '' : configParam.value,
+        }),
+        {}
+    );
+    setProviderInfo(configParams as ProviderInfo);
+  }
+};

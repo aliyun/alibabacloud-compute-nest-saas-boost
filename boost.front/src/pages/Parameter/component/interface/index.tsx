@@ -2,6 +2,7 @@ export interface ProviderInfo {
     ProviderName: string;
     ProviderOfficialLink: string;
     ProviderDescription: string;
+    ProviderLogoUrl: string;
 }
 
 export interface AlipayPaymentKeys {

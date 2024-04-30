@@ -34,7 +34,20 @@ export const AlipayPaymentKeyForm: React.FC<{
         setLocalAlipayPaymentKeys({ ...localAlipayPaymentKeys, [key]: value });
     };
 
-    const getFieldProps = (key: keyof AlipayPaymentKeys, label: string, placeholder: string) => ({
+    const getFieldPropsVisible = (key: keyof AlipayPaymentKeys, label: string, placeholder: string) => ({
+        label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
+        placeholder: placeholder,
+        value: localAlipayPaymentKeys[key],
+        fieldProps: {
+            disabled: !editing,
+            type: 'text',
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                handleChange(key, e.target.value);
+            },
+        },
+    });
+
+    const getFieldPropsInvisible = (key: keyof AlipayPaymentKeys, label: string, placeholder: string) => ({
         label: <label style={{ fontWeight: 'bold' }}>{label}</label>,
         placeholder: placeholder,
         value: localAlipayPaymentKeys[key],
@@ -55,10 +68,10 @@ export const AlipayPaymentKeyForm: React.FC<{
                 render: (_) => (<></>),
             }}
         >
-            <ProFormText {...getFieldProps('AlipayAppId', '应用ID', '请输入应用ID')} />
-            <ProFormText {...getFieldProps('AlipayPid', '商户ID', '请输入商户ID')} />
-            <ProFormText {...getFieldProps('AlipayOfficialPublicKey', '官方公钥', '请输入官方公钥')} />
-            <ProFormText {...getFieldProps('AlipayPrivateKey', '服务商私钥', '请输入服务商私钥')} />
+            <ProFormText {...getFieldPropsVisible('AlipayAppId', '应用ID', '请输入应用ID')} />
+            <ProFormText {...getFieldPropsVisible('AlipayPid', '商户ID', '请输入商户ID')} />
+            <ProFormText {...getFieldPropsInvisible('AlipayOfficialPublicKey', '官方公钥', '请输入官方公钥')} />
+            <ProFormText {...getFieldPropsInvisible('AlipayPrivateKey', '服务商私钥', '请输入服务商私钥')} />
 
             <ProFormRadio.Group
                 name="paymentEnvironment"
