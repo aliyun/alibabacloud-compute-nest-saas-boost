@@ -186,6 +186,17 @@ const ParameterManagement: React.FC = () => {
             >
                 <Spin spinning={refreshing}>
                     <Space direction="horizontal" align="end" style={{ float: 'right', marginTop: '16px' }}>
+                        <Tooltip key="help" title="查看帮助文档">
+                            {/* 使用 `window.open` 在新标签打开帮助文档 */}
+                            <a
+                                key="help"
+                                onClick={() => window.open('https://computenest.console.aliyun.com/service/detail/' +
+                                    'cn-hangzhou/service-fd1aec438c974828bb7b/10?isInstance=true', '_blank')}
+                                style={{ color: 'inherit', marginRight: '16px' }}
+                            >
+                                帮助文档
+                            </a>
+                        </Tooltip>
                         {!editing ? (
                             <Tooltip key="edit" title="编辑参数">
                                 <a key="edit" onClick={handleEdit} style={{ color: 'inherit' }}>
@@ -198,16 +209,18 @@ const ParameterManagement: React.FC = () => {
                                 <ReloadOutlined />
                             </a>
                         </Tooltip>
-                        {activePaymentMethodKey === 'Alipay' || activePaymentMethodKey === 'Wechat' ? (
+                        {activeTabKey === 'paymentManagement' ? (
                             privateKeysVisible ? (
                                 <Tooltip key="hidePrivateKeys" title="隐藏加密参数">
-                                    <a key="hidePrivateKeys" onClick={handleTogglePrivateKeysVisibility} style={{ color: 'inherit' }}>
+                                    <a key="hidePrivateKeys" onClick={handleTogglePrivateKeysVisibility}
+                                       style={{ color: 'inherit' }}>
                                         <EyeInvisibleOutlined />
                                     </a>
                                 </Tooltip>
                             ) : (
                                 <Tooltip key="showPrivateKeys" title="显示加密参数">
-                                    <a key="showPrivateKeys" onClick={handleTogglePrivateKeysVisibility} style={{ color: 'inherit' }}>
+                                    <a key="showPrivateKeys" onClick={handleTogglePrivateKeysVisibility}
+                                       style={{ color: 'inherit' }}>
                                         <EyeOutlined />
                                     </a>
                                 </Tooltip>
@@ -242,7 +255,7 @@ const ParameterManagement: React.FC = () => {
                                             onChange: (key) => setPaymentMethod(key),
                                         }}
                                     >
-                                        <ProCard.TabPane key="Alipay" tab="支付宝">
+                                        <ProCard.TabPane key="Alipay" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝</span>}>
                                             <AlipayPaymentKeyForm
                                                 alipayPaymentKeys={alipayPaymentKeys}
                                                 onUpdateAlipayPaymentKeys={onUpdateAlipayPaymentKeys}
@@ -252,7 +265,7 @@ const ParameterManagement: React.FC = () => {
                                             />
                                         </ProCard.TabPane>
 
-                                        {/*<ProCard.TabPane key="Wechat" tab="微信">*/}
+                                        {/*<ProCard.TabPane key="Wechat" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝</span>}>*/}
                                         {/*    <WechatPaymentKeyForm*/}
                                         {/*        wechatPaymentKeys={wechatPaymentKeys}*/}
                                         {/*        onUpdateWechatPaymentKeys={onUpdateWechatPaymentKeys}*/}

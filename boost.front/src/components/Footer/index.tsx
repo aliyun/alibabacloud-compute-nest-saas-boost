@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   const providerName = useSelector((state: RootState) => state.providerInfo.providerName);
   const providerOfficialLink = useSelector((state: RootState) => state.providerInfo.providerOfficialLink);
   const defaultMessage = intl.formatMessage({
-    id: 'app.footer.copyright',
+    id: 'app.copyright.produced',
     defaultMessage: providerName? providerName+'出品': '服务商待填出品',
   });
 

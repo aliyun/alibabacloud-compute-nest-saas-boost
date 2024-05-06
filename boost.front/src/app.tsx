@@ -26,7 +26,6 @@ const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 import {redirectLogin, getTicket} from "@/session";
 import {getUserInfo} from "@/services/backend/user";
-import logoicon from '../public/logo.svg'
 import { Provider } from 'react-redux';
 import { store } from './store';
 import {listConfigParameters} from "@/services/backend/parameterManager";
@@ -53,7 +52,6 @@ const authHeaderInterceptor = (url: string, options: RequestConfig) => {
   };
 };
 
-
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
   currentUser?: API.UserInfoModel;
@@ -68,6 +66,11 @@ export async function getInitialState(): Promise<{
     const userInfoResponse = await getUserInfo() as API.BaseResultUserInfoModel_;
     return userInfoResponse.data
   };
+  const updateSettings = {
+    ...defaultSettings,
+    title: '',
+    logo: '',
+  };
   // 如果不是登录页面，执行
   const { location } = history;
   if (location.pathname !== loginPath) {
@@ -75,12 +78,12 @@ export async function getInitialState(): Promise<{
     return {
       fetchUserInfo,
       currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
+      settings: updateSettings as Partial<LayoutSettings>,
     };
   }
   return {
     fetchUserInfo,
-    settings: defaultSettings as Partial<LayoutSettings>,
+    settings: updateSettings as Partial<LayoutSettings>,
   };
 }
 
@@ -90,8 +93,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   loadProviderInfo(initialProviderInfoNameList, initialProviderInfoEncryptedList, setProviderInfo);
   const updateSettings = {
     ...initialState?.settings,
-    title: providerInfo?.ProviderName ? providerInfo.ProviderName : 'SaaS Boost',
-    logo: providerInfo?.ProviderLogoUrl ? providerInfo.ProviderLogoUrl : logoicon,
+    title: providerInfo?.ProviderName ? providerInfo.ProviderName : '',
+    logo: providerInfo?.ProviderLogoUrl ? providerInfo.ProviderLogoUrl : '',
   };
 
   return {
@@ -179,8 +182,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </>
       );
     },
+    reload: true,
     ...updateSettings,
-    logo: <img src={updateSettings?.logo? updateSettings.logo:logoicon}/>,
+    logo: <img src={updateSettings?.logo}/>,
   };
 };
 

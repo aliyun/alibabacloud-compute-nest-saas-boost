@@ -23,7 +23,7 @@ const initialState: State = {
     providerName: "服务商待填",
     providerOfficialLink: "服务商待填官网",
     providerDescription: "服务商待填描述信息",
-    providerLogoUrl: "/logo.png",
+    providerLogoUrl: "",
 };
 
 export const providerInfoReducer = (state: State = initialState, action: Action): State => {
