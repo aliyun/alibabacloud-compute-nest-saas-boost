@@ -182,7 +182,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </>
       );
     },
-    reload: true,
     ...updateSettings,
     logo: <img src={updateSettings?.logo}/>,
   };
