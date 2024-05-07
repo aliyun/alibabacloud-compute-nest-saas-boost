@@ -21,7 +21,7 @@ import mockit.Tested;
 import mockit.Verifications;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
-import org.example.common.config.OosSecretParamConfig;
+import org.example.common.config.OosParamConfig;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.dataobject.CommodityDO;
 import org.example.common.dto.CommodityDTO;
@@ -72,7 +72,7 @@ class CommodityServiceImplTest {
     private WalletHelper walletHelper;
 
     @Injectable
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosSecretParamConfig;
 
     @Test
     void testCreateCommodity() {

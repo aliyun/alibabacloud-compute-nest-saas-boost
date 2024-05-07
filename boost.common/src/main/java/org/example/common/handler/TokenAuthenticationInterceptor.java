@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.SPI;
-import org.example.common.config.OosSecretParamConfig;
+import org.example.common.config.OosParamConfig;
 import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.helper.SpiTokenHelper;
@@ -51,8 +51,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
-import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
 import static org.example.common.constant.Constants.STANDARD_CONTENT_TYPE;
 
 @Slf4j
@@ -60,7 +58,7 @@ import static org.example.common.constant.Constants.STANDARD_CONTENT_TYPE;
 public class TokenAuthenticationInterceptor implements HandlerInterceptor {
 
     @Resource
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosParamConfig;
 
     @Resource
     private TokenParseHelper tokenParseHelper;
@@ -135,7 +133,7 @@ public class TokenAuthenticationInterceptor implements HandlerInterceptor {
 
     private boolean isAdminUser(UserInfoModel userInfoModel) {
 
-        String secretValue = oosSecretParamConfig.getSecretValue(OOS_SECRET_ADMIN_AID);
+        String secretValue = oosParamConfig.getSecretValue(OOS_SECRET_ADMIN_AID);
         if (StringUtils.isNotEmpty(secretValue) && StringUtils.isNotEmpty(userInfoModel.getAid())) {
             log.info("Admin user check, secretValue: {}, userInfoModel: {}", secretValue, userInfoModel.getAid());
             return secretValue.equals(userInfoModel.getAid());

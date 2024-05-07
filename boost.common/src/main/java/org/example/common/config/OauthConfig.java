@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.Resource;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_ID;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_SECRET;
-import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
 
 @Configuration
 public class OauthConfig {
@@ -38,14 +37,14 @@ public class OauthConfig {
     private String stackName;
 
     @Resource
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosParamConfig;
 
 
     public String getOauthClientId() {
-        return oosSecretParamConfig.getSecretValue(OAUTH_CLIENT_ID);
+        return oosParamConfig.getSecretValue(OAUTH_CLIENT_ID);
     }
 
     public String getOauthClientSecret() {
-        return oosSecretParamConfig.getSecretValue(OAUTH_CLIENT_SECRET);
+        return oosParamConfig.getSecretValue(OAUTH_CLIENT_SECRET);
     }
 }

@@ -49,7 +49,7 @@ import org.example.common.utils.MoneyUtil;
 import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.order.OrderService;
-import org.example.service.payment.PaymentServiceManger;
+import org.example.service.payment.PaymentServiceManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     @Resource
-    private PaymentServiceManger alipayService;
+    private PaymentServiceManager alipayService;
 
     @Resource
     private OrderOtsHelper orderOtsHelper;
