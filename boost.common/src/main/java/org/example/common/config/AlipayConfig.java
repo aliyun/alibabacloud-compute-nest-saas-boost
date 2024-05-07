@@ -15,27 +15,22 @@
 
 package org.example.common.config;
 
+import javax.annotation.Resource;
 import lombok.Data;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_GATEWAY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_APP_ID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_APP_ID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_OFFICIAL_PUBLIC_KEY;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_PID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_PRIVATE_KEY;
-import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
 
 @Data
 @Component
 public class AlipayConfig {
 
     @Resource
-    private OosSecretParamConfig oosSecretParamConfig;
-
-    @Value("${alipay.gateway}")
-    private String gateway;
+    private OosParamConfig oosParamConfig;
 
     @Value("${alipay.return-url}")
     private String returnUrl;
@@ -47,19 +42,27 @@ public class AlipayConfig {
     private String stackName;
 
     public String getAppId() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_APP_ID);
+        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_APP_ID);
     }
 
     public String getPid() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_PID);
+        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_PID);
     }
 
     public String getPrivateKey() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_PRIVATE_KEY);
+        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
     }
 
     public String getOfficialPublicKey() {
-        return oosSecretParamConfig.getSecretValue(OOS_SECRET_OFFICIAL_PUBLIC_KEY);
+        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
+    }
+    
+    public String getGateway() {
+        return oosParamConfig.getValue(OOS_ALIPAY_GATEWAY);
+    }
+
+    public void updateOosParamConfig(String parameterName, String value) {
+        oosParamConfig.updateOosParameterConfig(parameterName, value);
     }
 }
 

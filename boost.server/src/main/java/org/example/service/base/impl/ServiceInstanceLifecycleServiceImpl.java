@@ -38,6 +38,13 @@ import com.aliyuncs.CommonRequest;
 import com.aliyuncs.CommonResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -48,6 +55,11 @@ import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.CallSource;
 import org.example.common.constant.ChargeType;
 import org.example.common.constant.ComputeNestConstants;
+import static org.example.common.constant.ComputeNestConstants.COMPUTE_NEST_SUPPLIER_API_VERSION;
+import static org.example.common.constant.ComputeNestConstants.DEFAULT_REGION_ID;
+import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD;
+import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD_UNIT;
+import static org.example.common.constant.ComputeNestConstants.TEMPLATE_NAME_PREFIX;
 import org.example.common.constant.OrderType;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.constant.ServiceType;
@@ -78,25 +90,10 @@ import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.OrderService;
-import org.example.service.payment.PaymentServiceManger;
+import org.example.service.payment.PaymentServiceManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.example.common.constant.ComputeNestConstants.COMPUTE_NEST_SUPPLIER_API_VERSION;
-import static org.example.common.constant.ComputeNestConstants.DEFAULT_REGION_ID;
-import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD;
-import static org.example.common.constant.ComputeNestConstants.PAY_PERIOD_UNIT;
-import static org.example.common.constant.ComputeNestConstants.TEMPLATE_NAME_PREFIX;
 
 
 @Service
@@ -123,7 +120,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
     private WalletHelper walletHelper;
 
     @Resource
-    private PaymentServiceManger paymentServiceManger;
+    private PaymentServiceManager paymentServiceManger;
 
     private static final String PREFIX = "saas-boost";
 

@@ -40,7 +40,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class PaymentServiceManger {
+public class PaymentServiceManager {
 
     private Map<String, PaymentService> payChannelServiceMap = new HashMap<>();
 

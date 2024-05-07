@@ -100,22 +100,27 @@ public interface AliPayConstants {
     /**
      * Alipay Application ID is the unique identifier for your registered application.
      */
-    String OOS_SECRET_APP_ID = "AlipayAppId";
+    String OOS_SECRET_ALIPAY_APP_ID = "AlipayAppId";
 
     /**
      * Alipay merchant account
      */
-    String OOS_SECRET_PID = "AlipayPid";
+    String OOS_SECRET_ALIPAY_PID = "AlipayPid";
 
     /**
      * Alipay app private key
      */
-    String OOS_SECRET_PRIVATE_KEY = "AlipayPrivateKey";
+    String OOS_SECRET_ALIPAY_PRIVATE_KEY = "AlipayPrivateKey";
 
     /**
      * Alipay official public key
      */
-    String OOS_SECRET_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+    String OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY = "AlipayOfficialPublicKey";
+
+    /**
+     * Alipay gateway
+     */
+    String OOS_ALIPAY_GATEWAY = "AlipayGateway";
 
     String OOS_SECRET_ADMIN_AID = "AdminAid";
 }
