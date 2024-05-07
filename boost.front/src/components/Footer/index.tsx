@@ -5,13 +5,9 @@ import {RootState} from "@/store/state";
 import {useSelector} from "react-redux";
 
 const Footer: React.FC = () => {
-  const intl = useIntl();
   const providerName = useSelector((state: RootState) => state.providerInfo.providerName);
   const providerOfficialLink = useSelector((state: RootState) => state.providerInfo.providerOfficialLink);
-  const defaultMessage = intl.formatMessage({
-    id: 'app.copyright.produced',
-    defaultMessage: providerName? providerName+'出品': '服务商待填出品',
-  });
+  const defaultMessage = providerName? providerName+'出品': '服务商待填出品';
 
   const currentYear = new Date().getFullYear();
 
