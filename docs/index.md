@@ -316,7 +316,7 @@ Fork当前仓库到您的个人仓库
 ![providerInfo-1.png](providerInfo-1.png)
 
 示例二(http url):
-![providerInfo-2.png](providerInfo-2.png)![img.png](img.png)
+![providerInfo-2.png](providerInfo-2.png)
 
 #### 配置支付宝
 
