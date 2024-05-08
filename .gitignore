@@ -11,6 +11,6 @@ logs/
 dist/
 node_modules/
 package-lock.json
-src/.umi-production/
-src/.umi/
-../boost.server/src/main/resources/static/
+boost.front/src/.umi-production/
+boost.front/src/.umi/
+boost.server/src/main/resources/static/
