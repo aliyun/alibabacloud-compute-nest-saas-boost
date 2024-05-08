@@ -21,20 +21,14 @@ import type {RequestConfig, RunTimeLayoutConfig} from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import React, {useState} from 'react';
+import React from 'react';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 import {redirectLogin, getTicket} from "@/session";
 import {getUserInfo} from "@/services/backend/user";
-import { Provider } from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
 import { store } from './store';
-import {listConfigParameters} from "@/services/backend/parameterManager";
-import {
-  initialProviderInfo,
-  initialProviderInfoEncryptedList,
-  initialProviderInfoNameList
-} from "@/pages/Parameter/common";
-import {ProviderInfo} from "@/pages/Parameter/component/interface";
+import {RootState} from "@/store/state";
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -89,12 +83,16 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
-  const [providerInfo,setProviderInfo] = useState<ProviderInfo>(initialProviderInfo);
-  loadProviderInfo(initialProviderInfoNameList, initialProviderInfoEncryptedList, setProviderInfo);
+  const providerInfo = useSelector((state: RootState) => ({
+    name: state.providerInfo.providerName,
+    link: state.providerInfo.providerOfficialLink,
+    description: state.providerInfo.providerDescription,
+    logoUrl: state.providerInfo.providerLogoUrl,
+  }));
   const updateSettings = {
     ...initialState?.settings,
-    title: providerInfo?.ProviderName ? providerInfo.ProviderName : '',
-    logo: providerInfo?.ProviderLogoUrl ? providerInfo.ProviderLogoUrl : '',
+    title: providerInfo?.name ? providerInfo.name : '',
+    logo: providerInfo?.logoUrl ? providerInfo.logoUrl : '',
   };
 
   return {
@@ -201,28 +199,3 @@ export const request = {
 export function rootContainer(container: React.ReactNode) {
   return <Provider store={store}>{container}</Provider>;
 }
-
-const loadProviderInfo = async (parameterNames: string[], encrypted: boolean[], setProviderInfo: (providerInfo: ProviderInfo) => void) => {
-  const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
-    name,
-    encrypted: encrypted[index],
-  }));
-
-  const listParams: API.ListConfigParametersParam = {
-    configParameterQueryModels,
-  };
-
-  const result: API.ListResultConfigParameterModel_ = await listConfigParameters(listParams);
-  if (
-      result.data && result.data.length > 0
-  ) {
-    const configParams = result.data.reduce(
-        (acc, configParam) => ({
-          ...acc,
-          [configParam.name as string]: configParam.value === 'waitToConfig'? '' : configParam.value,
-        }),
-        {}
-    );
-    setProviderInfo(configParams as ProviderInfo);
-  }
-};
