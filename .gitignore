@@ -8,3 +8,6 @@
 target/
 logs/
 .factorypath
+src/.umi-production/
+src/.umi/
+../boost.server/src/main/resources/static/
