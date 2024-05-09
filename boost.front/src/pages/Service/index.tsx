@@ -13,12 +13,12 @@
 *limitations under the License.
 */
 
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import ProCard from '@ant-design/pro-card';
-import {Avatar, Col, message, Row, Typography} from "antd";
+import {Avatar, Col, message, Row, Spin, Typography} from "antd";
 import styles from "./component/css/service.module.css";
 import {PageContainer} from "@ant-design/pro-layout";
-import {companyDescription, companyTitle, companyWebsiteUrl, serviceColumns, ServiceModel} from './common';
+import {serviceColumns, ServiceModel} from './common';
 import profileImage from '../../../public/logo.png'
 import {GlobalOutlined} from "@ant-design/icons";
 import {FetchResult} from "@/util/nextTokenUtil";
@@ -26,10 +26,71 @@ import {listAllCommodities} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {getServiceMetadata} from "@/services/backend/serviceManager";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
+import {useDispatch, useSelector} from 'react-redux';
+import {RootState} from "@/store/state";
+import {initialProviderInfoEncryptedList, initialProviderInfoNameList} from "@/pages/Parameter/common";
+import {listConfigParameters} from "@/services/backend/parameterManager";
+import {
+    setProviderDescription,
+    setProviderLogoUrl,
+    setProviderName,
+    setProviderOfficialLink
+} from "@/store/providerInfo/actions";
 
 const {Paragraph} = Typography;
 
 const ServicePage: React.FC = () => {
+    const dispatch = useDispatch();
+    const [refreshing, setRefreshing] = useState(false);
+
+    useEffect(() => {
+        handleRefresh();
+    }, []);
+    const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
+        const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
+            name,
+            encrypted: encrypted[index],
+        }));
+
+        const listParams: API.ListConfigParametersParam = {
+            configParameterQueryModels,
+        };
+
+        const result: API.ListResultConfigParameterModel_ = await listConfigParameters(listParams);
+        if (result.data && result.data.length > 0) {
+            result.data.forEach((configParam) => {
+                if (configParam.name && configParam.value) {
+                    let value = configParam.value === 'waitToConfig' ? '' : configParam.value;
+                    // 针对 'ProviderLogoUrl' 名称进行特殊处理
+                    if (configParam.name === 'ProviderLogoUrl' && configParam.value === 'waitToConfig') {
+                        value = profileImage;
+                    }
+                    if (configParam.name === 'ProviderName') {
+                        dispatch(setProviderName(value));
+                    } else if (configParam.name === 'ProviderOfficialLink') {
+                        dispatch(setProviderOfficialLink(value));
+                    } else if (configParam.name === 'ProviderDescription') {
+                        dispatch(setProviderDescription(value));
+                    } else if (configParam.name === 'ProviderLogoUrl') {
+                        dispatch(setProviderLogoUrl(value));
+                    }
+                }
+            });
+        }
+    };
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
+        setRefreshing(false);
+    };
+
+    const providerInfo = useSelector((state: RootState) => ({
+        name: state.providerInfo.providerName,
+        link: state.providerInfo.providerOfficialLink,
+        description: state.providerInfo.providerDescription,
+        logoUrl: state.providerInfo.providerLogoUrl,
+    }));
     const actionRef = useRef<ActionType>();
     const fetchServices = async (params: {
         pageSize: number;
@@ -90,7 +151,7 @@ const ServicePage: React.FC = () => {
         title: '操作',
         dataIndex: 'action',
         valueType: 'option',
-        render: (text, record, _, action) => [
+        render: (text, record, _) => [
 
             record.serviceStatus === 'Online' && record.serviceId !== undefined && record.version !== undefined &&
             <a onClick={() => handleUpdateCommodityStatus(record.serviceId, record.version)}>前往购买</a>
@@ -105,25 +166,27 @@ const ServicePage: React.FC = () => {
 
     return (
         <PageContainer title={"精选服务"}>
-            <ProCard bordered={true} className={styles.supplierProCard}>
-                <div>
-                    <Row align="middle">
-                        <Col>
-                            <Avatar size={64} src={profileImage} shape="circle" className={styles.supplierImage}/>
-                        </Col>
-                        <Col flex="auto" className={styles.imageTitleGap}>
-                            <div className={styles.supplierTitle}>{companyTitle}</div>
-
-                            <a href={companyWebsiteUrl} target="_blank" rel="noopener noreferrer"
-                               className={styles.supplierDetails}><GlobalOutlined
-                                className={styles.globalOutlined}/>{companyWebsiteUrl}</a>
-
-                        </Col>
-                    </Row>
-                    <Paragraph/>
-                    <Paragraph className={styles.supplierDescription}>{companyDescription}</Paragraph>
-                    <Paragraph/>
-                </div>
+            <ProCard bordered={true}
+                     className={styles.supplierProCard}
+            >
+                <Spin spinning={refreshing}>
+                    <div>
+                        <Row align="middle">
+                            <Col>
+                                <Avatar size={64} src={providerInfo.logoUrl? providerInfo.logoUrl:'1'} shape="circle" className={styles.supplierImage}/>
+                            </Col>
+                            <Col flex="auto" className={styles.imageTitleGap}>
+                                <div className={styles.supplierTitle}>{providerInfo.name? providerInfo.name: '服务商名待填'}</div> {/* 使用 providerInfo.name */}
+                                <a href={providerInfo.link? providerInfo.link: '服务商官网链接待填'} target="_blank" rel="noopener noreferrer" // 使用 providerInfo.link
+                                   className={styles.supplierDetails}><GlobalOutlined
+                                    className={styles.globalOutlined}/>{providerInfo.link? providerInfo.link: '服务商官网链接待填'}</a>
+                            </Col>
+                        </Row>
+                        <Paragraph/>
+                        <Paragraph className={styles.supplierDescription}>{providerInfo.description? providerInfo.description: '服务商描述待填'}</Paragraph> {/* 使用 providerInfo.description */}
+                        <Paragraph/>
+                    </div>
+                </Spin>
             </ProCard>
             <ProTable columns={columns} rowKey="serviceId"
                       headerTitle={"精选商品"}

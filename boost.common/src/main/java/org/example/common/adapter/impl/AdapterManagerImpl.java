@@ -24,7 +24,7 @@ import org.example.common.adapter.OosClient;
 import org.example.common.adapter.OtsClient;
 import org.example.common.config.AlipayConfig;
 import org.example.common.config.AliyunConfig;
-import org.example.common.config.OosSecretParamConfig;
+import org.example.common.config.OosParamConfig;
 import org.example.common.constant.Constants;
 import org.example.common.constant.DeployType;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +65,7 @@ public class AdapterManagerImpl implements AdapterManager {
     private BaseAlipayClient baseAlipayClient;
 
     @Resource
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosParamConfig;
 
     @Resource
     private AcsApiCaller acsApiCaller;
@@ -86,7 +86,7 @@ public class AdapterManagerImpl implements AdapterManager {
     public void clientInjection(Map<String, String> header) throws Exception {
         if (DeployType.LOCAL.getDeployType().equals(deployType)) {
             oosClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-            oosSecretParamConfig.init();
+            oosParamConfig.init();
             otsClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
             computeNestSupplierClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
             cloudMonitorClient.createClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
@@ -97,7 +97,7 @@ public class AdapterManagerImpl implements AdapterManager {
         }
         if ((header == null || header.isEmpty())) {
             oosClient.createClient(aliyunConfig);
-            oosSecretParamConfig.init();
+            oosParamConfig.init();
             otsClient.createClient(aliyunConfig);
             computeNestSupplierClient.createClient(aliyunConfig);
             cloudMonitorClient.createClient(aliyunConfig);
@@ -109,7 +109,7 @@ public class AdapterManagerImpl implements AdapterManager {
             oosClient.createClient(accessKeyId, accessKeySecret, securityToken);
             otsClient.createClient(accessKeyId, accessKeySecret, securityToken);
             computeNestSupplierClient.createClient(accessKeyId, accessKeySecret, securityToken);
-            oosSecretParamConfig.init();
+            oosParamConfig.init();
             acsApiCaller.createClient(accessKeyId, accessKeySecret, securityToken);
         }
         baseAlipayClient.createClient(alipayConfig);

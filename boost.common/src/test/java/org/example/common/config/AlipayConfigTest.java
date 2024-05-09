@@ -27,7 +27,7 @@ public class AlipayConfigTest {
     private AlipayConfig alipayConfig;
 
     @Injectable
-    private OosSecretParamConfig oosSecretParamConfig;
+    private OosParamConfig oosSecretParamConfig;
 
     @Test
     public void testAlipayConfig() {
@@ -36,8 +36,8 @@ public class AlipayConfigTest {
         String returnUrl = "test.returnUrl";
         String notifyUrl = "test.notifyUrl";
 
-        alipayConfig.setGateway(gateway);
+        alipayConfig.setReturnUrl(returnUrl);
 
-        assertEquals(gateway, alipayConfig.getGateway());
+        assertEquals(returnUrl, alipayConfig.getReturnUrl());
     }
 }
