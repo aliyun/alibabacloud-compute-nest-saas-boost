@@ -118,6 +118,11 @@ public class OrderServiceImpl implements OrderService {
             matchFilters.add(orderIdMatchFilter);
         }
 
+        if (StringUtils.isNotEmpty(param.getOrderType())) {
+            OtsFilter orderTypeMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.ORDER_TYPE, param.getOrderType());
+            matchFilters.add(orderTypeMatchFilter);
+        }
+
         if (StringUtils.isNotEmpty(param.getServiceInstanceId())) {
             OtsFilter serviceInstanceMatchFilter = OtsFilter.createMatchFilter(OrderOtsConstant.SERVICE_INSTANCE_ID, param.getServiceInstanceId());
             matchFilters.add(serviceInstanceMatchFilter);
@@ -139,7 +144,25 @@ public class OrderServiceImpl implements OrderService {
         FieldSort fieldSort = new FieldSort(OrderOtsConstant.GMT_CREATE_LONG);
         fieldSort.setOrder(SortOrder.DESC);
         sorters.add(fieldSort);
-        return orderOtsHelper.listOrders(matchFilters, rangeFilters, multiMatchFilters, param.getNextToken(), sorters);
+        ListResult<OrderDTO> orderListResult = orderOtsHelper.listOrders(matchFilters, rangeFilters, multiMatchFilters, param.getNextToken(), sorters);
+        return findCanRefundedOrder(orderListResult, param.getServiceInstanceId());
+    }
+
+    private ListResult<OrderDTO> findCanRefundedOrder(ListResult<OrderDTO> orderListResult, String serviceInstanceId) {
+        if (orderListResult == null || CollectionUtils.isEmpty(orderListResult.getData())) {
+            return orderListResult;
+        }
+        List<OrderDTO> data = orderListResult.getData();
+        if (!CollectionUtils.isEmpty(data) && StringUtils.isNotEmpty(serviceInstanceId)) {
+            for (OrderDTO order : data) {
+                if (TradeStatus.TRADE_SUCCESS.equals(order.getTradeStatus())) {
+                    order.setCanRefund(Boolean.TRUE);
+                    orderListResult.setData(data);
+                    break;
+                }
+            }
+        }
+        return orderListResult;
     }
 
     @Override
@@ -198,6 +221,7 @@ public class OrderServiceImpl implements OrderService {
         } else {
             String refundId = UuidUtil.generateRefundId();
             alipayService.refundOrder(orderDO.getOrderId(), MoneyUtil.fromCents(orderDO.getReceiptAmount()), refundId);
+            orderDO.setRefundAmount(orderDO.getReceiptAmount());
             orderDO.setTradeStatus(TradeStatus.REFUNDED);
         }
         orderOtsHelper.updateOrder(orderDO);
@@ -307,6 +331,10 @@ public class OrderServiceImpl implements OrderService {
         orderDO.setCommodityName(commodityPriceModel.getCommodityName());
         orderDO.setSpecificationName(commodityPriceModel.getSpecificationName());
         orderDO.setCommodityCode(commodityPriceModel.getCommodityCode());
+        orderDO.setOrderType(createOrderParam.getOrderType());
+        if (StringUtils.isNotEmpty(createOrderParam.getServiceInstanceId())) {
+            orderDO.setServiceInstanceId(createOrderParam.getServiceInstanceId());
+        }
         return orderDO;
     }
 }

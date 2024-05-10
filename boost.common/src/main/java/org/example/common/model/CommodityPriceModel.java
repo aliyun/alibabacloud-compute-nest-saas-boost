@@ -57,4 +57,9 @@ public class CommodityPriceModel {
      * 服务id
      */
     private String serviceId;
+
+    /**
+     * 支付表单
+     */
+    private String paymentForm;
 }

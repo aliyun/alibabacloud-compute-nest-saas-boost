@@ -23,10 +23,12 @@ import com.aliyuncs.exceptions.ClientException;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.dataobject.OrderDO;
+import org.example.common.model.CommodityPriceModel;
 import org.example.common.model.ServiceInstanceModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.param.si.ListServiceInstancesParam;
+import org.example.common.param.si.RenewServiceInstanceParam;
 import org.example.common.param.si.UpdateServiceInstanceAttributeParam;
 
 import java.util.Map;
@@ -82,4 +84,12 @@ public interface ServiceInstanceLifecycleService {
      * @throws ClientException exception
      */
     String payOrderCallback(UserInfoModel userInfoModel,  OrderDO orderDO) throws ClientException;
+
+    /**
+     * Renew service instance.
+     * @param userInfoModel user information
+     * @param renewServiceInstanceParam renewServiceInstanceParam
+     * @return {@link String}
+     */
+    BaseResult<CommodityPriceModel> renewServiceInstance(UserInfoModel userInfoModel, RenewServiceInstanceParam renewServiceInstanceParam);
 }

@@ -31,3 +31,18 @@ export async function listServiceInstances(
     ...(options || {}),
   });
 }
+
+/** 服务实例续费 POST /api/renewServiceInstance */
+export async function renewServiceInstance(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.renewServiceInstanceParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResultCommodityPriceModel_>('/api/renewServiceInstance', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

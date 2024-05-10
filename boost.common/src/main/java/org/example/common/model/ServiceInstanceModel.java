@@ -54,4 +54,6 @@ public class ServiceInstanceModel {
     private String orderId;
 
     private ServiceType serviceType;
+
+    private String endTime;
 }

@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
 import static org.example.common.utils.UuidUtil.generateCommodityCode;
@@ -69,15 +68,15 @@ public class CommodityServiceImpl implements CommodityService {
 
     private static final String ARRAY_REGEX = "\\s*,\\s*";
 
-    public static final List<String> MONTHS = IntStream.rangeClosed(1, 12)
-            .mapToObj(i -> i + ":Month")
-            .collect(Collectors.toList());
+    private static final Integer ARRAY_REGEX_LENGTH = 2;
 
     @Override
     public BaseResult<CommodityDTO> createCommodity(UserInfoModel userInfoModel, CreateCommodityParam param) {
         String commodityCode = generateCommodityCode();
         CommodityDO commodityDO = new CommodityDO();
         BeanUtils.copyProperties(param, commodityDO);
+        commodityDO.setPayPeriodUnit(param.getPayPeriodUnit().name());
+        commodityDO.setPayPeriods(param.getPayPeriods().toString());
         commodityDO.setCommodityCode(commodityCode);
         commodityDO.setOwnerId(userInfoModel.getAid());
         return BaseResult.success(commodityOtsHelper.createCommodity(commodityDO));
@@ -100,6 +99,8 @@ public class CommodityServiceImpl implements CommodityService {
     public BaseResult<Void> updateCommodity(UserInfoModel userInfoModel, UpdateCommodityParam param) {
         CommodityDO commodityDO = new CommodityDO();
         BeanUtils.copyProperties(param, commodityDO);
+        commodityDO.setPayPeriodUnit(param.getPayPeriodUnit().name());
+        commodityDO.setPayPeriods(param.getPayPeriods().toString());
         commodityOtsHelper.updateCommodity(commodityDO);
         return BaseResult.success();
     }
@@ -143,24 +144,28 @@ public class CommodityServiceImpl implements CommodityService {
                 String payPeriodsStr = commoditySpecification.getPayPeriods();
                 String specificationName = commoditySpecification.getSpecificationName();
                 String payPeriodUnit = commoditySpecification.getPayPeriodUnit();
-                if (payPeriodsStr != null && payPeriodsStr.length() > 2 && !payPeriodsStr.trim().isEmpty()) {
-                    List<Integer> payPeriods = Arrays.stream(payPeriodsStr.substring(1, payPeriodsStr.length() - 1).split(ARRAY_REGEX))
-                            .filter(str -> !str.isEmpty())
-                            .sorted()
-                            .map(Integer::parseInt)
-                            .collect(Collectors.toList());
-                    for (Integer payPeriod : payPeriods) {
-                        List<String> allowedPaymentDuration = allowedPaymentDurations.getOrDefault(specificationName, new ArrayList<>());
-                        allowedPaymentDuration.add(payPeriod + ":" + payPeriodUnit);
-                        allowedPaymentDurations.put(specificationName, allowedPaymentDuration);
-                    }
-                }
+                setAllowedPaymentDurations(specificationName, payPeriodUnit, payPeriodsStr, allowedPaymentDurations);
             }
         } else {
-            allowedPaymentDurations.put(commodity.getCommodityCode(), MONTHS);
+            setAllowedPaymentDurations(commodity.getCommodityCode(), commodity.getPayPeriodUnit(), commodity.getPayPeriods(), allowedPaymentDurations);
         }
         commodity.setAllowedPaymentDurations(allowedPaymentDurations);
         return commodity;
+    }
+
+    private void setAllowedPaymentDurations(String name, String payPeriodUnit, String payPeriodsStr, Map<String, List<String>> allowedPaymentDurations) {
+        if (payPeriodsStr != null && payPeriodsStr.length() > ARRAY_REGEX_LENGTH && !payPeriodsStr.trim().isEmpty()) {
+            List<Integer> payPeriods = Arrays.stream(payPeriodsStr.substring(1, payPeriodsStr.length() - 1).split(ARRAY_REGEX))
+                    .filter(str -> !str.isEmpty())
+                    .sorted()
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+            for (Integer payPeriod : payPeriods) {
+                List<String> allowedPaymentDuration = allowedPaymentDurations.getOrDefault(name, new ArrayList<>());
+                allowedPaymentDuration.add(payPeriod + ":" + payPeriodUnit);
+                allowedPaymentDurations.put(name, allowedPaymentDuration);
+            }
+        }
     }
 }
 

@@ -13,7 +13,11 @@ import org.example.common.adapter.AcsApiCaller;
 import org.example.common.config.AliyunConfig;
 import org.example.common.constant.ComputeNestConstants;
 import org.example.common.utils.JsonUtil;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+
+import java.net.SocketTimeoutException;
 
 @Component
 @Slf4j
@@ -21,6 +25,7 @@ public class AcsApiCallerImpl implements AcsApiCaller {
 
     private IAcsClient client;
 
+    @Retryable(value = {SocketTimeoutException.class, ServerException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     @Override
     public CommonResponse getCommonResponse(CommonRequest request) throws ClientException {
         try {

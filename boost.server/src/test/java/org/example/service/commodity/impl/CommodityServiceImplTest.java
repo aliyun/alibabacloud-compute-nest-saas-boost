@@ -46,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,7 +78,8 @@ class CommodityServiceImplTest {
     void testCreateCommodity() {
         CreateCommodityParam createParam = new CreateCommodityParam();
         createParam.setCommodityName("Test Commodity");
-
+        createParam.setPayPeriodUnit(PayPeriodUnit.Month);
+        createParam.setPayPeriods(new ArrayList<>());
         new Expectations() {{
             commodityOtsHelper.createCommodity((CommodityDO) any);
             result = new CommodityDTO();
@@ -106,6 +108,8 @@ class CommodityServiceImplTest {
         UpdateCommodityParam updateParam = new UpdateCommodityParam();
         updateParam.setCommodityCode("COMMODITY1");
         updateParam.setCommodityName("Test Commodity");
+        updateParam.setPayPeriods(new ArrayList<>());
+        updateParam.setPayPeriodUnit(PayPeriodUnit.Month);
 
         new Expectations() {{
             commodityOtsHelper.updateCommodity((CommodityDO) any);
@@ -196,7 +200,14 @@ class CommodityServiceImplTest {
         CommodityDTO expectedCommodityDTO = new CommodityDTO();
         expectedCommodityDTO.setCommodityName("Test Commodity");
         expectedCommodityDTO.setCommodityCode("COMMODITY1");
-
+        List<String> MONTHS = IntStream.rangeClosed(1, 6)
+                .mapToObj(i -> i + ":Month")
+                .collect(Collectors.toList());
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("COMMODITY1", MONTHS);
+        expectedCommodityDTO.setAllowedPaymentDurations(map);
+        expectedCommodityDTO.setPayPeriods("[1,2,3,4,5,6]");
+        expectedCommodityDTO.setPayPeriodUnit("Month");
         ListResult<CommoditySpecificationDTO> commoditySpecificationsResponse = ListResult.genSuccessListResult(
                 Collections.emptyList(), 0);
 
@@ -208,12 +219,8 @@ class CommodityServiceImplTest {
             result = commoditySpecificationsResponse;
         }};
         CommodityDTO commodityDTO = commodityService.getCommodity(getParam);
-
-        List<String> MONTHS = IntStream.rangeClosed(1, 12)
-                .mapToObj(i -> i + ":Month")
-                .collect(Collectors.toList());
-        Map<String, List<String>> allowedPaymentDurations = commodityDTO.getAllowedPaymentDurations();
         assertEquals(expectedCommodityDTO, commodityDTO);
+        Map<String, List<String>> allowedPaymentDurations = commodityDTO.getAllowedPaymentDurations();
         assertEquals(MONTHS, allowedPaymentDurations.get("COMMODITY1"));
     }
 

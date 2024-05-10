@@ -18,6 +18,7 @@ package org.example.common.dto;
 import lombok.Data;
 import org.example.common.constant.ChargeType;
 import org.example.common.constant.CommodityStatus;
+import org.example.common.constant.PayPeriodUnit;
 
 import java.util.List;
 import java.util.Map;
@@ -64,4 +65,14 @@ public class CommodityDTO {
      * Status of the commodity.
      */
     private CommodityStatus commodityStatus;
+
+    /**
+     * Unit for pricing calculation (e.g., Year, Month, or PostPaid).
+     */
+    private String payPeriodUnit;
+
+    /**
+     * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
+     */
+    private String payPeriods;
 }

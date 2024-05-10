@@ -41,6 +41,20 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultCommodityPriceModel_ = {
+    code?: string;
+    data?: CommodityPriceModel;
+    message?: string;
+    requestId?: string;
+  };
+
+  type BaseResultCommoditySpecificationDTO_ = {
+    code?: string;
+    data?: CommoditySpecificationDTO;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultDouble_ = {
     code?: string;
     data?: number;
@@ -110,6 +124,8 @@ declare namespace API {
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';
     description?: string;
+    payPeriodUnit?: string;
+    payPeriods?: string;
     serviceId?: string;
     unitPrice?: number;
   };
@@ -118,6 +134,7 @@ declare namespace API {
     commodityCode?: string;
     commodityName?: string;
     currency?: string;
+    paymentForm?: string;
     serviceId?: string;
     specificationName?: string;
     totalAmount?: number;
@@ -143,12 +160,14 @@ declare namespace API {
     encrypted?: boolean;
     name?: string;
   };
-
+  
   type createCommodityParams = {
     chargeType?: 'PostPaid' | 'PrePaid';
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';
     description?: string;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: number[];
     serviceId?: string;
     unitPrice?: number;
   };
@@ -168,6 +187,7 @@ declare namespace API {
     orderType?: string;
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    serviceInstanceId?: string;
     specificationName?: string;
     token?: string;
     userId?: string;
@@ -194,7 +214,7 @@ declare namespace API {
     state?: string;
   };
 
-  type GetCommodityParam = {
+  type getCommodityParams = {
     commodityCode?: string;
     token?: string;
   };
@@ -205,6 +225,19 @@ declare namespace API {
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
     specificationName?: string;
     token?: string;
+  };
+
+  type getCommodityPriceParams = {
+    commodityCode?: string;
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    specificationName?: string;
+    token?: string;
+  };
+
+  type getCommoditySpecificationParams = {
+    commodityCode?: string;
+    specificationName?: string;
   };
 
   type getOrderParams = {
@@ -281,6 +314,7 @@ declare namespace API {
     maxResults?: number;
     nextToken?: string;
     orderId?: string;
+    orderType?: string;
     serviceInstanceId?: string;
     startTime?: string;
     tradeStatus?: (
@@ -380,11 +414,13 @@ declare namespace API {
     accountId?: number;
     billingEndDateMillis?: number;
     billingStartDateMillis?: number;
+    canRefund?: boolean;
     commodityCode?: string;
     commodityName?: string;
     gmtCreate?: string;
     gmtPayment?: string;
     orderId?: string;
+    orderType?: string;
     payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
     payPeriod?: number;
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
@@ -395,6 +431,7 @@ declare namespace API {
     refundDate?: string;
     refundDetail?: string;
     refundId?: string;
+    serviceId?: string;
     serviceInstanceId?: string;
     specificationName?: string;
     totalAmount?: number;
@@ -414,8 +451,16 @@ declare namespace API {
     serviceInstanceId?: string;
   };
 
+  type renewServiceInstanceParams = {
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    payPeriod?: number;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    serviceInstanceId?: string;
+  };
+
   type ServiceInstanceModel = {
     createTime?: string;
+    endTime?: string;
     orderId?: string;
     outputs?: string;
     parameters?: string;
@@ -426,7 +471,7 @@ declare namespace API {
     serviceModel?: ServiceModel;
     serviceName?: string;
     serviceType?: 'private' | 'managed';
-    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaaSBoost';
+    source?: 'User' | 'Market' | 'Supplier' | 'Css' | 'SaasBoost';
     status?: string;
     updateTime?: string;
   };
@@ -454,11 +499,13 @@ declare namespace API {
     parameterValue?: string;
   };
 
-  type updateCommodityParams = {
+  type UpdateCommodityParam = {
     commodityCode?: string;
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';
     description?: string;
+    payPeriodUnit?: 'Month' | 'Day' | 'Year';
+    payPeriods?: number[];
     serviceId?: string;
     unitPrice?: number;
   };
