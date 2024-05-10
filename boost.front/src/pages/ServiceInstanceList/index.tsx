@@ -21,6 +21,8 @@ import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
 import {listAllCommodities} from "@/services/backend/commodity";
 import {ActionType} from "@ant-design/pro-table/lib";
 import {listServiceInstances} from "@/services/backend/serviceInstance";
+import {FormattedMessage} from "@@/exports";
+import {renderToString} from "react-dom/server";
 
 const ServiceInstanceList: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -37,7 +39,7 @@ const ServiceInstanceList: React.FC = () => {
     const [activeServiceId, setActiveServiceId] = useState<string | undefined>(undefined);
     const actionRef = useRef<ActionType>();
     const [isCommoditiesFetched, setIsCommoditiesFetched] = useState(false);
-    const [initialCommodityName, setInitialCommodityName] = useState("待选择");
+    const [initialCommodityName, setInitialCommodityName] = useState(renderToString(<FormattedMessage id="message.to-be-selected" defaultMessage="待选择"/>));
 
     const fetchCommodities = async () => {
         try {
@@ -51,7 +53,7 @@ const ServiceInstanceList: React.FC = () => {
                     ...oldFilterValues,
                     serviceIdList: [defaultCommodityId],
                 }));
-                setInitialCommodityName(fetchedCommodities[0].commodityName || fetchedCommodities[0].commodityCode || "未知商品");
+                setInitialCommodityName(fetchedCommodities[0].commodityName || fetchedCommodities[0].commodityCode || renderToString(<FormattedMessage id="menu.unknown-commodity" defaultMessage="未知商品"/>));
                 console.log(filterValues);
             }
         } catch (error) {
@@ -86,7 +88,7 @@ const ServiceInstanceList: React.FC = () => {
                 };
             }
             if (filterValues?.serviceIdList == undefined || filterValues.serviceIdList.length === 0) {
-                message.error("至少选择一个商品");
+                message.error(<FormattedMessage id='message.at-least-one-item-selected' defaultMessage="至少选择一个商品"/>);
                 return;
             }
             console.log(filterValues);
@@ -118,7 +120,7 @@ const ServiceInstanceList: React.FC = () => {
 
     const columns: ProColumns<API.ServiceInstanceModel>[] = [
         {
-            title: '商品',
+            title: <FormattedMessage id='menu.commodity' defaultMessage='商品'/>,
             dataIndex: 'service',
             valueType: 'select',
             fieldProps: {
@@ -128,7 +130,7 @@ const ServiceInstanceList: React.FC = () => {
             initialValue: initialCommodityName,
             valueEnum: commodities.reduce((obj, commodity) => {
                 const key = String(commodity.serviceId);
-                const text = commodity.commodityName || commodity.commodityCode || "未知商品";
+                const text = commodity.commodityName || commodity.commodityCode || <FormattedMessage id='menu.unknown-commodity' defaultMessage="未知商品"/>;
                 obj[key] = {text};
                 return obj;
             }, {} as Record<string, { text: string }>),
@@ -146,7 +148,7 @@ const ServiceInstanceList: React.FC = () => {
     return (
         <PageContainer>
             <ProTable<API.ServiceInstanceModel>
-                headerTitle="实例列表"
+                headerTitle={<FormattedMessage id='menu.list.service-instance-list' defaultMessage="实例列表"/>}
                 rowKey="serviceInstanceId"
                 pagination={false}
                 actionRef={actionRef}

@@ -11,6 +11,7 @@ import {specificationColumns, SpecificationForm, SpecificationModalProps} from "
 import {ActionType} from "@ant-design/pro-table/lib";
 import {PlusOutlined} from "@ant-design/icons";
 import {yuanToCents} from "@/util/moneyUtil";
+import {FormattedMessage} from "@@/exports";
 
 const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visible, onClose}) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -39,7 +40,9 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
             }
 
             if (response.code === "200") {
-                message.success(`${currentSpecification ? '套餐修改' : '套餐新增'} successfully`);
+                message.success(`${currentSpecification ? 
+                    <FormattedMessage id="message.specification-modification" defaultMessage='套餐修改'/> : 
+                    <FormattedMessage id="message.specification-addition" defaultMessage='套餐新增'/>} successfully`);
                 setCurrentSpecification(undefined);
             } else {
                 message.error(`Failed to ${currentSpecification ? 'update' : 'add'} specification`);
@@ -58,12 +61,12 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
     const handleDelete = async (specificationName: string) => {
         try {
             await deleteCommoditySpecification({commodityCode: commodity.commodityCode, specificationName});
-            message.success('套餐删除成功');
+            message.success(<FormattedMessage id="message.specification-deleted-successfully" defaultMessage='套餐删除成功'/>);
             setTimeout(() => {
                 actionRef.current?.reload();
             }, 1000);
         } catch (error) {
-            message.error('套餐删除失败');
+            message.error(<FormattedMessage id="message.specification-deletion-failed" defaultMessage='套餐删除失败'/>);
         }
     };
 
@@ -76,13 +79,13 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                 setCurrentSpecification(record);
                 console.log(record);
                 setIsModalVisible(true);
-            }}>编辑</a>,
+            }}><FormattedMessage id="button.edit" defaultMessage="编辑"/></a>,
 
             <a key="delete" onClick={() => {
                 if (record.specificationName) {
                     handleDelete(record.specificationName);
                 }
-            }} style={{color: 'red'}}>删除</a>,
+            }} style={{color: 'red'}}><FormattedMessage id="button.delete" defaultMessage="删除"/></a>,
 
         ],
     };
@@ -95,7 +98,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
     return (
 
         <Modal
-            title={"套餐管理"}
+            title={<FormattedMessage id="menu.specification.management" defaultMessage="套餐管理"/>}
             open={visible}
             onCancel={() => {
                 setCurrentSpecification(undefined);
@@ -104,7 +107,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
             footer={null}
         >
             <Modal
-                title={currentSpecification ? "编辑套餐" : "新建套餐"}
+                title={currentSpecification ? <FormattedMessage id="menu.specification.edit" defaultMessage="编辑套餐"/> : <FormattedMessage id="menu.specification.new" defaultMessage="新建套餐"/>}
                 open={isModalVisible}
                 onCancel={() => {
                     setIsModalVisible(false);
@@ -149,7 +152,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                             style={{color: 'inherit'}}
                         >
                             <PlusOutlined/>
-                            <span>新增</span>
+                            <span><FormattedMessage id="button.add" defaultMessage="新增"/></span>
                         </a>
                     </Tooltip>
                 ]}

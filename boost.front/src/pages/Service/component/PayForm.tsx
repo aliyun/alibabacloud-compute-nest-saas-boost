@@ -1,25 +1,24 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
-
-*   http://www.apache.org/licenses/LICENSE-2.0
-
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ * Copyright (c) Alibaba Group;
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React, {useEffect, useRef, useState} from 'react';
 import {CreateServiceInstanceForm} from "@/pages/Service/component/CreateServiceInstanceForm";
 import {ModalForm, ProForm, ProFormInstance, ProFormRadio, ProFormSelect} from "@ant-design/pro-form";
-import {handleAlipaySubmit} from "@/util/aliPayUtil";
 import {Col, Row, Tabs} from "antd";
 import ProCard from "@ant-design/pro-card";
-import {useModel} from "@@/exports";
+import {FormattedMessage, useModel} from "@@/exports";
 import {getServiceMetadata} from "@/services/backend/serviceManager";
 import {replaceUrlPlaceholders} from "@/util/urlUtil";
 import {CLOUD_MARKET_PURCHASE_URL} from "@/constants";
@@ -115,7 +114,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
 
     return (
         <ModalForm
-            title="购买服务"
+            title={<FormattedMessage id="title.purchase-service" defaultMessage="购买服务"/>}
             open={createModalVisible}
             modalProps={{
                 destroyOnClose: true,
@@ -124,7 +123,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
             submitter={false}
         >
             <Tabs >
-                <TabPane tab={"包年包月"} key={1} >
+                <TabPane tab={<FormattedMessage id="title.annual-monthly" defaultMessage="包年包月"/>} key={1} >
 
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <ProForm formRef={form} size={"middle"} onFinish={async (values) => {
@@ -138,24 +137,24 @@ const CreateModal: React.FC<CreateModalProps> = ({
 
                 {isAliyunUser && (marketProductCode != undefined) && (
 
-                    <TabPane tab="按量付费" key="2">
+                    <TabPane tab={<FormattedMessage id="title.pay-as-you-go" defaultMessage="按量付费"/>} key="2">
                         <ProForm onFinish={async (values) => {
                             await handleCreateServiceInstanceSubmit("PAY_POST");
                             return true;
                         }} submitter={submitButtonLoc} style={{width: "596px"}}>
-                            <ProCard title={"支付方式"} bordered headerBordered={true} gutter={16} hoverable>
+                            <ProCard title={<FormattedMessage id="menu.specification.management" defaultMessage="套餐管理"/>} bordered headerBordered={true} gutter={16} hoverable>
                                 <Row justify="center" style={{marginTop: '16px'}}>
                                     <Col span={24}>
                                         <ProFormSelect
                                             name="type"
                                             initialValue={"PayPost"}
                                             rules={[
-                                                {required: true, message: '请选择支付方式'},
+                                                {required: true, message: <FormattedMessage id="message.select-payment-method" defaultMessage="请选择支付方式"/>,},
                                             ]}
                                         >
                                             <ProFormRadio.Group initialValue={"PayPost"} options={[
                                                 {
-                                                    label: '云市场按量付费',
+                                                    label: <FormattedMessage id="title.cloud-market-pay-as-you-go" defaultMessage="云市场按量付费"/>,
                                                     value: 'PayPost',
                                                 },
                                             ]}>

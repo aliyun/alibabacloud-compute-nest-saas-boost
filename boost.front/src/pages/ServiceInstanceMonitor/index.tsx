@@ -20,6 +20,7 @@ import dayjs, {Dayjs} from "dayjs";
 import {RangePickerProps} from "antd/es/date-picker";
 import {Space, Spin, Typography} from 'antd';
 import ChartItem from "@/pages/ServiceInstanceMonitor/components/chartItem";
+import {FormattedMessage} from "@@/exports";
 
 interface ServiceInstanceMonitorProps {
     serviceInstanceId?: string;
@@ -137,7 +138,7 @@ const ServiceInstanceMonitor: React.FC<ServiceInstanceMonitorProps> = (props) =>
                     </>
                 ) : (
                     <Typography.Paragraph type="secondary">
-                        当前服务实例监控暂时不支持。
+                        <FormattedMessage id='message.monitoring-not-supported' defaultMessage="当前服务实例监控暂时不支持。"/>
                     </Typography.Paragraph>
                 )}
             </Space>}

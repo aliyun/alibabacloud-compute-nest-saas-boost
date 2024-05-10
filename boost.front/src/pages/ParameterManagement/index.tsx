@@ -25,6 +25,9 @@ import {ProviderInfoForm} from '@/pages/Parameter/ProviderInfo'
 import {AlipayPaymentKeyForm} from "@/pages/Parameter/Alipay";
 import {WechatPaymentKeyForm} from "@/pages/Parameter/Wechat";
 
+import {FormattedMessage} from "@@/exports";
+import {renderToString} from "react-dom/server";
+
 const ParameterManagement: React.FC = () => {
     const [activeTabKey, setActiveTabKey] = useState<string>('providerInfo');
     const [activePaymentMethodKey, setActivePaymentMethodKey] = useState<string>('Alipay');
@@ -176,7 +179,7 @@ const ParameterManagement: React.FC = () => {
 
 
     return (
-        <PageContainer title="参数管理">
+        <PageContainer title={<FormattedMessage id="menu.parameter-management" defaultMessage="参数管理"/>}>
             <ProCard
                 bodyStyle={{
                     padding: '24px',
@@ -200,7 +203,8 @@ const ParameterManagement: React.FC = () => {
                         {!editing ? (
                             <Tooltip key="edit" title="编辑参数">
                                 <a key="edit" onClick={handleEdit} style={{ color: 'inherit' }}>
-                                    <EditOutlined /> 编辑
+                                    <EditOutlined/>
+                                    <span> <FormattedMessage id="button.edit" defaultMessage="编辑"/></span>
                                 </a>
                             </Tooltip>
                         ) : null}
@@ -234,7 +238,7 @@ const ParameterManagement: React.FC = () => {
                         items={[
                             {
                                 key: 'providerInfo',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>服务商个人信息管理</span>,
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}><FormattedMessage id="pages.parameterManagementTabs.supplier-personal-information-management" defaultMessage="服务商个人信息管理"/></span>,
                                 children: (
                                     <ProviderInfoForm
                                         providerInfo={providerInfo}
@@ -246,7 +250,7 @@ const ParameterManagement: React.FC = () => {
                             },
                             {
                                 key: 'paymentManagement',
-                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付信息管理</span>,
+                                label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}><FormattedMessage id="pages.parameterManagementTabs.payment-key-management" defaultMessage="支付密钥管理"/></span>,
                                 children: (
                                     <ProCard
                                         tabs={{

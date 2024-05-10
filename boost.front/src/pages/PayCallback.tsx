@@ -16,6 +16,7 @@
 import React, {useEffect, useState} from 'react';
 import {Modal, Spin} from 'antd';
 import {getOrder} from "@/services/backend/order";
+import {FormattedMessage} from "@@/exports";
 
 const PayCallback: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -69,7 +70,7 @@ const PayCallback: React.FC = () => {
     const handlePaymentSuccess = () => {
         Modal.success({
             title: 'Success',
-            content: '支付成功',
+            content: <FormattedMessage id='message.payment-successful' defaultMessage='支付成功'/>,
             onOk: () => {
                 window.location.hash = '#/serviceInstance';
             },
@@ -81,7 +82,7 @@ const PayCallback: React.FC = () => {
         setLoading(false);
         Modal.error({
             title: 'Failed',
-            content: '很抱歉，支付未成功，请稍后再试。',
+            content: <FormattedMessage id='message.payment-unsuccessful' defaultMessage='很抱歉，支付未成功，请稍后再试。'/>,
             onOk: () => {
                 window.location.href = '#/order';
             },
@@ -100,8 +101,8 @@ const PayCallback: React.FC = () => {
 
     return (
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
-            <Spin spinning={loading} tip="正在加载中...">
-                <h1>处理中，请稍等...</h1>
+            <Spin spinning={loading} tip={<FormattedMessage id='message.payment-loading' defaultMessage="正在加载中..."/>}>
+                <h1><FormattedMessage id='message.processing' defaultMessage='处理中，请稍等...'/></h1>
             </Spin>
         </div>
     );

@@ -15,6 +15,8 @@
 
 
 import {ParameterTypeInterfaceArray, Specification} from "@/pages/Service/component/interface";
+import {FormattedMessage} from "@@/exports";
+import React from "react";
 
 export const CustomParameters: ParameterTypeInterfaceArray = {
 
@@ -45,5 +47,5 @@ export const defaultSpecification: Specification[] = [{
     Parameters: {},
     OrderList: [],
     Type: '',
-    Description: '这是一个默认的套餐',
+    Description: <FormattedMessage id='message.default-specification' defaultMessage='这是一个默认的套餐'/>,
 }];
