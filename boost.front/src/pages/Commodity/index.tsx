@@ -9,6 +9,8 @@ import {ActionType} from "@ant-design/pro-table/lib";
 import {FetchResult, handleGoToPage} from "@/util/nextTokenUtil";
 import {yuanToCents} from "@/util/moneyUtil";
 import {createCommodity, deleteCommodity, listAllCommodities, updateCommodity} from "@/services/backend/commodity";
+import {FormattedMessage} from "@@/exports";
+import {renderToString} from "react-dom/server";
 
 const CommodityList: React.FC = () => {
     const [isCommodityModalVisible, setIsCommodityModalVisible] = useState(false);
@@ -22,18 +24,18 @@ const CommodityList: React.FC = () => {
 
     const handleDelete = async (commodityCode: string) => {
         Modal.confirm({
-            title: '确定删除商品?',
-            content: '删除商品将同时删除所有关联的套餐，此操作不可恢复。您确定要继续吗？',
-            okText: '确认',
+            title: <FormattedMessage id="message.confirm-delete-commodity" defaultMessage='确定删除商品?'/>,
+            content: <FormattedMessage id="message.delete-commodity-warning" defaultMessage='删除商品将同时删除所有关联的套餐，此操作不可恢复。您确定要继续吗？'/>,
+            okText: <FormattedMessage id="button.ok" defaultMessage='确定'/>,
             okType: 'danger',
-            cancelText: '取消',
+            cancelText: <FormattedMessage id="button.cancel" defaultMessage='取消'/>,
             onOk: async () => {
                 try {
                     await deleteCommodity({commodityCode});
-                    message.success('商品删除成功');
+                    message.success(<FormattedMessage id="message.commodity-deleted-successfully" defaultMessage='商品删除成功'/>);
                     actionRef.current?.reload();
                 } catch (error) {
-                    message.error('商品删除失败');
+                    message.error(<FormattedMessage id="message.commodity-deletion-failed" defaultMessage='商品删除失败'/>);
                 }
             },
         });
@@ -70,7 +72,7 @@ const CommodityList: React.FC = () => {
 
             }
         } catch (error) {
-            message.error('Failed to fetch commodities');
+            message.error(<FormattedMessage id="message.failed-to-fetch-commodities" defaultMessage='未能获取商品'/>);
         }
         return {
             data: [],
@@ -112,9 +114,9 @@ const CommodityList: React.FC = () => {
                     //@ts-ignore
                     payPeriodUnit: values.payPeriodUnit
                 });
-                message.success('商品更新成功');
+                message.success(<FormattedMessage id="message.commodity-updated-successfully" defaultMessage='商品更新成功'/>);
             } catch (error) {
-                message.error('商品更新失败');
+                message.error(<FormattedMessage id="message.commodity-update-failed" defaultMessage='商品更新失败'/>);
             }
         } else {
             try {
@@ -130,10 +132,10 @@ const CommodityList: React.FC = () => {
                     //@ts-ignore
                     payPeriodUnit: values.payPeriodUnit,
                 });
-                message.success('商品新建成功');
+                message.success(<FormattedMessage id="message.commodity-created-successfully" defaultMessage='商品新建成功'/>);
             } catch (error) {
-                message.error('商品新建失败');
                 console.log(error);
+                message.error(<FormattedMessage id="message.commodity-creation-failed" defaultMessage='商品新建失败'/>);
             }
         }
         setIsCommodityModalVisible(false);
@@ -149,30 +151,30 @@ const CommodityList: React.FC = () => {
     };
 
     const actionColumn: ProColumns<API.CommodityDTO> = {
-        title: '操作',
+        title: <FormattedMessage id="pages.instanceSearchTable.titleOption" defaultMessage='操作'/>,
         dataIndex: 'action',
         key: 'action',
         valueType: 'option',
         render: (text, record, _, action) => [
 
             record.commodityStatus === 'ONLINE' ?
-                <a onClick={() => handleUpdateCommodityStatus(record, 'DRAFT')}>下线</a>
+                <a onClick={() => handleUpdateCommodityStatus(record, 'DRAFT')}><FormattedMessage id="button.offline" defaultMessage='下线'/></a>
                 :
-                <a onClick={() => handleUpdateCommodityStatus(record, 'ONLINE')}>上线</a>
+                <a onClick={() => handleUpdateCommodityStatus(record, 'ONLINE')}><FormattedMessage id="button.online" defaultMessage='上线'/></a>
             ,
 
             <a type="link" onClick={() => {
                 setSelectedCommodity(record);
                 setIsCommodityModalVisible(true);
-            }}>编辑</a>,
+            }}><FormattedMessage id="button.edit" defaultMessage='编辑'/></a>,
 
             <a type="link" onClick={() => {
                 if (record.commodityCode) {
                     handleDelete(record.commodityCode);
                 }
-            }} style={{color: 'red'}}>删除</a>,
+            }} style={{color: 'red'}}><FormattedMessage id="button.delete" defaultMessage='删除'/></a>,
 
-            <a type="link" onClick={() => handleSpecifications(record)}>管理套餐</a>
+            <a type="link" onClick={() => handleSpecifications(record)}><FormattedMessage id="button.manage-specifications" defaultMessage='管理套餐'/></a>
 
         ],
     };
@@ -184,9 +186,9 @@ const CommodityList: React.FC = () => {
 
     // @ts-ignore
     return (
-        <><PageContainer title={"商品"}>
+        <><PageContainer title={<FormattedMessage id="menu.commodity" defaultMessage='商品'/>}>
             <ProTable columns={columns} rowKey="commodityCode"
-                      headerTitle={"商品管理"}
+                      headerTitle={<FormattedMessage id="menu.commodity.commodity-management" defaultMessage="商品管理"/>}
                       actionRef={actionRef}
                       pagination={false}
                       toolBarRender={() => [
@@ -200,7 +202,7 @@ const CommodityList: React.FC = () => {
                                   style={{color: 'inherit'}}
                               >
                                   <PlusOutlined/>
-                                  <span> 新建</span>
+                                  <span> <FormattedMessage id="button.add" defaultMessage="新增"/></span>
                               </a>
                           </Tooltip>
                       ]}

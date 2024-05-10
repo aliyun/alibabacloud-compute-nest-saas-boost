@@ -4,11 +4,12 @@ import styles from ".//component/css/doc.module.css";
 import React from "react";
 import {additionalLinks, links} from "@/pages/Doc/common";
 import {PageContainer} from "@ant-design/pro-layout";
+import {FormattedMessage} from "@@/exports";
 
 const DocPage : React.FC = ()=> {
 
     return (
-        <><PageContainer title={"文档"}>
+        <><PageContainer title={<FormattedMessage id='menu.documentation' defaultMessage='文档'/>}>
             {links.map((link, index) => (
                 <ProCard key={index} bordered headerBordered={true} className={styles.proCard}>
                     <Row justify="start" align="middle">
@@ -26,7 +27,7 @@ const DocPage : React.FC = ()=> {
             <ProCard bordered headerBordered={true} className={styles.additionalProCard}>
                 <Row justify="start" align="middle">
                     <Col>
-                        产品购买
+                        <FormattedMessage id="title.commodity-purchase" defaultMessage='产品购买'/>
                     </Col>
                     <Col>
                         <Divider type="vertical" className={styles.dividerLine}/>

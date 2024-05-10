@@ -20,6 +20,7 @@ import {handlePaySubmit} from "@/util/aliPayUtil";
 import {createTransaction} from "@/services/backend/payment";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 import {centsToYuan} from "@/util/moneyUtil";
+import {FormattedMessage} from "@@/exports";
 
 dayjs.extend(utc);
 
@@ -128,12 +129,12 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
             if (refundOrderId) {
                 await refundOrder({orderId: refundOrderId, dryRun: false});
                 setRefundOrderId(null);
-                message.success('退款中');
+                message.success(<FormattedMessage id='message.refunding' defaultMessage='退款中'/>);
                 window.location.reload();
             }
         } catch (error) {
             console.error(error);
-            message.error('退款失败');
+            message.error(<FormattedMessage id='message.refund-failed' defaultMessage='退款失败'/>);
         }
         setVisible(false);
     };
@@ -163,7 +164,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     }> = ({visible, onVisibleChange, onFinish}) => {
         return (
             <ModalForm
-                title="选择支付方式"
+                title={<FormattedMessage id='title.select-payment-method' defaultMessage="选择支付方式"/>}
                 open={visible}
                 onOpenChange={onVisibleChange}
                 onFinish={onFinish}
@@ -200,7 +201,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
 
             } catch (error) {
                 console.error(error);
-                message.error('交易创建失败');
+                message.error(<FormattedMessage id='message.transaction-creation-failed' defaultMessage='交易创建失败'/>);
             }
         }
         setPayModalVisible(false);
@@ -213,7 +214,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
 
     const columns = OrderColumns.concat([
         {
-            title: '操作',
+            title: <FormattedMessage id="pages.instanceSearchTable.titleOption" defaultMessage='操作'/>,
             key: 'action',
             sorter: false,
             search: false,
@@ -222,7 +223,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 if (record.tradeStatus == TradeStatusEnum.WAIT_BUYER_PAY) {
 
                     const payButton = (<a className={styles.payButton} onClick={() => handlePaySubmitButton(record)}>
-                        支付
+                        <FormattedMessage id='button.pay' defaultMessage='支付'/>
                     </a>);
                     return (
                         <>                        {payButton}
@@ -232,23 +233,23 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                 if (props.serviceType == "managed" && props.serviceInstanceId != undefined && record.canRefund === true) {
                     const refundButton = (
                         <a className={styles.refundButton} onClick={() => handleButtonClick(record)}>
-                            退款
+                            <FormattedMessage id='button.refund' defaultMessage='退款'/>
                         </a>
                     );
 
                     const refundModal = (
                         <Modal title={<div>
                             <ExclamationCircleOutlined style={{color: '#faad14', marginRight: 8}}/>
-                            确定要进行退款吗？
+                            <FormattedMessage id='message.confirm-refund' defaultMessage='确定要进行退款吗？'/>
                         </div>} open={visible} onCancel={handleModalClose} footer={null}>
-                            <Paragraph style={{marginLeft: '24px'}}>您当前订单可退金额为：<span
+                            <Paragraph style={{marginLeft: '24px'}}><FormattedMessage id='message.current-order-refundable-amount' defaultMessage='您当前订单可退金额为：'/><span
                                 style={{color: "red"}}>¥ {refundAmount}</span></Paragraph>
                             <div style={{marginTop: 16, textAlign: 'right'}}>
                                 <Space>
-                                    <Button onClick={handleModalClose}>取消</Button>
+                                    <Button onClick={handleModalClose}><FormattedMessage id='button.cancel' defaultMessage='取消'/></Button>
                                     <Button type="primary"
                                             onClick={handleConfirmRefund}>
-                                        确认退款
+                                        <FormattedMessage id='button.confirm-refund' defaultMessage='确认退款'/>
                                     </Button>
                                 </Space>
 
@@ -281,7 +282,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
                     actionRef.current?.reload();
                 }}
                 actionRef={actionRef}
-                headerTitle={'服务实例订单列表'}
+                headerTitle={<FormattedMessage id='menu.list.service-instance-order-list' defaultMessage='服务实例订单列表'/>}
                 options={{
                     search: false,
                     density: false,

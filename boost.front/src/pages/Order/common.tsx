@@ -17,26 +17,28 @@ import {Tag} from 'antd';
 import {ProColumns} from "@ant-design/pro-components";
 import {PayChannelEnum} from "@/constants";
 import {centsToYuan} from "@/util/moneyUtil";
+import {FormattedMessage} from "@@/exports";
+import React from "react";
 
 export const TradeStatusEnum = {
-    TRADE_CLOSED: '交易关闭',
-    TRADE_SUCCESS: '支付成功',
-    WAIT_BUYER_PAY: '交易创建',
-    TRADE_FINISHED: '交易完成',
-    REFUNDING: '正在退款',
-    REFUNDED: '退款完成',
+    TRADE_CLOSED: <FormattedMessage id='pages.tradeStatus.trade-closed' defaultMessage='交易关闭'/>,
+    TRADE_SUCCESS: <FormattedMessage id='pages.tradeStatus.trade-success' defaultMessage='支付成功'/>,
+    WAIT_BUYER_PAY: <FormattedMessage id='pages.tradeStatus.wait-buyer-pay' defaultMessage='交易创建'/>,
+    TRADE_FINISHED: <FormattedMessage id='pages.tradeStatus.trade-finished' defaultMessage='交易完成'/>,
+    REFUNDING: <FormattedMessage id='pages.tradeStatus.refunding' defaultMessage='正在退款'/>,
+    REFUNDED: <FormattedMessage id='pages.tradeStatus.refunded' defaultMessage='退款完成'/>,
 };
 
 export const OrderColumns: ProColumns<API.OrderDTO>[] = [
     {
-      title: '订单号',
+      title: <FormattedMessage id="pages.instanceSearchTable.orderId" defaultMessage="订单号"/>,
       dataIndex: 'orderId',
       key: 'orderId',
       sorter: false, //@ts-ignore
       search: true,
     },
     {
-        title: '产品名称',
+        title: <FormattedMessage id="title.commodity-name" defaultMessage='产品名称'/>,
         dataIndex: 'commodityName',
         key: 'commodityName',
         sorter: false,
@@ -44,58 +46,50 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
     }
     ,
     {
-        title: '套餐名称',
+        title: <FormattedMessage id="title.specification-name" defaultMessage='套餐名称'/>,
         dataIndex: 'specificationName',
         key: 'specificationName',
         sorter: false,
         search: false,
         render: (_, record) => {
-            return record.specificationName || '无套餐';
+            return record.specificationName || <FormattedMessage id="message.no-specification" defaultMessage='无套餐'/>;
         },
     },
     {
-        title: '交易状态',
+        title: <FormattedMessage id="title.trade-status" defaultMessage='交易状态'/>,
         dataIndex: 'tradeStatus',
         key: 'tradeStatus',
         valueEnum: TradeStatusEnum,
         render: (dom, entity) => {
             const text = entity.tradeStatus;
             let color = 'default';
-            switch (text) {
-                case TradeStatusEnum.TRADE_SUCCESS:
-                    color = 'success';
-                    break;
-                case TradeStatusEnum.TRADE_CLOSED:
-                    color = 'gold';
-                    break;
-                case TradeStatusEnum.WAIT_BUYER_PAY:
-                    color = 'warning';
-                    break;
-                case TradeStatusEnum.TRADE_FINISHED:
-                    color = 'error';
-                    break;
-                case TradeStatusEnum.REFUNDING:
-                    color = 'processing';
-                    break;
-                case TradeStatusEnum.REFUNDED:
-                    color = 'default';
-                    break;
-                default:
-                    color = 'default';
-                    break;
+            if (text === TradeStatusEnum.TRADE_SUCCESS) {
+                color = 'success';
+            } else if (text === TradeStatusEnum.TRADE_CLOSED) {
+                color = 'gold';
+            } else if (text === TradeStatusEnum.WAIT_BUYER_PAY) {
+                color = 'warning';
+            } else if (text === TradeStatusEnum.TRADE_FINISHED) {
+                color = 'error';
+            } else if (text === TradeStatusEnum.REFUNDING) {
+                color = 'processing';
+            } else if (text === TradeStatusEnum.REFUNDED) {
+                color = 'default';
+            } else {
+                color = 'default';
             }
             return <Tag color={color}>{text}</Tag>;
         },
     },
     {
-        title: '支付类型',
+        title: <FormattedMessage id="title.payment-type" defaultMessage='支付类型'/>,
         dataIndex: 'payChannel',
         key: 'payChannel',
         valueEnum: PayChannelEnum,
         search: false,
     },
     {
-        title: '总金额',
+        title: <FormattedMessage id="title.total-amount" defaultMessage='总金额'/>,
         dataIndex: 'totalAmount',
         key: 'totalAmount',
         sorter: false,
@@ -105,14 +99,14 @@ export const OrderColumns: ProColumns<API.OrderDTO>[] = [
         ),
     },
     {
-        title: '创建时间',
-        tip: '查询您选择的时间到当前时间内的所有订单',
+        title: <FormattedMessage id="title.creation-time" defaultMessage='创建时间'/>,
+        tip: <FormattedMessage id="message.query-orders-for-selected-time-range" defaultMessage='查询您选择的时间到当前时间内的所有订单'/>,
         dataIndex: 'gmtCreate',
         key: 'gmtCreate',
         valueType: 'dateTime',
     },
     {
-        title: "支付表单",
+        title: <FormattedMessage id="title.payment-form" defaultMessage="支付表单"/>,
         key: 'paymentForm',
         dataIndex: 'paymentForm',
         sorter: false,
