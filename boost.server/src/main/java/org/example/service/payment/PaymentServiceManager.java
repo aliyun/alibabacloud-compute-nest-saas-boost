@@ -15,7 +15,6 @@
 package org.example.service.payment;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;

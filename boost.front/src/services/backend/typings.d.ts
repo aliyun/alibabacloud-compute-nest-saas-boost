@@ -160,8 +160,8 @@ declare namespace API {
     encrypted?: boolean;
     name?: string;
   };
-
-  type CreateCommodityParam = {
+  
+  type createCommodityParams = {
     chargeType?: 'PostPaid' | 'PrePaid';
     commodityName?: string;
     commodityStatus?: 'DRAFT' | 'ONLINE';

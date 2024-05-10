@@ -90,6 +90,7 @@ import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.base.ServiceManager;
 import org.example.service.order.OrderService;
+import org.example.common.helper.WalletHelper;
 import org.example.service.payment.PaymentServiceManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
