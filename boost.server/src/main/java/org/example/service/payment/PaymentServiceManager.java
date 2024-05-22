@@ -14,12 +14,16 @@
  */
 package org.example.service.payment;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.example.common.constant.AliPayConstants;
 import org.example.common.dataobject.OrderDO;
 import org.example.common.dto.OrderDTO;
-import org.example.common.filter.RepeatableReadHttpRequest;
 import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.model.PaymentOrderModel;
 import org.example.common.model.UserInfoModel;
@@ -29,13 +33,6 @@ import org.example.common.utils.MoneyUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 @Component
