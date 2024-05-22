@@ -65,7 +65,6 @@ public class ServiceManagerImpl implements ServiceManager {
     @Resource
     private WalletHelper walletHelper;
 
-    @Cacheable(value = "serviceModelCache", key = "targetClass + methodName+#getServiceMetadataParam.serviceId")
     @Override
     public BaseResult<ServiceMetadataModel> getServiceMetadata(UserInfoModel userInfoModel, GetServiceMetadataParam getServiceMetadataParam) {
         GetServiceRequest request = new GetServiceRequest();
