@@ -7,7 +7,7 @@ import {ProTable} from "@ant-design/pro-components";
 import {Button, message, Modal, Pagination, Space, Typography} from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {ProFormInstance} from "@ant-design/pro-form";
+import {ModalForm, ProFormInstance} from "@ant-design/pro-form";
 
 import {ServiceInstanceOrderProps} from "@/pages/ServiceInstanceOrder/components/interface";
 import {PayChannelEnum, TIME_FORMAT} from "@/constants";
@@ -21,7 +21,7 @@ import {createTransaction} from "@/services/backend/payment";
 import PayTypeFormItem from "@/pages/Service/component/PayTypeFormItem";
 import {centsToYuan} from "@/util/moneyUtil";
 import {FormattedMessage} from "@@/exports";
-import {ProFormRadio} from "@ant-design/pro-form";
+import {handleWechatPaySubmit} from "@/util/wechatPayUtil";
 
 dayjs.extend(utc);
 
@@ -38,7 +38,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
     const {Paragraph} = Typography;
     const actionRef = useRef<ActionType>();
-    const [payModalVisible, setPayModalVisible] = useState(false);
+    const [isPayModalVisible, setPayModalVisible] = useState(false);
     const [currentOrder, setCurrentOrder] = useState<API.OrderDTO | null>(null);
     const form = useRef<ProFormInstance>();
 
@@ -157,56 +157,24 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         }
     };
 
-    const PayModal: React.FC<{
+
+    const PayModalForm: React.FC<{
         visible: boolean;
-        onCancel: () => void;
-    }> = ({ visible, onCancel }) => {
-        const [payChannel, setPayChannel] = useState<string>('ALIPAY');
-        const [qrCodeUrl, setQrCodeUrl] = useState<string | undefined>();
-
-        // 在用户选择支付方式时调用
-        const handlePayChannelChange = async (selectedPayChannel: string) => {
-            setPayChannel(selectedPayChannel);
-            if (currentOrder) {
-                try {
-                    const transactionResponse = await createTransaction({
-                        orderId: currentOrder.orderId,
-                        payChannel: payChannel as PayChannelEnum.ALIPAY | PayChannelEnum.WECHATPAY,
-                    });
-
-                    if (transactionResponse.code === '200' && transactionResponse.data) {
-                        setQrCodeUrl(transactionResponse.data);
-                    } else {
-                        message.error('无法获取二维码');
-                    }
-                } catch (error) {
-                    message.error('创建交易失败');
-                    console.error('Error when creating transaction:', error);
-                }
-            }
-        };
-
-        // 监听支付方式的变化
-        useEffect(() => {
-            if (visible) {
-                handlePayChannelChange(payChannel);
-            } else {
-                setQrCodeUrl(undefined);
-            }
-        }, [visible, payChannel]);
-
+        onVisibleChange: (visible: boolean) => void;
+        onFinish: (values: any) => Promise<void>;
+    }> = ({visible, onVisibleChange, onFinish}) => {
         return (
-            <Modal
-                title="支付"
+            <ModalForm
+                title={<FormattedMessage id='title.select-payment-method' defaultMessage="选择支付方式"/>}
                 open={visible}
-                onCancel={onCancel}
-                footer={null}
+                onOpenChange={onVisibleChange}
+                onFinish={onFinish}
+                formRef={form}
+                layout={'horizontal'}
+                width={400}
             >
-                <PayTypeFormItem
-                    onPayChannelChange={handlePayChannelChange}
-                />
-                {qrCodeUrl && <img src={qrCodeUrl} style={{ width: '100%' }} alt="Payment QR Code" />}
-            </Modal>
+                <PayTypeFormItem/>
+            </ModalForm>
         );
     };
 
@@ -214,6 +182,37 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
         setPayModalVisible(true);
         setCurrentOrder(record);
     }
+
+    const handleCreateTransaction = async () => {
+
+        if (currentOrder) {
+            try {
+                // console.log(form.current?.getFieldsValue());
+                console.log(currentOrder);
+                const {payChannel} = await form.current?.getFieldsValue();
+                console.log(payChannel);
+                const transactionResult: API.BaseResultString_ = await createTransaction({
+                    orderId: currentOrder.orderId,
+                    payChannel: payChannel
+
+                });
+                if (transactionResult.code == "200" && transactionResult.data != undefined) {
+                    if (payChannel === 'ALIPAY') {
+                        await handlePaySubmit(transactionResult.data);
+                    } else if (payChannel === 'WECHATPAY') {
+                        await handleWechatPaySubmit(transactionResult.data);
+                    }
+
+                }
+
+            } catch (error) {
+                console.error(error);
+                message.error(<FormattedMessage id='message.transaction-creation-failed' defaultMessage='交易创建失败'/>);
+            }
+        }
+        setPayModalVisible(false);
+    };
+
 
     const handleModalClose = () => {
         setVisible(false);
@@ -277,9 +276,10 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     return (
         <PageContainer title={props.serviceInstanceId}>
 
-            <PayModal
-                visible={payModalVisible}
-                onCancel={() => setPayModalVisible(false)}
+            <PayModalForm
+                visible={isPayModalVisible}
+                onVisibleChange={setPayModalVisible}
+                onFinish={handleCreateTransaction}
             />
             <ProTable
                 onSubmit={(values) => {
