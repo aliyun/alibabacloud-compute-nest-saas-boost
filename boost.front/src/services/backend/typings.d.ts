@@ -403,15 +403,6 @@ declare namespace API {
     requestId?: string;
   };
 
-  type ListResultString_ = {
-    code?: string;
-    count?: number;
-    data?: string[];
-    message?: string;
-    nextToken?: string;
-    requestId?: string;
-  };
-
   type ListServiceInstancesParam = {
     maxResults?: number;
     nextToken?: string;
