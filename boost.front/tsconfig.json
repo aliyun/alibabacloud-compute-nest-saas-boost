@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "typeRoots": ["node_modules/@types"],
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
