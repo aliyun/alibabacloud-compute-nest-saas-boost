@@ -49,13 +49,10 @@ public class WechatPayValidatorUtil {
         try {
             //处理请求参数
             validateParameters(request);
-
             //构造验签名串
             String message = buildMessage(request);
-
             String serial = request.getHeader(WECHAT_PAY_SERIAL);
             String signature = request.getHeader(WECHAT_PAY_SIGNATURE);
-            log.info("request : {}", JsonUtil.toJsonString(request));
             //验签
             if (!verifier.verify(serial, message.getBytes(StandardCharsets.UTF_8), signature)) {
                 throw verifyFail("serial=[%s] message=[%s] sign=[%s], request-id=[%s]",

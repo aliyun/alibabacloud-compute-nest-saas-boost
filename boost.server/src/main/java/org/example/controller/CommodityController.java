@@ -62,7 +62,7 @@ public class CommodityController {
 
     @AdminAPI
     @ApiOperation(value = "更新商品信息", nickname = "updateCommodity")
-    @RequestMapping(path = "/updateCommodity}", method = RequestMethod.POST)
+    @RequestMapping(path = "/updateCommodity", method = RequestMethod.POST)
     public BaseResult<Void> updateCommodity(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
                                             @Valid @RequestBody UpdateCommodityParam param) {
         return commodityService.updateCommodity(userInfoModel, param);

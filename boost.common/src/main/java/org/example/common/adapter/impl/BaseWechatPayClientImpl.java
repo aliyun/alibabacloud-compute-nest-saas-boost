@@ -37,6 +37,7 @@ import com.wechat.pay.contrib.apache.httpclient.auth.ScheduledUpdateCertificates
 import com.wechat.pay.contrib.apache.httpclient.auth.WechatPay2Credentials;
 import com.wechat.pay.contrib.apache.httpclient.auth.WechatPay2Validator;
 import com.wechat.pay.contrib.apache.httpclient.util.PemUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.example.common.adapter.BaseWechatPayClient;
@@ -64,8 +65,10 @@ import static org.example.common.constant.WechatPayConstants.MCH_ID;
 
 @Component
 @Slf4j
+@Getter
 public class BaseWechatPayClientImpl implements BaseWechatPayClient {
 
+    @Resource
     private BoostWechatPayConfig wechatPayConfig;
 
     private CloseableHttpClient wechatPayHttpClient;
@@ -82,6 +85,8 @@ public class BaseWechatPayClientImpl implements BaseWechatPayClient {
     private static final String LOCAL_CERT_STORAGE_PATH = "/home/admin/application/boost.server/target/cert";
 
     private String keyPath;
+
+    private ScheduledUpdateCertificatesVerifier scheduledUpdateCertificatesVerifier;
 
 
     @Override
@@ -234,14 +239,15 @@ public class BaseWechatPayClientImpl implements BaseWechatPayClient {
     }
 
     @Override
-    public ScheduledUpdateCertificatesVerifier getVerifier(){
-        PrivateKey privateKey = getPrivateKey(keyPath);
-        PrivateKeySigner privateKeySigner = new PrivateKeySigner(wechatPayConfig.getMchSerialNo(), privateKey);
-        WechatPay2Credentials wechatPay2Credentials = new WechatPay2Credentials(wechatPayConfig.getMchId(),
-                privateKeySigner);
-        log.info("config keyPath: {}, getMchSerialNo :{}, privateKey :{}, mchId :{} ", keyPath, wechatPayConfig.getMchSerialNo(), privateKey, wechatPayConfig.getMchId());
-        return new ScheduledUpdateCertificatesVerifier(wechatPay2Credentials,
-                wechatPayConfig.getApiV3Key().getBytes(StandardCharsets.UTF_8));
+    public ScheduledUpdateCertificatesVerifier getVerifier() {
+        return scheduledUpdateCertificatesVerifier;
+//        PrivateKey privateKey = getPrivateKey(keyPath);
+//        PrivateKeySigner privateKeySigner = new PrivateKeySigner(wechatPayConfig.getMchSerialNo(), privateKey);
+//        WechatPay2Credentials wechatPay2Credentials = new WechatPay2Credentials(wechatPayConfig.getMchId(),
+//                privateKeySigner);
+//        log.info("config keyPath: {}, getMchSerialNo :{}, privateKey :{}, mchId :{} ", keyPath, wechatPayConfig.getMchSerialNo(), privateKey, wechatPayConfig.getMchId());
+//        return new ScheduledUpdateCertificatesVerifier(wechatPay2Credentials,
+//                wechatPayConfig.getApiV3Key().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -270,11 +276,20 @@ public class BaseWechatPayClientImpl implements BaseWechatPayClient {
                 WxPayApiConfigKit.setThreadLocalWxPayApiConfig(wxPayApiConfig);
 
                 PrivateKey privateKey = getPrivateKey(keyPath);
+                PrivateKeySigner privateKeySigner = new PrivateKeySigner(wechatPayConfig.getMchSerialNo(), privateKey);
+                WechatPay2Credentials wechatPay2Credentials = new WechatPay2Credentials(wechatPayConfig.getMchId(),
+                        privateKeySigner);
+                log.info("config keyPath: {}, getMchSerialNo :{}, privateKey :{}, mchId :{} ", keyPath, wechatPayConfig.getMchSerialNo(), privateKey, wechatPayConfig.getMchId());
+                scheduledUpdateCertificatesVerifier = new ScheduledUpdateCertificatesVerifier(wechatPay2Credentials,
+                        wechatPayConfig.getApiV3Key().getBytes(StandardCharsets.UTF_8));
+
                 WechatPayHttpClientBuilder builder = WechatPayHttpClientBuilder.create()
                         .withMerchant(wechatPayConfig.getMchId(), wechatPayConfig.getMchSerialNo(), privateKey)
-                        .withValidator(new WechatPay2Validator(getVerifier()));
+                        .withValidator(new WechatPay2Validator(scheduledUpdateCertificatesVerifier));
 
                 wechatPayHttpClient = builder.build();
+
+
                 log.info("WechatPay client created.");
             }
         } catch (Exception e) {

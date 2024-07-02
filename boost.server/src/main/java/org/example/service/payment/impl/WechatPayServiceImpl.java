@@ -21,18 +21,6 @@ import com.google.gson.reflect.TypeToken;
 import com.ijpay.core.kit.HttpKit;
 import com.wechat.pay.contrib.apache.httpclient.auth.Verifier;
 import com.wechat.pay.contrib.apache.httpclient.util.AesUtil;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
@@ -51,10 +39,24 @@ import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.order.GetOrderParam;
 import org.example.common.utils.DateUtil;
+import org.example.common.utils.JsonUtil;
 import org.example.service.order.OrderService;
 import org.example.service.payment.PaymentService;
 import org.example.util.WechatPayValidatorUtil;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * author: wennian
@@ -82,18 +84,19 @@ public class WechatPayServiceImpl implements PaymentService {
 
     private final String SUCCESS = "SUCCESS";
 
+    private static final Gson gson = new Gson();
+
     @Override
     public void verifyTradeCallback(HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> responseMap = new HashMap<>(12);
-        Gson gson = new Gson();
         String body = HttpKit.readData(request);
-        Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
-        Map<String, Object> bodyMap = gson.fromJson(body, mapType);
+        Map<String, Object> bodyMap = JsonUtil.fromJson(body, new TypeToken<Map<String, Object>>() {
+        }.getType());
+        log.info("bodyMap:{}", JSONUtil.toJsonStr(bodyMap));
         try {
             String requestId = (String)bodyMap.get(WechatPayConstants.REQUEST_ID);
-            verifier = baseWechatPayClient.getVerifier();
             WechatPayValidatorUtil wechatPayValidatorUtil
-                    = new WechatPayValidatorUtil(verifier, requestId, body);
+                    = new WechatPayValidatorUtil(baseWechatPayClient.getVerifier(), requestId, body);
             if(!wechatPayValidatorUtil.validate(request)){
                 log.error("Payment notification signature verification failed");
                 setResponseFail(response, responseMap);
@@ -109,10 +112,9 @@ public class WechatPayServiceImpl implements PaymentService {
     @Override
     public void verifyRefundCallback(HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> responseMap = new HashMap<>(12);
-        Gson gson = new Gson();
         String body = HttpKit.readData(request);
-        Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
-        Map<String, Object> bodyMap = gson.fromJson(body, mapType);
+        Map<String, Object> bodyMap = JsonUtil.fromJson(body, new TypeToken<Map<String, Object>>() {
+        }.getType());
         try {
             String requestId = (String)bodyMap.get(WechatPayConstants.REQUEST_ID);
             verifier = baseWechatPayClient.getVerifier();

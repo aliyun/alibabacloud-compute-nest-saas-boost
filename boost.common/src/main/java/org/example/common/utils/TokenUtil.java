@@ -20,12 +20,20 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 import java.beans.PropertyDescriptor;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class TokenUtil {
+
+    private static final Set<String> FILTERED_PROPERTIES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("class", "token", "serialVersionUID"))
+    );
 
     /**
      * Generate a validation token based on parameters and a security key.
@@ -61,7 +69,7 @@ public class TokenUtil {
 
         for (PropertyDescriptor pd : propertyDescriptors) {
             String propertyName = pd.getName();
-            if (!"class".equals(propertyName) && !"token".equals(propertyName)) {
+            if (!FILTERED_PROPERTIES.contains(propertyName)) {
                 Object propertyValue = beanWrapper.getPropertyValue(propertyName);
                 if (propertyValue != null) {
                     propertiesMap.put(propertyName, propertyValue.toString());

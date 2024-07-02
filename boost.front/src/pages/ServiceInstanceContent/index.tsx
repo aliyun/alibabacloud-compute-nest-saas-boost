@@ -243,9 +243,7 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
                                     footer={null}
                                     title="删除服务实例"
                                 >
-                                    <Paragraph>您当前服务实例可退金额为：<span
-                                        style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
-                                    <Paragraph><FormattedMessage id="message.current-refundable-amount" defaultMessage='您当前服务实例可退金额为：'/><span style={{color: "red"}}>{refundAmount}</span></Paragraph>
+                                    <Paragraph><FormattedMessage id="message.current-refundable-amount" defaultMessage='您当前服务实例可退金额为：'/><span style={{color: "red"}}>{centsToYuan(refundAmount)}</span></Paragraph>
                                     <div style={{marginTop: 16, textAlign: 'right'}}>
                                         <Space>
 
