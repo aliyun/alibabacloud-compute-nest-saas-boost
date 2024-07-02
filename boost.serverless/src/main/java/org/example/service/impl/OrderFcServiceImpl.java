@@ -17,6 +17,7 @@ package org.example.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.OrderOtsConstant;
 import org.example.common.constant.TradeStatus;
@@ -44,6 +45,8 @@ public class OrderFcServiceImpl implements OrderFcService {
     private OrderOtsHelper orderOtsHelper;
 
     private BaseAlipayClient baseAlipayClient;
+
+    private BaseWechatPayClient baseWechatPayClient;
 
     private ComputeNestSupplierClient computeNestSupplierClient;
 
@@ -91,6 +94,7 @@ public class OrderFcServiceImpl implements OrderFcService {
                 .serviceInstanceId(order.getServiceInstanceId())
                 .computeNestSupplierClient(computeNestSupplierClient)
                 .baseAlipayClient(baseAlipayClient)
+                .baseWechatPayClient(baseWechatPayClient)
                 .orderOtsHelper(orderOtsHelper)
                 .scheduledThreadPool(scheduledThreadPool)
                 .countDownLatch(countDownLatch)
