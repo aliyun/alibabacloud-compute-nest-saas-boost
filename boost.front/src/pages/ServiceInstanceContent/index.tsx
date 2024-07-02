@@ -320,10 +320,9 @@ const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) =>
             </div>
         );
 
-        // @ts-ignore
         return (
-            <PageContainer title={props.serviceInstanceId}>
-                <RenewalModal
+            // @ts-ignore
+            <PageContainer title={props.serviceInstanceId}><RenewalModal
                     qrCodeURL={tradeResult? tradeResult : ""}
                     orderAmount={currentOrder?.totalAmount? currentOrder?.totalAmount : -1}
                     orderNumber={currentOrder?.orderId? currentOrder?.orderId : ""}

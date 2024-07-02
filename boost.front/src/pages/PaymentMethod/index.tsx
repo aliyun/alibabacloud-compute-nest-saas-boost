@@ -7,6 +7,7 @@ import {RootState} from "@/store/state";
 import WechatPayModal from "@/pages/PaymentMethod/WechatPay";
 import AlipayModal from "@/pages/PaymentMethod/Alipay";
 import { useNavigate } from 'react-router-dom';
+import {centsToYuan} from "@/util/moneyUtil";
 
 interface PaymentModalProps {
     qrCodeURL: string;
@@ -136,7 +137,7 @@ export const RenewalModal: React.FC<RenewalModalProps> = ({    qrCodeURL,
             style={{ textAlign: 'center' }}
         >
             <Row align="middle">
-                <span style={{ fontSize: '16px', fontWeight: 'bold' }}>订单金额: ¥{(orderAmount / 100).toFixed(2)}</span>
+                <span style={{ fontSize: '16px', fontWeight: 'bold' }}>订单金额: ¥{centsToYuan(orderAmount)}</span>
             </Row>
             <ProCard>
                 {activePaymentMethodKey === 'ALIPAY'? <AlipayModal qrCodeURL={qrCodeURL}/>:null}
