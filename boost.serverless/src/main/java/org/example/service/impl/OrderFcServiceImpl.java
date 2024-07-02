@@ -55,9 +55,10 @@ public class OrderFcServiceImpl implements OrderFcService {
     private OrderProcessor orderProcessor;
 
     public OrderFcServiceImpl(OrderOtsHelper orderOtsHelper, BaseAlipayClient baseAlipayClient,
-                              ComputeNestSupplierClient computeNestSupplierClient, ScheduledExecutorService scheduledThreadPool, OrderProcessor orderProcessor) {
+                              ComputeNestSupplierClient computeNestSupplierClient, ScheduledExecutorService scheduledThreadPool, OrderProcessor orderProcessor, BaseWechatPayClient baseWechatPayClient) {
         this.orderOtsHelper = orderOtsHelper;
         this.baseAlipayClient = baseAlipayClient;
+        this.baseWechatPayClient = baseWechatPayClient;
         this.computeNestSupplierClient = computeNestSupplierClient;
         this.scheduledThreadPool = scheduledThreadPool;
         this.orderProcessor = orderProcessor;
