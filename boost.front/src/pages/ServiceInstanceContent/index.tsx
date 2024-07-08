@@ -39,9 +39,12 @@ import {
 import {getCommodity, getCommodityPrice} from "@/services/backend/commodity";
 import {FormattedMessage} from "@@/exports";
 import {RenewalModal} from "@/pages/PaymentMethod";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store/state";
 
 dayjs.extend(utc);
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
+    const  = useSelector((state: RootState) => state.providerInfo.providerName);
     const {serviceInstanceId} = props;
     const [data, setData] = useState<API.ServiceInstanceModel>();
     const [order, setOrder] = useState<API.OrderDTO | undefined>(undefined);

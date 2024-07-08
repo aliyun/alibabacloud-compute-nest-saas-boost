@@ -34,7 +34,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({    qrCodeURL,
         description: state.providerInfo.providerDescription,
         logoUrl: state.providerInfo.providerLogoUrl,
     }));
-
+    const alipayConfigured = useSelector((state: RootState) => state.paymentMethod.alipayConfigured);
+    const wechatPayConfigured = useSelector((state: RootState) => state.paymentMethod.wechatPayConfigured);
     const navigate = useNavigate();
 
     const goToServiceInstance = () => {
@@ -68,20 +69,27 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({    qrCodeURL,
                 <span style={{ fontSize: '16px', fontWeight: 'bold' }}>订单金额: ¥{(orderAmount / 100).toFixed(2)}</span>
             </Row>
 
-            <ProCard
-                tabs={{
-                    type: 'card',
-                    activeKey: activePaymentMethodKey,
-                    onChange: (key) => onPaymentMethodKeyChange(key),
-                }}
-            >
-                <ProCard.TabPane key="ALIPAY" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝</span>}>
-                    <AlipayModal qrCodeURL={qrCodeURL}/>
-                </ProCard.TabPane>
-                <ProCard.TabPane key="WECHATPAY" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>微信支付</span>}>
-                    <WechatPayModal qrCodeURL={qrCodeURL}/>
-                </ProCard.TabPane>
-            </ProCard>
+            {alipayConfigured && wechatPayConfigured ? (
+                <ProCard
+                    tabs={{
+                        type: 'card',
+                        activeKey: activePaymentMethodKey,
+                        onChange: (key) => onPaymentMethodKeyChange(key),
+                    }}
+                >
+                    <ProCard.TabPane key="ALIPAY" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>支付宝</span>}>
+                        <AlipayModal qrCodeURL={qrCodeURL}/>
+                    </ProCard.TabPane>
+                    <ProCard.TabPane key="WECHATPAY" tab={<span style={{ fontSize: '16px', fontWeight: 'bold' }}>微信支付</span>}>
+                        <WechatPayModal qrCodeURL={qrCodeURL}/>
+                    </ProCard.TabPane>
+                </ProCard>
+            ) : (<ProCard>
+                    {activePaymentMethodKey === 'ALIPAY'? <AlipayModal qrCodeURL={qrCodeURL}/>:null}
+                    {activePaymentMethodKey === 'WECHATPAY'? <WechatPayModal qrCodeURL={qrCodeURL}/>:null}
+                </ProCard>
+            )}
+
             <Row justify="end" style={{ marginTop: '24px' }}>
                 <Button type="primary" onClick={goToServiceInstance}>
                     已支付

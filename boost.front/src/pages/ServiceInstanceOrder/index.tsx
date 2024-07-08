@@ -19,10 +19,13 @@ import {createTransaction} from "@/services/backend/payment";
 import {centsToYuan} from "@/util/moneyUtil";
 import {FormattedMessage} from "@@/exports";
 import {PaymentModal} from "@/pages/PaymentMethod";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store/state";
 
 dayjs.extend(utc);
 
 export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
+    const alipayConfigured = useSelector((state: RootState) => state.paymentMethod.alipayConfigured);
     const searchParams = getHashSearchParams();
     const initialOrderId = searchParams.get('orderId') || undefined;
     const [orders, setOrders] = useState<API.OrderDTO[]>([]);
@@ -38,7 +41,7 @@ export const Index: React.FC<ServiceInstanceOrderProps> = (props) => {
     const [paymentModalVisible, setPaymentModalVisible] = useState(false);
     const [currentOrder, setCurrentOrder] = useState<API.OrderDTO | null>(null);
     const [tradeResult, setTradeResult] = useState<string | null>(null);
-    const [activePaymentMethodKey, setActivePaymentMethodKey] = useState<string>('ALIPAY');
+    const [activePaymentMethodKey, setActivePaymentMethodKey] = useState<string>(alipayConfigured? 'ALIPAY' : 'WECHATPAY');
     const [alipayTradeResult, setAlipayTradeResult] = useState<string | null>(null);
     const [wechatTradeResult, setWechatTradeResult] = useState<string | null>(null);
     const [filterValues, setFilterValues] = useState<{
