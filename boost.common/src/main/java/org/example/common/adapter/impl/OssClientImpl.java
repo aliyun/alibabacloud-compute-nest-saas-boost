@@ -32,14 +32,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.common.BaseResult;
 import org.example.common.adapter.OssClient;
 import org.example.common.config.AliyunConfig;
-import static org.example.common.constant.Constants.BUCKET;
-import static org.example.common.constant.Constants.SAAS_BOOST;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.utils.JsonUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author mengjunwei.mjw
+ */
 @Service
 @Slf4j
 public class OssClientImpl implements OssClient {
@@ -49,14 +50,9 @@ public class OssClientImpl implements OssClient {
     @Value("${service.region-id}")
     private String regionId;
 
-    @Value("${stack-name}")
-    private String stackName;
+    private static final String NEW_LINE = "\n";
 
-    private static String NEW_LINE = "\n";
-
-    private static String OSS_ENDPOINT = "oss-%s.aliyuncs.com";
-
-    private static String BUCKET_NAME_FORMAT = "%s-%s-%s";
+    private static final String OSS_ENDPOINT = "oss-%s.aliyuncs.com";
 
     @Override
     public BaseResult<Boolean> putObject(String bucketName, String objectName, String objectContent) {
@@ -97,7 +93,7 @@ public class OssClientImpl implements OssClient {
     public BaseResult<String> getObjectUrlWithSign(String bucketName, String objectName) {
         if (doesObjectExist(bucketName, objectName)){
             try {
-                Date expiration = new Date(new Date().getTime() + 60 * 1000L);
+                Date expiration = new Date(System.currentTimeMillis() + 60 * 1000L);
                 GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, objectName, HttpMethod.GET);
                 request.setExpiration(expiration);
                 URL signedUrl = client.generatePresignedUrl(request);
@@ -142,44 +138,18 @@ public class OssClientImpl implements OssClient {
         String endPoint = String.format(OSS_ENDPOINT, regionId);
         this.client = new OSSClientBuilder().build(endPoint, aliyunConfig.getClient().getAccessKeyId(),
                 aliyunConfig.getClient().getAccessKeySecret(), aliyunConfig.getClient().getSecurityToken());
-        String bucketName = String.format(BUCKET_NAME_FORMAT, SAAS_BOOST, stackName, BUCKET);
-        createBucket(bucketName);
     }
 
     @Override
     public void createClient(String accessKeyId, String accessKeySecret, String securityToken) throws Exception {
         String endPoint = String.format(OSS_ENDPOINT, regionId);
         this.client = new OSSClientBuilder().build(endPoint, accessKeyId, accessKeySecret, securityToken);
-        String bucketName = String.format(BUCKET_NAME_FORMAT, SAAS_BOOST, stackName, BUCKET);
-        createBucket(bucketName);
     }
 
     @Override
     public void createClient(String accessKeyId, String accessKeySecret) throws Exception {
         String endPoint = String.format(OSS_ENDPOINT, regionId);
         this.client = new OSSClientBuilder().build(endPoint, accessKeyId, accessKeySecret);
-        String bucketName = String.format(BUCKET_NAME_FORMAT, SAAS_BOOST, stackName, BUCKET);
-        createBucket(bucketName);
-    }
-
-    private void createBucket(String bucketName) {
-        if (!doesBucketExist(bucketName)) {
-            try {
-                this.client.createBucket(bucketName);
-            } catch (Exception e) {
-                log.error("ossClient.createBucket request:{}, throw Exception", JsonUtil.toJsonString(bucketName), e);
-                throw new BizException(ErrorInfo.BUCKET_CREATION_FAILED);
-            }
-        }
-    }
-
-    private boolean doesBucketExist(String bucketName) {
-        try {
-            return client.doesBucketExist(bucketName);
-        } catch (Exception e) {
-            log.error("ossClient.doesBucketExist request:{}, throw Exception", JsonUtil.toJsonString(bucketName), e);
-            throw new BizException(ErrorInfo.BUCKET_EXISTENCE_CHECK_FAILED);
-        }
     }
 
     private boolean doesObjectExist(String bucketName, String objectName) {
@@ -189,13 +159,5 @@ public class OssClientImpl implements OssClient {
             log.error("ossClient.doesObjectExist request:{}, throw Exception", JsonUtil.toJsonString(bucketName), e);
             throw new BizException(ErrorInfo.OBJECT_EXISTENCE_CHECK_FAILED);
         }
-    }
-
-    private String extractFileName(String fullPath) {
-        int lastIndex = fullPath.lastIndexOf('/');
-
-        return (lastIndex == -1 || lastIndex == fullPath.length() - 1)
-                ? fullPath
-                : fullPath.substring(lastIndex + 1);
     }
 }
