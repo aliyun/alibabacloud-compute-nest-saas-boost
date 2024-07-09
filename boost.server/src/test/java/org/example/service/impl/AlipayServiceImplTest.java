@@ -102,6 +102,8 @@ class AlipayServiceImplTest {
         request.setParameter("trade_status", "TRADE_SUCCESS");
         request.setParameter("type", "ALIPAY");
         request.setParameter("total_amount", "100.0");
+        request.setParameter("buyer_pay_amount", "100.0");
+        request.setParameter("receipt_amount", "100.0");
         Map<String, String> requestToMap = HttpUtil.requestToMap(request);
         OrderDO orderDO = HttpUtil.requestToObject(request, OrderDO.class);
         String result = alipayService.verifyTradeCallback(request);
@@ -132,6 +134,8 @@ class AlipayServiceImplTest {
         request.setParameter("seller_id", "111");
         request.setParameter("app_id", "222");
         request.setParameter("total_amount", "100.0");
+        request.setParameter("buyer_pay_amount", "100.0");
+        request.setParameter("receipt_amount", "100.0");
         request.setParameter("sign", "validSignature");
         Map<String, String> requestToMap = HttpUtil.requestToMap(request);
         PaymentOrderModel orderDO = HttpUtil.requestToObject(request, PaymentOrderModel.class);
