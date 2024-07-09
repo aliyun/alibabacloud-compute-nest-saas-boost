@@ -14,11 +14,9 @@
  */
 package org.example.service.payment;
 
-import org.example.common.dto.OrderDTO;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.example.common.dto.OrderDTO;
 
 public interface PaymentService {
     /**
@@ -40,7 +38,7 @@ public interface PaymentService {
      * @param request http request
      * @param response http response
      */
-    void verifyTradeCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    void verifyTradeCallback(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * Verifies the refund callback received from the payment channel.

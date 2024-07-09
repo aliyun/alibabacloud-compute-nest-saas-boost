@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.cert.DeleteCertParam;
@@ -25,6 +26,7 @@ public class CertificateController {
     @Resource
     private CertificateService certificateService;
 
+    @AdminAPI
     @ApiOperation(value = "上传证书", nickname = "putCert")
     @RequestMapping(path = "/putCert", method = RequestMethod.POST)
     public BaseResult<Boolean> putCert(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,
@@ -32,6 +34,7 @@ public class CertificateController {
         return certificateService.putCert(userInfoModel, putCertParam);
     }
 
+    @AdminAPI
     @ApiOperation(value = "删除证书", nickname = "deleteCert")
     @RequestMapping(value = "/deleteCert", method = RequestMethod.POST)
     public BaseResult<Boolean> deleteCert(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel,

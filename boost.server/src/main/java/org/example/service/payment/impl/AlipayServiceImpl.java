@@ -48,6 +48,9 @@ import org.example.service.payment.PaymentService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author mengjunwei.mjw
+ */
 @Service
 @Slf4j
 public class AlipayServiceImpl implements PaymentService {
@@ -70,22 +73,20 @@ public class AlipayServiceImpl implements PaymentService {
         log.info("verifyTradeCallback, payOrderModel:{}", payOrderModel);
         OrderDO unverifiedOrder = new OrderDO();
         BeanUtils.copyProperties(payOrderModel, unverifiedOrder);
-        if(payOrderModel.getTotalAmount() != null) {
-            BigDecimal totalAmountYuan = new BigDecimal(payOrderModel.getTotalAmount());
-            unverifiedOrder.setTotalAmount(MoneyUtil.toCents(totalAmountYuan));
+        if (payOrderModel.getTotalAmount() == null || payOrderModel.getBuyerPayAmount() == null ||
+                payOrderModel.getReceiptAmount() == null) {
+            log.error("Payment order verification failed, totalAmount:{}, buyerPayAmount:{}, receiptAmount:{}",
+                    payOrderModel.getTotalAmount(), payOrderModel.getBuyerPayAmount(), payOrderModel.getReceiptAmount());
+            return AliPayConstants.VERIFY_FAIL_RESULT;
         }
+        BigDecimal totalAmountYuan = new BigDecimal(payOrderModel.getTotalAmount());
+        unverifiedOrder.setTotalAmount(MoneyUtil.toCents(totalAmountYuan));
+        BigDecimal buyerPayAmountYuan = new BigDecimal(payOrderModel.getBuyerPayAmount());
+        unverifiedOrder.setBuyerPayAmount(MoneyUtil.toCents(buyerPayAmountYuan));
+        BigDecimal receiptAmountYuan = new BigDecimal(payOrderModel.getReceiptAmount());
+        unverifiedOrder.setReceiptAmount(MoneyUtil.toCents(receiptAmountYuan));
 
-        if (payOrderModel.getBuyerPayAmount() != null) {
-            BigDecimal buyerPayAmountYuan = new BigDecimal(payOrderModel.getBuyerPayAmount());
-            unverifiedOrder.setBuyerPayAmount(MoneyUtil.toCents(buyerPayAmountYuan));
-        }
-
-        if (payOrderModel.getReceiptAmount() != null) {
-            BigDecimal receiptAmountYuan = new BigDecimal(payOrderModel.getReceiptAmount());
-            unverifiedOrder.setReceiptAmount(MoneyUtil.toCents(receiptAmountYuan));
-        }
         unverifiedOrder.setOrderId(payOrderModel.getOutTradeNo());
-
         Map<String, String> map = HttpUtil.requestToMap(request);
         String orderId = map.get(AliPayConstants.OUT_TRADE_NO);
         OrderDTO orderFromOts = Optional.ofNullable(orderService.getOrder(null, new GetOrderParam(orderId)))
@@ -93,6 +94,7 @@ public class AlipayServiceImpl implements PaymentService {
                 .orElse(null);
 
         if (orderFromOts == null || orderFromOts.getTradeStatus() == null) {
+            log.error("Order not found, order id:{}", orderId);
             return AliPayConstants.VERIFY_FAIL_RESULT;
         }
         //考虑支付宝网络问题多次verify导致重复部署问题

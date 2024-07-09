@@ -24,6 +24,7 @@ public interface BaseAlipayClient {
     /**
      * Query order.
      * @param outTradeNo out payment trade number
+     * @param certModel cert model
      * @return AlipayTradeQueryResponse
      */
     AlipayTradeQueryResponse queryOutTrade(String outTradeNo, Boolean certModel);
@@ -74,7 +75,8 @@ public interface BaseAlipayClient {
 
     /**
      * Update Alipay Client.
-     * @param parameterName parameter name, value is parameter value
+     * @param parameterName parameter name
+     * @param value parameter value
      * @throws Exception Common Exception
      */
     void updateClient(String parameterName, String value) throws Exception;

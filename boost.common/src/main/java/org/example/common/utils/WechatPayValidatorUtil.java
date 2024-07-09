@@ -1,11 +1,10 @@
-package org.example.util;
+package org.example.common.utils;
 
 
 import com.wechat.pay.contrib.apache.httpclient.auth.Verifier;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.example.common.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,11 +20,19 @@ import static com.wechat.pay.contrib.apache.httpclient.constant.WechatPayHttpHea
 import static com.wechat.pay.contrib.apache.httpclient.constant.WechatPayHttpHeaders.WECHAT_PAY_SIGNATURE;
 import static com.wechat.pay.contrib.apache.httpclient.constant.WechatPayHttpHeaders.WECHAT_PAY_TIMESTAMP;
 
+/**
+ * @author mengjunwei.mjw
+ */
 public class WechatPayValidatorUtil {
+
     protected static final Logger log = LoggerFactory.getLogger(WechatPayValidatorUtil.class);
+
     protected static final long RESPONSE_EXPIRED_MINUTES = 5;
+
     protected final Verifier verifier;
+
     protected final String requestId;
+
     protected final String body;
 
 
@@ -47,13 +54,10 @@ public class WechatPayValidatorUtil {
 
     public final boolean validate(HttpServletRequest request) throws IOException {
         try {
-            //处理请求参数
             validateParameters(request);
-            //构造验签名串
             String message = buildMessage(request);
             String serial = request.getHeader(WECHAT_PAY_SERIAL);
             String signature = request.getHeader(WECHAT_PAY_SIGNATURE);
-            //验签
             if (!verifier.verify(serial, message.getBytes(StandardCharsets.UTF_8), signature)) {
                 throw verifyFail("serial=[%s] message=[%s] sign=[%s], request-id=[%s]",
                         serial, message, signature, requestId);
@@ -79,11 +83,9 @@ public class WechatPayValidatorUtil {
             }
         }
 
-        //判断请求是否过期
         String timestampStr = header;
         try {
             Instant responseTime = Instant.ofEpochSecond(Long.parseLong(timestampStr));
-            // 拒绝过期请求
             if (Duration.between(responseTime, Instant.now()).abs().toMinutes() >= RESPONSE_EXPIRED_MINUTES) {
                 throw parameterError("timestamp=[%s] expires, request-id=[%s]", timestampStr, requestId);
             }

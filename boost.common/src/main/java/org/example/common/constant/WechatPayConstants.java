@@ -68,9 +68,24 @@ public interface WechatPayConstants {
     String REQ_INFO = "req_info";
 
     /**
+     *  WechatPay out trade number.
+     */
+    String OUT_TRADE_NO = "out_trade_no";
+
+    /**
      * WechatPay trade status prefix.
      */
     String TRADE_STATE = "trade_state";
+
+    /**
+     * WechatPay gmt payment
+     */
+    String GMT_PAYMENT = "gmtPayment";
+
+    /**
+     *  WechatPay refund date.
+     */
+    String REFUND_DATE = "refundDate";
 
     /**
      *  WechatPay app id.
@@ -106,4 +121,32 @@ public interface WechatPayConstants {
      * WechatPay Pay Gateway URL
      */
     String OOS_WECHATPAY_GATEWAY = "WechatPayGateway";
+
+    /**
+     * Content Type for response
+     */
+    String CONTENT_TYPE = "Content-type";
+
+    String CODE = "code";
+
+    String ERROR = "ERROR";
+
+    String MESSAGE = "message";
+
+    String RESOURCE = "resource";
+
+    /**
+     * Key for ciphertext in resource map
+     */
+    String RESOURCE_CIPHERTEXT = "ciphertext";
+
+    /**
+     * Key for nonce in resource map
+     */
+    String RESOURCE_NONCE = "nonce";
+
+    /**
+     * Key for associated data in resource map
+     */
+    String RESOURCE_ASSOCIATED_DATA = "associated_data";
 }

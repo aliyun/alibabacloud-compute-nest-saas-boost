@@ -22,7 +22,6 @@ import com.alipay.api.AlipayApiException;
 import com.ijpay.core.IJPayHttpResponse;
 import com.ijpay.core.enums.AuthTypeEnum;
 import com.ijpay.core.enums.RequestMethodEnum;
-import com.ijpay.core.utils.DateTimeZoneUtil;
 import com.ijpay.wxpay.WxPayApi;
 import com.ijpay.wxpay.WxPayApiConfig;
 import com.ijpay.wxpay.WxPayApiConfigKit;
@@ -37,6 +36,14 @@ import com.wechat.pay.contrib.apache.httpclient.auth.ScheduledUpdateCertificates
 import com.wechat.pay.contrib.apache.httpclient.auth.WechatPay2Credentials;
 import com.wechat.pay.contrib.apache.httpclient.auth.WechatPay2Validator;
 import com.wechat.pay.contrib.apache.httpclient.util.PemUtil;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -51,17 +58,8 @@ import org.example.common.helper.LocalCertStorageHelper;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.SocketTimeoutException;
-import java.nio.charset.StandardCharsets;
-import java.security.PrivateKey;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.example.common.constant.WechatPayConstants.MCH_ID;
+import static org.example.common.utils.DateUtil.parseIs08601DateMillis;
 
 @Component
 @Slf4j
@@ -96,8 +94,7 @@ public class BaseWechatPayClientImpl implements BaseWechatPayClient {
             if(subject == null || subject.isEmpty() ) {
                 subject = "Unknown Subject";
             }
-
-            String timeExpire = DateTimeZoneUtil.dateToTimeZone(System.currentTimeMillis() + 60000L * CLOSE_TRANSACTION_TIME);
+            String timeExpire = parseIs08601DateMillis(System.currentTimeMillis() + 60000L * CLOSE_TRANSACTION_TIME);
             UnifiedOrderModel unifiedOrderModel = new UnifiedOrderModel()
                     .setAppid(wechatPayConfig.getAppId())
                     .setMchid(wechatPayConfig.getMchId())

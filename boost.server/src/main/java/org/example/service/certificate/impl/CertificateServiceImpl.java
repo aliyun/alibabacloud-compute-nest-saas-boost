@@ -40,11 +40,12 @@ public class CertificateServiceImpl implements CertificateService {
     @Value("${stack-name}")
     private String stackName;
 
-    private final String OK = "OK";
+    private final String SUCCESS = "200";
+
+    private final String bucketName = String.format("%s-%s-%s", SAAS_BOOST, stackName, BUCKET);
 
     @Override
     public BaseResult<Boolean> putCert(UserInfoModel userInfoModel, PutCertParam param) {
-        String bucketName = String.format("%s-%s-%s", SAAS_BOOST, stackName, BUCKET);
         String certName = String.format("%s/%s", param.getPayChannel().getDisplayName(), param.getCertName());
         String storageMethod = param.getStorageMethod();
 
@@ -57,7 +58,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (storageMethod.equals(StorageType.BOTH.getMethod())) {
             BaseResult<Boolean> localResult = localCertStorageHelper.putCert(certName, param.getCertContent());
             BaseResult<Boolean> ossResult = baseOssHelper.putCert(bucketName, certName, param.getCertContent());
-            if (localResult.getMessage().equals(OK) && ossResult.getMessage().equals(OK)) {
+            if (localResult.getCode().equals(SUCCESS) && ossResult.getCode().equals(SUCCESS)) {
                 return BaseResult.success(true);
             }
             return BaseResult.fail("Failed to put cert to both local and oss, local message:" +
@@ -68,7 +69,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public BaseResult<Boolean> deleteCert(UserInfoModel userInfoModel, DeleteCertParam param) {
-        String bucketName = String.format("%s-%s-%s", SAAS_BOOST, stackName, BUCKET);
         String certName = String.format("%s/%s", param.getPayChannel().getDisplayName(), param.getCertName());
         String storageMethod = param.getStorageMethod();
 
@@ -81,7 +81,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (storageMethod.equals(StorageType.BOTH.getMethod())) {
             BaseResult<Boolean> localResult = localCertStorageHelper.deleteCert(certName);
             BaseResult<Boolean> ossResult = baseOssHelper.deleteCert(bucketName, certName);
-            if (localResult.getMessage().equals(OK) && ossResult.getMessage().equals(OK)) {
+            if (localResult.getCode().equals(SUCCESS) && ossResult.getCode().equals(SUCCESS)) {
                 return BaseResult.success(true);
             }
             return BaseResult.fail("Failed to delete cert to both local and oss, local message:" +

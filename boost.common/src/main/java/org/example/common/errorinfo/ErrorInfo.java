@@ -20,13 +20,13 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     RESOURCE_NOT_FOUND(400,"InvalidParameter", "The specified resource or parameter can not be found."),
 
+    PARAMETER_NOT_FOUND(400, "ParameterNotFound", "The parameter \"%s\" is not found."),
+
     INVALID_INPUT(400, "InvalidInput", "The input parameter(s) is invalid."),
 
     VERIFY_FAILED(401,"UserUnauthorized","User is Unauthorized."),
 
     ALIPAY_PAYMENT_FAILED(400, "PaymentFailed","Payment failed."),
-
-    SIGNATURE_VERIFICATION_ERROR(400, "SignatureVerificationError", "AliPay Signature Verification Error"),
 
     ENTITY_NOT_EXIST(400, "EntityNotExist","The entity \"%s\" does not exist."),
 
@@ -66,21 +66,17 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     UNKNOWN_ERROR(400, "UnknownError", "program reached an unreachable point."),
 
-    SIG_VERIFY_FAILED(400, "SigVerifyFailed", "WechatPay Signature Verification Failed."),
+    SIGN_VERIFY_FAILED(400, "SignVerifyFailed", "WechatPay Signature Verification Failed."),
 
-    OBJECT_UPLOAD_FAILED(400, "ObjectUploadFailed", "Object upload failed."),
+    OBJECT_UPLOAD_FAILED(400, "OssObjectUploadFailed", "OSS Object upload failed."),
 
-    OBJECT_RETRIEVAL_FAILED(400, "ObjectRetrievalFailed", "Object retrieval failed."),
+    OBJECT_RETRIEVAL_FAILED(400, "OssObjectRetrievalFailed", "OSS Object retrieval failed."),
 
-    OBJECT_DELETION_FAILED(400, "ObjectDeletionFailed", "Object deletion failed."),
+    OBJECT_DELETION_FAILED(400, "OssObjectDeletionFailed", "OSS Object deletion failed."),
 
-    BUCKET_CREATION_FAILED(400, "BucketCreationFailed", "Bucket creation failed."),
-
-    BUCKET_EXISTENCE_CHECK_FAILED(503, "BucketExistenceCheckFailed",
-            "Failed to check if the bucket exists due to a server error or service unavailability."),
-
-    OBJECT_EXISTENCE_CHECK_FAILED(503, "ObjectExistenceCheckFailed",
-            "Failed to check if the object exists due to a server error or service unavailability."),
+    OBJECT_EXISTENCE_CHECK_FAILED(503, "EntityNotExist.OssObject",
+            "The OSS Object does not exist or failed to check if the object exists due to a server error or service unavailability."),
+    WECHAT_NOTIFICATION_FAILED(400, "WechatNotificationFailed", "\"%s\"")
 
     ;
 

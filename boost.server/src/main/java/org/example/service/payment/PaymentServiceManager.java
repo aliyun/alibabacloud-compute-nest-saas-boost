@@ -14,7 +14,6 @@
  */
 package org.example.service.payment;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +28,13 @@ import org.example.common.helper.ots.OrderOtsHelper;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.payment.CreateTransactionParam;
 import org.example.common.utils.HttpUtil;
-import org.example.service.payment.impl.WechatPayServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
+/**
+ * @author mengjunwei.mjw
+ */
 @Component
 @Slf4j
 public class PaymentServiceManager {
@@ -60,14 +61,9 @@ public class PaymentServiceManager {
         if (map.containsKey(SUBJECT)) {
             return payChannelServiceMap.get(PayChannel.ALIPAY.getValue()).verifyTradeCallback(request);
         } else {
-            try {
-                payChannelServiceMap.get(PayChannel.WECHATPAY.getValue()).verifyTradeCallback(request, response);
+            payChannelServiceMap.get(PayChannel.WECHATPAY.getValue()).verifyTradeCallback(request, response);
 //                return WechatPayConstants.VERIFY_SUCCESS_RESULT;
-                return WechatPayConstants.VERIFY_FAIL_RESULT;
-
-            } catch (IOException e) {
-                return WechatPayConstants.VERIFY_FAIL_RESULT;
-            }
+            return WechatPayConstants.VERIFY_FAIL_RESULT;
         }
     }
 
