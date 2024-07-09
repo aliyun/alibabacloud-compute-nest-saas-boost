@@ -44,7 +44,6 @@ import {RootState} from "@/store/state";
 
 dayjs.extend(utc);
 const ServiceInstanceContent: React.FC<ServiceInstanceContentProps> = (props) => {
-    const  = useSelector((state: RootState) => state.providerInfo.providerName);
     const {serviceInstanceId} = props;
     const [data, setData] = useState<API.ServiceInstanceModel>();
     const [order, setOrder] = useState<API.OrderDTO | undefined>(undefined);
