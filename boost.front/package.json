@@ -61,7 +61,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "omit.js": "^2.0.2",
-    "postcss": "^8.2.13",
+    "postcss": "^8.4.31",
     "querystring": "^0.2.1",
     "rc-menu": "^9.9.2",
     "rc-util": "^5.32.2",
