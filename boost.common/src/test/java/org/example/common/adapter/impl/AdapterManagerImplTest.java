@@ -15,6 +15,8 @@
 
 package org.example.common.adapter.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -22,13 +24,16 @@ import mockit.Tested;
 import mockit.Verifications;
 import org.example.common.adapter.AcsApiCaller;
 import org.example.common.adapter.BaseAlipayClient;
+import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.CloudMonitorClient;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.adapter.OosClient;
+import org.example.common.adapter.OssClient;
 import org.example.common.adapter.OtsClient;
-import org.example.common.config.AlipayConfig;
 import org.example.common.config.AliyunConfig;
+import org.example.common.config.BoostAlipayConfig;
 import org.example.common.config.OosParamConfig;
+import org.example.common.config.BoostWechatPayConfig;
 import org.example.common.constant.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,22 +42,28 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 class AdapterManagerImplTest {
 
     @Injectable
     private AliyunConfig aliyunConfig;
 
     @Injectable
-    private AlipayConfig alipayConfig;
+    private BoostAlipayConfig boostAlipayConfig;
+
+    @Injectable
+    private BoostWechatPayConfig wechatPayConfig;
+
+    @Injectable
+    private BaseWechatPayClient baseWechatPayClient;
 
     @Injectable
     private OosClient oosClient;
 
     @Injectable
     private OtsClient otsClient;
+
+    @Injectable
+    private OssClient ossClient;
 
     @Injectable
     private CloudMonitorClient cloudMonitorClient;
@@ -96,7 +107,7 @@ class AdapterManagerImplTest {
             otsClient.createClient(aliyunConfig); times = 1;
             cloudMonitorClient.createClient(aliyunConfig); times = 1;
             computeNestSupplierClient.createClient(aliyunConfig); times = 1;
-            baseAlipayClient.createClient(alipayConfig); times = 1;
+            baseAlipayClient.createClient(boostAlipayConfig); times = 1;
         }};
     }
 
@@ -119,7 +130,7 @@ class AdapterManagerImplTest {
             oosSecretParamConfig.init(); times = 1;
             otsClient.createClient(anyString, anyString, anyString); times = 1;
             computeNestSupplierClient.createClient(anyString, anyString, anyString); times = 1;
-            baseAlipayClient.createClient(alipayConfig); times = 1;
+            baseAlipayClient.createClient(boostAlipayConfig); times = 1;
         }};
     }
 

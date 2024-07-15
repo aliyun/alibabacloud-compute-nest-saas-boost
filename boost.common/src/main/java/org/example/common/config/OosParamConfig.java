@@ -20,20 +20,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_APP_ID;
 import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_GATEWAY;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_PID;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_SIGNATURE_METHOD;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ADMIN_AID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_APP_CERT_PATH;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_CERT_PATH;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_APP_ID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PID;
-import static org.example.common.constant.WechatConstants.OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY;
-import static org.example.common.constant.WechatConstants.OOS_SECRET_WECHAT_PRIVATE_KEY;
-import static org.example.common.constant.WechatConstants.OOS_SECRET_WECHAT_APP_ID;
-import static org.example.common.constant.WechatConstants.OOS_SECRET_WECHAT_PID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_ROOT_CERT_PATH;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_ID;
 import static org.example.common.constant.Constants.OAUTH_CLIENT_SECRET;
 import static org.example.common.constant.Constants.SERVICE_INSTANCE_ID;
-import static org.example.common.constant.WechatConstants.OOS_WECHAT_GATEWAY;
+import static org.example.common.constant.WechatPayConstants.OOS_SECRET_WECHATPAY_APIV3_KEY;
+import static org.example.common.constant.WechatPayConstants.OOS_SECRET_WECHATPAY_MCH_SERIAL_NO;
+import static org.example.common.constant.WechatPayConstants.OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH;
+import static org.example.common.constant.WechatPayConstants.OOS_WECHATPAY_APP_ID;
+import static org.example.common.constant.WechatPayConstants.OOS_WECHATPAY_GATEWAY;
+import static org.example.common.constant.WechatPayConstants.OOS_WECHATPAY_MCH_ID;
 import org.example.common.helper.oos.ParameterOosHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -63,31 +68,44 @@ public class OosParamConfig {
 
     public void init() {
         parameterMap = new HashMap<>(10, 0.75F);
-        putSecretValue(OOS_SECRET_ALIPAY_APP_ID);
-        putSecretValue(OOS_SECRET_ALIPAY_PID);
-        putSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
-        putSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
         putSecretValue(OAUTH_CLIENT_ID);
         putSecretValue(OOS_SECRET_ADMIN_AID);
         putSecretValue(OAUTH_CLIENT_SECRET);
-        putSecretValue(OOS_SECRET_WECHAT_APP_ID);
-        putSecretValue(OOS_SECRET_WECHAT_PID);
-        putSecretValue(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
-        putSecretValue(OOS_SECRET_WECHAT_PRIVATE_KEY);
+
+        putValue(OOS_ALIPAY_APP_ID);
+        putValue(OOS_ALIPAY_PID);
+        putSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
+        putSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
         putValue(OOS_ALIPAY_GATEWAY);
-//        putValue(OOS_WECHAT_GATEWAY);
+        putValue(OOS_ALIPAY_SIGNATURE_METHOD);
+        putSecretValue(OOS_SECRET_ALIPAY_APP_CERT_PATH);
+        putSecretValue(OOS_SECRET_ALIPAY_CERT_PATH);
+        putSecretValue(OOS_SECRET_ALIPAY_ROOT_CERT_PATH);
+
+        putValue(OOS_WECHATPAY_APP_ID);
+        putValue(OOS_WECHATPAY_MCH_ID);
+        putSecretValue(OOS_SECRET_WECHATPAY_APIV3_KEY);
+        putSecretValue(OOS_SECRET_WECHATPAY_MCH_SERIAL_NO);
+        putSecretValue(OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH);
+        putValue(OOS_WECHATPAY_GATEWAY);
 
         modifiableParameterList = new ArrayList<>();
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_APP_ID);
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_PID);
+        modifiableParameterList.add(OOS_ALIPAY_APP_ID);
+        modifiableParameterList.add(OOS_ALIPAY_PID);
         modifiableParameterList.add(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
         modifiableParameterList.add(OOS_SECRET_ALIPAY_PRIVATE_KEY);
-        modifiableParameterList.add(OOS_SECRET_WECHAT_APP_ID);
-        modifiableParameterList.add(OOS_SECRET_WECHAT_PID);
-        modifiableParameterList.add(OOS_SECRET_WECHAT_OFFICIAL_PUBLIC_KEY);
-        modifiableParameterList.add(OOS_SECRET_WECHAT_PRIVATE_KEY);
         modifiableParameterList.add(OOS_ALIPAY_GATEWAY);
-        modifiableParameterList.add(OOS_WECHAT_GATEWAY);
+        modifiableParameterList.add(OOS_ALIPAY_SIGNATURE_METHOD);
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_APP_CERT_PATH);
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_CERT_PATH);
+        modifiableParameterList.add(OOS_SECRET_ALIPAY_ROOT_CERT_PATH);
+
+        modifiableParameterList.add(OOS_WECHATPAY_APP_ID);
+        modifiableParameterList.add(OOS_WECHATPAY_MCH_ID);
+        modifiableParameterList.add(OOS_SECRET_WECHATPAY_APIV3_KEY);
+        modifiableParameterList.add(OOS_SECRET_WECHATPAY_MCH_SERIAL_NO);
+        modifiableParameterList.add(OOS_WECHATPAY_GATEWAY);
+        modifiableParameterList.add(OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH);
     }
 
     private void putSecretValue(String parameterName) {

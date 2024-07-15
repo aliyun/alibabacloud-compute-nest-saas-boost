@@ -2,6 +2,7 @@
 /* eslint-disable */
 // API 更新时间：
 // API 唯一标识：
+import * as cert from './cert';
 import * as cloudMonitor from './cloudMonitor';
 import * as commodity from './commodity';
 import * as order from './order';
@@ -14,6 +15,7 @@ import * as user from './user';
 export default {
   commodity,
   specification,
+  cert,
   user,
   order,
   serviceManager,

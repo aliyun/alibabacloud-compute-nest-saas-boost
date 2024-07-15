@@ -92,12 +92,12 @@ export async function getCommodityPriceSpi(
   });
 }
 
-/** 更新商品信息 POST /api/updateCommodity} */
+/** 更新商品信息 POST /api/updateCommodity */
 export async function updateCommodity(
   body: API.UpdateCommodityParam,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResultVoid_>('/api/updateCommodity}', {
+  return request<API.BaseResultVoid_>('/api/updateCommodity', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

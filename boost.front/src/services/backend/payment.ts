@@ -17,7 +17,15 @@ export async function createTransaction(
   });
 }
 
-/** 支付异步回调校验 POST /api/payment/verifyTradeCallback */
+/** 退款统一异步回调校验 POST /api/payment/verifyRefundCallback */
+export async function verifyRefundCallback(options?: { [key: string]: any }) {
+  return request<string>('/api/payment/verifyRefundCallback', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+/** 付款统一异步回调校验 POST /api/payment/verifyTradeCallback */
 export async function verifyTradeCallback(options?: { [key: string]: any }) {
   return request<string>('/api/payment/verifyTradeCallback', {
     method: 'POST',

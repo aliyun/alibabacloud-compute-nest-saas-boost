@@ -28,7 +28,10 @@ import {getServiceMetadata} from "@/services/backend/serviceManager";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from "@/store/state";
-import {initialProviderInfoEncryptedList, initialProviderInfoNameList} from "@/pages/Parameter/common";
+import {
+    initialProviderInfoEncryptedList,
+    initialProviderInfoNameList
+} from "@/pages/Parameter/common";
 import {listConfigParameters} from "@/services/backend/parameterManager";
 import {
     setProviderDescription,
@@ -37,7 +40,6 @@ import {
     setProviderOfficialLink
 } from "@/store/providerInfo/actions";
 import {FormattedMessage} from "@@/exports";
-import {renderToString} from "react-dom/server";
 
 const {Paragraph} = Typography;
 
@@ -48,7 +50,7 @@ const ServicePage: React.FC = () => {
     useEffect(() => {
         handleRefresh();
     }, []);
-    const loadConfigParameters = async (parameterNames: string[], encrypted: boolean[]) => {
+    const loadProviderInfo = async (parameterNames: string[], encrypted: boolean[]) => {
         const configParameterQueryModels: API.ConfigParameterQueryModel[] = parameterNames.map((name, index) => ({
             name,
             encrypted: encrypted[index],
@@ -65,7 +67,7 @@ const ServicePage: React.FC = () => {
                     let value = configParam.value === 'waitToConfig' ? '' : configParam.value;
                     // 针对 'ProviderLogoUrl' 名称进行特殊处理
                     if (configParam.name === 'ProviderLogoUrl' && configParam.value === 'waitToConfig') {
-                        value = profileImage;
+                        value = profileImage as string;
                     }
                     if (configParam.name === 'ProviderName') {
                         dispatch(setProviderName(value));
@@ -83,7 +85,7 @@ const ServicePage: React.FC = () => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await loadConfigParameters(initialProviderInfoNameList, initialProviderInfoEncryptedList);
+        await loadProviderInfo(initialProviderInfoNameList, initialProviderInfoEncryptedList);
         setRefreshing(false);
     };
 

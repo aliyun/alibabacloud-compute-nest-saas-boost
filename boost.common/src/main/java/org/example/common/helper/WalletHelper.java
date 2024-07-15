@@ -15,6 +15,7 @@
 
 package org.example.common.helper;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.ListResult;
 import org.example.common.config.SpecificationConfig;
@@ -42,6 +43,7 @@ import java.util.List;
 import static org.example.common.utils.DateUtil.parseFromIsO8601DateString;
 
 @Component
+@Slf4j
 public class WalletHelper {
 
     @Resource

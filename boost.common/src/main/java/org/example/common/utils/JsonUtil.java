@@ -88,6 +88,10 @@ public class JsonUtil {
         }
     }
 
+    public static <T> T fromJson(String json, Type typeOfT) {
+        return GSON.fromJson(json, typeOfT);
+    }
+
     public static Object read(JsonReader in) throws IOException {
         JsonToken token = in.peek();
         //判断字符串的实际类型
