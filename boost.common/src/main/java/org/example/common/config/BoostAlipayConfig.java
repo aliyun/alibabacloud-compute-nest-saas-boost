@@ -17,45 +17,55 @@ package org.example.common.config;
 
 import javax.annotation.Resource;
 import lombok.Data;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_APP_ID;
 import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_GATEWAY;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_PID;
+import static org.example.common.constant.AliPayConstants.OOS_ALIPAY_SIGNATURE_METHOD;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_CERT_PATH;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY;
 import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PRIVATE_KEY;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_APP_ID;
-import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_PID;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_ROOT_CERT_PATH;
+import static org.example.common.constant.AliPayConstants.OOS_SECRET_ALIPAY_APP_CERT_PATH;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class AlipayConfig {
+public class BoostAlipayConfig {
 
     @Resource
     private OosParamConfig oosParamConfig;
 
-    @Value("${alipay.return-url}")
+    @Value("${payment.return-url}")
     private String returnUrl;
 
-    @Value("${alipay.notify-url}")
+    @Value("${payment.pay-notify-url}")
     private String notifyUrl;
 
     @Value("${stack-name}")
     private String stackName;
 
     public String getAppId() {
-        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_APP_ID);
+        return oosParamConfig.getValue(OOS_ALIPAY_APP_ID);
     }
 
     public String getPid() {
-        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_PID);
+        return oosParamConfig.getValue(OOS_ALIPAY_PID);
     }
 
     public String getPrivateKey() {
         return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
     }
 
-    public String getOfficialPublicKey() {
-        return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
-    }
+    public String getSignatureMethod() { return oosParamConfig.getValue(OOS_ALIPAY_SIGNATURE_METHOD); }
+
+    public String getAlipayPublicKey() { return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY); }
+
+    public String getAppCertPath() { return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_APP_CERT_PATH); }
+
+    public String getAlipayCertPath() { return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_CERT_PATH); }
+
+    public String getAlipayRootCertPath() { return oosParamConfig.getSecretValue(OOS_SECRET_ALIPAY_ROOT_CERT_PATH); }
     
     public String getGateway() {
         return oosParamConfig.getValue(OOS_ALIPAY_GATEWAY);
