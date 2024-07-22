@@ -19,7 +19,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import org.example.common.APIParameterConvert;
 import org.example.common.AdminAPI;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
@@ -35,6 +34,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
+/**
+ * @author mengjunwei.mjw
+ */
 @RestController
 @RequestMapping("/api")
 @Api(value="parameterManager",tags={"parameterManager"})

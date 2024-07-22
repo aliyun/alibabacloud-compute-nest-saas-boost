@@ -62,4 +62,6 @@ public class CommodityPriceModel {
      * 支付表单
      */
     private String paymentForm;
+
+    private String orderId;
 }

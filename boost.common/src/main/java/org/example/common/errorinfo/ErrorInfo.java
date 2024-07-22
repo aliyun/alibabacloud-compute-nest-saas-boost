@@ -20,13 +20,13 @@ public enum ErrorInfo implements CommonErrorInfo {
 
     RESOURCE_NOT_FOUND(400,"InvalidParameter", "The specified resource or parameter can not be found."),
 
+    PARAMETER_NOT_FOUND(400, "ParameterNotFound", "The parameter \"%s\" is not found."),
+
     INVALID_INPUT(400, "InvalidInput", "The input parameter(s) is invalid."),
 
     VERIFY_FAILED(401,"UserUnauthorized","User is Unauthorized."),
 
     ALIPAY_PAYMENT_FAILED(400, "PaymentFailed","Payment failed."),
-
-    SIGNATURE_VERIFICATION_ERROR(400, "SignatureVerificationError", "AliPay Signature Verification Error"),
 
     ENTITY_NOT_EXIST(400, "EntityNotExist","The entity \"%s\" does not exist."),
 
@@ -57,6 +57,24 @@ public enum ErrorInfo implements CommonErrorInfo {
     DELETION_NOT_ALLOWED(400, "DeletionNotAllowed", "Service Instance \"%s\" Deletion is not allowed for the current serviceType: \"%s\"."),
 
     INVALID_SPI_PARAMETER(400, "InvalidParameter", "The provided SPI Parameter \"%s\" missing token or commodity code."),
+
+    INVALID_PAYMENT_AMOUNT(400, "InvalidPaymentAmount", "The payment amount cannot be null or negative."),
+
+    TRANSACTION_CREATION_FAILED(400, "TransactionCreationFailed", "In the Parameter Management tab, payment parameter configuration error or mismatch. Error details:\"%s\""),
+
+    INTERNAL_ERROR(503, "InternalError", "program reached an unreachable point."),
+
+    SIGN_VERIFY_FAILED(400, "SignVerifyFailed", "Signature Verification Failed.Error details:\"%s\""),
+
+    OBJECT_UPLOAD_FAILED(400, "OssObjectUploadFailed", "OSS Object upload failed.Error details:\"%s\""),
+
+    OBJECT_RETRIEVAL_FAILED(400, "OssObjectRetrievalFailed", "OSS Object retrieval failed.Error details:\"%s\""),
+
+    OBJECT_DELETION_FAILED(400, "OssObjectDeletionFailed", "OSS Object deletion failed.Error details:\"%s\""),
+
+    OBJECT_EXISTENCE_CHECK_FAILED(503, "EntityNotExist.OssObject",
+            "The OSS Object does not exist or failed to check if the object exists due to a server error or service unavailability."),
+    INTERNAL_ERROR_NOTIFICATION_FAILED(400, "InternalError.NotificationFailed", "Failed to notify the payment platform of the verification result.Error details:\"%s\"")
 
     ;
 

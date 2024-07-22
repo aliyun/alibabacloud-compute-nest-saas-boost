@@ -18,6 +18,13 @@ package org.example.service.order.impl;
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
 import com.alicloud.openservices.tablestore.model.search.sort.Sort.Sorter;
 import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
@@ -45,7 +52,6 @@ import org.example.common.param.order.RefundOrderParam;
 import org.example.common.param.si.GetServiceInstanceParam;
 import org.example.common.utils.DateUtil;
 import org.example.common.utils.JsonUtil;
-import org.example.common.utils.MoneyUtil;
 import org.example.common.utils.UuidUtil;
 import org.example.service.base.ServiceInstanceLifecycleService;
 import org.example.service.order.OrderService;
@@ -54,20 +60,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Service
 @Slf4j
 public class OrderServiceImpl implements OrderService {
 
     @Resource
-    private PaymentServiceManager alipayService;
+    private PaymentServiceManager paymentServiceManager;
 
     @Resource
     private OrderOtsHelper orderOtsHelper;
@@ -218,13 +216,15 @@ public class OrderServiceImpl implements OrderService {
         orderDO.setRefundDate(currentLocalDateTime);
         if (orderDO.getServiceInstanceId() != null && !orderDO.getServiceInstanceId().isEmpty()) {
             orderDO.setTradeStatus(TradeStatus.REFUNDING);
+            orderOtsHelper.updateOrder(orderDO);
         } else {
             String refundId = UuidUtil.generateRefundId();
-            alipayService.refundOrder(orderDO.getOrderId(), MoneyUtil.fromCents(orderDO.getReceiptAmount()), refundId);
+            orderDO.setRefundId(refundId);
             orderDO.setRefundAmount(orderDO.getReceiptAmount());
-            orderDO.setTradeStatus(TradeStatus.REFUNDED);
+            OrderDTO order = new OrderDTO();
+            BeanUtils.copyProperties(orderDO, order);
+            paymentServiceManager.refundOrder(order);
         }
-        orderOtsHelper.updateOrder(orderDO);
     }
 
     @Override

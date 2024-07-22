@@ -34,6 +34,13 @@ declare namespace API {
     requestId?: string;
   };
 
+  type BaseResultBoolean_ = {
+    code?: string;
+    data?: boolean;
+    message?: string;
+    requestId?: string;
+  };
+
   type BaseResultCommodityDTO_ = {
     code?: string;
     data?: CommodityDTO;
@@ -134,6 +141,7 @@ declare namespace API {
     commodityCode?: string;
     commodityName?: string;
     currency?: string;
+    orderId?: string;
     paymentForm?: string;
     serviceId?: string;
     specificationName?: string;
@@ -196,6 +204,12 @@ declare namespace API {
   type createTransactionParams = {
     orderId?: string;
     payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+  };
+
+  type DeleteCertParam = {
+    certName?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    storageMethod?: string;
   };
 
   type deleteCommodityParams = {
@@ -444,6 +458,13 @@ declare namespace API {
       | 'REFUNDING';
   };
 
+  type PutCertParam = {
+    certContent?: string;
+    certName?: string;
+    payChannel?: 'ALIPAY' | 'WECHATPAY' | 'PAYPAL' | 'CREDIT_CARD' | 'PAY_POST';
+    storageMethod?: string;
+  };
+
   type RefundOrderParam = {
     dryRun?: boolean;
     orderId?: string;
@@ -521,6 +542,7 @@ declare namespace API {
   type UpdateConfigParameterParam = {
     encrypted?: boolean;
     name?: string;
+    tag?: string;
     value?: string;
   };
 
