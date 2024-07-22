@@ -24,6 +24,12 @@ spec:
             - name: serverless
               image: "{{ .Values.cronImage.repository }}"
               env:
+                - name: payment.return-url
+                  value: {{ .Values.env.paymentReturnUrl }}
+                - name: payment.pay-notify-url
+                  value: {{ .Values.env.paymentNotifyUrl }}
+                - name: payment.refund-notify-url
+                  value: {{ .Values.env.paymentRefundNotifyUrl }}
                 - name: cronjob-type
                   value: CLOSE_EXPIRED_ORDERS
                 - name: TZ

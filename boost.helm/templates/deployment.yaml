@@ -37,10 +37,12 @@ spec:
           env:
             - name: ecs-role-name
               value: {{ .Values.env.ramRoleName }}
-            - name: alipay-return-url
-              value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/#/payCallBack"
-            - name: alipay-notify-url
-              value: "http://{{ include "saas-boost.fullname" . }}.{{ .Values.env.clusterId }}.{{ .Values.env.regionId }}.alicontainer.com/api/payment/verifyTradeCallback"
+            - name: payment.return-url
+              value: {{ .Values.env.paymentReturnUrl }}
+            - name: payment.pay-notify-url
+              value: {{ .Values.env.paymentNotifyUrl }}
+            - name: payment.refund-notify-url
+              value: {{ .Values.env.paymentRefundNotifyUrl }}
             - name: TZ
               value: "Asia/Shanghai"
             - name: deploy_type

@@ -23,6 +23,7 @@ export const USER_PARAMETERS = "UserParameters";
 
 export enum PayChannelEnum {
     ALIPAY = '支付宝',
+    WECHATPAY = '微信支付',
 }
 
 export enum ProductNameEnum {

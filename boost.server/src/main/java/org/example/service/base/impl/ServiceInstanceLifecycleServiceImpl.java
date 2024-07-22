@@ -280,6 +280,7 @@ public class ServiceInstanceLifecycleServiceImpl implements ServiceInstanceLifec
         createTransactionParam.setOrderId(order.getOrderId());
         String transaction = paymentServiceManger.createTransaction(userInfoModel, createTransactionParam);
         commodityPriceModel.setPaymentForm(transaction);
+        commodityPriceModel.setOrderId(order.getOrderId());
         return BaseResult.success(commodityPriceModel);
     }
 
