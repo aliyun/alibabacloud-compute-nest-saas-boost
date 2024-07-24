@@ -77,7 +77,7 @@ export const WechatPayPaymentKeyForm: React.FC<{
             <ProFormText {...getFieldPropsVisible('WechatPayAppId', '应用ID', '请输入应用ID')} />
             <ProFormText {...getFieldPropsVisible('WechatPayMchId', '商户ID', '请输入商户ID')} />
             <ProFormText {...getFieldPropsInvisible('WechatPayApiV3Key', 'ApiV3私钥', '请输入ApiV3私钥')} />
-            <ProFormText {...getFieldPropsInvisible('WechatPayMchSerialNo', '商户私钥证书序列号', '请输入商户私钥证书序列号')} />
+            <ProFormText {...getFieldPropsInvisible('WechatPayMchSerialNo', '商户API证书序列号', '请输入商户API证书序列号')} />
 
             <CertUploadButton
                 name="WechatPayPrivateKeyPath"
