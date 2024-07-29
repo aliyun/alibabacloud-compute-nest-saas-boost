@@ -16,6 +16,7 @@
 package org.example.common.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import static org.example.common.constant.WechatPayConstants.OOS_WECHATPAY_APP_I
 import static org.example.common.constant.WechatPayConstants.OOS_WECHATPAY_GATEWAY;
 import static org.example.common.constant.WechatPayConstants.OOS_WECHATPAY_MCH_ID;
 import org.example.common.helper.oos.ParameterOosHelper;
+import org.example.common.model.ConfigParameterModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -56,6 +58,11 @@ public class OosParamConfig {
 
     private List<String> modifiableParameterList;
 
+    /**
+     * oos parameter names limited to 10
+     */
+    private int batchSize = 10;
+
     public String getSecretValue(String name) {
         String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, name);
         return this.parameterMap.get(format);
@@ -67,55 +74,53 @@ public class OosParamConfig {
     }
 
     public void init() {
-        parameterMap = new HashMap<>(10, 0.75F);
-        putSecretValue(OAUTH_CLIENT_ID);
-        putSecretValue(OOS_SECRET_ADMIN_AID);
-        putSecretValue(OAUTH_CLIENT_SECRET);
+        parameterMap = new HashMap<>(batchSize);
+        List<String> secretValueList = Arrays.asList(OAUTH_CLIENT_ID, OOS_SECRET_ADMIN_AID, OAUTH_CLIENT_SECRET,
+                OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY, OOS_SECRET_ALIPAY_PRIVATE_KEY, OOS_SECRET_ALIPAY_APP_CERT_PATH,
+                OOS_SECRET_ALIPAY_CERT_PATH, OOS_SECRET_ALIPAY_ROOT_CERT_PATH, OOS_SECRET_WECHATPAY_APIV3_KEY,
+                OOS_SECRET_WECHATPAY_MCH_SERIAL_NO, OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH);
+        List<String> valueList = Arrays.asList(OOS_ALIPAY_APP_ID, OOS_ALIPAY_PID, OOS_ALIPAY_GATEWAY,
+                OOS_ALIPAY_SIGNATURE_METHOD, OOS_WECHATPAY_APP_ID, OOS_WECHATPAY_MCH_ID, OOS_WECHATPAY_GATEWAY);
+        putSecretValueList(secretValueList);
+        putValueList(valueList);
 
-        putValue(OOS_ALIPAY_APP_ID);
-        putValue(OOS_ALIPAY_PID);
-        putSecretValue(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
-        putSecretValue(OOS_SECRET_ALIPAY_PRIVATE_KEY);
-        putValue(OOS_ALIPAY_GATEWAY);
-        putValue(OOS_ALIPAY_SIGNATURE_METHOD);
-        putSecretValue(OOS_SECRET_ALIPAY_APP_CERT_PATH);
-        putSecretValue(OOS_SECRET_ALIPAY_CERT_PATH);
-        putSecretValue(OOS_SECRET_ALIPAY_ROOT_CERT_PATH);
-
-        putValue(OOS_WECHATPAY_APP_ID);
-        putValue(OOS_WECHATPAY_MCH_ID);
-        putSecretValue(OOS_SECRET_WECHATPAY_APIV3_KEY);
-        putSecretValue(OOS_SECRET_WECHATPAY_MCH_SERIAL_NO);
-        putSecretValue(OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH);
-        putValue(OOS_WECHATPAY_GATEWAY);
-
-        modifiableParameterList = new ArrayList<>();
-        modifiableParameterList.add(OOS_ALIPAY_APP_ID);
-        modifiableParameterList.add(OOS_ALIPAY_PID);
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY);
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_PRIVATE_KEY);
-        modifiableParameterList.add(OOS_ALIPAY_GATEWAY);
-        modifiableParameterList.add(OOS_ALIPAY_SIGNATURE_METHOD);
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_APP_CERT_PATH);
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_CERT_PATH);
-        modifiableParameterList.add(OOS_SECRET_ALIPAY_ROOT_CERT_PATH);
-
-        modifiableParameterList.add(OOS_WECHATPAY_APP_ID);
-        modifiableParameterList.add(OOS_WECHATPAY_MCH_ID);
-        modifiableParameterList.add(OOS_SECRET_WECHATPAY_APIV3_KEY);
-        modifiableParameterList.add(OOS_SECRET_WECHATPAY_MCH_SERIAL_NO);
-        modifiableParameterList.add(OOS_WECHATPAY_GATEWAY);
-        modifiableParameterList.add(OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH);
+        modifiableParameterList = Arrays.asList(OOS_ALIPAY_APP_ID, OOS_ALIPAY_PID, OOS_ALIPAY_GATEWAY,
+                OOS_SECRET_ALIPAY_OFFICIAL_PUBLIC_KEY, OOS_SECRET_ALIPAY_PRIVATE_KEY, OOS_SECRET_ALIPAY_APP_CERT_PATH,
+                OOS_ALIPAY_SIGNATURE_METHOD, OOS_SECRET_ALIPAY_CERT_PATH,OOS_SECRET_ALIPAY_ROOT_CERT_PATH,
+                OOS_WECHATPAY_APP_ID, OOS_WECHATPAY_MCH_ID, OOS_WECHATPAY_GATEWAY, OOS_SECRET_WECHATPAY_APIV3_KEY,
+                OOS_SECRET_WECHATPAY_MCH_SERIAL_NO, OOS_SECRET_WECHATPAY_PRIVATE_KEY_PATH);
     }
 
-    private void putSecretValue(String parameterName) {
-        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
-        parameterMap.put(format, parameterOosHelper.getSecretParameter(format));
+    private void putSecretValueList(List<String> secretValueList) {
+        List<String> formatList = new ArrayList<>();
+        for (String secretValue : secretValueList) {
+            String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, secretValue);
+            formatList.add(format);
+        }
+        int totalSize = formatList.size();
+        for (int i = 0; i < totalSize; i += batchSize) {
+            List<String> batch = formatList.subList(i, Math.min(totalSize, i + batchSize));
+            List<ConfigParameterModel> secretParameterModels = parameterOosHelper.listSecretParameters(batch);
+            for (ConfigParameterModel configParameterModel : secretParameterModels) {
+                parameterMap.put(configParameterModel.getName(), configParameterModel.getValue());
+            }
+        }
     }
 
-    private void putValue(String parameterName) {
-        String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, parameterName);
-        parameterMap.put(format, parameterOosHelper.getParameter(format));
+    private void putValueList(List<String> valueList) {
+        List<String> formatList = new ArrayList<>();
+        for (String value : valueList) {
+            String format = String.format("%s-%s-%s", SERVICE_INSTANCE_ID, stackName, value);
+            formatList.add(format);
+        }
+        int totalSize = formatList.size();
+        for (int i = 0; i < totalSize; i += batchSize) {
+            List<String> batch = formatList.subList(i, Math.min(totalSize, i + batchSize));
+            List<ConfigParameterModel> parameterModels = parameterOosHelper.listParameters(batch);
+            for (ConfigParameterModel configParameterModel : parameterModels) {
+                parameterMap.put(configParameterModel.getName(), configParameterModel.getValue());
+            }
+        }
     }
 
     public void updateOosParameterConfig(String parameterName, String value) {
