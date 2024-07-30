@@ -16,10 +16,11 @@
 package org.example.common.adapter;
 
 
-import com.aliyun.oos20190601.models.GetParameterResponse;
-import com.aliyun.oos20190601.models.GetSecretParameterResponse;
+import com.aliyun.oos20190601.models.GetParametersResponse;
+import com.aliyun.oos20190601.models.GetSecretParametersResponse;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
 import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
+import java.util.List;
 import org.example.common.config.AliyunConfig;
 
 public interface OosClient {
@@ -29,7 +30,7 @@ public interface OosClient {
      * @param name name
      * @return GetSecretParameterResponse
      */
-    GetSecretParameterResponse getSecretParameter(String name);
+    GetSecretParametersResponse listSecretParameters(List<String> name);
 
     /**
      * Update oos secret parameter
@@ -44,7 +45,7 @@ public interface OosClient {
      * @param name name
      * @return GetParameterResponse
      */
-    GetParameterResponse getParameter(String name);
+    GetParametersResponse listParameters(List<String> name);
 
     /**
      * Update oos parameter

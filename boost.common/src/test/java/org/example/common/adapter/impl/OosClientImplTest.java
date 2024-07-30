@@ -1,15 +1,16 @@
 package org.example.common.adapter.impl;
 
 import com.aliyun.oos20190601.Client;
-import com.aliyun.oos20190601.models.GetParameterRequest;
-import com.aliyun.oos20190601.models.GetParameterResponse;
-import com.aliyun.oos20190601.models.GetSecretParameterRequest;
-import com.aliyun.oos20190601.models.GetSecretParameterResponse;
+import com.aliyun.oos20190601.models.GetParametersRequest;
+import com.aliyun.oos20190601.models.GetParametersResponse;
+import com.aliyun.oos20190601.models.GetSecretParametersRequest;
+import com.aliyun.oos20190601.models.GetSecretParametersResponse;
 import com.aliyun.oos20190601.models.UpdateParameterRequest;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
 import com.aliyun.oos20190601.models.UpdateSecretParameterRequest;
 import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
 import com.aliyun.teaopenapi.models.Config;
+import java.util.Collections;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -33,23 +34,21 @@ public class OosClientImplTest {
     }
 
     @Test
-    public void testGetSecretParameter(
-            @Injectable final GetSecretParameterResponse expectedResponse) throws Exception {
-        // Set expectations: when mockedClient.getSecretParameter is called with the above initialized request, return expectedResponse
+    public void testListSecretParameters() throws Exception {
+        GetSecretParametersResponse expectedResponse = new GetSecretParametersResponse();
         new Expectations() {{
-            mockedClient.getSecretParameter((GetSecretParameterRequest) any);
+            mockedClient.getSecretParameters((GetSecretParametersRequest) any);
             result = expectedResponse;
         }};
 
         // Call the method under test and verify the result
-        GetSecretParameterResponse actualResponse = oosClient.getSecretParameter("testName");
+        GetSecretParametersResponse actualResponse = oosClient.listSecretParameters(Collections.singletonList("testName"));
         assertEquals(expectedResponse.getBody(), actualResponse.getBody());
     }
 
     @Test
-    public void testUpdateSecretParameter(
-            @Injectable UpdateSecretParameterResponse expectedResponse) throws Exception {
-        // Mock the Client.updateSecretParameter method to return the expected response
+    public void testUpdateSecretParameter() throws Exception {
+        UpdateSecretParameterResponse expectedResponse = new UpdateSecretParameterResponse();
         new Expectations() {{
             mockedClient.updateSecretParameter((UpdateSecretParameterRequest) any);
             result = expectedResponse;
@@ -61,23 +60,21 @@ public class OosClientImplTest {
     }
 
     @Test
-    public void testGetParameter(
-            @Injectable GetParameterResponse expectedResponse) throws Exception {
-        // Mock the Client.getParameter method to return the expected response
+    public void testGetParameter() throws Exception {
+        GetParametersResponse expectedResponse = new GetParametersResponse();
         new Expectations() {{
-            mockedClient.getParameter((GetParameterRequest) any);
+            mockedClient.getParameters((GetParametersRequest) any);
             result = expectedResponse;
         }};
 
         // Call the method under test and verify the result
-        GetParameterResponse actualResponse = oosClient.getParameter("testName");
+        GetParametersResponse actualResponse = oosClient.listParameters(Collections.singletonList("testName"));
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
-    public void testUpdateParameter(
-            @Injectable UpdateParameterResponse expectedResponse) throws Exception {
-        // Mock the Client.updateParameter method to return the expected response
+    public void testUpdateParameter() throws Exception {
+        UpdateParameterResponse expectedResponse = new UpdateParameterResponse();
         new Expectations() {{
             mockedClient.updateParameter((UpdateParameterRequest) any);
             result = expectedResponse;
@@ -89,7 +86,8 @@ public class OosClientImplTest {
     }
 
     @Test
-    public void testCreateClientWithAliyunConfig(@Injectable AliyunConfig aliyunConfig) throws Exception {
+    public void testCreateClientWithAliyunConfig() throws Exception {
+        AliyunConfig aliyunConfig = new AliyunConfig();
         // Verify that the createClient method creates a Client using the AliyunConfig
         oosClient.createClient(aliyunConfig);
         new Verifications() {{
@@ -98,10 +96,10 @@ public class OosClientImplTest {
     }
 
     @Test
-    public void testCreateClientWithAccessKeysAndToken(
-            @Injectable String accessKeyId,
-            @Injectable String accessKeySecret,
-            @Injectable String securityToken) throws Exception {
+    public void testCreateClientWithAccessKeysAndToken() throws Exception {
+        String accessKeyId = "testAccessKeyId";
+        String accessKeySecret = "testAccessKeySecret";
+        String securityToken = "testSecurityToken";
         // Verify that the createClient method creates a Client using Access Key ID, Access Key Secret, and Security Token
         oosClient.createClient(accessKeyId, accessKeySecret, securityToken);
         new Verifications() {{
@@ -115,9 +113,9 @@ public class OosClientImplTest {
     }
 
     @Test
-    public void testCreateClientWithAccessKeysOnly(
-            @Injectable String accessKeyId,
-            @Injectable String accessKeySecret) throws Exception {
+    public void testCreateClientWithAccessKeysOnly() throws Exception {
+        String accessKeyId = "testAccessKeyId";
+        String accessKeySecret = "testAccessKeySecret";
         // Verify that the createClient method creates a Client using only Access Key ID and Access Key Secret
         oosClient.createClient(accessKeyId, accessKeySecret);
         new Verifications() {{
