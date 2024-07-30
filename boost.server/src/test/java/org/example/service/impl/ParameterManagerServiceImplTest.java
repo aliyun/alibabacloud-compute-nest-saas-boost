@@ -1,6 +1,8 @@
 package org.example.service.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -58,13 +60,24 @@ public class ParameterManagerServiceImplTest {
         configParameterQueryModel.setName("name");
         configParameterQueryModel.setEncrypted(true);
         listConfigParametersParam.setConfigParameterQueryModels(Arrays.asList(configParameterQueryModel));
-        ConfigParameterModel expectedConfigParameterModel = new ConfigParameterModel();
-        expectedConfigParameterModel.setName("adjusted-name");
-        expectedListResult.setData(Arrays.asList(expectedConfigParameterModel));
+        ConfigParameterModel expectedConfigParameterModel1 = new ConfigParameterModel();
+        expectedConfigParameterModel1.setName("adjusted-name1");
+        expectedConfigParameterModel1.setValue("adjusted-value1");
+        ConfigParameterModel expectedConfigParameterModel2 = new ConfigParameterModel();
+        expectedConfigParameterModel2.setName("adjusted-name2");
+        expectedConfigParameterModel2.setValue("adjusted-value2");
+        List<String> secretNames = Arrays.asList("adjusted-name1", "adjusted-name2");
+        List<String> names = new ArrayList<>();
+        List<ConfigParameterModel> secretParameterModels = Arrays.asList(expectedConfigParameterModel1,
+                expectedConfigParameterModel2);
+        List<ConfigParameterModel> parameterModels = new ArrayList<>();
+        expectedListResult.setData(Arrays.asList(expectedConfigParameterModel1, expectedConfigParameterModel2));
 
         new Expectations() {{
-            parameterOosHelper.listConfigParameters(withAny(listConfigParametersParam));
-            result = expectedListResult;
+            parameterOosHelper.listSecretParameters(withAny(secretNames));
+            result = secretParameterModels;
+            parameterOosHelper.listParameters(withAny(names));
+            result = parameterModels;
         }};
 
         ListResult<ConfigParameterModel> actualListResult = parameterManagerService.listConfigParameters(userInfoModel, listConfigParametersParam);

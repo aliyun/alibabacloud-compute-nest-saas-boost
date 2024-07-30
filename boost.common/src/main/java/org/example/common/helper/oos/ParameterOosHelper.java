@@ -15,12 +15,12 @@
 
 package org.example.common.helper.oos;
 
-import com.aliyun.oos20190601.models.GetParameterResponse;
-import com.aliyun.oos20190601.models.GetParameterResponseBody;
-import com.aliyun.oos20190601.models.GetParameterResponseBody.GetParameterResponseBodyParameter;
-import com.aliyun.oos20190601.models.GetSecretParameterResponse;
-import com.aliyun.oos20190601.models.GetSecretParameterResponseBody;
-import com.aliyun.oos20190601.models.GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter;
+import com.aliyun.oos20190601.models.GetParametersResponse;
+import com.aliyun.oos20190601.models.GetParametersResponseBody;
+import com.aliyun.oos20190601.models.GetParametersResponseBody.GetParametersResponseBodyParameters;
+import com.aliyun.oos20190601.models.GetSecretParametersResponse;
+import com.aliyun.oos20190601.models.GetSecretParametersResponseBody;
+import com.aliyun.oos20190601.models.GetSecretParametersResponseBody.GetSecretParametersResponseBodyParameters;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
 import com.aliyun.oos20190601.models.UpdateParameterResponseBody;
 import com.aliyun.oos20190601.models.UpdateParameterResponseBody.UpdateParameterResponseBodyParameter;
@@ -34,7 +34,6 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
-import org.example.common.ListResult;
 import org.example.common.adapter.BaseAlipayClient;
 import org.example.common.adapter.BaseWechatPayClient;
 import org.example.common.adapter.OosClient;
@@ -42,8 +41,6 @@ import org.example.common.constant.Constants;
 import org.example.common.errorinfo.ErrorInfo;
 import org.example.common.exception.BizException;
 import org.example.common.model.ConfigParameterModel;
-import org.example.common.model.ConfigParameterQueryModel;
-import org.example.common.param.parameter.ListConfigParametersParam;
 import org.example.common.param.parameter.UpdateConfigParameterParam;
 import org.example.common.utils.JsonUtil;
 import org.springframework.stereotype.Component;
@@ -108,107 +105,67 @@ public class ParameterOosHelper {
         }
     }
 
-    public ListResult<ConfigParameterModel> listConfigParameters(ListConfigParametersParam listConfigParametersParam) {
-        ListResult<ConfigParameterModel> results = new ListResult<>();
-        results.setData(new ArrayList<>());
-
-        List<ConfigParameterQueryModel> queries = listConfigParametersParam.getConfigParameterQueryModels();
-        if (queries == null || queries.isEmpty()) {
-            results.setMessage("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
-            return results;
-        }
-
-        for (ConfigParameterQueryModel query : queries) {
-            if (query.getEncrypted() == null || query.getName() == null || query.getName().isEmpty()) {
-                results.setMessage("Invalid query: 'encrypted' must not be null and 'name' must not be null or empty");
-                return results;
-            }
-
-            try {
-                ConfigParameterModel configParameterModel;
-                if (query.getEncrypted()) {
-                    GetSecretParameterResponse secretResponse = oosClient.getSecretParameter(query.getName());
-                    Optional<String> optionalValue = Optional.ofNullable(secretResponse)
-                            .map(GetSecretParameterResponse::getBody)
-                            .map(GetSecretParameterResponseBody::getParameter)
-                            .map(GetSecretParameterResponseBodyParameter::getValue);
-                    if (optionalValue.isPresent() && !optionalValue.get().isEmpty()) {
-                        configParameterModel = extractSecretParameterDetails(secretResponse);
-                    } else {
-                        results.setMessage("The parameter in the response is an empty dictionary.");
-                        return results;
-                    }
-                } else {
-                    GetParameterResponse parameterResponse = oosClient.getParameter(query.getName());
-                    Optional<String> optionalValue = Optional.ofNullable(parameterResponse)
-                            .map(GetParameterResponse::getBody)
-                            .map(GetParameterResponseBody::getParameter)
-                            .map(GetParameterResponseBodyParameter::getValue);
-                    if (optionalValue.isPresent() && !optionalValue.get().isEmpty()) {
-                        configParameterModel = extractParameterDetails(parameterResponse);
-                    } else {
-                        results.setMessage("The parameter in the response is an empty dictionary.");
-                        return results;
-                    }
-                }
-                results.getData().add(configParameterModel);
-            } catch (Exception e) {
-                log.error("Error fetching config parameter request: {}", JsonUtil.toJsonString(listConfigParametersParam), e);
-                throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
-                        String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), listConfigParametersParam.getConfigParameterQueryModels()), e);
-            }
-        }
-        return results;
-    }
-
-    public String getSecretParameter(String name) {
+    public List<ConfigParameterModel> listSecretParameters(List<String> nameList) {
         try {
-            GetSecretParameterResponse response = oosClient.getSecretParameter(name);
-            Optional<String> optionalValue = Optional.ofNullable(response)
-                    .map(GetSecretParameterResponse::getBody)
-                    .map(GetSecretParameterResponseBody::getParameter)
-                    .map(GetSecretParameterResponseBody.GetSecretParameterResponseBodyParameter::getValue);
-            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(),
-                    ErrorInfo.PARAMETER_NOT_FOUND.getCode(), String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name)));
+            GetSecretParametersResponse response = oosClient.listSecretParameters(nameList);
+            Optional<List<GetSecretParametersResponseBodyParameters>> optionalValue = Optional.ofNullable(response)
+                    .map(GetSecretParametersResponse::getBody)
+                    .map(GetSecretParametersResponseBody::getParameters);
+            optionalValue.orElseThrow(() -> new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(),
+                    ErrorInfo.PARAMETER_NOT_FOUND.getCode(), String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), nameList)));
+            List<ConfigParameterModel> secretParameterList = new ArrayList<>();
+            for (GetSecretParametersResponseBodyParameters secretParameter : optionalValue.get()) {
+                ConfigParameterModel secretParameterModel = extractSecretParameterDetails(secretParameter);
+                secretParameterList.add(secretParameterModel);
+            }
+            return secretParameterList;
         } catch (Exception e) {
-            log.error("ParameterOosHelper.getSecretParameter request:{}, throw Exception",
-                    JsonUtil.toJsonString(name), e);
+            log.error("ParameterOosHelper.listSecretParameters request:{}, throw Exception",
+                    JsonUtil.toJsonString(nameList), e);
             throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
-                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name), e);
+                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), nameList), e);
         }
     }
 
-    public String getParameter(String name) {
+    public List<ConfigParameterModel> listParameters(List<String> nameList) {
         try {
-            GetParameterResponse response = oosClient.getParameter(name);
-            Optional<String> optionalValue = Optional.ofNullable(response)
-                    .map(GetParameterResponse::getBody)
-                    .map(GetParameterResponseBody::getParameter)
-                    .map(GetParameterResponseBody.GetParameterResponseBodyParameter::getValue);
-            return optionalValue.orElseThrow(() -> new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(),
-                    ErrorInfo.PARAMETER_NOT_FOUND.getCode(), String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name)));
+            GetParametersResponse response = oosClient.listParameters(nameList);
+            Optional<List<GetParametersResponseBodyParameters>> optionalValue = Optional.ofNullable(response)
+                    .map(GetParametersResponse::getBody)
+                    .map(GetParametersResponseBody::getParameters);
+
+            optionalValue.orElseThrow(() -> new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(),
+                    ErrorInfo.PARAMETER_NOT_FOUND.getCode(), String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(),
+                    nameList)));
+            List<ConfigParameterModel> parameterList = new ArrayList<>();
+            for (GetParametersResponseBodyParameters parameters : optionalValue.get()) {
+                ConfigParameterModel parameterModel = extractParameterDetails(parameters);
+                parameterList.add(parameterModel);
+            }
+            return parameterList;
         } catch (Exception e) {
-            log.error("ParameterOosHelper.getParameter request:{}, throw Exception",
-                    JsonUtil.toJsonString(name), e);
+            log.error("ParameterOosHelper.listParameters request:{}, throw Exception",
+                    JsonUtil.toJsonString(nameList), e);
             throw new BizException(ErrorInfo.PARAMETER_NOT_FOUND.getStatusCode(), ErrorInfo.PARAMETER_NOT_FOUND.getCode(),
-                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), name), e);
+                    String.format(ErrorInfo.PARAMETER_NOT_FOUND.getMessage(), nameList), e);
         }
     }
 
 
-    private ConfigParameterModel extractSecretParameterDetails(GetSecretParameterResponse getSecretParameterResponse) {
+    private ConfigParameterModel extractSecretParameterDetails(GetSecretParametersResponseBodyParameters
+            secretParameter) {
         ConfigParameterModel configParameterModel = new ConfigParameterModel();
-        configParameterModel.setName(getSecretParameterResponse.getBody().getParameter().getName());
-        configParameterModel.setType(getSecretParameterResponse.getBody().getParameter().getType());
-        configParameterModel.setValue(getSecretParameterResponse.getBody().getParameter().getValue());
+        configParameterModel.setName(secretParameter.getName());
+        configParameterModel.setType(secretParameter.getType());
+        configParameterModel.setValue(secretParameter.getValue());
         return configParameterModel;
     }
 
-    private ConfigParameterModel extractParameterDetails(GetParameterResponse getParameterResponse) {
+    private ConfigParameterModel extractParameterDetails(GetParametersResponseBodyParameters parameter) {
         ConfigParameterModel configParameterModel = new ConfigParameterModel();
-        configParameterModel.setName(getParameterResponse.getBody().getParameter().getName());
-        configParameterModel.setType(getParameterResponse.getBody().getParameter().getType());
-        configParameterModel.setValue(getParameterResponse.getBody().getParameter().getValue());
+        configParameterModel.setName(parameter.getName());
+        configParameterModel.setType(parameter.getType());
+        configParameterModel.setValue(parameter.getValue());
         return configParameterModel;
     }
 }
