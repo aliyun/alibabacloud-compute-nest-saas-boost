@@ -16,15 +16,16 @@
 package org.example.common.adapter.impl;
 
 import com.aliyun.oos20190601.Client;
-import com.aliyun.oos20190601.models.GetParameterRequest;
-import com.aliyun.oos20190601.models.GetParameterResponse;
-import com.aliyun.oos20190601.models.GetSecretParameterRequest;
-import com.aliyun.oos20190601.models.GetSecretParameterResponse;
+import com.aliyun.oos20190601.models.GetParametersRequest;
+import com.aliyun.oos20190601.models.GetParametersResponse;
+import com.aliyun.oos20190601.models.GetSecretParametersRequest;
+import com.aliyun.oos20190601.models.GetSecretParametersResponse;
 import com.aliyun.oos20190601.models.UpdateParameterRequest;
 import com.aliyun.oos20190601.models.UpdateParameterResponse;
 import com.aliyun.oos20190601.models.UpdateSecretParameterRequest;
 import com.aliyun.oos20190601.models.UpdateSecretParameterResponse;
 import com.aliyun.teaopenapi.models.Config;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.adapter.OosClient;
 import org.example.common.config.AliyunConfig;
@@ -44,15 +45,16 @@ public class OosClientImpl implements OosClient {
     private String regionId;
 
     @Override
-    public GetSecretParameterResponse getSecretParameter(String name) {
+    public GetSecretParametersResponse listSecretParameters(List<String> nameList) {
         try {
-            GetSecretParameterRequest getSecretParameterRequest = new GetSecretParameterRequest()
+            String names = JsonUtil.toJsonString(nameList);
+            GetSecretParametersRequest getSecretParametersRequest = new GetSecretParametersRequest()
                     .setRegionId(regionId)
-                    .setName(name)
+                    .setNames(names)
                     .setWithDecryption(Boolean.TRUE);
-            return client.getSecretParameter(getSecretParameterRequest);
+            return client.getSecretParameters(getSecretParametersRequest);
         } catch (Exception e) {
-            log.error("oosClient.getSecretParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
+            log.error("oosClient.listSecretParameters request:{}, throw Exception", JsonUtil.toJsonString(nameList), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
@@ -72,14 +74,15 @@ public class OosClientImpl implements OosClient {
     }
 
     @Override
-    public GetParameterResponse getParameter(String name) {
+    public GetParametersResponse listParameters(List<String> nameList) {
         try {
-            GetParameterRequest getParameterRequest = new GetParameterRequest()
+            String names = JsonUtil.toJsonString(nameList);
+            GetParametersRequest getParametersRequest = new GetParametersRequest()
                     .setRegionId(regionId)
-                    .setName(name);
-            return client.getParameter(getParameterRequest);
+                    .setNames(names);
+            return client.getParameters(getParametersRequest);
         } catch (Exception e) {
-            log.error("oosClient.getParameter request:{}, throw Exception", JsonUtil.toJsonString(name), e);
+            log.error("oosClient.listParameters request:{}, throw Exception", JsonUtil.toJsonString(nameList), e);
             throw new BizException(ErrorInfo.RESOURCE_NOT_FOUND);
         }
     }
