@@ -120,6 +120,7 @@ const SpecificationModal: React.FC<SpecificationModalProps> = ({commodity, visib
                     initialValues={{
                         ...currentSpecification,
                         payPeriods: currentSpecification?.payPeriods ? JSON.parse(currentSpecification.payPeriods) : [],
+                        commodityCode: commodity.commodityCode,
                     }}
                     onSubmit={handleSaveSpecification}
                     onCancel={() => {

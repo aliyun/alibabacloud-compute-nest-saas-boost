@@ -21,39 +21,56 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameter
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponseBody;
 import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponseBody.GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints;
+import com.aliyun.computenestsupplier20210521.models.ListServicesRequest;
+import com.aliyun.computenestsupplier20210521.models.ListServicesRequest.ListServicesRequestFilter;
+import com.aliyun.computenestsupplier20210521.models.ListServicesResponse;
+import com.aliyun.computenestsupplier20210521.models.ListServicesResponseBody;
+import com.aliyun.computenestsupplier20210521.models.ListServicesResponseBody.ListServicesResponseBodyServicesServiceInfos;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceRequest;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceRequest.UpdateServiceRequestCommodity;
+import com.aliyun.computenestsupplier20210521.models.UpdateServiceResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
+import org.example.common.dto.CommodityDTO;
 import org.example.common.errorinfo.ErrorInfo;
+import org.example.common.exception.BizException;
 import org.example.common.helper.WalletHelper;
+import org.example.common.helper.ots.CommodityOtsHelper;
 import org.example.common.model.LicenseMetadataModel;
+import org.example.common.model.SaasBoostConfigModel;
 import org.example.common.model.ServiceMetadataModel;
+import org.example.common.model.ServiceVersionModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
-import org.example.common.utils.HttpUtil;
+import org.example.common.param.service.ListServicesParam;
 import org.example.common.utils.JsonUtil;
-import org.example.common.utils.YamlUtil;
 import org.example.service.base.ServiceManager;
 import org.springframework.beans.BeanUtils;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.example.common.constant.ComputeNestConstants.ALLOWED_REGIONS;
 import static org.example.common.constant.ComputeNestConstants.DEFAULT_REGION_ID;
+import static org.example.common.constant.ComputeNestConstants.ONLINE;
 import static org.example.common.constant.ComputeNestConstants.PREDEFINED_PARAMETERS;
+import static org.example.common.constant.ComputeNestConstants.PREDEFINED_PARAMETERS_NAME;
+import static org.example.common.constant.ComputeNestConstants.SERVICE_ID;
+import static org.example.common.constant.ComputeNestConstants.STATUS;
 import static org.example.common.constant.ComputeNestConstants.TEMPLATE_CONFIGS;
 import static org.example.common.constant.ComputeNestConstants.TEMPLATE_NAME;
-import static org.example.common.constant.ComputeNestConstants.TEMPLATE_URL;
 
 @Service
 @Slf4j
@@ -65,49 +82,84 @@ public class ServiceManagerImpl implements ServiceManager {
     @Resource
     private WalletHelper walletHelper;
 
+    @Resource
+    private CommodityOtsHelper commodityOtsHelper;
+
     @Override
     public BaseResult<ServiceMetadataModel> getServiceMetadata(UserInfoModel userInfoModel, GetServiceMetadataParam getServiceMetadataParam) {
+        String serviceId = getServiceMetadataParam.getServiceId();
+        String commodityCode = getServiceMetadataParam.getCommodityCode();
         GetServiceRequest request = new GetServiceRequest();
-        request.setServiceId(getServiceMetadataParam.getServiceId());
+        if (StringUtils.isBlank(serviceId) && StringUtils.isBlank(commodityCode)) {
+            throw new BizException(ErrorInfo.PARAMETER_MISSING.getStatusCode(), ErrorInfo.PARAMETER_MISSING.getCode(),
+                    String.format(ErrorInfo.PARAMETER_MISSING.getMessage(), "serviceId or commodityCode"));
+        }
+        if (StringUtils.isNotBlank(getServiceMetadataParam.getCommodityCode())) {
+            CommodityDTO commodity = commodityOtsHelper.getCommodity(commodityCode);
+            serviceId = commodity.getServiceId();
+            request.setServiceVersion(commodity.getServiceVersion());
+        }
+        request.setServiceId(serviceId);
+        GetServiceResponse serviceResponse = computeNestSupplierClient.getService(request);
+        GetServiceResponseBody responseBody = serviceResponse.getBody();
+        ServiceMetadataModel getServiceMetadataModel = new ServiceMetadataModel();
+        parseDeployMetadata(responseBody.getDeployMetadata(), getServiceMetadataModel);
+        getServiceMetadataModel.setStatus(responseBody.getStatus());
+        getServiceMetadataModel.setVersion(responseBody.getVersion());
+        String licenseMetadata = responseBody.getLicenseMetadata();
+        LicenseMetadataModel licenseMetadataModel = JsonUtil.parseObjectUpperCamelCase(licenseMetadata, LicenseMetadataModel.class);
+        getServiceMetadataModel.setCommodityCode(responseBody.getCommodityCode());
+        if (licenseMetadataModel != null) {
+            getServiceMetadataModel.setRetentionDays(licenseMetadataModel.getRetentionDays());
+        }
+        return BaseResult.success(getServiceMetadataModel);
+    }
+
+    private void parseDeployMetadata(String deployMetadata, ServiceMetadataModel getServiceMetadataModel) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode deployMetadataRootNode;
         try {
-            GetServiceResponse serviceResponse = computeNestSupplierClient.getService(request);
-            GetServiceResponseBody responseBody = serviceResponse.getBody();
-            ServiceMetadataModel getServiceMetadataModel = new ServiceMetadataModel();
-            String deployMetadata = responseBody.getDeployMetadata();
-            getServiceMetadataModel.setStatus(responseBody.getStatus());
-            getServiceMetadataModel.setVersion(responseBody.getVersion());
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode deployMetadataRootNode;
-            String licenseMetadata = responseBody.getLicenseMetadata();
-            LicenseMetadataModel licenseMetadataModel = JsonUtil.parseObjectUpperCamelCase(licenseMetadata, LicenseMetadataModel.class);
             deployMetadataRootNode = mapper.readTree(deployMetadata);
             if (deployMetadataRootNode == null || deployMetadataRootNode.get(TEMPLATE_CONFIGS) == null) {
-                return BaseResult.fail(ErrorInfo.SPECIFICATION_NOT_EXIST);
+                return;
             }
             JsonNode templateConfigJsonNode = deployMetadataRootNode.get(TEMPLATE_CONFIGS).get(0);
             String templateName = templateConfigJsonNode.get(TEMPLATE_NAME).asText();
-            String url = templateConfigJsonNode.get(TEMPLATE_URL).asText();
             JsonNode specificationsJsonNode = templateConfigJsonNode.get(PREDEFINED_PARAMETERS);
+            List<String> specifications = new ArrayList<>();
+            if (specificationsJsonNode != null && specificationsJsonNode.isArray()) {
+                ArrayNode arrayNode = (ArrayNode) specificationsJsonNode;
+                arrayNode.forEach(node -> {
+                    JsonNode name = node.get(PREDEFINED_PARAMETERS_NAME);
+                    specifications.add(name.textValue());
+                });
+            }
             JsonNode allowedRegions = templateConfigJsonNode.get(ALLOWED_REGIONS);
-            String templateConfigData = HttpUtil.doGet(url);
-            if (!JsonUtil.isJson(templateConfigData)) {
-                templateConfigData = YamlUtil.convertYamlToJson(templateConfigData);
-            }
-            JsonNode rosTemplateJsonNode = mapper.readTree(templateConfigData);
-            String parameterMetadata = rosTemplateJsonNode.toString();
-
-            getServiceMetadataModel.setParameterMetadata(parameterMetadata);
             getServiceMetadataModel.setTemplateName(templateName);
-            getServiceMetadataModel.setSpecifications(specificationsJsonNode.toString());
             getServiceMetadataModel.setAllowedRegions(allowedRegions.toString());
-            getServiceMetadataModel.setCommodityCode(responseBody.getCommodityCode());
-            if (licenseMetadataModel != null) {
-                getServiceMetadataModel.setRetentionDays(licenseMetadataModel.getRetentionDays());
-            }
-            return BaseResult.success(getServiceMetadataModel);
-
+            getServiceMetadataModel.setSpecificationNameList(specifications);
         } catch (Exception e) {
             log.error("Parse deployMetadata failed", e);
+        }
+    }
+
+    @Override
+    public BaseResult<Void> bindCommodity(String serviceId, String commodityCode, String publicAccessUrl, String serviceVersion) {
+        UpdateServiceRequest updateServiceRequest = new UpdateServiceRequest();
+        updateServiceRequest.setServiceId(serviceId);
+        updateServiceRequest.setServiceVersion(serviceVersion);
+        UpdateServiceRequestCommodity updateServiceRequestCommodity = new UpdateServiceRequestCommodity();
+        SaasBoostConfigModel saasBoostConfigModel = new SaasBoostConfigModel();
+        saasBoostConfigModel.setCommodityCode(commodityCode);
+        saasBoostConfigModel.setPublicAccessUrl(publicAccessUrl);
+        saasBoostConfigModel.setEnabled(true);
+        updateServiceRequestCommodity.setSaasBoostConfig(JsonUtil.toJsonStringWithUpperCamelCase(saasBoostConfigModel));
+        updateServiceRequest.setCommodity(updateServiceRequestCommodity);
+        UpdateServiceResponse updateServiceResponse = computeNestSupplierClient.updateService(updateServiceRequest);
+        if (updateServiceResponse.getStatusCode() != 200) {
+            String code = String.format(ErrorInfo.INVALID_PARAMETER.getCode(), "serviceId");
+            String message = String.format(ErrorInfo.INVALID_PARAMETER.getMessage(), serviceId);
+            throw new BizException(ErrorInfo.INVALID_PARAMETER.getStatusCode(), code, message);
         }
         return BaseResult.success();
     }
@@ -138,5 +190,43 @@ public class ServiceManagerImpl implements ServiceManager {
         GetServiceTemplateParameterConstraintsResponseBody responseBody = serviceTemplateParameterConstraints.getBody();
         List<GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> parameterConstraints = responseBody.getParameterConstraints();
         return ListResult.genSuccessListResult(parameterConstraints, parameterConstraints.size());
+    }
+
+    @Override
+    public List<ServiceVersionModel> listServices(UserInfoModel userInfoModel, ListServicesParam listServicesParam) {
+        ListServicesRequest listServicesRequest = new ListServicesRequest();
+        List<ListServicesRequestFilter> filters = new ArrayList<>();
+        if (StringUtils.isNotBlank(listServicesParam.getServiceId())) {
+            ListServicesRequestFilter serviceIdFilter = new ListServicesRequestFilter();
+            serviceIdFilter.setName(SERVICE_ID);
+            serviceIdFilter.setValue(Arrays.asList(listServicesParam.getServiceId()));
+            filters.add(serviceIdFilter);
+        }
+        ListServicesRequestFilter statusFilter = new ListServicesRequestFilter();
+        statusFilter.setName(STATUS);
+        statusFilter.setValue(Arrays.asList(ONLINE));
+        filters.add(statusFilter);
+        listServicesRequest.setFilter(filters);
+        ListServicesResponse listServicesResponse = computeNestSupplierClient.listServices(listServicesRequest);
+        if (listServicesResponse.getStatusCode() == 200) {
+            ListServicesResponseBody body = listServicesResponse.getBody();
+            if (body.getServices() != null && !body.getServices().isEmpty()) {
+                List<ListServicesResponseBody.ListServicesResponseBodyServices> services = body.getServices();
+                return services.stream()
+                        .map(service -> {
+                            ServiceVersionModel model = new ServiceVersionModel();
+                            model.setServiceId(service.getServiceId());
+                            model.setServiceVersion(service.getVersion());
+                            List<ListServicesResponseBodyServicesServiceInfos> serviceInfos = service.getServiceInfos();
+                            if (serviceInfos != null && !serviceInfos.isEmpty()) {
+                                ListServicesResponseBody.ListServicesResponseBodyServicesServiceInfos serviceInfo = serviceInfos.get(0);
+                                model.setServiceName(serviceInfo.getName());
+                            }
+                            return model;
+                        })
+                        .collect(Collectors.toList());
+            }
+        }
+        return new ArrayList<>();
     }
 }

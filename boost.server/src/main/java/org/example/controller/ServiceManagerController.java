@@ -21,10 +21,12 @@ import org.example.common.APIParameterConvert;
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.model.ServiceMetadataModel;
+import org.example.common.model.ServiceVersionModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
+import org.example.common.param.service.ListServicesParam;
 import org.example.service.base.ServiceManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +37,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -62,5 +65,11 @@ public class ServiceManagerController {
     @RequestMapping(path = "/getServiceTemplateParameterConstraints",method = RequestMethod.POST)
     public ListResult<GetServiceTemplateParameterConstraintsResponseBody.GetServiceTemplateParameterConstraintsResponseBodyParameterConstraints> getServiceTemplateParameterConstraints(@RequestBody @Valid GetServiceTemplateParameterConstraintsParam getServiceTemplateParameterConstraintsParam) {
         return serviceManager.getServiceTemplateParameterConstraints(getServiceTemplateParameterConstraintsParam);
+    }
+
+    @ApiOperation(value = "列表获取服务信息", nickname = "listServices")
+    @RequestMapping(path = "/listServices",method = RequestMethod.POST)
+    public List<ServiceVersionModel> listServices(@ApiIgnore @AuthenticationPrincipal UserInfoModel userInfoModel, ListServicesParam listServicesParam) {
+        return serviceManager.listServices(userInfoModel, listServicesParam);
     }
 }

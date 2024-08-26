@@ -54,6 +54,10 @@ public class JsonUtil {
         return GSON.toJson(object);
     }
 
+    public static String toJsonStringWithUpperCamelCase(Object object) {
+        return GSON_UPPER_CAMEL_CASE.toJson(object);
+    }
+
     public static String toJsonStringExcludeFields(Object object, List<String> fieldList) {
         Gson gson = new GsonBuilder().addSerializationExclusionStrategy(new ExclusionStrategy() {
             @Override

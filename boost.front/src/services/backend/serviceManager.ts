@@ -51,3 +51,18 @@ export async function getServiceTemplateParameterConstraints(
     },
   );
 }
+
+/** 列表获取服务信息 POST /api/listServices */
+export async function listServices(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.listServicesParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.ServiceVersionModel[]>('/api/listServices', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

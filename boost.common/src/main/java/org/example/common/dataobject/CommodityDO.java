@@ -81,4 +81,9 @@ public class CommodityDO implements Serializable {
      * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
      */
     private String payPeriods;
+
+    /**
+     * Version of the service associated with the commodity.
+     */
+    private String serviceVersion;
 }

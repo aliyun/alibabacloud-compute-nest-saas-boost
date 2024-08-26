@@ -20,10 +20,14 @@ import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameter
 import org.example.common.BaseResult;
 import org.example.common.ListResult;
 import org.example.common.model.ServiceMetadataModel;
+import org.example.common.model.ServiceVersionModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
 import org.example.common.param.service.GetServiceMetadataParam;
 import org.example.common.param.service.GetServiceTemplateParameterConstraintsParam;
+import org.example.common.param.service.ListServicesParam;
+
+import java.util.List;
 
 public interface ServiceManager {
 
@@ -51,4 +55,22 @@ public interface ServiceManager {
      * @return {@link BaseResult < ServiceMetadataModel >}
      */
     BaseResult<ServiceMetadataModel> getServiceMetadata(UserInfoModel userInfoModel, GetServiceMetadataParam getServiceMetadataParam);
+
+    /**
+     * Bind commodity to service
+     * @param serviceId serviceId
+     * @param commodityCode commodityCode
+     * @param publicAccessUrl publicAccessUrl
+     * @param serviceVersion serviceVersion
+     * @return {@link BaseResult<Void>}
+     */
+    BaseResult<Void> bindCommodity(String serviceId, String commodityCode, String publicAccessUrl, String serviceVersion);
+
+    /**
+     * List all service versions
+     * @param listServiceVersionsParam listServiceVersionsParam
+     * @param userInfoModel userInfoModel
+     * @return {@link List<ServiceVersionModel>
+     */
+    List<ServiceVersionModel> listServices(UserInfoModel userInfoModel, ListServicesParam listServiceVersionsParam);
 }

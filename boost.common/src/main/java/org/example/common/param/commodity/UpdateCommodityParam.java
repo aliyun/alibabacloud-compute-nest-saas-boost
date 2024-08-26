@@ -58,4 +58,9 @@ public class UpdateCommodityParam extends CommodityBaseParam {
      * Allowed payment durations for subscription-based scenarios, such as [1, 2, 3] for years or months.
      */
     private List<Long> payPeriods;
+
+    /**
+     * The version of the service associated with the commodity.
+     */
+    private String serviceVersion;
 }

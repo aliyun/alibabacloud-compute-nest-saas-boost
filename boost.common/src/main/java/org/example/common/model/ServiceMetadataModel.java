@@ -17,6 +17,8 @@ package org.example.common.model;
 
 import lombok.Data;
 
+import java.util.List;
+
 
 @Data
 public class ServiceMetadataModel {
@@ -25,11 +27,6 @@ public class ServiceMetadataModel {
      * parameterMetadata for compute nest service
      */
     private String parameterMetadata;
-
-    /**
-     * compute nest service specifications, contains the predefined parameters.
-     */
-    private String specifications;
 
     /**
      * template name
@@ -66,4 +63,6 @@ public class ServiceMetadataModel {
      * service version
      */
     private String version;
+
+    private List<String> specificationNameList;
 }

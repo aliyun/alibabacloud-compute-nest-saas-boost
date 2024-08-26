@@ -1,9 +1,11 @@
 import {ProColumns} from '@ant-design/pro-table';
 import {ProForm, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
-import React, {ReactNode} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import {Button, message, Space} from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import copy from 'copy-to-clipboard';
+import {getServiceMetadata, listServices} from "@/services/backend/serviceManager";
+import {listAllSpecifications} from "@/services/backend/specification";
 
 export const commodityColumns: ProColumns<API.CommodityDTO>[] = [
     {
@@ -76,6 +78,12 @@ export const commodityColumns: ProColumns<API.CommodityDTO>[] = [
         search: false
 
     },
+    {
+        title: '服务版本',
+        dataIndex: 'serviceVersion',
+        key: 'serviceVersion',
+        search: false
+    },
 ];
 
 export interface CommodityFormProps {
@@ -86,6 +94,7 @@ export interface CommodityFormProps {
 }
 
 export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit, onCancel}) => {
+
     return (
         <ProForm<API.CommodityDTO>
             onFinish={onSubmit}
@@ -126,9 +135,27 @@ export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit
                 label="商品名"
                 rules={[{required: true, message: 'Please input commodity name!'}]}
             />
-            <ProFormText
+            <ProFormSelect
                 name="serviceId"
                 label="计算巢服务ID"
+                showSearch={true}
+                dependencies={["serviceId"]}
+                request={async (commodity) => {
+                    try {
+                        const response:API.ServiceVersionModel[] = await listServices({
+                            serviceId:commodity?.serviceId
+                        });
+                        if (response && response.length !== 0) {
+                            return response.map(item => ({
+                                label: item.serviceName+"-"+item.serviceId,
+                                value: item.serviceId
+                            }));
+                        }
+                    } catch (e) {
+                    }
+                    return [];
+                }
+                }
                 rules={[{required: true, message: 'Please input service ID!'},
                     () => ({
                         validator(_, value) {
@@ -183,6 +210,33 @@ export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit
                 ]}
                 rules={[{required: true, message: 'Please select charge type!'}]}
             />)}
+            <ProFormSelect
+                name="serviceVersion"
+                label="服务版本"
+                rules={[{ required: true, message: 'Please select a service version!' }]}
+                dependencies={["serviceId"]}
+                placeholder={"只展示当前服务的默认服务版本"}
+                request={async (commodity) => {
+                    if (!commodity?.serviceId) {
+                        return [];
+                    }
+                    try {
+                        const response:API.ServiceVersionModel[] = await listServices({
+                            serviceId: commodity?.serviceId
+                        });
+                        if (response && response.length !== 0) {
+                            return response.map(item => ({
+                                label: item.serviceVersion,
+                                value: item.serviceVersion
+                            }));
+                        }
+                    } catch (e) {
+                    }
+                    return [];
+                }
+                }
+            />
+
         </ProForm>
     );
 };
@@ -275,11 +329,51 @@ export const SpecificationForm: React.FC<SpecificationFormProps> = ({
             }}
             initialValues={initialValues}
         >
-            {<ProFormText
+            <ProFormText
+                name="commodityCode"
+                label="商品码"
+                disabled={true}
+                hidden={true}
+            />
+            {<ProFormSelect
                 name="specificationName"
+                dependencies={["specificationName"]}
                 label="套餐名"
                 rules={[{required: true, message: 'Please input specification name!'}]}
-                disabled={initialValues != undefined && initialValues?.commodityCode != undefined}
+                request={async () => {
+                    console.log(initialValues);
+                    if (!initialValues?.commodityCode) {
+                        return [];
+
+                    }
+                    try {
+                        let specificationNamesSet = new Set<string>();
+
+                        const specificationDTOs:API.ListResultCommoditySpecificationDTO_ = await listAllSpecifications({commodityCode: initialValues?.commodityCode});
+                        if (specificationDTOs && specificationDTOs.code === "200" && specificationDTOs.data && specificationDTOs.data.length > 0) {
+                            specificationDTOs.data.forEach((dto: API.CommoditySpecificationDTO) => {
+                                if (dto.specificationName) {
+                                    specificationNamesSet.add(dto.specificationName);
+                                }
+                            });
+                        }
+                        const response:API.BaseResultServiceMetadataModel_ = await getServiceMetadata({
+                            commodityCode: initialValues?.commodityCode
+                        });
+                        if (response && response.code === "200" && response.data?.specificationNameList && response.data?.specificationNameList.length > 0) {
+                            const filteredList = response.data.specificationNameList.filter(item => !specificationNamesSet.has(item));
+
+                            return filteredList.map(item => ({
+                                label: item,
+                                value: item
+                            }));
+
+                        }
+                    } catch (e) {
+                    }
+                    return [];
+                }
+                }
             />}
             <ProFormDigit
                 name="unitPrice"

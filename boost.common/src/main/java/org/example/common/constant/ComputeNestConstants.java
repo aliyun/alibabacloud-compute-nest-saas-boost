@@ -62,4 +62,10 @@ public interface ComputeNestConstants {
     String COMPUTE_NEST_SUPPLIER_API_VERSION = "2021-05-21";
 
     String SUPPLIER_SYS_PRODUCT_NAME = "ComputeNestSupplier";
+
+    String STATUS = "Status";
+
+    String ONLINE = "Online";
+
+    String PREDEFINED_PARAMETERS_NAME = "Name";
 }

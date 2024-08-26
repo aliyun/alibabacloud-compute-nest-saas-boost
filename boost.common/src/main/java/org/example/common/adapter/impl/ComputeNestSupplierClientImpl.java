@@ -1,37 +1,22 @@
 /*
-*Copyright (c) Alibaba Group;
-*Licensed under the Apache License, Version 2.0 (the "License");
-*you may not use this file except in compliance with the License.
-*You may obtain a copy of the License at
+ *Copyright (c) Alibaba Group;
+ *Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
 
-*   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-*Unless required by applicable law or agreed to in writing, software
-*distributed under the License is distributed on an "AS IS" BASIS,
-*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*See the License for the specific language governing permissions and
-*limitations under the License.
-*/
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
 
 package org.example.common.adapter.impl;
 
 import com.aliyun.computenestsupplier20210521.Client;
-import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceRequest;
-import com.aliyun.computenestsupplier20210521.models.ContinueDeployServiceInstanceResponse;
-import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceRequest;
-import com.aliyun.computenestsupplier20210521.models.CreateServiceInstanceResponse;
-import com.aliyun.computenestsupplier20210521.models.DeleteServiceInstancesRequest;
-import com.aliyun.computenestsupplier20210521.models.DeleteServiceInstancesResponse;
-import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceRequest;
-import com.aliyun.computenestsupplier20210521.models.GetServiceInstanceResponse;
-import com.aliyun.computenestsupplier20210521.models.GetServiceRequest;
-import com.aliyun.computenestsupplier20210521.models.GetServiceResponse;
-import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsRequest;
-import com.aliyun.computenestsupplier20210521.models.GetServiceTemplateParameterConstraintsResponse;
-import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesRequest;
-import com.aliyun.computenestsupplier20210521.models.ListServiceInstancesResponse;
-import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeRequest;
-import com.aliyun.computenestsupplier20210521.models.UpdateServiceInstanceAttributeResponse;
+import com.aliyun.computenestsupplier20210521.models.*;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -148,6 +133,26 @@ public class ComputeNestSupplierClientImpl implements ComputeNestSupplierClient 
         } catch (Exception e) {
             log.error("update service instance attribute failed.", e);
             return null;
+        }
+    }
+
+    @Override
+    public UpdateServiceResponse updateService(UpdateServiceRequest request) {
+        try {
+            return client.updateService(request);
+        } catch (Exception e) {
+            log.error("update service failed.", e);
+            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
+        }
+    }
+
+    @Override
+    public ListServicesResponse listServices(ListServicesRequest request) {
+        try {
+            return client.listServices(request);
+        } catch (Exception e) {
+            log.error("update service failed.", e);
+            throw new BizException(ErrorInfo.SERVER_UNAVAILABLE, e);
         }
     }
 }

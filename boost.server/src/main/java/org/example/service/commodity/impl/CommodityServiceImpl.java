@@ -35,9 +35,11 @@ import org.example.common.param.commodity.UpdateCommodityParam;
 import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.commodity.specification.ListCommoditySpecificationParam;
+import org.example.service.base.ServiceManager;
 import org.example.service.commodity.CommodityService;
 import org.example.service.commodity.CommoditySpecificationService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -54,6 +56,9 @@ import static org.example.common.utils.UuidUtil.generateCommodityCode;
 @Service
 public class CommodityServiceImpl implements CommodityService {
 
+    @Value("${public-access-url}")
+    private String publicAccessUrl;
+
     @Resource
     private CommodityOtsHelper commodityOtsHelper;
 
@@ -65,6 +70,9 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Resource
     private OosParamConfig oosParamConfig;
+
+    @Resource
+    private ServiceManager serviceManager;
 
     private static final String ARRAY_REGEX = "\\s*,\\s*";
 
@@ -79,6 +87,7 @@ public class CommodityServiceImpl implements CommodityService {
         commodityDO.setPayPeriods(param.getPayPeriods().toString());
         commodityDO.setCommodityCode(commodityCode);
         commodityDO.setOwnerId(userInfoModel.getAid());
+        serviceManager.bindCommodity(commodityDO.getServiceId(), commodityCode, publicAccessUrl, param.getServiceVersion());
         return BaseResult.success(commodityOtsHelper.createCommodity(commodityDO));
     }
 
@@ -101,6 +110,7 @@ public class CommodityServiceImpl implements CommodityService {
         BeanUtils.copyProperties(param, commodityDO);
         commodityDO.setPayPeriodUnit(param.getPayPeriodUnit().name());
         commodityDO.setPayPeriods(param.getPayPeriods().toString());
+        serviceManager.bindCommodity(commodityDO.getServiceId(), param.getCommodityCode(), publicAccessUrl, param.getServiceVersion());
         commodityOtsHelper.updateCommodity(commodityDO);
         return BaseResult.success();
     }
