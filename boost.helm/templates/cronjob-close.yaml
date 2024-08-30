@@ -24,6 +24,8 @@ spec:
             - name: serverless
               image: "{{ .Values.cronImage.repository }}"
               env:
+                - name: public-access-url
+                  value: {{ .Values.env.publicAccessUrl }}
                 - name: payment.return-url
                   value: {{ .Values.env.paymentReturnUrl }}
                 - name: payment.pay-notify-url
@@ -47,5 +49,5 @@ spec:
                 - name: oauth.auth-code.url
                   value: {{ .Values.env.oauth.authCode.url }}
                 - name: oauth.auth-server.url
-                  value: {{ .Values.env.oauth.authServer.url }}      
+                  value: {{ .Values.env.oauth.authServer.url }}
           restartPolicy: OnFailure

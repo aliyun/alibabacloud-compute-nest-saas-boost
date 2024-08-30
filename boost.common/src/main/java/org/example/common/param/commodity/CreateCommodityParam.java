@@ -71,4 +71,9 @@ public class CreateCommodityParam {
      */
     @NotNull
     private List<Long> payPeriods;
+
+    /**
+     * The version of the service associated with the commodity.
+     */
+    private String serviceVersion;
 }

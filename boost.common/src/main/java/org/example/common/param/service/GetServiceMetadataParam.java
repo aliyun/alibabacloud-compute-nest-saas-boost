@@ -22,6 +22,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 public class GetServiceMetadataParam {
 
-    @NotEmpty
     private String serviceId;
+
+    private String commodityCode;
 }

@@ -33,12 +33,14 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}       
+        - name: {{ .Chart.Name }}
           env:
             - name: ecs-role-name
               value: {{ .Values.env.ramRoleName }}
             - name: payment.return-url
               value: {{ .Values.env.paymentReturnUrl }}
+            - name: public-access-url
+              value: {{ .Values.env.publicAccessUrl }}
             - name: payment.pay-notify-url
               value: {{ .Values.env.paymentNotifyUrl }}
             - name: payment.refund-notify-url

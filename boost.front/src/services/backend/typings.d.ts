@@ -134,6 +134,7 @@ declare namespace API {
     payPeriodUnit?: string;
     payPeriods?: string;
     serviceId?: string;
+    serviceVersion?: string;
     unitPrice?: number;
   };
 
@@ -177,6 +178,7 @@ declare namespace API {
     payPeriodUnit?: 'Month' | 'Day' | 'Year';
     payPeriods?: number[];
     serviceId?: string;
+    serviceVersion?: string;
     unitPrice?: number;
   };
 
@@ -271,6 +273,7 @@ declare namespace API {
   };
 
   type getServiceMetadataParams = {
+    commodityCode?: string;
     serviceId?: string;
   };
 
@@ -413,6 +416,10 @@ declare namespace API {
     status?: string;
   };
 
+  type listServicesParams = {
+    serviceId?: string;
+  };
+
   type MetricDatasModel = {
     dataPoints?: string;
   };
@@ -502,6 +509,7 @@ declare namespace API {
     commodityCode?: string;
     parameterMetadata?: string;
     retentionDays?: number;
+    specificationNameList?: string[];
     specifications?: string;
     status?: string;
     templateName?: string;
@@ -513,6 +521,12 @@ declare namespace API {
     image?: string;
     name?: string;
     serviceId?: string;
+  };
+
+  type ServiceVersionModel = {
+    serviceId?: string;
+    serviceName?: string;
+    serviceVersion?: string;
   };
 
   type TemplateParameterParam = {

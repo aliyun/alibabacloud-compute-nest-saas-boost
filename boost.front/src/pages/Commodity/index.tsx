@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {message, Modal, Pagination, Tooltip} from 'antd';
 import SpecificationModal from "@/pages/Commodity/components/SpeicificationModal";
 import {commodityColumns, CommodityForm} from "@/pages/Commodity/constants";
@@ -21,6 +21,7 @@ const CommodityList: React.FC = () => {
     const [nextTokens, setNextTokens] = useState<(string | undefined)[]>([undefined]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const actionRef = useRef<ActionType>();
+
 
     const handleDelete = async (commodityCode: string) => {
         Modal.confirm({
@@ -112,7 +113,8 @@ const CommodityList: React.FC = () => {
                     //@ts-ignore
                     payPeriods: payPeriodsParsed,
                     //@ts-ignore
-                    payPeriodUnit: values.payPeriodUnit
+                    payPeriodUnit: values.payPeriodUnit,
+                    serviceVersion: values.serviceVersion?.trim(),
                 });
                 message.success(<FormattedMessage id="message.commodity-updated-successfully" defaultMessage='商品更新成功'/>);
             } catch (error) {
@@ -131,6 +133,7 @@ const CommodityList: React.FC = () => {
                     payPeriods: payPeriodsParsed,
                     //@ts-ignore
                     payPeriodUnit: values.payPeriodUnit,
+                    serviceVersion: values.serviceVersion?.trim(),
                 });
                 message.success(<FormattedMessage id="message.commodity-created-successfully" defaultMessage='商品新建成功'/>);
             } catch (error) {

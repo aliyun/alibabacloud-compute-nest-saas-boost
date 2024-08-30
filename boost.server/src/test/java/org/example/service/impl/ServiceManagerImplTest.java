@@ -34,6 +34,7 @@ import org.example.common.ListResult;
 import org.example.common.adapter.ComputeNestSupplierClient;
 import org.example.common.constant.PayPeriodUnit;
 import org.example.common.helper.WalletHelper;
+import org.example.common.helper.ots.CommodityOtsHelper;
 import org.example.common.model.ServiceMetadataModel;
 import org.example.common.model.UserInfoModel;
 import org.example.common.param.GetServiceCostParam;
@@ -78,6 +79,9 @@ class ServiceManagerImplTest {
 
     @Mocked
     JsonNode deployMetadataRootNode;
+
+    @Injectable
+    private CommodityOtsHelper commodityOtsHelper;
 
     @Test
     public void testGetServiceMetadata(@Mocked HttpUtil httpUtil, @Mocked GetServiceRequest getServiceRequest) throws JsonProcessingException {
@@ -128,22 +132,6 @@ class ServiceManagerImplTest {
             result =   "{\"RetentionDays\":1}";
             mapper.readTree(anyString);
             result = deployMetadataRootNode;
-            deployMetadataRootNode.get(anyString);
-            result = deployMetadataRootNode;
-            HttpUtil.doGet("templateUrl");
-            result = rosTemplate;
-            deployMetadataRootNode.get(TEMPLATE_CONFIGS).get(0);
-            result = deployMetadataRootNode;
-            deployMetadataRootNode.get("Name").asText();
-            result = "templateName";
-            deployMetadataRootNode.get("Url").asText();
-            result = "templateUrl";
-            mapper.readTree(rosTemplate);
-            result = deployMetadataRootNode;
-            deployMetadataRootNode.toString();
-            result = "parameterMetadata";
-            deployMetadataRootNode.toString();
-            result = "specifications";
         }};
 
         UserInfoModel userInfoModel = new UserInfoModel();

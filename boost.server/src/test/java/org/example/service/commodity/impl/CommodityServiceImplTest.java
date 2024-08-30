@@ -39,6 +39,7 @@ import org.example.common.param.commodity.UpdateCommodityParam;
 import org.example.common.param.commodity.specification.CommoditySpecificationParam;
 import org.example.common.param.commodity.specification.GetCommodityPriceParam;
 import org.example.common.param.commodity.specification.ListCommoditySpecificationParam;
+import org.example.service.base.ServiceManager;
 import org.example.service.commodity.CommoditySpecificationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,9 @@ class CommodityServiceImplTest {
 
     @Injectable
     private OosParamConfig oosSecretParamConfig;
+
+    @Injectable
+    private ServiceManager serviceManager;
 
     @Test
     void testCreateCommodity() {
