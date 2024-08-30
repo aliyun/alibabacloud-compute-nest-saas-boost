@@ -1,7 +1,7 @@
 import {ProColumns} from '@ant-design/pro-table';
 import {ProForm, ProFormDigit, ProFormSelect, ProFormText} from "@ant-design/pro-form";
-import React, {ReactNode, useEffect, useState} from "react";
-import {Button, message, Space} from "antd";
+import React, {ReactNode, useState} from "react";
+import {Button, Form, message, Space} from "antd";
 import {CopyOutlined} from "@ant-design/icons";
 import copy from 'copy-to-clipboard';
 import {getServiceMetadata, listServices} from "@/services/backend/serviceManager";
@@ -94,9 +94,24 @@ export interface CommodityFormProps {
 }
 
 export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit, onCancel}) => {
+    const [payPeriodUnit, setPayPeriodUnit] = useState(commodity?.payPeriodUnit);
+    const [form] = Form.useForm(); // 引入 useForm 钩子
+
+    // 根据单位购买周期动态生成允许购买的周期的选项
+    const getPayPeriodOptions = (unit) => {
+        if (unit === 'Month') {
+            return Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}));
+        } else if (unit === 'Day') {
+            return Array.from({length: 30}, (_, i) => ({label: (i + 1).toString(), value: i + 1}));
+        } else if (unit === 'Year') {
+            return Array.from({length: 2}, (_, i) => ({label: (i + 1).toString(), value: i + 1}));
+        }
+        return [];
+    };
 
     return (
         <ProForm<API.CommodityDTO>
+            form={form} // 将表单实例传给 ProForm
             onFinish={onSubmit}
             onFinishFailed={(errorInfo) => {
                 console.log(errorInfo);
@@ -187,12 +202,20 @@ export const CommodityForm: React.FC<CommodityFormProps> = ({commodity, onSubmit
                     {label: '年', value: 'Year'}
                 ]}
                 rules={[{required: true, message: 'Please select pay period unit!'}]}
+                fieldProps={{
+                    onChange: (value) => {
+                        if (value !== payPeriodUnit) {
+                            setPayPeriodUnit(value as string);
+                            form.setFieldsValue({ payPeriods: undefined });
+                        }
+                    }
+                }}
             />
             <ProFormSelect
                 name="payPeriods"
                 label="允许购买的周期"
                 mode="multiple"
-                options={Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}))}
+                options={getPayPeriodOptions(payPeriodUnit)}
                 fieldProps={{
                     optionFilterProp: "children",
                     filterOption: (input, option) => {
@@ -302,10 +325,24 @@ export const SpecificationForm: React.FC<SpecificationFormProps> = ({
                                                                         onSubmit,
                                                                         onCancel
                                                                     }) => {
+    const [payPeriodUnit, setPayPeriodUnit] = useState(initialValues?.payPeriodUnit);
+    const [form] = Form.useForm(); // 引入 useForm 钩子
 
+    // 根据单位购买周期动态生成允许购买的周期的选项
+    const getPayPeriodOptions = (unit) => {
+        if (unit === 'Month') {
+            return Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}));
+        } else if (unit === 'Day') {
+            return Array.from({length: 30}, (_, i) => ({label: (i + 1).toString(), value: i + 1}));
+        } else if (unit === 'Year') {
+            return Array.from({length: 2}, (_, i) => ({label: (i + 1).toString(), value: i + 1}));
+        }
+        return [];
+    };
 
     return (
         <ProForm<API.CreateCommoditySpecificationParam>
+            form={form} // 将表单实例传给 ProForm
             onFinish={onSubmit}
             onFinishFailed={(errorInfo) => {
                 console.log(errorInfo);
@@ -391,12 +428,20 @@ export const SpecificationForm: React.FC<SpecificationFormProps> = ({
                     {label: '年', value: 'Year'}
                 ]}
                 rules={[{required: true, message: 'Please select pay period unit!'}]}
+                fieldProps={{
+                    onChange: (value) => {
+                        if (value !== payPeriodUnit) {
+                            setPayPeriodUnit(value as string);
+                            form.setFieldsValue({ payPeriods: undefined });
+                        }
+                    }
+                }}
             />
             <ProFormSelect
                 name="payPeriods"
                 label="允许购买的周期"
                 mode="multiple"
-                options={Array.from({length: 12}, (_, i) => ({label: (i + 1).toString(), value: i + 1}))}
+                options={getPayPeriodOptions(payPeriodUnit)}
                 fieldProps={{
                     optionFilterProp: "children",
                     filterOption: (input, option) => {
