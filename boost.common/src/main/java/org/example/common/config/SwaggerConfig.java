@@ -1,5 +1,6 @@
 package org.example.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
@@ -40,9 +41,13 @@ import java.util.List;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+
+    @Value("${swagger.enabled}")
+    private boolean swaggerEnabled = false;
+
     @Bean
     public Docket createRestApi() {
-        return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).enable(true)
+        return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).enable(swaggerEnabled)
                 .select().apis(RequestHandlerSelectors.basePackage("org.example.controller"))
                 .paths(PathSelectors.any())
                 .build()
