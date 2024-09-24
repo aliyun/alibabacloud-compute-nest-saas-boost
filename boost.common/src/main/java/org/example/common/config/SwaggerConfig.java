@@ -40,6 +40,7 @@ import java.util.List;
  */
 @Configuration
 @EnableSwagger2
+@Profile("test")
 public class SwaggerConfig {
     @Bean
     public Docket createRestApi() {
